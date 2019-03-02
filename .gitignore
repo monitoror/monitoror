@@ -1,12 +1,23 @@
+# Go vendor
+vendor
+
 # Binaries for programs and plugins
 *.exe
 *.exe~
 *.dll
 *.so
 *.dylib
+output
 
 # Test binary, build with `go test -c`
 *.test
 
 # Output of the go coverage tool, specifically when used with LiteIDE
 *.out
+
+# Intellij
+.idea
+*.iml
+
+# Other
+.DS_Store
