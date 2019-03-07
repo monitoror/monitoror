@@ -3,8 +3,8 @@ package main
 import (
 	"github.com/jsdidierlaurent/monitowall/handler"
 	"github.com/jsdidierlaurent/monitowall/route"
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {

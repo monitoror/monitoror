@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	monitowallErr "github.com/jsdidierlaurent/monitowall/error"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 type ApiError struct {

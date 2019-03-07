@@ -3,7 +3,7 @@ package route
 import (
 	"github.com/jsdidierlaurent/monitowall/api/ping"
 	"github.com/jsdidierlaurent/monitowall/model"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 func Init() *echo.Echo {
