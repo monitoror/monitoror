@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jsdidierlaurent/monitowall/models"
+	. "github.com/jsdidierlaurent/monitowall/renderings"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -17,15 +17,15 @@ type (
 	PingMock struct{}
 )
 
-func (p *PingMock) Ping(hostname string) models.Ping {
-	return models.Ping{
-		Status:  "SUCCESS",
+func (p *PingMock) Ping(hostname string) *HealthCheckResponse {
+	return &HealthCheckResponse{
+		Status:  SuccessStatus,
 		Label:   hostname,
 		Message: "1ms",
 	}
 }
-// --------------------------- //
 
+// --------------------------- //
 
 func TestGetPing_unit(t *testing.T) {
 	e := echo.New()

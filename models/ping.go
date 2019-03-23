@@ -3,14 +3,14 @@ package models
 import (
 	"time"
 
-	r "github.com/jsdidierlaurent/monitowall/renderings"
+	. "github.com/jsdidierlaurent/monitowall/renderings"
 
 	goPing "github.com/sparrc/go-ping"
 )
 
 type (
 	PingModelImpl interface {
-		Ping(host string) *r.HealthCheckResponse
+		Ping(host string) *HealthCheckResponse
 	}
 
 	PingModel struct{}
@@ -20,20 +20,20 @@ func NewPingModel() *PingModel {
 	return &PingModel{}
 }
 
-func newResponse() *r.HealthCheckResponse {
-	return &r.HealthCheckResponse{
-		Type: r.TypePing,
+func newResponse() *HealthCheckResponse {
+	return &HealthCheckResponse{
+		Type: TypePing,
 	}
 }
 
-func (u *PingModel) Ping(hostname string) (pingResponse *r.HealthCheckResponse) {
+func (u *PingModel) Ping(hostname string) (pingResponse *HealthCheckResponse) {
 	pingResponse = newResponse()
 	pingResponse.Label = hostname
 
 	pinger, err := goPing.NewPinger(hostname)
 	if err != nil {
 		// Lookup failed
-		pingResponse.Status = r.FailStatus
+		pingResponse.Status = FailStatus
 		return
 	}
 
@@ -46,9 +46,9 @@ func (u *PingModel) Ping(hostname string) (pingResponse *r.HealthCheckResponse) 
 	stats := pinger.Statistics()
 
 	if stats.PacketsRecv == 0 {
-		pingResponse.Status = r.FailStatus
+		pingResponse.Status = FailStatus
 	} else {
-		pingResponse.Status = r.SuccessStatus
+		pingResponse.Status = SuccessStatus
 		pingResponse.Message = stats.AvgRtt.String()
 	}
 
