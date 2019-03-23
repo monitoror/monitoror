@@ -18,7 +18,6 @@ func Start(config *config.Config, buildInfo *config.BuildInfo) {
 	//  ----- Middlewares -----
 	router.Use(middleware.Logger())
 	router.Use(middleware.Recover())
-	router.Use(middlewares.ConfigMiddleware(config, buildInfo))
 	cache := middlewares.NewCacheMiddleware(config) // Used as Handler wrapper in routes
 
 	//  ----- CORS -----

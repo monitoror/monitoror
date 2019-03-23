@@ -23,7 +23,7 @@ type (
 	}
 
 	GitlabConfig struct {
-		Token string `json:"token"`
+		Token string `json:"token,omitempty"`
 	}
 )
 
