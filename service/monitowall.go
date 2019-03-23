@@ -1,6 +1,9 @@
 package service
 
 import (
+	"fmt"
+
+	"github.com/jsdidierlaurent/monitowall/config"
 	"github.com/jsdidierlaurent/monitowall/handlers"
 	"github.com/jsdidierlaurent/monitowall/handlers/ping"
 	"github.com/jsdidierlaurent/monitowall/models"
@@ -8,7 +11,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func Start() {
+func Start(config *config.Config) {
 	router := echo.New()
 
 	//  ----- Middlewares -----
@@ -31,7 +34,6 @@ func Start() {
 	pingHandler := ping.NewHandler(models.NewPingModel())
 	v1.GET("/ping", pingHandler.GetPing)
 
-
 	// Start service
-	router.Logger.Fatal(router.Start(":1323"))
+	router.Logger.Fatal(router.Start(fmt.Sprintf(":%d", config.Port)))
 }

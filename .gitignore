@@ -21,3 +21,8 @@ output
 
 # Other
 .DS_Store
+
+# Config
+config.yml
+config.json
+config.toml
