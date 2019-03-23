@@ -10,10 +10,16 @@ import (
 type (
 	Config struct {
 		// General Configuration
-		Port int `json:"port"` // Default: 8080
+		Port  int   `json:"port"` // Default: 8080
+		Cache Cache `json:"cache"`
 
 		// Gitlab Configuration
 		Gitlab GitlabConfig `json:"gitlab"`
+	}
+
+	Cache struct {
+		Duration        int `json:"duration"`         // In Seconde. Default: 10
+		CleanupInterval int `json:"cleanup-Interval"` // In Seconde. Default: 1
 	}
 
 	GitlabConfig struct {
@@ -39,6 +45,8 @@ func Load() (*Config, error) {
 
 	// Setup default values
 	viper.SetDefault("Port", 8080)
+	viper.SetDefault("Cache.Duration", 10)
+	viper.SetDefault("Cache.CleanupInterval", 1)
 
 	// Read Configuration
 	_ = viper.ReadInConfig()

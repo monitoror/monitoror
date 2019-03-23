@@ -1,4 +1,7 @@
 port: 8080
+cache:
+	expiration: 10
+	cleanupInterval: 1
 
 gitlab:
   token: "your-awesome-token"
