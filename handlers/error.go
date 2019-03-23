@@ -1,9 +1,9 @@
-package handler
+package handlers
 
 import (
 	"net/http"
 
-	monitowallErr "github.com/jsdidierlaurent/monitowall/error"
+	monitowallErr "github.com/jsdidierlaurent/monitowall/errors"
 	"github.com/labstack/echo/v4"
 )
 

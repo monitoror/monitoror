@@ -3,15 +3,15 @@ package ping
 import (
 	"net/http"
 
-	"github.com/jsdidierlaurent/monitowall/model"
+	"github.com/jsdidierlaurent/monitowall/models"
 	"github.com/labstack/echo/v4"
 )
 
 type handler struct {
-	PingModel model.PingModelImpl
+	PingModel models.PingModelImpl
 }
 
-func NewHandler(p model.PingModelImpl) *handler {
+func NewHandler(p models.PingModelImpl) *handler {
 	return &handler{p}
 }
 

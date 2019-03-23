@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jsdidierlaurent/monitowall/model"
+	"github.com/jsdidierlaurent/monitowall/models"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -17,8 +17,8 @@ type (
 	PingMock struct{}
 )
 
-func (p *PingMock) Ping(hostname string) model.Ping {
-	return model.Ping{
+func (p *PingMock) Ping(hostname string) models.Ping {
+	return models.Ping{
 		Status:  "SUCCESS",
 		Label:   hostname,
 		Message: "1ms",
