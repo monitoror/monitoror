@@ -3,6 +3,8 @@ package service
 import (
 	"fmt"
 
+	"github.com/jsdidierlaurent/monitowall/middlewares"
+
 	"github.com/jsdidierlaurent/monitowall/config"
 	"github.com/jsdidierlaurent/monitowall/handlers"
 	"github.com/jsdidierlaurent/monitowall/handlers/ping"
@@ -11,12 +13,13 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func Start(config *config.Config) {
+func Start(config *config.Config, buildInfo *config.BuildInfo) {
 	router := echo.New()
 
 	//  ----- Middlewares -----
 	router.Use(middleware.Logger())
 	router.Use(middleware.Recover())
+	router.Use(middlewares.ConfigMiddleware(config, buildInfo))
 
 	//  ----- CORS -----
 	router.Use(middleware.CORSWithConfig(middleware.CORSConfig{
@@ -29,6 +32,9 @@ func Start(config *config.Config) {
 
 	// ----- Routes -----
 	v1 := router.Group("/api/v1")
+
+	// ------------- INFO ------------- //
+	v1.GET("/info", handlers.GetInfo)
 
 	// ------------- PING ------------- //
 	pingHandler := ping.NewHandler(models.NewPingModel())

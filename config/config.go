@@ -10,14 +10,14 @@ import (
 type (
 	Config struct {
 		// General Configuration
-		Port int // Default: 8080
+		Port int `json:"port"` // Default: 8080
 
 		// Gitlab Configuration
-		Gitlab GitlabConfig
+		Gitlab GitlabConfig `json:"gitlab"`
 	}
 
 	GitlabConfig struct {
-		Token string
+		Token string `json:"token"`
 	}
 )
 
@@ -41,7 +41,7 @@ func Load() (*Config, error) {
 	viper.SetDefault("Port", 8080)
 
 	// Read Configuration
-	_ := viper.ReadInConfig()
+	_ = viper.ReadInConfig()
 
 	if err := viper.Unmarshal(&config); err != nil {
 		return nil, fmt.Errorf("unable to decode configuration into struct, %v", err)

@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http"
 
-	monitowallErr "github.com/jsdidierlaurent/monitowall/errors"
+	"github.com/jsdidierlaurent/monitowall/errors"
 	"github.com/labstack/echo/v4"
 )
 
@@ -15,7 +15,7 @@ type ApiError struct {
 func JSONErrorHandler(err error, c echo.Context) {
 
 	switch e := err.(type) {
-	case *monitowallErr.SystemError:
+	case *errors.SystemError:
 		// System Error
 		_ = c.JSON(http.StatusOK, ApiError{
 			Status:  500,

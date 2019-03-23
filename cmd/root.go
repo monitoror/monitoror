@@ -5,13 +5,26 @@ import (
 	"github.com/jsdidierlaurent/monitowall/service"
 )
 
-func main() {
-	//TODO: Adding "debug-configuration" flag to cmd to print config and missing config file
+var (
+	GitCommit, Version, BuildTime, OS, Arch string
+)
 
+func main() {
+	// Setup BuildInfo struct
+	buildInfo := &config.BuildInfo{
+		GitCommit: GitCommit,
+		Version:   Version,
+		BuildTime: BuildTime,
+		OS:        OS,
+		Arch:      Arch,
+	}
+
+	// Load Config from File/Env
 	config, err := config.Load()
 	if err != nil {
 		panic(err)
 	}
 
-	service.Start(config)
+	// Start Service
+	service.Start(config, buildInfo)
 }
