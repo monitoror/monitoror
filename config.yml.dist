@@ -1,7 +1,11 @@
 port: 8080
-cache:
+
+upstream-cache:
 	expiration: 10
 	cleanupInterval: 1
+downstream-cache:
+	expiration: 60
+	cleanupInterval: 10
 
 gitlab:
   token: "your-awesome-token"

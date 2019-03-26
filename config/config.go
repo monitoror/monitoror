@@ -9,17 +9,22 @@ import (
 
 type (
 	Config struct {
-		// General Configuration
-		Port  int   `json:"port"` // Default: 8080
-		Cache Cache `json:"cache"`
+		// --- General Configuration ---
+		Port int `json:"port"` // Default: 8080
+
+		// --- Cache Configuration ---
+		//UpstreamCache is used to respond before executing the request. Avoid overloading services.
+		UpstreamCache Cache `json:"upstream-cache"` // Default: Duration=10 CleanupInterval=1
+		//DownstreamCache is used to respond after executing the request in case of timeout error.
+		DownstreamCache Cache `json:"downstream-cache"` // Default: Duration=60 CleanupInterval=10
 
 		// Gitlab Configuration
 		Gitlab GitlabConfig `json:"gitlab"`
 	}
 
 	Cache struct {
-		Duration        int `json:"duration"`         // In Seconde. Default: 10
-		CleanupInterval int `json:"cleanup-Interval"` // In Seconde. Default: 1
+		Expire          int `json:"expire"`
+		CleanupInterval int `json:"cleanup-Interval"`
 	}
 
 	GitlabConfig struct {
@@ -45,8 +50,10 @@ func Load() (*Config, error) {
 
 	// Setup default values
 	viper.SetDefault("Port", 8080)
-	viper.SetDefault("Cache.Duration", 10)
-	viper.SetDefault("Cache.CleanupInterval", 1)
+	viper.SetDefault("UpstreamCache.Duration", 10)
+	viper.SetDefault("UpstreamCache.CleanupInterval", 1)
+	viper.SetDefault("DownstreamCache.Duration", 120)
+	viper.SetDefault("DownstreamCache.CleanupInterval", 10)
 
 	// Read Configuration
 	_ = viper.ReadInConfig()
