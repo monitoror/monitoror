@@ -9,37 +9,130 @@ import (
 	"github.com/jsdidierlaurent/monitowall/config"
 )
 
+/**
+* Cache Middleware for Monitowall
+*
+* We need two types of Cache.
+* - UpstreamCache : serves as a circuit breaker to answer before executing the request. (By default, short TTL)
+* - DownstreamCache : serves as backup to answer the old result in case of service timeout. (By default, long TTL)
+*
+* UpstreamCache must be implemented on some routes only (and with variable expiration).
+* He is implemented as a decorator on the handler of each route
+*
+* DownstreamCache should be used instead of a timeout response.
+* So we look at the cache in the global error handler (see handlers/error.go)
+*
+* To fill both store at the same time, I implemented a store wrapper that performs every actions on both store
+ */
+
+const (
+	DownstreamStoreContextKey = "jsdidierlaurent.monitowall.downstreamStore"
+	CachePrefix               = "jsdidierlaurent.monitowall.cache"
+
+	DownstreamCacheHeader = "Timeout-Recover"
+)
+
 type (
 	CacheMiddleware struct {
-		ForeverCacheConfig cache.CacheMiddlewareConfig
-		DefaultCacheConfig cache.CacheMiddlewareConfig
+		store responsesStore
+	}
+
+	//responsesStore implement cache.Store to provide it to CacheMiddleware
+	responsesStore struct {
+		UpstreamStore   cache.Store
+		DownstreamStore cache.Store
 	}
 )
 
-//NewCacheMiddleware create common store for 2 types of cache middleware. One without expiration and one with default expiration (set in config)
+//NewCacheMiddleware used config to instantiate CacheMiddleware
 func NewCacheMiddleware(config *config.Config) *CacheMiddleware {
-	store := cache.NewGoCacheStore(
-		time.Second*time.Duration(config.Cache.Duration),
-		time.Second*time.Duration(config.Cache.CleanupInterval),
-	)
-
-	return &CacheMiddleware{
-		ForeverCacheConfig: cache.CacheMiddlewareConfig{
-			Store:  store,
-			Expire: cache.FOREVER,
-		},
-		DefaultCacheConfig: cache.CacheMiddlewareConfig{
-			Store: store,
-		},
+	store := responsesStore{
+		UpstreamStore: cache.NewGoCacheStore(
+			time.Second*time.Duration(config.UpstreamCache.Expire),
+			time.Second*time.Duration(config.UpstreamCache.CleanupInterval),
+		),
+		DownstreamStore: cache.NewGoCacheStore(
+			time.Second*time.Duration(config.DownstreamCache.Expire),
+			time.Second*time.Duration(config.DownstreamCache.CleanupInterval),
+		),
 	}
+
+	return &CacheMiddleware{store: store}
 }
 
-//ForeverCache Cache middleware without expiration
-func (cm *CacheMiddleware) ForeverCache(handle echo.HandlerFunc) echo.HandlerFunc {
-	return cache.CacheHandlerWithConfig(cm.ForeverCacheConfig, handle)
+//==============================================================================
+// UPSTREAM MIDDLEWARE
+//==============================================================================
+
+// UpstreamCache return the cached response if he finds it in the store. (Decorator Handlers)
+func (cm *CacheMiddleware) UpstreamCacheHandler(handle echo.HandlerFunc) echo.HandlerFunc {
+	return cache.CacheHandlerWithConfig(cache.CacheMiddlewareConfig{
+		Store:     &cm.store,
+		KeyPrefix: CachePrefix,
+	}, handle)
 }
 
-//DefaultCache Cache middleware with default expiration (set in config)
-func (cm *CacheMiddleware) DefaultCache(handle echo.HandlerFunc) echo.HandlerFunc {
-	return cache.CacheHandlerWithConfig(cm.DefaultCacheConfig, handle)
+//UpstreamCacheWithExpiration return the cached response if he finds it in the store. (Decorator Handlers)
+func (cm *CacheMiddleware) UpstreamCacheHandlerWithExpiration(expire time.Duration, handle echo.HandlerFunc) echo.HandlerFunc {
+	return cache.CacheHandlerWithConfig(cache.CacheMiddlewareConfig{
+		Store:     &cm.store,
+		KeyPrefix: CachePrefix,
+		Expire:    expire,
+	}, handle)
+}
+
+//==============================================================================
+// DOWNSTREAM MIDDLEWARE
+//==============================================================================
+
+// DownstreamStoreMiddleware Provide Downstream Store to all route. Used when route return timeout error
+func (cm *CacheMiddleware) DownstreamStoreMiddleware() echo.MiddlewareFunc {
+	config := cache.StoreMiddlewareConfig{
+		Store:      cm.store.DownstreamStore,
+		ContextKey: DownstreamStoreContextKey,
+	}
+	return cache.StoreMiddlewareWithConfig(config)
+}
+
+//==============================================================================
+// ResponsesStore methods (implementation of cache.Store)
+//==============================================================================
+func (c *responsesStore) Get(key string, value interface{}) error {
+	return c.UpstreamStore.Get(key, value)
+}
+
+func (c *responsesStore) Set(key string, val interface{}, expires time.Duration) (err error) {
+	//Little hack to avoid adding the result of the Downstream store in the Upstream store
+	value, ok := val.(cache.ResponseCache)
+	if !ok || value.Header.Get(DownstreamCacheHeader) != "true" {
+		err = c.UpstreamStore.Set(key, value, expires)
+		_ = c.DownstreamStore.Set(key, value, cache.DEFAULT)
+	}
+
+	return err
+}
+
+func (c *responsesStore) Add(key string, value interface{}, expires time.Duration) error {
+	panic("unimplemented")
+}
+
+func (c *responsesStore) Replace(key string, value interface{}, expires time.Duration) error {
+	panic("unimplemented")
+}
+
+func (c *responsesStore) Delete(key string) error {
+	panic("unimplemented")
+}
+
+func (c *responsesStore) Increment(key string, n uint64) (uint64, error) {
+	panic("unimplemented")
+}
+
+func (c *responsesStore) Decrement(key string, n uint64) (uint64, error) {
+	panic("unimplemented")
+}
+
+func (c *responsesStore) Flush() error {
+	panic("unimplemented")
+
 }

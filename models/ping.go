@@ -1,39 +1,27 @@
 package models
 
 import (
+	"fmt"
 	"time"
-
-	. "github.com/jsdidierlaurent/monitowall/renderings"
 
 	goPing "github.com/sparrc/go-ping"
 )
 
 type (
-	PingModelImpl interface {
-		Ping(host string) *HealthCheckResponse
+	PingModel interface {
+		Ping(host string) (response string, err error)
 	}
 
-	PingModel struct{}
+	PingModelImpl struct{}
 )
 
-func NewPingModel() *PingModel {
-	return &PingModel{}
+func NewPingModel() *PingModelImpl {
+	return &PingModelImpl{}
 }
 
-func newResponse() *HealthCheckResponse {
-	return &HealthCheckResponse{
-		Type: TypePing,
-	}
-}
-
-func (u *PingModel) Ping(hostname string) (pingResponse *HealthCheckResponse) {
-	pingResponse = newResponse()
-	pingResponse.Label = hostname
-
+func (u *PingModelImpl) Ping(hostname string) (response string, err error) {
 	pinger, err := goPing.NewPinger(hostname)
 	if err != nil {
-		// Lookup failed
-		pingResponse.Status = FailStatus
 		return
 	}
 
@@ -46,11 +34,9 @@ func (u *PingModel) Ping(hostname string) (pingResponse *HealthCheckResponse) {
 	stats := pinger.Statistics()
 
 	if stats.PacketsRecv == 0 {
-		pingResponse.Status = FailStatus
+		err = fmt.Errorf("ping failed")
 	} else {
-		pingResponse.Status = SuccessStatus
-		pingResponse.Message = stats.AvgRtt.String()
+		response = stats.AvgRtt.String()
 	}
-
 	return
 }
