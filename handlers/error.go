@@ -3,13 +3,11 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/jsdidierlaurent/monitowall/renderings"
+	"github.com/jsdidierlaurent/monitowall/middlewares"
+	"github.com/jsdidierlaurent/monitowall/models/errors"
+	"github.com/jsdidierlaurent/monitowall/models/tiles"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
-
-	"github.com/jsdidierlaurent/monitowall/middlewares"
-
-	"github.com/jsdidierlaurent/monitowall/errors"
 	"github.com/labstack/echo/v4"
 )
 
@@ -18,12 +16,14 @@ type ApiError struct {
 	Message string `json:"message"`
 }
 
-func HTTPErrorHandler(err error, c echo.Context) {
+func HttpErrorHandler(err error, c echo.Context) {
 	switch e := err.(type) {
 	case *errors.SystemError:
 		systemError(c, e)
 	case *errors.TimeoutError:
 		timeoutError(c, e)
+	case *errors.QueryParamsError:
+		queryParamsError(c, e)
 	default:
 		if he, ok := err.(*echo.HTTPError); ok {
 			if he.Code == 404 {
@@ -47,6 +47,15 @@ func systemError(c echo.Context, e error) {
 	})
 }
 
+func queryParamsError(c echo.Context, qpe *errors.QueryParamsError) {
+	c.Logger().Error(qpe.Error())
+	tile := qpe.Tile
+	tile.Status = tiles.ErrorStatus
+	tile.Label = "Wrong Configuration"
+	tile.Message = qpe.Error()
+	_ = c.JSON(http.StatusOK, tile)
+}
+
 // timeoutError return cached value from downstreamStore if exist
 func timeoutError(c echo.Context, te *errors.TimeoutError) {
 	// Looking for TimeoutCache in echo.context
@@ -65,12 +74,10 @@ func timeoutError(c echo.Context, te *errors.TimeoutError) {
 	var cachedResponse cache.ResponseCache
 	if err := store.Get(cache.GetKey(middlewares.CachePrefix, c.Request()), &cachedResponse); err != nil {
 		// Missing cache, returning Timeout
-		response := renderings.Response{
-			Type:    te.Type,
-			Status:  renderings.TimeoutStatus,
-			Message: te.Message,
-		}
-		_ = c.JSON(http.StatusOK, response)
+		tile := te.Tile
+		tile.Status = tiles.TimeoutStatus
+		tile.Message = te.Error()
+		_ = c.JSON(http.StatusOK, tile)
 	} else {
 		// Cache found, return cached Data
 		for k, vals := range cachedResponse.Header {

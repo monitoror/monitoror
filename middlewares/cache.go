@@ -3,10 +3,10 @@ package middlewares
 import (
 	"time"
 
-	"github.com/labstack/echo/v4"
+	"github.com/jsdidierlaurent/monitowall/configs"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
-	"github.com/jsdidierlaurent/monitowall/config"
+	"github.com/labstack/echo/v4"
 )
 
 /**
@@ -45,7 +45,7 @@ type (
 )
 
 //NewCacheMiddleware used config to instantiate CacheMiddleware
-func NewCacheMiddleware(config *config.Config) *CacheMiddleware {
+func NewCacheMiddleware(config *configs.Config) *CacheMiddleware {
 	store := responsesStore{
 		UpstreamStore: cache.NewGoCacheStore(
 			time.Second*time.Duration(config.UpstreamCache.Expire),
@@ -109,7 +109,7 @@ func (c *responsesStore) Set(key string, val interface{}, expires time.Duration)
 		_ = c.DownstreamStore.Set(key, value, cache.DEFAULT)
 	}
 
-	return err
+	return
 }
 
 func (c *responsesStore) Add(key string, value interface{}, expires time.Duration) error {
