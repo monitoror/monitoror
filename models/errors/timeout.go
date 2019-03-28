@@ -3,7 +3,7 @@ package errors
 import (
 	"fmt"
 
-	. "github.com/jsdidierlaurent/monitowall/models/tiles"
+	. "github.com/jsdidierlaurent/monitoror/models/tiles"
 )
 
 type TimeoutError struct {

@@ -8,12 +8,12 @@ import (
 	"strings"
 	"testing"
 
-	. "github.com/jsdidierlaurent/monitowall/monitorable/ping"
+	. "github.com/jsdidierlaurent/monitoror/monitorable/ping"
 
-	"github.com/jsdidierlaurent/monitowall/models/tiles"
+	"github.com/jsdidierlaurent/monitoror/models/tiles"
 	. "github.com/stretchr/testify/mock"
 
-	"github.com/jsdidierlaurent/monitowall/monitorable/ping/mocks"
+	"github.com/jsdidierlaurent/monitoror/monitorable/ping/mocks"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"

@@ -1,8 +1,9 @@
 package main
 
 import (
-	"github.com/jsdidierlaurent/monitowall/config"
-	"github.com/jsdidierlaurent/monitowall/service"
+	"github.com/jsdidierlaurent/monitoror/cli"
+	"github.com/jsdidierlaurent/monitoror/config"
+	"github.com/jsdidierlaurent/monitoror/service"
 )
 
 func main() {
@@ -11,6 +12,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	// Banner
+	cli.PrintBanner()
 
 	// Start Service
 	service.Start(config)

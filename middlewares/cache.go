@@ -3,14 +3,14 @@ package middlewares
 import (
 	"time"
 
-	"github.com/jsdidierlaurent/monitowall/config"
+	"github.com/jsdidierlaurent/monitoror/config"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/labstack/echo/v4"
 )
 
 /**
-* Cache Middleware for Monitowall
+* Cache Middleware for monitoror
 *
 * We need two types of Cache.
 * - UpstreamCache : serves as a circuit breaker to answer before executing the request. (By default, short TTL)
@@ -26,8 +26,8 @@ import (
  */
 
 const (
-	DownstreamStoreContextKey = "jsdidierlaurent.monitowall.downstreamStore"
-	CachePrefix               = "jsdidierlaurent.monitowall.cache"
+	DownstreamStoreContextKey = "jsdidierlaurent.monitoror.downstreamStore"
+	CachePrefix               = "jsdidierlaurent.monitoror.cache"
 
 	DownstreamCacheHeader = "Timeout-Recover"
 )

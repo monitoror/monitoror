@@ -2,7 +2,7 @@
 
 package model
 
-import "github.com/jsdidierlaurent/monitowall/models/tiles"
+import "github.com/jsdidierlaurent/monitoror/models/tiles"
 
 type (
 	PingParams struct {
