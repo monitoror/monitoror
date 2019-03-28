@@ -10,7 +10,11 @@ source ./scripts/.variables
 export CGO_ENABLED=0
 export GOGC=off
 
-TARGET="build/monitowall-$GOOS-$GOARCH"
+TARGET="build/monitoror-$GOOS-$GOARCH"
+if [[ $GOOS = "windows" ]]
+then
+	TARGET="$TARGET.exe"
+fi
 
 echo "Building statically linked $TARGET"
 go build -o "${TARGET}" --ldflags "${LDFLAGS}" "${SOURCE}"

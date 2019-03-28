@@ -3,7 +3,7 @@ package config
 import (
 	"strings"
 
-	"github.com/jsdidierlaurent/monitowall/models/errors"
+	"github.com/jsdidierlaurent/monitoror/models/errors"
 
 	"github.com/spf13/viper"
 )
@@ -51,7 +51,7 @@ func InitConfig() (*Config, error) {
 
 	viper.AddConfigPath(".")
 	viper.AddConfigPath("./config")
-	viper.AddConfigPath("$HOME/monitowall/")
+	viper.AddConfigPath("$HOME/monitoror/")
 
 	// Setup Env
 	viper.AutomaticEnv()
