@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -eu -o pipefail
+
+source ./scripts/.variables
+
+go run -tags faker "${SOURCE}"

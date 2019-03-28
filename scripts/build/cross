@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+#
+# Build a static binary for current OS/ARCH
+#
+
+set -eu -o pipefail
+
+source ./scripts/.variables
+
+export CGO_ENABLED=0
+export GOGC=off
+
+TARGET="build/monitowall-$GOOS-$GOARCH"
+
+echo "Building statically linked $TARGET"
+go build -o "${TARGET}" --ldflags "${LDFLAGS}" "${SOURCE}"
