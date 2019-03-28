@@ -4,7 +4,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/jsdidierlaurent/monitowall/configs"
+	"github.com/jsdidierlaurent/monitowall/config"
 	"github.com/jsdidierlaurent/monitowall/monitorable/ping"
 	"github.com/jsdidierlaurent/monitowall/monitorable/ping/model"
 
@@ -13,11 +13,11 @@ import (
 
 type (
 	systemPingRepository struct {
-		config *configs.Config
+		config *config.Config
 	}
 )
 
-func NewNetworkPingRepository(config *configs.Config) ping.Repository {
+func NewNetworkPingRepository(config *config.Config) ping.Repository {
 	return &systemPingRepository{config}
 }
 

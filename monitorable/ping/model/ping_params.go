@@ -1,3 +1,5 @@
+//+build !faker
+
 package model
 
 type (

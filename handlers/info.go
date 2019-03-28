@@ -3,25 +3,22 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/jsdidierlaurent/monitowall/configs"
+	"github.com/jsdidierlaurent/monitowall/cli/version"
+	"github.com/jsdidierlaurent/monitowall/config"
 	"github.com/jsdidierlaurent/monitowall/models"
 
 	"github.com/labstack/echo/v4"
 )
 
 type httpInfoHandler struct {
-	buildInfo *configs.BuildInfo
-	config    *configs.Config
+	config *config.Config
 }
 
-func HttpInfoHandler(buildInfo *configs.BuildInfo, config *configs.Config) *httpInfoHandler {
-	return &httpInfoHandler{buildInfo, config}
+func HttpInfoHandler(config *config.Config) *httpInfoHandler {
+	return &httpInfoHandler{config}
 }
 
 func (h *httpInfoHandler) GetInfo(c echo.Context) error {
-	response := models.InfoResponse{
-		BuildInfo: *h.buildInfo,
-		Config:    *h.config,
-	}
+	response := models.NewInfoResponse(version.Version, version.GitCommit, version.BuildTime, h.config)
 	return c.JSON(http.StatusOK, response)
 }

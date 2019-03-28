@@ -7,7 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jsdidierlaurent/monitowall/configs"
+	"github.com/jsdidierlaurent/monitowall/cli/version"
+	"github.com/jsdidierlaurent/monitowall/config"
 	"github.com/jsdidierlaurent/monitowall/models"
 
 	"github.com/labstack/echo/v4"
@@ -26,15 +27,11 @@ func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 func TestGetInfo(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
-	emptyBuildInfo := configs.BuildInfo{}
-	emptyConfig := configs.Config{}
-	handler := HttpInfoHandler(&emptyBuildInfo, &emptyConfig)
+	emptyConfig := &config.Config{}
+	handler := HttpInfoHandler(emptyConfig)
 
 	// Create expected value
-	json, err := json.Marshal(&models.InfoResponse{
-		BuildInfo: emptyBuildInfo,
-		Config:    emptyConfig,
-	})
+	json, err := json.Marshal(models.NewInfoResponse(version.Version, version.GitCommit, version.BuildTime, emptyConfig))
 
 	// Test
 	assert.NoError(t, err)
