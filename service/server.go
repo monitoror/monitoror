@@ -14,7 +14,8 @@ import (
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	echoMiddleware "github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/gommon/log"
 )
 
 func Start(config *config.Config) {
@@ -24,15 +25,16 @@ func Start(config *config.Config) {
 	//  ----- Middlewares -----
 	cm := middlewares.NewCacheMiddleware(config) // Used as Handler wrapper in routes
 
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
+	e.Use(echoMiddleware.Recover())
+	e.Use(middlewares.Logger())
 	e.Use(cm.DownstreamStoreMiddleware())
+	e.Use(middlewares.CORS())
 
-	//  ----- CORS -----
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"*"},
-		AllowMethods: []string{echo.GET, echo.POST},
-	}))
+	// Logger
+	if l, ok := e.Logger.(*log.Logger); ok {
+		l.SetHeader("⇨ ${time_rfc3339} [${level}]")
+		l.SetLevel(log.INFO)
+	}
 
 	// ----- Errors Handler -----
 	e.HTTPErrorHandler = handlers.HttpErrorHandler
