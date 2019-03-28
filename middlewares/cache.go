@@ -102,13 +102,8 @@ func (c *responsesStore) Get(key string, value interface{}) error {
 }
 
 func (c *responsesStore) Set(key string, val interface{}, expires time.Duration) (err error) {
-	//Little hack to avoid adding the result of the Downstream store in the Upstream store
-	value, ok := val.(cache.ResponseCache)
-	if !ok || value.Header.Get(DownstreamCacheHeader) != "true" {
-		err = c.UpstreamStore.Set(key, value, expires)
-		_ = c.DownstreamStore.Set(key, value, cache.DEFAULT)
-	}
-
+	err = c.UpstreamStore.Set(key, val, expires)
+	_ = c.DownstreamStore.Set(key, val, cache.DEFAULT)
 	return
 }
 
