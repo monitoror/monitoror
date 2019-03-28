@@ -1,48 +1,53 @@
-//+build debug
+//+build faker
 
 package service
 
 import (
 	"fmt"
 
+	"github.com/jsdidierlaurent/monitowall/cli/version"
+
 	"github.com/jsdidierlaurent/monitowall/monitorable/ping/delivery/http"
 
 	"github.com/jsdidierlaurent/monitowall/monitorable/ping/usecase"
 
-	"github.com/jsdidierlaurent/monitowall/configs"
+	"github.com/jsdidierlaurent/monitowall/config"
 	"github.com/jsdidierlaurent/monitowall/handlers"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func StartDebug(config *configs.Config, buildInfo *configs.BuildInfo) {
-	router := echo.New()
+func Start(config *config.Config) {
+	e := echo.New()
+	e.HideBanner = true
 
 	//  ----- Middlewares -----
-	router.Use(middleware.Logger())
-	router.Use(middleware.Recover())
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
 
 	//  ----- CORS -----
-	router.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
 		AllowMethods: []string{echo.GET, echo.POST},
 	}))
 
 	// ----- Errors Handler -----
-	router.HTTPErrorHandler = handlers.HttpErrorHandler
+	e.HTTPErrorHandler = handlers.HttpErrorHandler
 
 	// ----- Routes -----
-	v1 := router.Group("/api/v1")
+	v1 := e.Group("/api/v1")
 
 	// ------------- INFO ------------- //
-	infoHandler := handlers.HttpInfoHandler(buildInfo, config)
+	infoHandler := handlers.HttpInfoHandler(config)
 	v1.GET("/info", infoHandler.GetInfo)
 
 	// ------------- PING ------------- //
-	pingUsecase := usecase.NewPingUsecaseDebug()
+	pingUsecase := usecase.NewPingUsecase()
 	pingHandler := http.NewHttpPingHandler(pingUsecase)
 	v1.GET("/ping", pingHandler.GetPing)
 
 	// Start service
-	router.Logger.Fatal(router.Start(fmt.Sprintf(":%d", config.Port)))
+	version.Version = "x.x.x-faker"
+	PrintBanner()
+	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.Port)))
 }

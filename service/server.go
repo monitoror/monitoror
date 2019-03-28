@@ -1,3 +1,5 @@
+//+build !faker
+
 package service
 
 import (
@@ -11,37 +13,38 @@ import (
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 
-	"github.com/jsdidierlaurent/monitowall/configs"
+	"github.com/jsdidierlaurent/monitowall/config"
 	"github.com/jsdidierlaurent/monitowall/handlers"
 	"github.com/jsdidierlaurent/monitowall/middlewares"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
-func Start(config *configs.Config, buildInfo *configs.BuildInfo) {
-	router := echo.New()
+func Start(config *config.Config) {
+	e := echo.New()
+	e.HideBanner = true
 
 	//  ----- Middlewares -----
 	cm := middlewares.NewCacheMiddleware(config) // Used as Handler wrapper in routes
 
-	router.Use(middleware.Logger())
-	router.Use(middleware.Recover())
-	router.Use(cm.DownstreamStoreMiddleware())
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+	e.Use(cm.DownstreamStoreMiddleware())
 
 	//  ----- CORS -----
-	router.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
 		AllowOrigins: []string{"*"},
 		AllowMethods: []string{echo.GET, echo.POST},
 	}))
 
 	// ----- Errors Handler -----
-	router.HTTPErrorHandler = handlers.HttpErrorHandler
+	e.HTTPErrorHandler = handlers.HttpErrorHandler
 
 	// ----- Routes -----
-	v1 := router.Group("/api/v1")
+	v1 := e.Group("/api/v1")
 
 	// ------------- INFO ------------- //
-	infoHandler := handlers.HttpInfoHandler(buildInfo, config)
+	infoHandler := handlers.HttpInfoHandler(config)
 	v1.GET("/info", cm.UpstreamCacheHandlerWithExpiration(cache.NEVER, infoHandler.GetInfo))
 
 	// ------------- PING ------------- //
@@ -51,5 +54,6 @@ func Start(config *configs.Config, buildInfo *configs.BuildInfo) {
 	v1.GET("/ping", cm.UpstreamCacheHandler(pingHandler.GetPing))
 
 	// Start service
-	router.Logger.Fatal(router.Start(fmt.Sprintf(":%d", config.Port)))
+	PrintBanner()
+	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.Port)))
 }

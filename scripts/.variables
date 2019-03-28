@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -eu
+
+VERSION=${VERSION:-$(cat VERSION)}
+GITCOMMIT=${GITCOMMIT:-$(git rev-parse --short HEAD 2> /dev/null || true)}
+BUILDTIME=${BUILDTIME:-$(date --utc --rfc-3339 seconds 2> /dev/null | sed -e 's/ /T/')}
+GOOS="${GOOS:-$(go env GOHOSTOS)}"
+GOARCH="${GOARCH:-$(go env GOHOSTARCH)}"
+
+export LDFLAGS="\
+    -w \
+    -X \"github.com/jsdidierlaurent/monitowall/cli/version.GitCommit=${GITCOMMIT}\" \
+    -X \"github.com/jsdidierlaurent/monitowall/cli/version.BuildTime=${BUILDTIME}\" \
+    -X \"github.com/jsdidierlaurent/monitowall/cli/version.Version=${VERSION}\" \
+    ${LDFLAGS:-} \
+"
+
+export SOURCE="./cmd/monitowall"

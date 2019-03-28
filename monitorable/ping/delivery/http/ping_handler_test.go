@@ -8,9 +8,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jsdidierlaurent/monitowall/models/tiles"
-	"github.com/jsdidierlaurent/monitowall/monitorable/ping/usecase"
+	. "github.com/jsdidierlaurent/monitowall/monitorable/ping"
 
+	"github.com/jsdidierlaurent/monitowall/models/tiles"
 	. "github.com/stretchr/testify/mock"
 
 	"github.com/jsdidierlaurent/monitowall/monitorable/ping/mocks"
@@ -35,7 +35,7 @@ func TestDelivery_GetPing_Success(t *testing.T) {
 	ctx, res := initEcho()
 	ctx.QueryParams().Set("hostname", hostname)
 
-	tile := tiles.NewHealthTile(usecase.PingTileSubType)
+	tile := tiles.NewHealthTile(PingTileSubType)
 	tile.Label = hostname
 	tile.Status = tiles.SuccessStatus
 	tile.Message = "1s"

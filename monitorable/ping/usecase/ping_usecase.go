@@ -1,3 +1,5 @@
+//+build !faker
+
 package usecase
 
 import (
@@ -14,17 +16,13 @@ type (
 	}
 )
 
-const (
-	PingTileSubType TileSubType = "PING"
-)
-
 // NewArticleUsecase will create new an articleUsecase object representation of article.Usecase interface
 func NewPingUsecase(pr ping.Repository) ping.Usecase {
 	return &pingUsecase{pr}
 }
 
 func (pu *pingUsecase) Ping(binder bind.Binder) (*HealthTile, error) {
-	tile := NewHealthTile(PingTileSubType)
+	tile := NewHealthTile(ping.PingTileSubType)
 
 	// Bind / Validate Params
 	params := &model.PingParams{}
