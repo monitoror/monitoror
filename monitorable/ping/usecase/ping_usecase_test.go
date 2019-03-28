@@ -5,11 +5,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jsdidierlaurent/monitowall/models/tiles"
-	. "github.com/jsdidierlaurent/monitowall/monitorable/ping"
-	"github.com/jsdidierlaurent/monitowall/monitorable/ping/mocks"
-	"github.com/jsdidierlaurent/monitowall/monitorable/ping/model"
-	pkgMock "github.com/jsdidierlaurent/monitowall/pkg/bind/mocks"
+	"github.com/jsdidierlaurent/monitoror/models/tiles"
+	. "github.com/jsdidierlaurent/monitoror/monitorable/ping"
+	"github.com/jsdidierlaurent/monitoror/monitorable/ping/mocks"
+	"github.com/jsdidierlaurent/monitoror/monitorable/ping/model"
+	pkgMock "github.com/jsdidierlaurent/monitoror/pkg/bind/mocks"
 
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"

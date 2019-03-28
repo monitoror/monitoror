@@ -9,10 +9,10 @@ GOARCH="${GOARCH:-$(go env GOHOSTARCH)}"
 
 export LDFLAGS="\
     -w \
-    -X \"github.com/jsdidierlaurent/monitowall/cli/version.GitCommit=${GITCOMMIT}\" \
-    -X \"github.com/jsdidierlaurent/monitowall/cli/version.BuildTime=${BUILDTIME}\" \
-    -X \"github.com/jsdidierlaurent/monitowall/cli/version.Version=${VERSION}\" \
+    -X \"github.com/jsdidierlaurent/monitoror/cli/version.GitCommit=${GITCOMMIT}\" \
+    -X \"github.com/jsdidierlaurent/monitoror/cli/version.BuildTime=${BUILDTIME}\" \
+    -X \"github.com/jsdidierlaurent/monitoror/cli/version.Version=${VERSION}\" \
     ${LDFLAGS:-} \
 "
 
-export SOURCE="./cmd/monitowall"
+export SOURCE="./cmd/monitoror"

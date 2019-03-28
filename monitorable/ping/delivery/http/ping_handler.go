@@ -3,7 +3,7 @@ package http
 import (
 	"net/http"
 
-	"github.com/jsdidierlaurent/monitowall/monitorable/ping"
+	"github.com/jsdidierlaurent/monitoror/monitorable/ping"
 
 	"github.com/labstack/echo/v4"
 )

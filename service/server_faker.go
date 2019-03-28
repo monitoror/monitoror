@@ -5,15 +5,13 @@ package service
 import (
 	"fmt"
 
-	"github.com/jsdidierlaurent/monitowall/cli/version"
+	"github.com/jsdidierlaurent/monitoror/cli/version"
+	"github.com/jsdidierlaurent/monitoror/config"
+	"github.com/jsdidierlaurent/monitoror/handlers"
+	"github.com/jsdidierlaurent/monitoror/monitorable/ping/delivery/http"
+	"github.com/jsdidierlaurent/monitoror/monitorable/ping/usecase"
 
-	"github.com/jsdidierlaurent/monitowall/monitorable/ping/delivery/http"
-
-	"github.com/jsdidierlaurent/monitowall/monitorable/ping/usecase"
-
-	"github.com/jsdidierlaurent/monitowall/config"
-	"github.com/jsdidierlaurent/monitowall/handlers"
-	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo"
 	"github.com/labstack/echo/v4/middleware"
 )
 
@@ -48,6 +46,5 @@ func Start(config *config.Config) {
 
 	// Start service
 	version.Version = "x.x.x-faker"
-	PrintBanner()
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.Port)))
 }

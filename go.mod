@@ -1,4 +1,4 @@
-module github.com/jsdidierlaurent/monitowall
+module github.com/jsdidierlaurent/monitoror
 
 go 1.12
 
@@ -6,6 +6,7 @@ require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/jsdidierlaurent/echo-middleware v1.0.0
 	github.com/kr/pretty v0.1.0 // indirect
+	github.com/labstack/echo v3.3.10+incompatible
 	github.com/labstack/echo/v4 v4.0.0
 	github.com/labstack/gommon v0.2.8
 	github.com/sparrc/go-ping v0.0.0-20181106165434-ef3ab45e41b0

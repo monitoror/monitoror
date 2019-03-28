@@ -1,8 +1,8 @@
 package ping
 
 import (
-	. "github.com/jsdidierlaurent/monitowall/models/tiles"
-	"github.com/jsdidierlaurent/monitowall/pkg/bind"
+	. "github.com/jsdidierlaurent/monitoror/models/tiles"
+	"github.com/jsdidierlaurent/monitoror/pkg/bind"
 )
 
 const (

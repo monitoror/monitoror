@@ -1,6 +1,5 @@
-#TARGET="build/monitowall-$GOOS-$GOARCH"
-
-# github.com/jsdidierlaurent/monitowall
+#
+# github.com/jsdidierlaurent/monitoror
 #
 
 
@@ -44,11 +43,11 @@ build-cross: ## build executable for current environment
 
 # ============= RUN =============
 .PHONY: run
-run: ## run monitowall
+run: ## run monitoror
 	@./scripts/run/run
 
 .PHONY: run-faker
-run-faker: ## run monitowall in faker mode
+run-faker: ## run monitoror in faker mode
 	@./scripts/run/faker
 
 # ============= TOOLINGS =============
@@ -58,7 +57,7 @@ clean: ## remove build artifacts
 
 .PHONY: install
 install: ## installing tools / dependencies
-	@./scripts/install.sh
+	@./scripts/install
 
 .PHONY: help
 help: ## print this help
