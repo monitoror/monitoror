@@ -8,11 +8,13 @@ import (
 	"github.com/jsdidierlaurent/monitoror/cli/version"
 	"github.com/jsdidierlaurent/monitoror/config"
 	"github.com/jsdidierlaurent/monitoror/handlers"
+	"github.com/jsdidierlaurent/monitoror/middlewares"
 	"github.com/jsdidierlaurent/monitoror/monitorable/ping/delivery/http"
 	"github.com/jsdidierlaurent/monitoror/monitorable/ping/usecase"
 
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo/v4"
+	echoMiddleware "github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/gommon/log"
 )
 
 func Start(config *config.Config) {
@@ -20,14 +22,15 @@ func Start(config *config.Config) {
 	e.HideBanner = true
 
 	//  ----- Middlewares -----
-	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
+	e.Use(echoMiddleware.Recover())
+	e.Use(middlewares.Logger())
+	e.Use(middlewares.CORS())
 
-	//  ----- CORS -----
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
-		AllowOrigins: []string{"*"},
-		AllowMethods: []string{echo.GET, echo.POST},
-	}))
+	// Logger
+	if l, ok := e.Logger.(*log.Logger); ok {
+		l.SetHeader("⇨ ${time_rfc3339} [${level}]")
+		l.SetLevel(log.INFO)
+	}
 
 	// ----- Errors Handler -----
 	e.HTTPErrorHandler = handlers.HttpErrorHandler
