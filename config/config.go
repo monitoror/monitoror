@@ -1,4 +1,4 @@
-package configs
+package config
 
 import (
 	"strings"
@@ -28,7 +28,7 @@ type (
 
 	Cache struct {
 		Expire          int `json:"expire"`           // In Millisecond
-		CleanupInterval int `json:"cleanup-Interval"` // In Millisecond
+		CleanupInterval int `json:"cleanup-interval"` // In Millisecond
 	}
 
 	PingConfig struct {
@@ -63,9 +63,9 @@ func InitConfig() (*Config, error) {
 	viper.SetDefault("Port", 8080)
 
 	// --- Cache Configuration ---
-	viper.SetDefault("UpstreamCache.Duration", 10000)
+	viper.SetDefault("UpstreamCache.Expire", 10000)
 	viper.SetDefault("UpstreamCache.CleanupInterval", 1000)
-	viper.SetDefault("DownstreamCache.Duration", 120000)
+	viper.SetDefault("DownstreamCache.Expire", 120000)
 	viper.SetDefault("DownstreamCache.CleanupInterval", 10000)
 
 	// --- Ping Configuration ---

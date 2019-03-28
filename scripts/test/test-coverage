@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+# Executing test coverage and print it
+gotestsum -- -coverprofile=coverage.txt ./...
+go tool cover -func coverage.txt
+rm coverage.txt

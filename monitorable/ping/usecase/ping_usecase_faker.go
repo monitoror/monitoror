@@ -1,4 +1,4 @@
-//+build debug
+//+build faker
 
 package usecase
 
@@ -14,20 +14,20 @@ import (
 )
 
 type (
-	pingUsecaseDebug struct {
+	pingUsecase struct {
 	}
 )
 
 // NewArticleUsecase will create new an articleUsecase object representation of article.Usecase interface
-func NewPingUsecaseDebug() ping.Usecase {
-	return &pingUsecaseDebug{}
+func NewPingUsecase() ping.Usecase {
+	return &pingUsecase{}
 }
 
-func (pu *pingUsecaseDebug) Ping(binder bind.Binder) (*HealthTile, error) {
-	tile := NewHealthTile(PingTileSubType)
+func (pu *pingUsecase) Ping(binder bind.Binder) (*HealthTile, error) {
+	tile := NewHealthTile(ping.PingTileSubType)
 
 	// Bind / Validate Params
-	params := &model.PingParamsDebug{}
+	params := &model.PingParams{}
 	err := binder.Bind(params)
 	if err != nil || !params.Validate() {
 		return nil, errors.NewQueryParamsError(tile.Tile, err)

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+# Executing unit test
+gotestsum -- ./...
