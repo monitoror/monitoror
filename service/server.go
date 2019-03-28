@@ -5,17 +5,14 @@ package service
 import (
 	"fmt"
 
-	"github.com/jsdidierlaurent/monitowall/monitorable/ping/delivery/http"
-
-	"github.com/jsdidierlaurent/monitowall/monitorable/ping/usecase"
-
-	"github.com/jsdidierlaurent/monitowall/monitorable/ping/repository"
+	"github.com/jsdidierlaurent/monitoror/config"
+	"github.com/jsdidierlaurent/monitoror/handlers"
+	"github.com/jsdidierlaurent/monitoror/middlewares"
+	"github.com/jsdidierlaurent/monitoror/monitorable/ping/delivery/http"
+	"github.com/jsdidierlaurent/monitoror/monitorable/ping/repository"
+	"github.com/jsdidierlaurent/monitoror/monitorable/ping/usecase"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
-
-	"github.com/jsdidierlaurent/monitowall/config"
-	"github.com/jsdidierlaurent/monitowall/handlers"
-	"github.com/jsdidierlaurent/monitowall/middlewares"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
@@ -54,6 +51,5 @@ func Start(config *config.Config) {
 	v1.GET("/ping", cm.UpstreamCacheHandler(pingHandler.GetPing))
 
 	// Start service
-	PrintBanner()
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.Port)))
 }

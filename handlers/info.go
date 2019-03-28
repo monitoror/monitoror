@@ -3,9 +3,9 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/jsdidierlaurent/monitowall/cli/version"
-	"github.com/jsdidierlaurent/monitowall/config"
-	"github.com/jsdidierlaurent/monitowall/models"
+	"github.com/jsdidierlaurent/monitoror/cli/version"
+	"github.com/jsdidierlaurent/monitoror/config"
+	"github.com/jsdidierlaurent/monitoror/models"
 
 	"github.com/labstack/echo/v4"
 )

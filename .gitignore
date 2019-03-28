@@ -7,7 +7,7 @@ vendor
 *.dll
 *.so
 *.dylib
-/build/monitowall*
+/build/monitoror*
 
 # Test binary, build with `go test -c`
 *.test

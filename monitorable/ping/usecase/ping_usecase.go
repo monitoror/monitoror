@@ -3,11 +3,11 @@
 package usecase
 
 import (
-	"github.com/jsdidierlaurent/monitowall/models/errors"
-	. "github.com/jsdidierlaurent/monitowall/models/tiles"
-	"github.com/jsdidierlaurent/monitowall/monitorable/ping"
-	"github.com/jsdidierlaurent/monitowall/monitorable/ping/model"
-	"github.com/jsdidierlaurent/monitowall/pkg/bind"
+	"github.com/jsdidierlaurent/monitoror/models/errors"
+	. "github.com/jsdidierlaurent/monitoror/models/tiles"
+	"github.com/jsdidierlaurent/monitoror/monitorable/ping"
+	"github.com/jsdidierlaurent/monitoror/monitorable/ping/model"
+	"github.com/jsdidierlaurent/monitoror/pkg/bind"
 )
 
 type (
