@@ -55,7 +55,7 @@ func InitConfig() (*Config, error) {
 
 	// Setup Env
 	viper.AutomaticEnv()
-	viper.SetEnvPrefix("MW")
+	viper.SetEnvPrefix("MO")
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	// Setup default values

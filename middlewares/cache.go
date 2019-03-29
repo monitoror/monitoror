@@ -48,12 +48,12 @@ type (
 func NewCacheMiddleware(config *config.Config) *CacheMiddleware {
 	store := responsesStore{
 		UpstreamStore: cache.NewGoCacheStore(
-			time.Second*time.Duration(config.UpstreamCache.Expire),
-			time.Second*time.Duration(config.UpstreamCache.CleanupInterval),
+			time.Millisecond*time.Duration(config.UpstreamCache.Expire),
+			time.Millisecond*time.Duration(config.UpstreamCache.CleanupInterval),
 		),
 		DownstreamStore: cache.NewGoCacheStore(
-			time.Second*time.Duration(config.DownstreamCache.Expire),
-			time.Second*time.Duration(config.DownstreamCache.CleanupInterval),
+			time.Millisecond*time.Duration(config.DownstreamCache.Expire),
+			time.Millisecond*time.Duration(config.DownstreamCache.CleanupInterval),
 		),
 	}
 
