@@ -14,6 +14,10 @@ test: test-unit ## run tests
 test-unit: ## run unit tests, to change the output format use: GOTESTSUM_FORMAT=(dots|short|standard-quiet|short-verbose|standard-verbose) make test-unit
 	@./scripts/test/test-unit
 
+.PHONY: test-coverage-html
+test-coverage-html: ## run test coverage and generate cover.html
+	@./scripts/test/test-coverage-html
+
 .PHONY: test-coverage
 test-coverage: ## run test coverage
 	@./scripts/test/test-coverage

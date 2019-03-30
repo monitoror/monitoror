@@ -2,7 +2,7 @@ package ping
 
 import (
 	. "github.com/jsdidierlaurent/monitoror/models/tiles"
-	"github.com/jsdidierlaurent/monitoror/pkg/bind"
+	"github.com/jsdidierlaurent/monitoror/monitorable/ping/model"
 )
 
 const (
@@ -12,6 +12,6 @@ const (
 // Usecase represent the ping's usecases
 type (
 	Usecase interface {
-		Ping(binder bind.Binder) (*HealthTile, error)
+		Ping(params *model.PingParams) (*HealthTile, error)
 	}
 )

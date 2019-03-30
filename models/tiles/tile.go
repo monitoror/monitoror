@@ -20,5 +20,4 @@ const (
 	SuccessStatus TileStatus = "SUCCESS"
 	FailStatus    TileStatus = "FAILURE"
 	TimeoutStatus TileStatus = "TIMEOUT"
-	ErrorStatus   TileStatus = "ERROR"
 )

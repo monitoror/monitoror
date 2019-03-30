@@ -9,7 +9,6 @@ import (
 	. "github.com/jsdidierlaurent/monitoror/monitorable/ping"
 	"github.com/jsdidierlaurent/monitoror/monitorable/ping/mocks"
 	"github.com/jsdidierlaurent/monitoror/monitorable/ping/model"
-	pkgMock "github.com/jsdidierlaurent/monitoror/pkg/bind/mocks"
 
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"
@@ -19,14 +18,6 @@ var hostname = "test.com"
 
 func TestUsecase_Ping_Success(t *testing.T) {
 	// Init
-	mockParamBinder := new(pkgMock.Binder)
-	mockParamBinder.On("Bind", Anything).Return(func(p interface{}) error {
-		param, ok := p.(*model.PingParams)
-		assert.True(t, ok)
-		param.Hostname = hostname
-		return nil
-	})
-
 	mockRepo := new(mocks.Repository)
 	mockRepo.On("Ping", AnythingOfType("string")).Return(&model.Ping{
 		Average: time.Second,
@@ -35,6 +26,11 @@ func TestUsecase_Ping_Success(t *testing.T) {
 	}, nil)
 	usecase := NewPingUsecase(mockRepo)
 
+	// Params
+	param := &model.PingParams{
+		Hostname: hostname,
+	}
+
 	// Expected
 	eTile := tiles.NewHealthTile(PingTileSubType)
 	eTile.Label = hostname
@@ -42,46 +38,26 @@ func TestUsecase_Ping_Success(t *testing.T) {
 	eTile.Message = "1s"
 
 	// Test
-	rTile, err := usecase.Ping(mockParamBinder)
+	rTile, err := usecase.Ping(param)
 
-	assert.NoError(t, err)
-	assert.Equal(t, eTile, rTile)
+	if assert.NoError(t, err) {
+		assert.Equal(t, eTile, rTile)
+		mockRepo.AssertNumberOfCalls(t, "Ping", 1)
+		mockRepo.AssertExpectations(t)
+	}
 }
 
 func TestPing_Fail(t *testing.T) {
 	// Init
-	mockParamBinder := new(pkgMock.Binder)
-	mockParamBinder.On("Bind", Anything).Return(func(p interface{}) error {
-		param, ok := p.(*model.PingParams)
-		assert.True(t, ok)
-		param.Hostname = hostname
-		return nil
-	})
-
 	mockRepo := new(mocks.Repository)
 	mockRepo.On("Ping", AnythingOfType("string")).Return(nil, errors.New("ping error"))
 
 	usecase := NewPingUsecase(mockRepo)
 
-	// Expected
-	eTile := tiles.NewHealthTile(PingTileSubType)
-	eTile.Label = hostname
-	eTile.Status = tiles.FailStatus
-
-	// Test
-	rTile, err := usecase.Ping(mockParamBinder)
-
-	assert.NoError(t, err)
-	assert.Equal(t, eTile, rTile)
-}
-
-func TestPing_Error(t *testing.T) {
-	// Init
-	mockParamBinder := new(pkgMock.Binder)
-	mockParamBinder.On("Bind", Anything).Return(errors.New("bind error"))
-
-	mockRepo := new(mocks.Repository)
-	usecase := NewPingUsecase(mockRepo)
+	// Params
+	param := &model.PingParams{
+		Hostname: hostname,
+	}
 
 	// Expected
 	eTile := tiles.NewHealthTile(PingTileSubType)
@@ -89,6 +65,11 @@ func TestPing_Error(t *testing.T) {
 	eTile.Status = tiles.FailStatus
 
 	// Test
-	_, err := usecase.Ping(mockParamBinder)
-	assert.Error(t, err)
+	rTile, err := usecase.Ping(param)
+
+	if assert.NoError(t, err) {
+		assert.Equal(t, eTile, rTile)
+		mockRepo.AssertNumberOfCalls(t, "Ping", 1)
+		mockRepo.AssertExpectations(t)
+	}
 }

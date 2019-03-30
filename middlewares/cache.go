@@ -129,5 +129,4 @@ func (c *responsesStore) Decrement(key string, n uint64) (uint64, error) {
 
 func (c *responsesStore) Flush() error {
 	panic("unimplemented")
-
 }

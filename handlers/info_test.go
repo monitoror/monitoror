@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
+func initInfoEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 	e := echo.New()
 	req := httptest.NewRequest(echo.GET, "/api/v1/info", nil)
 	res = httptest.NewRecorder()
@@ -26,16 +26,17 @@ func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 
 func TestGetInfo(t *testing.T) {
 	// Init
-	ctx, res := initEcho()
+	ctx, res := initInfoEcho()
 	emptyConfig := &config.Config{}
 	handler := HttpInfoHandler(emptyConfig)
 
 	// Create expected value
 	json, err := json.Marshal(models.NewInfoResponse(version.Version, version.GitCommit, version.BuildTime, emptyConfig))
+	assert.NoError(t, err, "unable to marshal InfoResponse")
 
 	// Test
-	assert.NoError(t, err)
-	assert.NoError(t, handler.GetInfo(ctx))
-	assert.Equal(t, http.StatusOK, res.Code)
-	assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
+	if assert.NoError(t, handler.GetInfo(ctx)) {
+		assert.Equal(t, http.StatusOK, res.Code)
+		assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
+	}
 }

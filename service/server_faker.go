@@ -8,7 +8,6 @@ import (
 	"github.com/jsdidierlaurent/monitoror/cli/version"
 	"github.com/jsdidierlaurent/monitoror/config"
 	"github.com/jsdidierlaurent/monitoror/handlers"
-	"github.com/jsdidierlaurent/monitoror/middlewares"
 	"github.com/jsdidierlaurent/monitoror/monitorable/ping/delivery/http"
 	"github.com/jsdidierlaurent/monitoror/monitorable/ping/usecase"
 
@@ -21,12 +20,7 @@ func Start(config *config.Config) {
 	e := echo.New()
 	e.HideBanner = true
 
-	//  ----- Middlewares -----
-	e.Use(echoMiddleware.Recover())
-	e.Use(middlewares.Logger())
-	e.Use(middlewares.CORS())
-
-	// Logger
+	//  ----- Logger -----
 	if l, ok := e.Logger.(*log.Logger); ok {
 		l.SetHeader("⇨ ${time_rfc3339} [${level}]")
 		l.SetLevel(log.INFO)
@@ -34,6 +28,19 @@ func Start(config *config.Config) {
 
 	// ----- Errors Handler -----
 	e.HTTPErrorHandler = handlers.HttpErrorHandler
+
+	//  ----- Middlewares -----
+	// Recover (don't panic 😎)
+	e.Use(echoMiddleware.Recover())
+	// Log requests
+	e.Use(echoMiddleware.LoggerWithConfig(echoMiddleware.LoggerConfig{
+		Format: `⇨ ${time_rfc3339} [REQUEST] ${method} ${uri} status:${status} error:"${error}"` + "\n",
+	}))
+	// CORS
+	e.Use(echoMiddleware.CORSWithConfig(echoMiddleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{echo.GET, echo.POST},
+	}))
 
 	// ----- Routes -----
 	v1 := e.Group("/api/v1")

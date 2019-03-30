@@ -2,8 +2,8 @@
 
 package mocks
 
-import bind "github.com/jsdidierlaurent/monitoror/pkg/bind"
 import mock "github.com/stretchr/testify/mock"
+import model "github.com/jsdidierlaurent/monitoror/monitorable/ping/model"
 
 import tiles "github.com/jsdidierlaurent/monitoror/models/tiles"
 
@@ -12,13 +12,13 @@ type Usecase struct {
 	mock.Mock
 }
 
-// Ping provides a mock function with given fields: binder
-func (_m *Usecase) Ping(binder bind.Binder) (*tiles.HealthTile, error) {
-	ret := _m.Called(binder)
+// Ping provides a mock function with given fields: params
+func (_m *Usecase) Ping(params *model.PingParams) (*tiles.HealthTile, error) {
+	ret := _m.Called(params)
 
 	var r0 *tiles.HealthTile
-	if rf, ok := ret.Get(0).(func(bind.Binder) *tiles.HealthTile); ok {
-		r0 = rf(binder)
+	if rf, ok := ret.Get(0).(func(*model.PingParams) *tiles.HealthTile); ok {
+		r0 = rf(params)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*tiles.HealthTile)
@@ -26,8 +26,8 @@ func (_m *Usecase) Ping(binder bind.Binder) (*tiles.HealthTile, error) {
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(bind.Binder) error); ok {
-		r1 = rf(binder)
+	if rf, ok := ret.Get(1).(func(*model.PingParams) error); ok {
+		r1 = rf(params)
 	} else {
 		r1 = ret.Error(1)
 	}

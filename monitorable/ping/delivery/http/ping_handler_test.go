@@ -8,16 +8,17 @@ import (
 	"strings"
 	"testing"
 
-	. "github.com/jsdidierlaurent/monitoror/monitorable/ping"
+	errors2 "github.com/jsdidierlaurent/monitoror/models/errors"
 
 	"github.com/jsdidierlaurent/monitoror/models/tiles"
-	. "github.com/stretchr/testify/mock"
-
+	. "github.com/jsdidierlaurent/monitoror/monitorable/ping"
 	"github.com/jsdidierlaurent/monitoror/monitorable/ping/mocks"
-
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
+	. "github.com/stretchr/testify/mock"
 )
+
+var hostname = "test.com"
 
 func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 	e := echo.New()
@@ -29,8 +30,6 @@ func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 }
 
 func TestDelivery_GetPing_Success(t *testing.T) {
-	hostname := "test.com"
-
 	// Init
 	ctx, res := initEcho()
 	ctx.QueryParams().Set("hostname", hostname)
@@ -46,21 +45,41 @@ func TestDelivery_GetPing_Success(t *testing.T) {
 
 	// Expected
 	json, err := json.Marshal(tile)
+	assert.NoError(t, err, "unable to marshal tile")
 
 	// Test
-	assert.NoError(t, err)
-	assert.NoError(t, handler.GetPing(ctx))
-	assert.Equal(t, http.StatusOK, res.Code)
-	assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
+	if assert.NoError(t, handler.GetPing(ctx)) {
+		assert.Equal(t, http.StatusOK, res.Code)
+		assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
+		mockUsecase.AssertNumberOfCalls(t, "Ping", 1)
+		mockUsecase.AssertExpectations(t)
+	}
+}
+
+func TestDelivery_GetPing_QueryParamsError(t *testing.T) {
+	// Init
+	ctx, _ := initEcho()
+
+	mockUsecase := new(mocks.Usecase)
+	handler := NewHttpPingHandler(mockUsecase)
+
+	// Test
+	err := handler.GetPing(ctx)
+	assert.Error(t, err)
+	assert.IsType(t, &errors2.QueryParamsError{}, err)
 }
 
 func TestDelivery_GetPing_Error(t *testing.T) {
 	// Init
 	ctx, _ := initEcho()
+	ctx.QueryParams().Set("hostname", hostname)
+
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Ping", Anything).Return(nil, errors.New("ping error"))
 	handler := NewHttpPingHandler(mockUsecase)
 
 	// Test
 	assert.Error(t, handler.GetPing(ctx))
+	mockUsecase.AssertNumberOfCalls(t, "Ping", 1)
+	mockUsecase.AssertExpectations(t)
 }

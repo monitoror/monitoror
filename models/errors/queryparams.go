@@ -2,17 +2,14 @@ package errors
 
 import (
 	"fmt"
-
-	. "github.com/jsdidierlaurent/monitoror/models/tiles"
 )
 
 type QueryParamsError struct {
-	Tile *Tile
-	err  error
+	err error
 }
 
-func NewQueryParamsError(tile *Tile, err error) *QueryParamsError {
-	return &QueryParamsError{tile, err}
+func NewQueryParamsError(err error) *QueryParamsError {
+	return &QueryParamsError{err}
 }
 
 func (qpe *QueryParamsError) Error() string {

@@ -6,11 +6,9 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/jsdidierlaurent/monitoror/models/errors"
 	. "github.com/jsdidierlaurent/monitoror/models/tiles"
 	"github.com/jsdidierlaurent/monitoror/monitorable/ping"
 	"github.com/jsdidierlaurent/monitoror/monitorable/ping/model"
-	"github.com/jsdidierlaurent/monitoror/pkg/bind"
 )
 
 type (
@@ -23,16 +21,8 @@ func NewPingUsecase() ping.Usecase {
 	return &pingUsecase{}
 }
 
-func (pu *pingUsecase) Ping(binder bind.Binder) (*HealthTile, error) {
-	tile := NewHealthTile(ping.PingTileSubType)
-
-	// Bind / Validate Params
-	params := &model.PingParams{}
-	err := binder.Bind(params)
-	if err != nil || !params.Validate() {
-		return nil, errors.NewQueryParamsError(tile.Tile, err)
-	}
-
+func (pu *pingUsecase) Ping(params *model.PingParams) (tile *HealthTile, err error) {
+	tile = NewHealthTile(ping.PingTileSubType)
 	tile.Label = params.Hostname
 
 	// Init random generator
@@ -58,5 +48,5 @@ func (pu *pingUsecase) Ping(binder bind.Binder) (*HealthTile, error) {
 		}
 	}
 
-	return tile, nil
+	return
 }

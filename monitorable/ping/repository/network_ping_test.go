@@ -8,6 +8,6 @@ import (
 
 func TestRepository_Ping(t *testing.T) {
 	// It's pain to test go-ping without interface/mock
-	// Assuming go-test already have integration test
+	// Assuming go-test already have tests ...
 	assert.True(t, true)
 }

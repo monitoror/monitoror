@@ -8,6 +8,9 @@ import (
 	"github.com/spf13/viper"
 )
 
+const ServerConfigFileName = "server-config"
+const EnvPrefix = "MO"
+
 type (
 	Config struct {
 		// --- General Configuration ---
@@ -47,15 +50,14 @@ func InitConfig() (*Config, error) {
 	var config Config
 
 	// Setup config filename / path
-	viper.SetConfigName("config")
+	viper.SetConfigName(ServerConfigFileName)
 
 	viper.AddConfigPath(".")
-	viper.AddConfigPath("./config")
 	viper.AddConfigPath("$HOME/monitoror/")
 
 	// Setup Env
 	viper.AutomaticEnv()
-	viper.SetEnvPrefix("MO")
+	viper.SetEnvPrefix(EnvPrefix)
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	// Setup default values
@@ -74,7 +76,10 @@ func InitConfig() (*Config, error) {
 	viper.SetDefault("Ping.Interval", 100)
 
 	// Read Configuration
-	_ = viper.ReadInConfig()
+	err := viper.ReadInConfig()
+	if _, ok := err.(viper.ConfigParseError); ok {
+		return nil, errors.NewConfigError(err)
+	}
 
 	if err := viper.Unmarshal(&config); err != nil {
 		return nil, errors.NewConfigError(err)

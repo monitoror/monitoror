@@ -13,7 +13,8 @@ vendor
 *.test
 
 # Output of the go coverage tool, specifically when used with LiteIDE
-coverage.txt
+cover.out
+cover.html
 
 # Intellij
 .idea

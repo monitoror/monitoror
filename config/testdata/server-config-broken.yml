@@ -1,0 +1,10 @@
+port: 3000
+
+upstream-cache:
+  expire: 1
+  cleanupInterval: 1
+downstream-cache:
+  expire: 1
+  cleanupInterval: 1
+
+_test

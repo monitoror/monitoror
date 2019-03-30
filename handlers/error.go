@@ -32,52 +32,56 @@ func HttpErrorHandler(err error, c echo.Context) {
 					Status:  he.Code,
 					Message: "Not Found",
 				})
+				return
 			}
-		} else {
-			systemError(c, e)
 		}
+
+		_ = c.JSON(http.StatusInternalServerError, ApiError{
+			Status:  http.StatusInternalServerError,
+			Message: err.Error(),
+		})
 	}
 }
 
 func systemError(c echo.Context, e error) {
 	c.Logger().Error(e.Error())
-	_ = c.JSON(http.StatusInternalServerError, ApiError{
-		Status:  http.StatusInternalServerError,
-		Message: "System Error",
-	})
+	tile := tiles.NewErrorTile("System Error", e.Error())
+	_ = c.JSON(http.StatusInternalServerError, tile)
 }
 
 func queryParamsError(c echo.Context, qpe *errors.QueryParamsError) {
 	c.Logger().Error(qpe.Error())
-	tile := qpe.Tile
-	tile.Status = tiles.ErrorStatus
-	tile.Label = "Wrong Configuration"
-	tile.Message = qpe.Error()
-	_ = c.JSON(http.StatusOK, tile)
+	tile := tiles.NewErrorTile("Wrong Configuration", qpe.Error())
+	_ = c.JSON(http.StatusBadRequest, tile)
 }
 
 // timeoutError return cached value from downstreamStore if exist
 func timeoutError(c echo.Context, te *errors.TimeoutError) {
+	sendTimeout := func(c echo.Context) {
+		tile := te.Tile
+		tile.Status = tiles.TimeoutStatus
+		tile.Message = te.Error()
+		_ = c.JSON(http.StatusOK, tile)
+	}
+
 	// Looking for TimeoutCache in echo.context
 	value := c.Get(middlewares.DownstreamStoreContextKey)
 	if value == nil {
 		c.Logger().Warn("unable to find DownstreamStore in echo.context")
+		sendTimeout(c)
 		return
 	}
-	store, ok := value.(*cache.GoCacheStore)
+	store, ok := value.(cache.Store)
 	if !ok {
-		c.Logger().Warn("unable to cast value in *cache.Store")
+		c.Logger().Warn("unable to cast value in cache.Store")
+		sendTimeout(c)
 		return
 	}
 
 	//Looking for Data in DownstreamStore
 	var cachedResponse cache.ResponseCache
 	if err := store.Get(cache.GetKey(middlewares.CachePrefix, c.Request()), &cachedResponse); err != nil {
-		// Missing cache, returning Timeout
-		tile := te.Tile
-		tile.Status = tiles.TimeoutStatus
-		tile.Message = te.Error()
-		_ = c.JSON(http.StatusOK, tile)
+		sendTimeout(c)
 	} else {
 		// Cache found, return cached Data
 		for k, vals := range cachedResponse.Header {
