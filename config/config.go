@@ -23,10 +23,13 @@ type (
 		DownstreamCache Cache `json:"downstream-cache"`
 
 		// --- Ping Configuration ---
-		Ping PingConfig `json:"ping"`
+		PingConfig PingConfig `json:"ping-config"`
+
+		// --- Port Configuration ---
+		PortConfig PortConfig `json:"port-config"`
 
 		// --- Gitlab Configuration ---
-		Gitlab GitlabConfig `json:"gitlab"`
+		GitlabConfig GitlabConfig `json:"gitlab-config"`
 	}
 
 	Cache struct {
@@ -38,6 +41,10 @@ type (
 		Count    int `json:"count"`
 		Timeout  int `json:"timeout"`  // In Millisecond
 		Interval int `json:"interval"` // In Millisecond
+	}
+
+	PortConfig struct {
+		Timeout int `json:"timeout"` // In Millisecond
 	}
 
 	GitlabConfig struct {
@@ -71,9 +78,12 @@ func InitConfig() (*Config, error) {
 	viper.SetDefault("DownstreamCache.CleanupInterval", 10000)
 
 	// --- Ping Configuration ---
-	viper.SetDefault("Ping.Count", 2)
-	viper.SetDefault("Ping.Timeout", 1000)
-	viper.SetDefault("Ping.Interval", 100)
+	viper.SetDefault("PingConfig.Count", 2)
+	viper.SetDefault("PingConfig.Timeout", 1000)
+	viper.SetDefault("PingConfig.Interval", 100)
+
+	// --- Port Configuration ---
+	viper.SetDefault("PortConfig.Timeout", 1000)
 
 	// Read Configuration
 	err := viper.ReadInConfig()

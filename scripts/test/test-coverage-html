@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 # Executing test coverage and print it
-gotestsum -- -coverprofile=cover.out ./...
+go clean testdata ./...
+gotestsum -- -coverprofile=cover.out `go list ./... | grep -v mocks`
 go tool cover -html=cover.out -o cover.html
 rm cover.out

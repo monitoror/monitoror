@@ -8,17 +8,15 @@ import (
 	"strings"
 	"testing"
 
-	errors2 "github.com/jsdidierlaurent/monitoror/models/errors"
-
+	mErrors "github.com/jsdidierlaurent/monitoror/models/errors"
 	"github.com/jsdidierlaurent/monitoror/models/tiles"
 	. "github.com/jsdidierlaurent/monitoror/monitorable/ping"
 	"github.com/jsdidierlaurent/monitoror/monitorable/ping/mocks"
+
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"
 )
-
-var hostname = "test.com"
 
 func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 	e := echo.New()
@@ -32,6 +30,8 @@ func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 func TestDelivery_GetPing_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
+
+	hostname := "test.com"
 	ctx.QueryParams().Set("hostname", hostname)
 
 	tile := tiles.NewHealthTile(PingTileSubType)
@@ -66,12 +66,14 @@ func TestDelivery_GetPing_QueryParamsError(t *testing.T) {
 	// Test
 	err := handler.GetPing(ctx)
 	assert.Error(t, err)
-	assert.IsType(t, &errors2.QueryParamsError{}, err)
+	assert.IsType(t, &mErrors.QueryParamsError{}, err)
 }
 
 func TestDelivery_GetPing_Error(t *testing.T) {
 	// Init
 	ctx, _ := initEcho()
+
+	hostname := "test.com"
 	ctx.QueryParams().Set("hostname", hostname)
 
 	mockUsecase := new(mocks.Usecase)

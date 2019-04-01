@@ -72,25 +72,25 @@ func TestStore(t *testing.T) {
 	}
 
 	// Test GET
-	if assert.NoError(t, store.Get("🔑", "📦")) {
+	if assert.NoError(t, store.Get("key", "value")) {
 		mockStore.AssertNumberOfCalls(t, "Get", 1)
 	}
 
 	// Test SET
-	if assert.NoError(t, store.Set("🔑", "📦", time.Hour)) {
+	if assert.NoError(t, store.Set("key", "value", time.Hour)) {
 		mockStore.AssertNumberOfCalls(t, "Set", 2)
 	}
 
 	// Test Add
-	assert.Panics(t, func() { _ = store.Add("🔑", "📦", time.Hour) })
+	assert.Panics(t, func() { _ = store.Add("key", "value", time.Hour) })
 	// Test Replace
-	assert.Panics(t, func() { _ = store.Replace("🔑", "📦", time.Hour) })
+	assert.Panics(t, func() { _ = store.Replace("key", "value", time.Hour) })
 	// Test Delete
-	assert.Panics(t, func() { _ = store.Delete("🔑") })
+	assert.Panics(t, func() { _ = store.Delete("key") })
 	// Test Increment
-	assert.Panics(t, func() { _, _ = store.Increment("🔑", uint64(1)) })
+	assert.Panics(t, func() { _, _ = store.Increment("key", uint64(1)) })
 	// Test Decrement
-	assert.Panics(t, func() { _, _ = store.Decrement("🔑", uint64(1)) })
+	assert.Panics(t, func() { _, _ = store.Decrement("key", uint64(1)) })
 	// Test Flush
 	assert.Panics(t, func() { _ = store.Flush() })
 

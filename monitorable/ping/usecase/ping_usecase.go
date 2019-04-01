@@ -14,7 +14,6 @@ type (
 	}
 )
 
-// NewArticleUsecase will create new an articleUsecase object representation of article.Usecase interface
 func NewPingUsecase(pr ping.Repository) ping.Usecase {
 	return &pingUsecase{pr}
 }
@@ -23,7 +22,7 @@ func (pu *pingUsecase) Ping(params *model.PingParams) (tile *HealthTile, err err
 	tile = NewHealthTile(ping.PingTileSubType)
 	tile.Label = params.Hostname
 
-	ping, err := pu.repository.Ping(params.Hostname)
+	ping, err := pu.repository.CheckPing(params.Hostname)
 	if err == nil {
 		tile.Status = SuccessStatus
 		tile.Message = ping.Average.String()

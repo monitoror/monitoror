@@ -14,12 +14,10 @@ import (
 	. "github.com/stretchr/testify/mock"
 )
 
-var hostname = "test.com"
-
 func TestUsecase_Ping_Success(t *testing.T) {
 	// Init
 	mockRepo := new(mocks.Repository)
-	mockRepo.On("Ping", AnythingOfType("string")).Return(&model.Ping{
+	mockRepo.On("CheckPing", AnythingOfType("string")).Return(&model.Ping{
 		Average: time.Second,
 		Min:     time.Second,
 		Max:     time.Second,
@@ -28,12 +26,12 @@ func TestUsecase_Ping_Success(t *testing.T) {
 
 	// Params
 	param := &model.PingParams{
-		Hostname: hostname,
+		Hostname: "test.com",
 	}
 
 	// Expected
 	eTile := tiles.NewHealthTile(PingTileSubType)
-	eTile.Label = hostname
+	eTile.Label = param.Hostname
 	eTile.Status = tiles.SuccessStatus
 	eTile.Message = "1s"
 
@@ -42,26 +40,26 @@ func TestUsecase_Ping_Success(t *testing.T) {
 
 	if assert.NoError(t, err) {
 		assert.Equal(t, eTile, rTile)
-		mockRepo.AssertNumberOfCalls(t, "Ping", 1)
+		mockRepo.AssertNumberOfCalls(t, "CheckPing", 1)
 		mockRepo.AssertExpectations(t)
 	}
 }
 
-func TestPing_Fail(t *testing.T) {
+func TestUsecase_Ping_Fail(t *testing.T) {
 	// Init
 	mockRepo := new(mocks.Repository)
-	mockRepo.On("Ping", AnythingOfType("string")).Return(nil, errors.New("ping error"))
+	mockRepo.On("CheckPing", AnythingOfType("string")).Return(nil, errors.New("ping error"))
 
 	usecase := NewPingUsecase(mockRepo)
 
 	// Params
 	param := &model.PingParams{
-		Hostname: hostname,
+		Hostname: "test.com",
 	}
 
 	// Expected
 	eTile := tiles.NewHealthTile(PingTileSubType)
-	eTile.Label = hostname
+	eTile.Label = param.Hostname
 	eTile.Status = tiles.FailStatus
 
 	// Test
@@ -69,7 +67,7 @@ func TestPing_Fail(t *testing.T) {
 
 	if assert.NoError(t, err) {
 		assert.Equal(t, eTile, rTile)
-		mockRepo.AssertNumberOfCalls(t, "Ping", 1)
+		mockRepo.AssertNumberOfCalls(t, "CheckPing", 1)
 		mockRepo.AssertExpectations(t)
 	}
 }

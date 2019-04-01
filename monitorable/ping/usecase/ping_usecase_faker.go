@@ -16,7 +16,6 @@ type (
 	}
 )
 
-// NewArticleUsecase will create new an articleUsecase object representation of article.Usecase interface
 func NewPingUsecase() ping.Usecase {
 	return &pingUsecase{}
 }

@@ -5,18 +5,21 @@ package service
 import (
 	"fmt"
 
-	"github.com/labstack/gommon/log"
+	_pingDelivery "github.com/jsdidierlaurent/monitoror/monitorable/ping/delivery/http"
+	_pingRepository "github.com/jsdidierlaurent/monitoror/monitorable/ping/repository"
+	_pingUsecase "github.com/jsdidierlaurent/monitoror/monitorable/ping/usecase"
+	_portDelivery "github.com/jsdidierlaurent/monitoror/monitorable/port/delivery/http"
+	_portRepository "github.com/jsdidierlaurent/monitoror/monitorable/port/repository"
+	_portUsecase "github.com/jsdidierlaurent/monitoror/monitorable/port/usecase"
 
+	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/jsdidierlaurent/monitoror/config"
 	"github.com/jsdidierlaurent/monitoror/handlers"
 	"github.com/jsdidierlaurent/monitoror/middlewares"
-	"github.com/jsdidierlaurent/monitoror/monitorable/ping/delivery/http"
-	"github.com/jsdidierlaurent/monitoror/monitorable/ping/repository"
-	"github.com/jsdidierlaurent/monitoror/monitorable/ping/usecase"
 
-	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/gommon/log"
 )
 
 func Start(config *config.Config) {
@@ -56,10 +59,16 @@ func Start(config *config.Config) {
 	v1.GET("/info", cm.UpstreamCacheHandlerWithExpiration(cache.NEVER, infoHandler.GetInfo))
 
 	// ------------- PING ------------- //
-	pingRepo := repository.NewNetworkPingRepository(config)
-	pingUsecase := usecase.NewPingUsecase(pingRepo)
-	pingHandler := http.NewHttpPingHandler(pingUsecase)
+	pingRepo := _pingRepository.NewNetworkPingRepository(config)
+	pingUC := _pingUsecase.NewPingUsecase(pingRepo)
+	pingHandler := _pingDelivery.NewHttpPingHandler(pingUC)
 	v1.GET("/ping", cm.UpstreamCacheHandler(pingHandler.GetPing))
+
+	// ------------- PORT ------------- //
+	portRepo := _portRepository.NewNetworkPortRepository(config)
+	portUC := _portUsecase.NewPortUsecase(portRepo)
+	portHandler := _portDelivery.NewHttpPortHandler(portUC)
+	v1.GET("/port", cm.UpstreamCacheHandler(portHandler.GetPort))
 
 	// Start service
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.Port)))
