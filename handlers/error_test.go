@@ -2,14 +2,14 @@ package handlers
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
 	"github.com/jsdidierlaurent/monitoror/middlewares"
-	"github.com/jsdidierlaurent/monitoror/models/errors"
+	mErrors "github.com/jsdidierlaurent/monitoror/models/errors"
 	"github.com/jsdidierlaurent/monitoror/models/tiles"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
@@ -33,7 +33,7 @@ func TestHttpError_404(t *testing.T) {
 	ctx, res := initErrorEcho()
 
 	// Parameters
-	err := echo.NewHTTPError(http.StatusNotFound, "🤖 not found")
+	err := echo.NewHTTPError(http.StatusNotFound, "not found")
 
 	// Expected
 	apiError := ApiError{
@@ -55,7 +55,7 @@ func TestHttpError_500(t *testing.T) {
 	ctx, res := initErrorEcho()
 
 	// Parameters
-	err := fmt.Errorf("🐛")
+	err := errors.New("boom")
 
 	// Expected
 	apiError := ApiError{
@@ -77,8 +77,8 @@ func TestSystemError(t *testing.T) {
 	ctx, res := initErrorEcho()
 
 	// Parameters
-	message := "💥"
-	err := errors.NewSystemError(message, nil)
+	message := "system error"
+	err := mErrors.NewSystemError(message, nil)
 
 	// Expected
 	tile := tiles.NewErrorTile("System Error", message)
@@ -97,7 +97,7 @@ func TestQueryParamsError(t *testing.T) {
 	ctx, res := initErrorEcho()
 
 	// Parameters
-	err := errors.NewQueryParamsError(nil)
+	err := mErrors.NewQueryParamsError(nil)
 
 	// Expected
 	tile := tiles.NewErrorTile("Wrong Configuration", err.Error())
@@ -116,7 +116,7 @@ func TestTimeoutError_WithoutCacheStore(t *testing.T) {
 	ctx, res := initErrorEcho()
 
 	// Parameters
-	err := errors.NewTimeoutError(tiles.NewHealthTile("TEST").Tile, "service is burning")
+	err := mErrors.NewTimeoutError(tiles.NewHealthTile("TEST").Tile, "service is burning")
 
 	// Expected
 	tile := err.Tile
@@ -135,10 +135,10 @@ func TestTimeoutError_WithoutCacheStore(t *testing.T) {
 func TestTimeoutError_WithCastErrorOnGetCacheStore(t *testing.T) {
 	// Init
 	ctx, res := initErrorEcho()
-	ctx.Set(middlewares.DownstreamStoreContextKey, "🙈")
+	ctx.Set(middlewares.DownstreamStoreContextKey, "store")
 
 	// Parameters
-	err := errors.NewTimeoutError(tiles.NewHealthTile("TEST").Tile, "service is burning")
+	err := mErrors.NewTimeoutError(tiles.NewHealthTile("TEST").Tile, "service is burning")
 
 	// Expected
 	tile := err.Tile
@@ -162,7 +162,7 @@ func TestTimeoutError_CacheMiss(t *testing.T) {
 	ctx.Set(middlewares.DownstreamStoreContextKey, mockStore)
 
 	// Parameters
-	err := errors.NewTimeoutError(tiles.NewHealthTile("TEST").Tile, "service is burning")
+	err := mErrors.NewTimeoutError(tiles.NewHealthTile("TEST").Tile, "service is burning")
 
 	// Expected
 	tile := err.Tile
@@ -186,8 +186,8 @@ func TestTimeoutError_Success(t *testing.T) {
 
 	status := http.StatusOK
 	header := ctx.Request().Header
-	header.Add("😸", "true")
-	body := "😁"
+	header.Add("header", "true")
+	body := "body"
 
 	mockStore := new(mocks.Store)
 	mockStore.
@@ -202,7 +202,7 @@ func TestTimeoutError_Success(t *testing.T) {
 	ctx.Set(middlewares.DownstreamStoreContextKey, mockStore)
 
 	// Parameters
-	te := errors.NewTimeoutError(tiles.NewHealthTile("TEST").Tile, "service is burning")
+	te := mErrors.NewTimeoutError(tiles.NewHealthTile("TEST").Tile, "service is burning")
 
 	// Test
 	HttpErrorHandler(te, ctx)

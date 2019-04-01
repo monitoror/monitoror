@@ -14,8 +14,6 @@ import (
 	. "github.com/stretchr/testify/mock"
 )
 
-var hostname = "test.com"
-
 func TestUsecase_Ping_Success(t *testing.T) {
 	// Init
 	mockRepo := new(mocks.Repository)
@@ -27,6 +25,7 @@ func TestUsecase_Ping_Success(t *testing.T) {
 	usecase := NewPingUsecase(mockRepo)
 
 	// Params
+	hostname := "test.com"
 	param := &model.PingParams{
 		Hostname: hostname,
 	}
@@ -55,6 +54,7 @@ func TestPing_Fail(t *testing.T) {
 	usecase := NewPingUsecase(mockRepo)
 
 	// Params
+	hostname := "test.com"
 	param := &model.PingParams{
 		Hostname: hostname,
 	}
