@@ -7,6 +7,6 @@ import (
 // Repository represent the ping's repository contract
 type (
 	Repository interface {
-		Ping(host string) (*model.Ping, error)
+		CheckPing(hostname string) (*model.Ping, error)
 	}
 )

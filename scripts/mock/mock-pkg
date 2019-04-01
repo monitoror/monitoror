@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+# Generate mocks of interfaces find inside all sub-directory of monitorable
+for sd in pkg/*/; do
+    rm -rf ${sd}/mocks
+    mockery \
+      -dir ${sd} \
+      -output ${sd}/mocks \
+      -all \
+      -note "If you want to rebuild this file, make mock-pkg"
+done
+
+# Add mock of net.Conn (this take rly long time ...)
+mockery \
+  -dir ${GOROOT}/src/net \
+  -output ./pkg/net/mocks \
+  -name "Conn" \
+  -note "If you want to rebuild this file, make mock-pkg"

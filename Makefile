@@ -21,6 +21,21 @@ test-coverage: ## run test coverage
 test-coverage-html: ## run test coverage and generate cover.html
 	@./scripts/test/test-coverage-html
 
+# ============= MOCKS =============
+.PHONY: mock
+mock: mock-monitorable
+
+.PHONY: mock-full
+mock: mock-monitorable mock-pkg ## generate all mocks
+
+.PHONY: mock-monitorable
+mock-monitorable: ## generate mocks of monitorable sub-directories
+	@./scripts/mock/mock-monitorable
+
+.PHONY: mock-pkg
+mock-pkg: ## generate mocks of pkg sub-directories
+	@./scripts/mock/mock-pkg
+
 # ============= BUILDS =============
 .PHONY: build
 build: build-cross

@@ -21,15 +21,15 @@ func NewNetworkPingRepository(config *config.Config) ping.Repository {
 	return &systemPingRepository{config}
 }
 
-func (r *systemPingRepository) Ping(hostname string) (*model.Ping, error) {
+func (r *systemPingRepository) CheckPing(hostname string) (*model.Ping, error) {
 	pinger, err := goPing.NewPinger(hostname)
 	if err != nil {
 		return nil, err
 	}
 
-	pinger.Count = r.config.Ping.Count
-	pinger.Interval = time.Millisecond * time.Duration(r.config.Ping.Timeout)
-	pinger.Timeout = time.Millisecond * time.Duration(r.config.Ping.Interval)
+	pinger.Count = r.config.PingConfig.Count
+	pinger.Interval = time.Millisecond * time.Duration(r.config.PingConfig.Interval)
+	pinger.Timeout = time.Millisecond * time.Duration(r.config.PingConfig.Timeout)
 	pinger.SetPrivileged(true) // NEED ROOT PRIVILEGED
 
 	pinger.Run()

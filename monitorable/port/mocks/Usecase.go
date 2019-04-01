@@ -5,7 +5,7 @@
 package mocks
 
 import mock "github.com/stretchr/testify/mock"
-import model "github.com/jsdidierlaurent/monitoror/monitorable/ping/model"
+import model "github.com/jsdidierlaurent/monitoror/monitorable/port/model"
 
 import tiles "github.com/jsdidierlaurent/monitoror/models/tiles"
 
@@ -14,12 +14,12 @@ type Usecase struct {
 	mock.Mock
 }
 
-// Ping provides a mock function with given fields: params
-func (_m *Usecase) Ping(params *model.PingParams) (*tiles.HealthTile, error) {
+// Port provides a mock function with given fields: params
+func (_m *Usecase) Port(params *model.PortParams) (*tiles.HealthTile, error) {
 	ret := _m.Called(params)
 
 	var r0 *tiles.HealthTile
-	if rf, ok := ret.Get(0).(func(*model.PingParams) *tiles.HealthTile); ok {
+	if rf, ok := ret.Get(0).(func(*model.PortParams) *tiles.HealthTile); ok {
 		r0 = rf(params)
 	} else {
 		if ret.Get(0) != nil {
@@ -28,7 +28,7 @@ func (_m *Usecase) Ping(params *model.PingParams) (*tiles.HealthTile, error) {
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*model.PingParams) error); ok {
+	if rf, ok := ret.Get(1).(func(*model.PortParams) error); ok {
 		r1 = rf(params)
 	} else {
 		r1 = ret.Error(1)

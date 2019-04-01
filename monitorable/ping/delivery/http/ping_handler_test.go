@@ -9,10 +9,10 @@ import (
 	"testing"
 
 	mErrors "github.com/jsdidierlaurent/monitoror/models/errors"
-
 	"github.com/jsdidierlaurent/monitoror/models/tiles"
 	. "github.com/jsdidierlaurent/monitoror/monitorable/ping"
 	"github.com/jsdidierlaurent/monitoror/monitorable/ping/mocks"
+
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"

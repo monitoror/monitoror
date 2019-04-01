@@ -5,11 +5,14 @@ package service
 import (
 	"fmt"
 
+	_pingDelivery "github.com/jsdidierlaurent/monitoror/monitorable/ping/delivery/http"
+	_pingUsecase "github.com/jsdidierlaurent/monitoror/monitorable/ping/usecase"
+	_portDelivery "github.com/jsdidierlaurent/monitoror/monitorable/port/delivery/http"
+	_portUsecase "github.com/jsdidierlaurent/monitoror/monitorable/port/usecase"
+
 	"github.com/jsdidierlaurent/monitoror/cli/version"
 	"github.com/jsdidierlaurent/monitoror/config"
 	"github.com/jsdidierlaurent/monitoror/handlers"
-	"github.com/jsdidierlaurent/monitoror/monitorable/ping/delivery/http"
-	"github.com/jsdidierlaurent/monitoror/monitorable/ping/usecase"
 
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
@@ -50,9 +53,14 @@ func Start(config *config.Config) {
 	v1.GET("/info", infoHandler.GetInfo)
 
 	// ------------- PING ------------- //
-	pingUsecase := usecase.NewPingUsecase()
-	pingHandler := http.NewHttpPingHandler(pingUsecase)
+	pingUC := _pingUsecase.NewPingUsecase()
+	pingHandler := _pingDelivery.NewHttpPingHandler(pingUC)
 	v1.GET("/ping", pingHandler.GetPing)
+
+	// ------------- PORT ------------- //
+	portUC := _portUsecase.NewPortUsecase()
+	portHandler := _portDelivery.NewHttpPortHandler(portUC)
+	v1.GET("/port", portHandler.GetPort)
 
 	// Start service
 	version.Version = "x.x.x-faker"
