@@ -1,0 +1,110 @@
+version: 2.1
+jobs:
+  test: # Running tests
+    docker:
+      - image: circleci/golang:1.12
+    steps:
+      # Checkout project
+      - checkout
+
+      # Download the dependencies and cache them
+      - restore_cache:
+          keys:
+            - go-mod-v1-{{ checksum "go.sum" }}
+      - run: make install
+      - save_cache:
+          key: go-mod-v1-{{ checksum "go.sum" }}
+          paths:
+            - "/go/pkg"
+
+      # Execute tests and coverage
+      - run: make test-coverage
+
+      # Store cover.out
+      - store_artifacts:
+          path: coverage.txt
+
+      # Persist workspace to next steps
+      - persist_to_workspace:
+          root: .
+          paths:
+            - coverage.txt
+
+  build: # Running on windows / linux / macosx
+    docker:
+      - image: circleci/golang:1.12
+    steps:
+      # Checkout project
+      - checkout
+
+      # Download the dependencies and cache them
+      - restore_cache:
+          keys:
+            - go-mod-v1-{{ checksum "go.sum" }}
+      - run: make install
+      - save_cache:
+          key: go-mod-v1-{{ checksum "go.sum" }}
+          paths:
+            - "/go/pkg"
+
+      # Execute build
+      - run: make build-all
+
+      # Store builds/*
+      - store_artifacts:
+          path: builds
+
+      # Persist workspace to next steps
+      - persist_to_workspace:
+          root: .
+          paths:
+            - builds/*
+
+  deploy-coverage: # Deploy code coverage
+    docker:
+      - image: circleci/golang:1.12
+    steps:
+      - attach_workspace:
+          at: .
+      - run: bash <(curl -s https://codecov.io/bash)
+
+  deploy-binaries: # Deploy binaries
+    docker:
+      - image: circleci/golang:1.12
+    steps:
+      - attach_workspace:
+          at: .
+      - run: ls ./builds
+
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test:
+          filters:
+            branches:
+              ignore: master
+  test-build-deploy:
+    jobs:
+      - test:
+          filters:
+            branches:
+              only: master
+      - build:
+          requires:
+            - test
+          filters:
+            branches:
+              only: master
+      - deploy-coverage:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master
+      - deploy-binaries:
+          requires:
+            - build
+          filters:
+            branches:
+              only: master

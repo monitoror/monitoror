@@ -3,6 +3,7 @@
 #
 
 DEFAULT: build-cross
+
 MAKEFLAGS = --silent --ignore-errors
 
 # ============= TESTS =============
