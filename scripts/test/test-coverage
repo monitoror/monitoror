@@ -3,5 +3,5 @@
 # Executing test coverage and print it
 go clean testdata ./...
 rm -f cover.out
-gotestsum -- -coverprofile=coverage.txt `go list ./... | grep -v mocks`
+gotestsum -- -coverprofile=coverage.txt -covermode=atomic `go list ./... | grep -v mocks`
 go tool cover -func coverage.txt
