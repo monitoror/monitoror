@@ -69,6 +69,7 @@ jobs:
     docker:
       - image: circleci/golang:1.12
     steps:
+      - checkout
       - attach_workspace:
           at: .
       - run:
@@ -100,3 +101,5 @@ workflows:
           filters:
             branches:
               only: master
+            tags:
+              only: /^v.*/

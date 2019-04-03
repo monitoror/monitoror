@@ -9,17 +9,12 @@ VERSION=$(cat VERSION 2>/dev/null)
 CHANGELOG=$(cat CHANGELOG 2>/dev/null)
 
 echo "Starting release-on-github script ..."
-echo " - Latest released version: ${LATEST_TAG}"
-echo " - Version to deploy: ${VERSION}"
+echo " - TAG: ${LATEST_TAG}"
+echo " - VERSION file: ${VERSION}"
 
-if [[ ${VERSION} == "" ]]; then
-  echo "VERSION file is missing or empty. Exit"
+if [[ ${VERSION} != ${LATEST_TAG} ]]; then
+  echo "VERSION file is different than TAG. Exit"
   exit 1
-fi
-
-if [[ ${VERSION} == ${LATEST_TAG} ]]; then
-  echo "This version is already deployed. Skip"
-  exit 0
 fi
 
 ghr \
@@ -29,6 +24,6 @@ ghr \
   -c ${CIRCLE_SHA1} \
   -delete \
   -n "Release ${VERSION}" \
-  -b "${CHANGELOG}"
+  -b "${CHANGELOG}" \
   ${VERSION} \
-  ./artifacts/
+  ./builds/
