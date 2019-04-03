@@ -20,10 +20,6 @@ jobs:
       # Execute tests and coverage
       - run: make test-coverage
 
-      # Store cover.out
-      - store_artifacts:
-          path: coverage.txt
-
       # Persist workspace to next steps
       - persist_to_workspace:
           root: .
@@ -79,18 +75,9 @@ jobs:
 
 workflows:
   version: 2
-  test:
+  build:
     jobs:
-      - test:
-          filters:
-            branches:
-              ignore: master
-  test-build-deploy:
-    jobs:
-      - test:
-          filters:
-            branches:
-              only: master
+      - test
       - build:
           requires:
             - test
