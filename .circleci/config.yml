@@ -64,6 +64,7 @@ jobs:
     docker:
       - image: circleci/golang:1.12
     steps:
+      - checkout
       - attach_workspace:
           at: .
       - run: bash <(curl -s https://codecov.io/bash)
