@@ -2,7 +2,6 @@
 
 echo " - Installing tools ..."
 go get gotest.tools/gotestsum
-go get github.com/vektra/mockery
 go mod tidy
 
 echo " - Installing module dependencies ..."

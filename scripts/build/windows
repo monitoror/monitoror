@@ -12,7 +12,7 @@ export GOOS=windows
 export GOARCH=amd64
 export GOGC=off
 
-TARGET="build/monitoror-$GOOS-$GOARCH.exe"
+TARGET="builds/monitoror-$GOOS-$GOARCH.exe"
 
 echo "Building statically linked $TARGET"
 go build -o "${TARGET}" --ldflags "${LDFLAGS}" "${SOURCE}"

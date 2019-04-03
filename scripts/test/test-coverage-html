@@ -2,6 +2,6 @@
 
 # Executing test coverage and print it
 go clean testdata ./...
-gotestsum -- -coverprofile=cover.out `go list ./... | grep -v mocks`
-go tool cover -html=cover.out -o cover.html
-rm cover.out
+rm -f coverage.txt coverage.html
+gotestsum -- -coverprofile=coverage.txt `go list ./... | grep -v mocks`
+go tool cover -html=coverage.txt -o coverage.html

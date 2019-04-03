@@ -13,8 +13,8 @@ vendor
 *.test
 
 # Output of the go coverage tool, specifically when used with LiteIDE
-cover.out
-cover.html
+coverage.txt
+coverage.html
 
 # Intellij
 .idea
@@ -24,6 +24,6 @@ cover.html
 .DS_Store
 
 # Config
-config.yml
-config.json
-config.toml
+./config.yml
+./config.json
+./config.toml
