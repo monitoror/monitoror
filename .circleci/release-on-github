@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+##########################################################################
+# This script is used by CircleCi to deploy release version of monitoror #
+##########################################################################
+
+LATEST_TAG=$(git describe --tags 2>/dev/null)
+VERSION=$(cat VERSION 2>/dev/null)
+CHANGELOG=$(cat CHANGELOG 2>/dev/null)
+
+echo "Starting release-on-github script ..."
+echo " - Latest released version: ${LATEST_TAG}"
+echo " - Version to deploy: ${VERSION}"
+
+if [[ ${VERSION} == "" ]]; then
+  echo "VERSION file is missing or empty. Exit"
+  exit 1
+fi
+
+if [[ ${VERSION} == ${LATEST_TAG} ]]; then
+  echo "This version is already deployed. Skip"
+  exit 0
+fi
+
+ghr \
+  -t ${GITHUB_TOKEN} \
+  -u ${CIRCLE_PROJECT_USERNAME} \
+  -r ${CIRCLE_PROJECT_REPONAME} \
+  -c ${CIRCLE_SHA1} \
+  -delete \
+  -n "Release ${VERSION}" \
+  -b "${CHANGELOG}"
+  ${VERSION} \
+  ./artifacts/

@@ -4,57 +4,53 @@ jobs:
     docker:
       - image: circleci/golang:1.12
     steps:
-      # Checkout project
       - checkout
 
       # Download the dependencies and cache them
       - restore_cache:
           keys:
             - go-mod-v1-{{ checksum "go.sum" }}
-      - run: make install
+      - run:
+          name: "Install dependencies"
+          command: make install
       - save_cache:
           key: go-mod-v1-{{ checksum "go.sum" }}
           paths:
             - "/go/pkg"
 
-      # Execute tests and coverage
-      - run: make test-coverage
+      - run:
+          name: "Execute tests and coverage"
+          command: make test-coverage
 
-      # Store cover.out
-      - store_artifacts:
-          path: coverage.txt
-
-      # Persist workspace to next steps
       - persist_to_workspace:
           root: .
           paths:
             - coverage.txt
 
-  build: # Running on windows / linux / macosx
+  build: # Building monitoror for all targets
     docker:
       - image: circleci/golang:1.12
     steps:
-      # Checkout project
       - checkout
 
-      # Download the dependencies and cache them
       - restore_cache:
           keys:
             - go-mod-v1-{{ checksum "go.sum" }}
-      - run: make install
+      - run:
+          name: "Install dependencies"
+          command: make install
       - save_cache:
           key: go-mod-v1-{{ checksum "go.sum" }}
           paths:
             - "/go/pkg"
 
-      # Execute build
-      - run: make build-all
+      - run:
+          name: "Execute tests and coverage"
+          command: make build-all
 
-      # Store builds/*
       - store_artifacts:
           path: builds
 
-      # Persist workspace to next steps
       - persist_to_workspace:
           root: .
           paths:
@@ -75,22 +71,17 @@ jobs:
     steps:
       - attach_workspace:
           at: .
-      - run: ls ./builds
+      - run:
+          name: "Publish Release on GitHub"
+          command: |
+            go get github.com/tcnksm/ghr
+            ./.circleci/release-on-github
 
 workflows:
   version: 2
-  test:
+  monitoror-pipeline:
     jobs:
-      - test:
-          filters:
-            branches:
-              ignore: master
-  test-build-deploy:
-    jobs:
-      - test:
-          filters:
-            branches:
-              only: master
+      - test
       - build:
           requires:
             - test
