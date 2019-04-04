@@ -1,6 +1,36 @@
 version: 2.1
+
 jobs:
-  test: # Running tests
+  test-front: # Running tests for frontend
+    working_directory: ~/monitoror/front
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout:
+          path: ~/monitoror
+
+      # Download the dependencies and cache them
+      - restore_cache:
+          keys:
+            - node-mod-v1-{{ checksum "package.json" }}
+      - run:
+          name: "Install dependencies"
+          command: npm install
+      - save_cache:
+          key: node-mod-v1-{{ checksum "package.json" }}
+          paths:
+            - "node_modules"
+
+      - run:
+          name: "Execute tests and coverage"
+          command: npm run test
+
+      - run:
+          name: "Uploading code coverage"
+          command: bash <(curl -s https://codecov.io/bash) -cF front
+
+  test-back: # Running tests for backend
+    working_directory: ~/monitoror
     docker:
       - image: circleci/golang:1.12
     steps:
@@ -17,21 +47,52 @@ jobs:
           key: go-mod-v1-{{ checksum "go.sum" }}
           paths:
             - "/go/pkg"
-
+            -
       - run:
           name: "Execute tests and coverage"
           command: make test-coverage
 
-      - persist_to_workspace:
-          root: .
-          paths:
-            - coverage.txt
+      - run:
+          name: "Uploading code coverage"
+          command: bash <(curl -s https://codecov.io/bash) -cF back
 
-  build: # Building monitoror for all targets
+  build-front: # Building monitoror front
+    working_directory: ~/monitoror/front
+    docker:
+      - image: circleci/node:10
+    steps:
+      - checkout:
+          path: ~/monitoror
+
+      # Download the dependencies and cache them
+      - restore_cache:
+          keys:
+            - node-mod-v1-{{ checksum "package.json" }}
+      - run:
+          name: "Install dependencies"
+          command: npm install
+      - save_cache:
+          key: node-mod-v1-{{ checksum "package.json" }}
+          paths:
+            - "node_modules"
+
+      - run:
+          name: "Build/Pack front"
+          command: npm run prod
+
+      - persist_to_workspace:
+          root: ./dist
+          paths:
+            - "*"
+
+  build-back: # Building monitoror for all targets
+    working_directory: ~/monitoror
     docker:
       - image: circleci/golang:1.12
     steps:
       - checkout
+      - attach_workspace:
+          at: front/dist
 
       - restore_cache:
           keys:
@@ -45,27 +106,21 @@ jobs:
             - "/go/pkg"
 
       - run:
-          name: "Execute tests and coverage"
-          command: make build-all
+          name: "Build all target"
+          command: |
+            ls front/output
+            make build-all
 
       - store_artifacts:
-          path: builds
+          path: output
 
       - persist_to_workspace:
-          root: .
+          root: ./output
           paths:
-            - builds/*
-
-  deploy-coverage: # Deploy code coverage
-    docker:
-      - image: circleci/golang:1.12
-    steps:
-      - checkout
-      - attach_workspace:
-          at: .
-      - run: bash <(curl -s https://codecov.io/bash)
+            - "monitoror-*"
 
   deploy-binaries: # Deploy binaries
+    working_directory: ~/monitoror
     docker:
       - image: circleci/golang:1.12
     steps:
@@ -82,22 +137,24 @@ workflows:
   version: 2
   monitoror-pipeline:
     jobs:
-      - test
-      - build:
+      - test-front
+      - test-back
+      - build-front:
           requires:
-            - test
+            - test-front
           filters:
             branches:
               only: master
-      - deploy-coverage:
+      - build-back:
           requires:
-            - build
+            - test-back
+            - build-front
           filters:
             branches:
               only: master
       - deploy-binaries:
           requires:
-            - build
+            - build-back
           filters:
             branches:
               only: master

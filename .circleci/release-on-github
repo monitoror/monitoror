@@ -24,4 +24,4 @@ ghr \
   -n "Release ${VERSION}" \
   -b "${CHANGELOG}" \
   ${VERSION} \
-  ./builds/
+  ./output/

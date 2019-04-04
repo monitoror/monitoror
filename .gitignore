@@ -7,7 +7,7 @@ vendor
 *.dll
 *.so
 *.dylib
-/builds/monitoror*
+/output/monitoror*
 
 # Test binary, build with `go test -c`
 *.test
@@ -24,6 +24,6 @@ coverage.html
 .DS_Store
 
 # Config
-./config.yml
-./config.json
-./config.toml
+./server-config.yml
+./server-config.json
+./server-config.toml
