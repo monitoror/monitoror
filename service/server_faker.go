@@ -10,7 +10,6 @@ import (
 	_portDelivery "github.com/jsdidierlaurent/monitoror/monitorable/port/delivery/http"
 	_portUsecase "github.com/jsdidierlaurent/monitoror/monitorable/port/usecase"
 
-	"github.com/jsdidierlaurent/monitoror/cli/version"
 	"github.com/jsdidierlaurent/monitoror/config"
 	"github.com/jsdidierlaurent/monitoror/handlers"
 
@@ -63,6 +62,5 @@ func Start(config *config.Config) {
 	v1.GET("/port", portHandler.GetPort)
 
 	// Start service
-	version.Version = "x.x.x-faker"
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.Port)))
 }

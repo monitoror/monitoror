@@ -8,22 +8,20 @@ import (
 	"time"
 
 	. "github.com/jsdidierlaurent/monitoror/models/tiles"
-	"github.com/jsdidierlaurent/monitoror/monitorable/ping/model"
 	"github.com/jsdidierlaurent/monitoror/monitorable/port"
+	"github.com/jsdidierlaurent/monitoror/monitorable/port/model"
 )
 
 type (
-	portUsecase struct {
-		repository port.Repository
-	}
+	portUsecase struct{}
 )
 
 // NewArticleUsecase will create new an articleUsecase object representation of article.Usecase interface
-func NewPortUsecase(pr port.Repository) port.Usecase {
-	return &portUsecase{pr}
+func NewPortUsecase() port.Usecase {
+	return &portUsecase{}
 }
 
-func (pu *portUsecase) CheckPort(params *model.PortParams) (tile *HealthTile, err error) {
+func (pu *portUsecase) Port(params *model.PortParams) (tile *HealthTile, err error) {
 	tile = NewHealthTile(port.PortTileSubType)
 	tile.Label = fmt.Sprintf("%s:%d", params.Hostname, params.Port)
 
