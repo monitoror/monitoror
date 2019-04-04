@@ -1,6 +1,6 @@
 {
   "name": "monitoror",
-  "version": "1.0.0",
+  "version": "0.0.0-beta",
   "description": "Monitoring wall to healh check services, servers, builds, ...",
   "main": "index.js",
   "scripts": {

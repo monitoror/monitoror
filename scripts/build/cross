@@ -10,7 +10,7 @@ source ./scripts/.variables
 export CGO_ENABLED=0
 export GOGC=off
 
-TARGET="builds/monitoror-$GOOS-$GOARCH"
+TARGET="output/monitoror-$GOOS-$GOARCH"
 if [[ $GOOS = "windows" ]]
 then
 	TARGET="$TARGET.exe"
