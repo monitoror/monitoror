@@ -81,9 +81,9 @@ jobs:
           command: npm run prod
 
       - persist_to_workspace:
-          root: ./dist
+          root: .
           paths:
-            - "*"
+            - "dist/*"
 
   build-back: # Building monitoror for all targets
     working_directory: ~/monitoror
@@ -92,7 +92,7 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: front/dist
+          at: front
 
       - restore_cache:
           keys:
@@ -108,16 +108,16 @@ jobs:
       - run:
           name: "Build all target"
           command: |
-            ls front/output
+            ls front/dist
             make build-all
 
       - store_artifacts:
           path: output
 
       - persist_to_workspace:
-          root: ./output
+          root: .
           paths:
-            - "monitoror-*"
+            - "output/monitoror-*"
 
   deploy-binaries: # Deploy binaries
     working_directory: ~/monitoror
@@ -129,9 +129,7 @@ jobs:
           at: .
       - run:
           name: "Publish Release on GitHub"
-          command: |
-            go get github.com/tcnksm/ghr
-            ./.circleci/release-on-github
+          command: ./.circleci/release-on-github
 
 workflows:
   version: 2
@@ -158,5 +156,3 @@ workflows:
           filters:
             branches:
               only: master
-            tags:
-              only: /^v.*/
