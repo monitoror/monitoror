@@ -4,16 +4,14 @@
 # This script is used by CircleCi to deploy release version of monitoror #
 ##########################################################################
 
-LATEST_TAG=$(git describe --tags 2>/dev/null)
-VERSION=$(cat VERSION 2>/dev/null)
+VERSION=$(git describe --tags 2>/dev/null)
 CHANGELOG=$(cat CHANGELOG 2>/dev/null)
 
 echo "Starting release-on-github script ..."
-echo " - TAG: ${LATEST_TAG}"
-echo " - VERSION file: ${VERSION}"
+echo " - VERSION: ${VERSION}"
 
-if [[ ${VERSION} != ${LATEST_TAG} ]]; then
-  echo "VERSION file is different than TAG. Exit"
+if [[ ${VERSION} == "" ]]; then
+  echo "No tag found. Exit"
   exit 1
 fi
 

@@ -5,7 +5,7 @@ package version
 // Default build-time variable.
 // These values are overridden via ldflags on build
 var (
-	Version   = "v0.0.0-dev"
+	Version   = "unknown-version"
 	GitCommit = "unknown-gitcommit"
 	BuildTime = "unknown-buildtime"
 )

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -eu
 
-VERSION=${VERSION:-$(cat VERSION)}
+VERSION=${VERSION:-$(git describe --tags 2> /dev/null || true)}
 GITCOMMIT=${GITCOMMIT:-$(git rev-parse --short HEAD 2> /dev/null || true)}
 BUILDTIME=${BUILDTIME:-$(date --utc --rfc-3339 seconds 2> /dev/null | sed -e 's/ /T/')}
 GOOS="${GOOS:-$(go env GOHOSTOS)}"

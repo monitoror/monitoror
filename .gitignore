@@ -7,7 +7,7 @@ vendor
 *.dll
 *.so
 *.dylib
-/build/monitoror*
+/builds/monitoror*
 
 # Test binary, build with `go test -c`
 *.test
