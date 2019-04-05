@@ -1,3 +1,27 @@
+aliases:
+  - &restore-go-cache
+    keys:
+      - go-mod-v1-{{ checksum "go.sum" }}
+
+  - &save-go-cache
+    paths:
+      - /go/bin
+      - /go/pkg/mod
+    key: go-mod-v1-{{ checksum "go.sum" }}
+
+  - &restore-node-cache
+    keys:
+      - go-node-v1-{{ checksum "package-lock.json" }}
+
+  - &save-node-cache
+    paths:
+      - /node-modules
+    key: go-node-v1-{{ checksum "package-lock.json" }}
+
+  - &filter-master
+    branches:
+      only: master
+
 version: 2.1
 
 jobs:
@@ -10,16 +34,11 @@ jobs:
           path: ~/monitoror
 
       # Download the dependencies and cache them
-      - restore_cache:
-          keys:
-            - node-mod-v1-{{ checksum "package.json" }}
+      - restore_cache: *restore-node-cache
       - run:
           name: "Install dependencies"
           command: npm install
-      - save_cache:
-          key: node-mod-v1-{{ checksum "package.json" }}
-          paths:
-            - "node_modules"
+      - save_cache: *save-node-cache
 
       - run:
           name: "Execute tests and coverage"
@@ -37,17 +56,12 @@ jobs:
       - checkout
 
       # Download the dependencies and cache them
-      - restore_cache:
-          keys:
-            - go-mod-v1-{{ checksum "go.sum" }}
+      - restore_cache: *restore-go-cache
       - run:
           name: "Install dependencies"
           command: make install
-      - save_cache:
-          key: go-mod-v1-{{ checksum "go.sum" }}
-          paths:
-            - "/go/pkg"
-            -
+      - save_cache: *save-go-cache
+
       - run:
           name: "Execute tests and coverage"
           command: make test-coverage
@@ -65,16 +79,11 @@ jobs:
           path: ~/monitoror
 
       # Download the dependencies and cache them
-      - restore_cache:
-          keys:
-            - node-mod-v1-{{ checksum "package.json" }}
+      - restore_cache: *restore-node-cache
       - run:
           name: "Install dependencies"
           command: npm install
-      - save_cache:
-          key: node-mod-v1-{{ checksum "package.json" }}
-          paths:
-            - "node_modules"
+      - save_cache: *save-node-cache
 
       - run:
           name: "Build/Pack front"
@@ -94,22 +103,15 @@ jobs:
       - attach_workspace:
           at: front
 
-      - restore_cache:
-          keys:
-            - go-mod-v1-{{ checksum "go.sum" }}
+      - restore_cache: *restore-go-cache
       - run:
           name: "Install dependencies"
           command: make install
-      - save_cache:
-          key: go-mod-v1-{{ checksum "go.sum" }}
-          paths:
-            - "/go/pkg"
+      - save_cache: *save-go-cache
 
       - run:
           name: "Build all target"
-          command: |
-            ls front/dist
-            make build-all
+          command: make build-all
 
       - store_artifacts:
           path: output
@@ -127,9 +129,12 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
+
+      - restore_cache: *restore-go-cache
       - run:
           name: "Publish Release on GitHub"
           command: ./.circleci/release-on-github
+      - save_cache: *save-go-cache
 
 workflows:
   version: 2
@@ -140,19 +145,13 @@ workflows:
       - build-front:
           requires:
             - test-front
-          filters:
-            branches:
-              only: master
+          filters: *filter-master
       - build-back:
           requires:
             - test-back
             - build-front
-          filters:
-            branches:
-              only: master
+          filters: *filter-master
       - deploy-binaries:
           requires:
             - build-back
-          filters:
-            branches:
-              only: master
+          filters: *filter-master
