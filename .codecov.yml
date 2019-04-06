@@ -2,7 +2,7 @@ ignore:
   - cmd/
 
 fixes:
-  - "github.com/jsdidierlaurent/::"
+  - "github.com/monitoror/::"
 
 coverage:
   status:

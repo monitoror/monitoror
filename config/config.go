@@ -3,7 +3,7 @@ package config
 import (
 	"strings"
 
-	"github.com/jsdidierlaurent/monitoror/models/errors"
+	"github.com/monitoror/monitoror/models/errors"
 
 	"github.com/spf13/viper"
 )

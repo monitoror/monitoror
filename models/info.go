@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/jsdidierlaurent/monitoror/config"
+	"github.com/monitoror/monitoror/config"
 )
 
 type (

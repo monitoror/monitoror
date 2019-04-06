@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/jsdidierlaurent/monitoror/models/tiles"
-	. "github.com/jsdidierlaurent/monitoror/monitorable/port"
-	"github.com/jsdidierlaurent/monitoror/monitorable/port/mocks"
-	"github.com/jsdidierlaurent/monitoror/monitorable/port/model"
+	"github.com/monitoror/monitoror/models/tiles"
+	. "github.com/monitoror/monitoror/monitorable/port"
+	"github.com/monitoror/monitoror/monitorable/port/mocks"
+	"github.com/monitoror/monitoror/monitorable/port/model"
 
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"

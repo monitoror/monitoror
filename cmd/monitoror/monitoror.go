@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/jsdidierlaurent/monitoror/cli"
-	"github.com/jsdidierlaurent/monitoror/config"
-	"github.com/jsdidierlaurent/monitoror/service"
+	"github.com/monitoror/monitoror/cli"
+	"github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/service"
 )
 
 func main() {

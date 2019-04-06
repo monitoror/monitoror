@@ -4,7 +4,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jsdidierlaurent/monitoror/config"
+	"github.com/monitoror/monitoror/config"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/jsdidierlaurent/echo-middleware/cache/mocks"

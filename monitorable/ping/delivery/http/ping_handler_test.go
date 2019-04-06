@@ -8,10 +8,10 @@ import (
 	"strings"
 	"testing"
 
-	mErrors "github.com/jsdidierlaurent/monitoror/models/errors"
-	"github.com/jsdidierlaurent/monitoror/models/tiles"
-	. "github.com/jsdidierlaurent/monitoror/monitorable/ping"
-	"github.com/jsdidierlaurent/monitoror/monitorable/ping/mocks"
+	mErrors "github.com/monitoror/monitoror/models/errors"
+	"github.com/monitoror/monitoror/models/tiles"
+	. "github.com/monitoror/monitoror/monitorable/ping"
+	"github.com/monitoror/monitoror/monitorable/ping/mocks"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"

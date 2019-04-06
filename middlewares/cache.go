@@ -3,7 +3,7 @@ package middlewares
 import (
 	"time"
 
-	"github.com/jsdidierlaurent/monitoror/config"
+	"github.com/monitoror/monitoror/config"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/labstack/echo/v4"

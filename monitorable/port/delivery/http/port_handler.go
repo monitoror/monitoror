@@ -3,10 +3,10 @@ package http
 import (
 	"net/http"
 
-	"github.com/jsdidierlaurent/monitoror/models/errors"
-	"github.com/jsdidierlaurent/monitoror/monitorable/port/model"
+	"github.com/monitoror/monitoror/models/errors"
+	"github.com/monitoror/monitoror/monitorable/port/model"
 
-	"github.com/jsdidierlaurent/monitoror/monitorable/port"
+	"github.com/monitoror/monitoror/monitorable/port"
 
 	"github.com/labstack/echo/v4"
 )

@@ -2,7 +2,7 @@
 
 package model
 
-import "github.com/jsdidierlaurent/monitoror/models/tiles"
+import "github.com/monitoror/monitoror/models/tiles"
 
 type (
 	PortParams struct {

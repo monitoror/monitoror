@@ -1,4 +1,4 @@
-module github.com/jsdidierlaurent/monitoror
+module github.com/monitoror/monitoror
 
 go 1.12
 

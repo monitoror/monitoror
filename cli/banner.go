@@ -1,12 +1,12 @@
 package cli
 
 import (
-	"github.com/jsdidierlaurent/monitoror/cli/version"
 	"github.com/labstack/gommon/color"
+	"github.com/monitoror/monitoror/cli/version"
 )
 
 const (
-	website = "https://github.com/jsdidierlaurent/monitoror"
+	website = "https://github.com/monitoror/monitoror"
 	banner  = `
     __  ___            _ __
    /  |/  /___  ____  (_) /_____  _________  _____

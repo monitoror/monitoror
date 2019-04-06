@@ -5,13 +5,13 @@ package service
 import (
 	"fmt"
 
-	_pingDelivery "github.com/jsdidierlaurent/monitoror/monitorable/ping/delivery/http"
-	_pingUsecase "github.com/jsdidierlaurent/monitoror/monitorable/ping/usecase"
-	_portDelivery "github.com/jsdidierlaurent/monitoror/monitorable/port/delivery/http"
-	_portUsecase "github.com/jsdidierlaurent/monitoror/monitorable/port/usecase"
+	_pingDelivery "github.com/monitoror/monitoror/monitorable/ping/delivery/http"
+	_pingUsecase "github.com/monitoror/monitoror/monitorable/ping/usecase"
+	_portDelivery "github.com/monitoror/monitoror/monitorable/port/delivery/http"
+	_portUsecase "github.com/monitoror/monitoror/monitorable/port/usecase"
 
-	"github.com/jsdidierlaurent/monitoror/config"
-	"github.com/jsdidierlaurent/monitoror/handlers"
+	"github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/handlers"
 
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"

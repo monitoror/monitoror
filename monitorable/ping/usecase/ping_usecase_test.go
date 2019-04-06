@@ -5,10 +5,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jsdidierlaurent/monitoror/models/tiles"
-	. "github.com/jsdidierlaurent/monitoror/monitorable/ping"
-	"github.com/jsdidierlaurent/monitoror/monitorable/ping/mocks"
-	"github.com/jsdidierlaurent/monitoror/monitorable/ping/model"
+	"github.com/monitoror/monitoror/models/tiles"
+	. "github.com/monitoror/monitoror/monitorable/ping"
+	"github.com/monitoror/monitoror/monitorable/ping/mocks"
+	"github.com/monitoror/monitoror/monitorable/ping/model"
 
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"

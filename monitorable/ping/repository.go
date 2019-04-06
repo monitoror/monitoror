@@ -1,7 +1,7 @@
 package ping
 
 import (
-	"github.com/jsdidierlaurent/monitoror/monitorable/ping/model"
+	"github.com/monitoror/monitoror/monitorable/ping/model"
 )
 
 // Repository represent the ping's repository contract

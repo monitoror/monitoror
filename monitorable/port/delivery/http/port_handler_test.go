@@ -9,12 +9,12 @@ import (
 	"strings"
 	"testing"
 
-	mErrors "github.com/jsdidierlaurent/monitoror/models/errors"
+	mErrors "github.com/monitoror/monitoror/models/errors"
 
-	"github.com/jsdidierlaurent/monitoror/models/tiles"
-	. "github.com/jsdidierlaurent/monitoror/monitorable/port"
-	"github.com/jsdidierlaurent/monitoror/monitorable/port/mocks"
 	"github.com/labstack/echo/v4"
+	"github.com/monitoror/monitoror/models/tiles"
+	. "github.com/monitoror/monitoror/monitorable/port"
+	"github.com/monitoror/monitoror/monitorable/port/mocks"
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"
 )

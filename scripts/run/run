@@ -4,4 +4,12 @@ set -eu -o pipefail
 
 source ./scripts/.variables
 
+export LDFLAGS="\
+    -w \
+    -X \"github.com/monitoror/monitoror/cli/version.GitCommit=${GITCOMMIT}\" \
+    -X \"github.com/monitoror/monitoror/cli/version.BuildTime=${BUILDTIME}\" \
+    -X \"github.com/monitoror/monitoror/cli/version.Version=${VERSION}\" \
+    ${LDFLAGS:-} \
+"
+
 MO_MODE=${MO_MODE:-"develop"} go run --ldflags "${LDFLAGS}" "${SOURCE}"

@@ -8,9 +8,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/jsdidierlaurent/monitoror/middlewares"
-	mErrors "github.com/jsdidierlaurent/monitoror/models/errors"
-	"github.com/jsdidierlaurent/monitoror/models/tiles"
+	"github.com/monitoror/monitoror/middlewares"
+	mErrors "github.com/monitoror/monitoror/models/errors"
+	"github.com/monitoror/monitoror/models/tiles"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/jsdidierlaurent/echo-middleware/cache/mocks"

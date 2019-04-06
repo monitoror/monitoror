@@ -1,5 +1,5 @@
 #
-# github.com/jsdidierlaurent/monitoror
+# github.com/monitoror/monitoror
 #
 
 DEFAULT: build-cross

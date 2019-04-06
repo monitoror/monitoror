@@ -4,9 +4,9 @@ import (
 	"errors"
 	"time"
 
-	"github.com/jsdidierlaurent/monitoror/config"
-	"github.com/jsdidierlaurent/monitoror/monitorable/ping"
-	"github.com/jsdidierlaurent/monitoror/monitorable/ping/model"
+	"github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/monitorable/ping"
+	"github.com/monitoror/monitoror/monitorable/ping/model"
 
 	goPing "github.com/sparrc/go-ping"
 )

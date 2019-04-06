@@ -4,8 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/jsdidierlaurent/monitoror/config"
-	"github.com/jsdidierlaurent/monitoror/pkg/net/mocks"
+	"github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/pkg/net/mocks"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"

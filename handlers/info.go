@@ -3,9 +3,9 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/jsdidierlaurent/monitoror/cli/version"
-	"github.com/jsdidierlaurent/monitoror/config"
-	"github.com/jsdidierlaurent/monitoror/models"
+	"github.com/monitoror/monitoror/cli/version"
+	"github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/models"
 
 	"github.com/labstack/echo/v4"
 )

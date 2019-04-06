@@ -3,9 +3,9 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/jsdidierlaurent/monitoror/middlewares"
-	"github.com/jsdidierlaurent/monitoror/models/errors"
-	"github.com/jsdidierlaurent/monitoror/models/tiles"
+	"github.com/monitoror/monitoror/middlewares"
+	"github.com/monitoror/monitoror/models/errors"
+	"github.com/monitoror/monitoror/models/tiles"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/labstack/echo/v4"

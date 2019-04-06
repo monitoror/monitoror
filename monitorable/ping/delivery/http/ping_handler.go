@@ -3,10 +3,10 @@ package http
 import (
 	"net/http"
 
-	"github.com/jsdidierlaurent/monitoror/models/errors"
-	"github.com/jsdidierlaurent/monitoror/monitorable/ping/model"
+	"github.com/monitoror/monitoror/models/errors"
+	"github.com/monitoror/monitoror/monitorable/ping/model"
 
-	"github.com/jsdidierlaurent/monitoror/monitorable/ping"
+	"github.com/monitoror/monitoror/monitorable/ping"
 
 	"github.com/labstack/echo/v4"
 )

@@ -7,9 +7,9 @@ import (
 	"math/rand"
 	"time"
 
-	. "github.com/jsdidierlaurent/monitoror/models/tiles"
-	"github.com/jsdidierlaurent/monitoror/monitorable/port"
-	"github.com/jsdidierlaurent/monitoror/monitorable/port/model"
+	. "github.com/monitoror/monitoror/models/tiles"
+	"github.com/monitoror/monitoror/monitorable/port"
+	"github.com/monitoror/monitoror/monitorable/port/model"
 )
 
 type (
