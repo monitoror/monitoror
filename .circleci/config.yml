@@ -1,13 +1,12 @@
 aliases:
   - &restore-go-cache
     keys:
-      - go-mod-v1-{{ checksum "go.sum" }}
+      - go-mod-v2-{{ checksum "go.sum" }}
 
   - &save-go-cache
     paths:
-      - /go/bin
       - /go/pkg/mod
-    key: go-mod-v1-{{ checksum "go.sum" }}
+    key: go-mod-v2-{{ checksum "go.sum" }}
 
   - &restore-node-cache
     keys:
