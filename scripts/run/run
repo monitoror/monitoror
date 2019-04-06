@@ -12,4 +12,4 @@ export LDFLAGS="\
     ${LDFLAGS:-} \
 "
 
-MO_MODE=${MO_MODE:-"develop"} go run --ldflags "${LDFLAGS}" "${SOURCE}"
+MO_ENV=${MO_ENV:-"development"} go run --ldflags "${LDFLAGS}" "${SOURCE}"

@@ -25,6 +25,4 @@ coverage.html
 .DS_Store
 
 # Config
-./server-config.yml
-./server-config.json
-./server-config.toml
+.env.local

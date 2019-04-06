@@ -4,4 +4,4 @@ set -eu -o pipefail
 
 source ./scripts/.variables
 
-MO_MODE=${MO_MODE:-"develop"} go run -tags faker "${SOURCE}"
+MO_ENV=${MO_ENV:-"development"} go run -tags faker "${SOURCE}"
