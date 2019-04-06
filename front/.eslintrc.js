@@ -1,25 +1,17 @@
 module.exports = {
   root: true,
-  parserOptions: {
-    parser: 'babel-eslint'
-  },
   env: {
-    browser: true,
-    node: true,
-    mocha: true
+    node: true
   },
-  "globals": {
-    "expect": true
-  },
-  extends: [
-    'plugin:vue/recommended',
-    'standard'
-  ],
-  plugins: [
-    'vue'
+  'extends': [
+    'plugin:vue/essential',
+    '@vue/standard'
   ],
   rules: {
-    'generator-star-spacing': 'off',
+    'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
     'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off'
+  },
+  parserOptions: {
+    parser: 'babel-eslint'
   }
 }
