@@ -22,8 +22,10 @@ aliases:
       only: master
 
   - &filter-tag
+    tags:
+      only: "/^.*/"
     branches:
-      only: master
+      ignore: /.*/
 
 version: 2.1
 
