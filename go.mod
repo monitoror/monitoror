@@ -6,6 +6,7 @@ require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/GeertJohan/go.rice v1.0.0
 	github.com/bradfitz/gomemcache v0.0.0-20190329173943-551aad21a668 // indirect
+	github.com/joho/godotenv v1.3.0
 	github.com/jsdidierlaurent/echo-middleware v1.0.1
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/labstack/echo/v4 v4.0.0

@@ -3,65 +3,56 @@ package config
 import (
 	"strings"
 
-	"github.com/monitoror/monitoror/models/errors"
-
 	"github.com/spf13/viper"
 )
 
-const ServerConfigFileName = "server-config"
 const EnvPrefix = "MO"
 
 type (
 	Config struct {
 		// --- General Configuration ---
-		Port int    `json:"port"` // Default: 8080
-		Mode string `json:"mode"` // Default: production
+		Port int    // Default: 8080
+		Env  string // Default: production
 
 		// --- Cache Configuration ---
 		//UpstreamCache is used to respond before executing the request. Avoid overloading services.
-		UpstreamCache Cache `json:"upstream-cache"`
+		UpstreamCache Cache
 		//DownstreamCache is used to respond after executing the request in case of timeout error.
-		DownstreamCache Cache `json:"downstream-cache"`
+		DownstreamCache Cache
 
 		// --- Ping Configuration ---
-		PingConfig PingConfig `json:"ping-config"`
+		PingConfig PingConfig
 
 		// --- Port Configuration ---
-		PortConfig PortConfig `json:"port-config"`
+		PortConfig PortConfig
 
 		// --- Gitlab Configuration ---
-		GitlabConfig GitlabConfig `json:"gitlab-config"`
+		GitlabConfig GitlabConfig
 	}
 
 	Cache struct {
-		Expire          int `json:"expire"`           // In Millisecond
-		CleanupInterval int `json:"cleanup-interval"` // In Millisecond
+		Expire          int // In Millisecond
+		CleanupInterval int // In Millisecond
 	}
 
 	PingConfig struct {
-		Count    int `json:"count"`
-		Timeout  int `json:"timeout"`  // In Millisecond
-		Interval int `json:"interval"` // In Millisecond
+		Count    int
+		Timeout  int // In Millisecond
+		Interval int // In Millisecond
 	}
 
 	PortConfig struct {
-		Timeout int `json:"timeout"` // In Millisecond
+		Timeout int // In Millisecond
 	}
 
 	GitlabConfig struct {
-		Token string `json:"token,omitempty"`
+		Token string
 	}
 )
 
 // Load confiuration from configuration file / env / default value
 func InitConfig() (*Config, error) {
 	var config Config
-
-	// Setup config filename / path
-	viper.SetConfigName(ServerConfigFileName)
-
-	viper.AddConfigPath(".")
-	viper.AddConfigPath("$HOME/monitoror/")
 
 	// Setup Env
 	viper.AutomaticEnv()
@@ -71,7 +62,7 @@ func InitConfig() (*Config, error) {
 	// Setup default values
 	// --- General Configuration ---
 	viper.SetDefault("Port", 8080)
-	viper.SetDefault("Mode", "production")
+	viper.SetDefault("Env", "production")
 
 	// --- Cache Configuration ---
 	viper.SetDefault("UpstreamCache.Expire", 10000)
@@ -88,14 +79,7 @@ func InitConfig() (*Config, error) {
 	viper.SetDefault("PortConfig.Timeout", 1000)
 
 	// Read Configuration
-	err := viper.ReadInConfig()
-	if _, ok := err.(viper.ConfigParseError); ok {
-		return nil, errors.NewConfigError(err)
-	}
-
-	if err := viper.Unmarshal(&config); err != nil {
-		return nil, errors.NewConfigError(err)
-	}
+	_ = viper.Unmarshal(&config)
 
 	return &config, nil
 }

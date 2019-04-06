@@ -58,7 +58,7 @@ func Start(config *config.Config) {
 	}))
 
 	//  ----- Front -----
-	if config.Mode == "production" {
+	if config.Env == "production" {
 		// Never use constant or variable according to docs : https://github.com/GeertJohan/go.rice#calling-findbox-and-mustfindbox
 		frontAssets, err := rice.FindBox("../front/dist")
 		if err != nil {
@@ -73,7 +73,7 @@ func Start(config *config.Config) {
 		e.GET("/fonts/*", echo.WrapHandler(http.StripPrefix("/", assetHandler)))
 		e.GET("/img/*", echo.WrapHandler(http.StripPrefix("/", assetHandler)))
 	}
-	printModule("front", config.Mode == "production")
+	printModule("front", config.Env == "production")
 
 	// ----- Routes -----
 	v1 := e.Group("/api/v1")
