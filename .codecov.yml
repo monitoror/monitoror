@@ -6,9 +6,12 @@ fixes:
 
 coverage:
   status:
-    patch:
-      default:
-        enabled: no
+    patch: off
     project:
       default:
+        base: pr
         threshold: 20
+      front:
+        paths: "front/"
+      back:
+        paths: "!front/"

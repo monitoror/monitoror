@@ -21,6 +21,10 @@ aliases:
     branches:
       only: master
 
+  - &filter-tag
+    branches:
+      only: master
+
 version: 2.1
 
 jobs:
@@ -141,7 +145,7 @@ jobs:
 
 workflows:
   version: 2
-  monitoror-pipeline:
+  test-build:
     jobs:
       - test-front
       - test-back
@@ -154,7 +158,22 @@ workflows:
             - test-back
             - build-front
           filters: *filter-master
+  test-build-deploy:
+    jobs:
+      - test-front:
+          filters: *filter-tag
+      - test-back:
+          filters: *filter-tag
+      - build-front:
+          requires:
+            - test-front
+          filters: *filter-tag
+      - build-back:
+          requires:
+            - test-back
+            - build-front
+          filters: *filter-tag
       - deploy-binaries:
           requires:
             - build-back
-          filters: *filter-master
+          filters: *filter-tag
