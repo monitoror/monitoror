@@ -3,3 +3,9 @@ ignore:
 
 fixes:
   - "github.com/jsdidierlaurent/::"
+
+coverage:
+  status:
+    patch:
+      default:
+        enabled: no

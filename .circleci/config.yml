@@ -37,12 +37,12 @@ jobs:
       - restore_cache: *restore-node-cache
       - run:
           name: "Install dependencies"
-          command: npm install
+          command: yarn install
       - save_cache: *save-node-cache
 
       - run:
           name: "Execute tests and coverage"
-          command: npm run test
+          command: yarn run test
 
       - run:
           name: "Uploading code coverage"
@@ -82,12 +82,12 @@ jobs:
       - restore_cache: *restore-node-cache
       - run:
           name: "Install dependencies"
-          command: npm install
+          command: yarn install
       - save_cache: *save-node-cache
 
       - run:
           name: "Build/Pack front"
-          command: npm run prod
+          command: yarn run build
 
       - persist_to_workspace:
           root: .
