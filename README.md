@@ -22,12 +22,51 @@ TODO
 ## Contribution
 
 ## Development
+### Requirement
+- Go v1.12+
+- Nodejs v10+
+- Yarn v1.7+
+- GNU make
+
+### Installing tools
+```bash
+# Go tools, execute this command outside of monitoror project or use `go mod tidy` after
+go get github.com/vektra/mockery          # Generating mock for backend
+go get gotest.tools/gotestsum             # Tests utilities
+go get github.com/GeertJohan/go.rice/rice # Pack front dist into go source
+
+# Node tools
+yarn global add @vue/cli  # Not necessarily required
+```
+
+### Running project
+```bash
+# Front
+cd front
+yarn install
+yarn run serve
+```
+
+```bash
+# Back
+make install
+make run
+# Or
+make run-faker
+```
+
+### Building project
+```bash
+cd front
+yarn install
+yarn run build
+cd ..
+make install
+make build
+```
 
 ### Generating mocks
 ```bash
-# Mockery is needed for generating mocks
-# go get github.com/vektra/mockery
-
 # For generating monitorable mocks
 make mock
 

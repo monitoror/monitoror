@@ -4,6 +4,12 @@ package service
 
 import (
 	"fmt"
+	"net/http"
+	"os"
+
+	rice "github.com/GeertJohan/go.rice"
+
+	"github.com/labstack/gommon/color"
 
 	_pingDelivery "github.com/jsdidierlaurent/monitoror/monitorable/ping/delivery/http"
 	_pingRepository "github.com/jsdidierlaurent/monitoror/monitorable/ping/repository"
@@ -51,6 +57,24 @@ func Start(config *config.Config) {
 		AllowMethods: []string{echo.GET, echo.POST},
 	}))
 
+	//  ----- Front -----
+	if config.Mode == "production" {
+		// Never use constant or variable according to docs : https://github.com/GeertJohan/go.rice#calling-findbox-and-mustfindbox
+		frontAssets, err := rice.FindBox("../front/dist")
+		if err != nil {
+			fmt.Println("Static front/dist not found. Build them with `cd front && yarn run build` first.")
+			os.Exit(1)
+		}
+
+		assetHandler := http.FileServer(frontAssets.HTTPBox())
+		e.GET("/", echo.WrapHandler(assetHandler))
+		e.GET("/css/*", echo.WrapHandler(http.StripPrefix("/", assetHandler)))
+		e.GET("/js/*", echo.WrapHandler(http.StripPrefix("/", assetHandler)))
+		e.GET("/fonts/*", echo.WrapHandler(http.StripPrefix("/", assetHandler)))
+		e.GET("/img/*", echo.WrapHandler(http.StripPrefix("/", assetHandler)))
+	}
+	printModule("front", config.Mode == "production")
+
 	// ----- Routes -----
 	v1 := e.Group("/api/v1")
 
@@ -72,4 +96,13 @@ func Start(config *config.Config) {
 
 	// Start service
 	e.Logger.Fatal(e.Start(fmt.Sprintf(":%d", config.Port)))
+}
+
+func printModule(name string, enabled bool) {
+	colorer := color.New()
+	if enabled {
+		colorer.Printf("⇨ %s: %s\n", name, colorer.Green("enabled"))
+	} else {
+		colorer.Printf("⇨ %s: %s\n", name, colorer.Red("disabled"))
+	}
 }

@@ -1,0 +1,38 @@
+#!/usr/bin/env bash
+
+# Do not use this script manually, Use makefile
+set -eu -o pipefail
+
+source ./scripts/.variables
+
+if [[ $# -eq 1 ]]; then
+  if [[ $1 == "windows" ]]; then
+    export GOOS=windows
+    export GOARCH=amd64
+  elif [[ $1 == "linux" ]]; then
+    export GOOS=linux
+    export GOARCH=amd64
+  elif [[ $1 == "darwin" ]]; then
+    export GOOS=darwin
+    export GOARCH=amd64
+  fi
+fi
+
+TARGET="output/monitoror-$GOOS-$GOARCH"
+if [[ $GOOS == "windows" ]]; then
+  TARGET="${TARGET}.exe"
+fi
+
+export LDFLAGS="\
+    -w \
+    -X \"github.com/jsdidierlaurent/monitoror/cli/version.GitCommit=${GITCOMMIT}\" \
+    -X \"github.com/jsdidierlaurent/monitoror/cli/version.BuildTime=${BUILDTIME}\" \
+    -X \"github.com/jsdidierlaurent/monitoror/cli/version.Version=${VERSION}\" \
+    ${LDFLAGS:-} \
+"
+
+export CGO_ENABLED=0
+export GOGC=off
+
+echo "Building statically linked $TARGET"
+go build -o "${TARGET}" --ldflags "${LDFLAGS}" "${SOURCE}"

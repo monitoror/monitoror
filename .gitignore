@@ -7,6 +7,7 @@ vendor
 *.dll
 *.so
 *.dylib
+rice-box.go
 /output/monitoror*
 
 # Test binary, build with `go test -c`

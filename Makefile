@@ -42,23 +42,31 @@ mock-pkg: ## generate mocks of pkg sub-directories
 build: build-cross
 
 .PHONY: build-all
-build-all: build-binary build-windows build-osx ## build all executables
+build-all: ## build all executables
+	@./scripts/build/rice
+	@./scripts/build/build linux
+	@./scripts/build/build windows
+	@./scripts/build/build darwin
 
-.PHONY: build-binary
+.PHONY: build-linux
 build-binary: ## build executable for Linux
-	@./scripts/build/binary
+	@./scripts/build/rice
+	@./scripts/build/build linux
 
 .PHONY: build-windows
 build-windows: ## build executable for Windows
-	@./scripts/build/windows
+	@./scripts/build/rice
+	@./scripts/build/build windows
 
-.PHONY: build-osx
-build-osx: ## build executable for Mac Osx
-	@./scripts/build/osx
+.PHONY: build-darwin
+build-darwin: ## build executable for Mac Osx
+	@./scripts/build/rice
+	@./scripts/build/build darwin
 
 .PHONY: build-cross
 build-cross: ## build executable for current environment
-	@./scripts/build/cross
+	@./scripts/build/rice
+	@./scripts/build/build
 
 # ============= RUN =============
 .PHONY: run
