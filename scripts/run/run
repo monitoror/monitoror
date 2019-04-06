@@ -4,4 +4,4 @@ set -eu -o pipefail
 
 source ./scripts/.variables
 
-go run --ldflags "${LDFLAGS}" "${SOURCE}"
+MO_MODE=${MO_MODE:-"develop"} go run --ldflags "${LDFLAGS}" "${SOURCE}"

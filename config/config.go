@@ -14,7 +14,8 @@ const EnvPrefix = "MO"
 type (
 	Config struct {
 		// --- General Configuration ---
-		Port int `json:"port"` // Default: 8080
+		Port int    `json:"port"` // Default: 8080
+		Mode string `json:"mode"` // Default: production
 
 		// --- Cache Configuration ---
 		//UpstreamCache is used to respond before executing the request. Avoid overloading services.
@@ -70,6 +71,7 @@ func InitConfig() (*Config, error) {
 	// Setup default values
 	// --- General Configuration ---
 	viper.SetDefault("Port", 8080)
+	viper.SetDefault("Mode", "production")
 
 	// --- Cache Configuration ---
 	viper.SetDefault("UpstreamCache.Expire", 10000)

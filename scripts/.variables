@@ -7,12 +7,4 @@ BUILDTIME=${BUILDTIME:-$(date --utc --rfc-3339 seconds 2> /dev/null | sed -e 's/
 GOOS="${GOOS:-$(go env GOHOSTOS)}"
 GOARCH="${GOARCH:-$(go env GOHOSTARCH)}"
 
-export LDFLAGS="\
-    -w \
-    -X \"github.com/jsdidierlaurent/monitoror/cli/version.GitCommit=${GITCOMMIT}\" \
-    -X \"github.com/jsdidierlaurent/monitoror/cli/version.BuildTime=${BUILDTIME}\" \
-    -X \"github.com/jsdidierlaurent/monitoror/cli/version.Version=${VERSION}\" \
-    ${LDFLAGS:-} \
-"
-
 export SOURCE="./cmd/monitoror"

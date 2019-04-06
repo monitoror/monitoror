@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
 
-echo " - Installing tools ..."
-go get gotest.tools/gotestsum
-go mod tidy
-
 echo " - Installing module dependencies ..."
 go mod download

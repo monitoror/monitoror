@@ -59,7 +59,9 @@ jobs:
       - restore_cache: *restore-go-cache
       - run:
           name: "Install dependencies"
-          command: make install
+          command: |
+            go get gotest.tools/gotestsum
+            make install
       - save_cache: *save-go-cache
 
       - run:
@@ -111,7 +113,9 @@ jobs:
 
       - run:
           name: "Build all target"
-          command: make build-all
+          command: |
+            go get github.com/GeertJohan/go.rice/rice
+            make build-all
 
       - store_artifacts:
           path: output
