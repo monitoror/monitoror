@@ -1,0 +1,78 @@
+language: go
+go: 1.12.x
+env:
+  global:
+    - GO111MODULE="on"
+
+branches:
+  only:
+    - master
+
+alias:
+  nodejs: &nodejs
+    before_install:
+      - nvm install 10.15.3
+      - npm install -g yarn@latest
+
+  golangCache: &golangCache "$HOME/gopath/pkg/mod"
+  nodejsCache: &nodejsCache "front/node_modules"
+
+jobs:
+  include:
+    - stage: Tests
+      name: "Front"
+      <<: *nodejs
+      cache:
+        directories:
+          - *nodejsCache
+      install:
+        - cd front
+        - yarn install
+      script:
+        - yarn run test
+        - bash <(curl -s https://codecov.io/bash) -cF front
+
+    - name: "Back"
+      cache:
+        directories:
+          - *golangCache
+      install:
+        - go get gotest.tools/gotestsum
+        - make install
+      script:
+        - make test-coverage
+        - bash <(curl -s https://codecov.io/bash) -cF back
+
+    - stage: Build
+      name: "Front & Back"
+      if: type != pull_request
+      <<: *nodejs
+      cache:
+        directories:
+          - *golangCache
+          - *nodejsCache
+      install:
+        - go get github.com/GeertJohan/go.rice/rice
+        - make install
+        - cd front
+        - yarn install
+      script:
+        - yarn run build
+        - cd ..
+        - make build-all
+
+      before_deploy:
+        - export BODY=$($(cat CHANGELOG))
+
+      deploy:
+        provider: releases
+        api_key: ${GITHUB_TOKEN}
+        file_glob: true
+        file: output/*
+        body: ${BODY}
+        skip_cleanup: true
+        on:
+          tags: true
+
+notifications:
+  email: false
