@@ -1,13 +1,10 @@
-language: go
-go: 1.12.x
-env:
-  global:
-    - GO111MODULE="on"
-
+# Branch filter (build only master and tags) this whitelist is ignored in case of pull request
 branches:
   only:
     - master
+    - /^\d+\.\d+(\.\d+)?(-\S*)?$/
 
+# Alias
 alias:
   nodejs: &nodejs
     before_install:
@@ -17,8 +14,17 @@ alias:
   golangCache: &golangCache "$HOME/gopath/pkg/mod"
   nodejsCache: &nodejsCache "front/node_modules"
 
+# Language definition, used for every jobs
+language: go
+go: 1.12.x
+env:
+  global:
+    - GO111MODULE="on"
+
+# Job definition
 jobs:
   include:
+    # Tests - Front
     - stage: Tests
       name: "Front"
       <<: *nodejs
@@ -32,6 +38,7 @@ jobs:
         - yarn run test
         - bash <(curl -s https://codecov.io/bash) -cF front
 
+    # Tests - Back
     - name: "Back"
       cache:
         directories:
@@ -43,6 +50,7 @@ jobs:
         - make test-coverage
         - bash <(curl -s https://codecov.io/bash) -cF back
 
+    # Build
     - stage: Build
       name: "Front & Back"
       if: type != pull_request
@@ -62,17 +70,15 @@ jobs:
         - make build-all
 
       before_deploy:
-        - export BODY=$($(cat CHANGELOG))
+        - go get github.com/tcnksm/ghr
 
+      # Deploy Github Release
       deploy:
-        provider: releases
-        api_key: ${GITHUB_TOKEN}
-        file_glob: true
-        file: output/*
-        body: ${BODY}
-        skip_cleanup: true
-        on:
-          tags: true
+        - provider: script
+          script: ./scripts/github-release
+          skip_cleanup: true
+          on:
+            tags: true
 
 notifications:
   email: false
