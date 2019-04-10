@@ -69,10 +69,10 @@ jobs:
         - cd ..
         - make build-all
 
+      # Deploy Github Release
       before_deploy:
         - go get github.com/tcnksm/ghr
 
-      # Deploy Github Release
       deploy:
         - provider: script
           script: ./scripts/github-release
