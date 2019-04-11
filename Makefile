@@ -46,7 +46,7 @@ build-all: ## build all executables
 	@./scripts/build/rice
 	@./scripts/build/build linux
 	@./scripts/build/build windows
-	@./scripts/build/build darwin
+	@./scripts/build/build macos
 
 .PHONY: build-linux
 build-binary: ## build executable for Linux
@@ -58,10 +58,10 @@ build-windows: ## build executable for Windows
 	@./scripts/build/rice
 	@./scripts/build/build windows
 
-.PHONY: build-darwin
-build-darwin: ## build executable for Mac Osx
+.PHONY: build-macos
+build-macos: ## build executable for MacOs
 	@./scripts/build/rice
-	@./scripts/build/build darwin
+	@./scripts/build/build macos
 
 .PHONY: build-cross
 build-cross: ## build executable for current environment
