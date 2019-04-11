@@ -5,6 +5,7 @@ set -eu -o pipefail
 
 source ./scripts/.variables
 
+# Check param or use default
 if [[ $# -eq 1 ]]; then
   if [[ $1 == "windows" ]]; then
     export GOOS=windows
@@ -12,15 +13,19 @@ if [[ $# -eq 1 ]]; then
   elif [[ $1 == "linux" ]]; then
     export GOOS=linux
     export GOARCH=amd64
-  elif [[ $1 == "darwin" ]]; then
+  elif [[ $1 == "macos" ]]; then
     export GOOS=darwin
     export GOARCH=amd64
   fi
 fi
 
-TARGET="output/monitoror-$GOOS-$GOARCH"
+# Define Target name
 if [[ $GOOS == "windows" ]]; then
-  TARGET="${TARGET}.exe"
+  TARGET="output/monitoror-$GOOS-$GOARCH.exe"
+elif [[ $GOOS == "darwin" ]]; then
+  TARGET="output/monitoror-macos-$GOARCH"
+else
+  TARGET="output/monitoror-$GOOS"
 fi
 
 export LDFLAGS="\
