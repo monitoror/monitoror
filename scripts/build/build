@@ -23,9 +23,9 @@ fi
 if [[ $GOOS == "windows" ]]; then
   TARGET="output/monitoror-$GOOS-$GOARCH.exe"
 elif [[ $GOOS == "darwin" ]]; then
-  TARGET="output/monitoror-macos-$GOARCH"
+  TARGET="output/monitoror-macos"
 else
-  TARGET="output/monitoror-$GOOS"
+  TARGET="output/monitoror-$GOOS-$GOARCH"
 fi
 
 export LDFLAGS="\
