@@ -20,10 +20,12 @@ func HttpErrorHandler(err error, c echo.Context) {
 	switch e := err.(type) {
 	case *errors.SystemError:
 		systemError(c, e)
-	case *errors.TimeoutError:
-		timeoutError(c, e)
 	case *errors.QueryParamsError:
 		queryParamsError(c, e)
+	case *errors.NoBuildError:
+		noBuildError(c, e)
+	case *errors.TimeoutError:
+		timeoutError(c, e)
 	default:
 		if he, ok := err.(*echo.HTTPError); ok {
 			if he.Code == 404 {
@@ -55,11 +57,18 @@ func queryParamsError(c echo.Context, qpe *errors.QueryParamsError) {
 	_ = c.JSON(http.StatusBadRequest, tile)
 }
 
+func noBuildError(c echo.Context, nbe *errors.NoBuildError) {
+	tile := nbe.BuildTile
+	tile.Status = tiles.WarningStatus
+	tile.Message = nbe.Error()
+	_ = c.JSON(http.StatusOK, tile)
+}
+
 // timeoutError return cached value from downstreamStore if exist
 func timeoutError(c echo.Context, te *errors.TimeoutError) {
 	sendTimeout := func(c echo.Context) {
 		tile := te.Tile
-		tile.Status = tiles.TimeoutStatus
+		tile.Status = tiles.WarningStatus
 		tile.Message = te.Error()
 		_ = c.JSON(http.StatusOK, tile)
 	}

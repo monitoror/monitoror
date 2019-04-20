@@ -111,6 +111,27 @@ func TestQueryParamsError(t *testing.T) {
 	assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
 }
 
+func TestNoBuildError(t *testing.T) {
+	// Init
+	ctx, res := initErrorEcho()
+
+	// Parameters
+	err := mErrors.NewNoBuildError(tiles.NewBuildTile("TEST"))
+
+	// Expected
+	tile := err.BuildTile
+	tile.Status = tiles.WarningStatus
+	tile.Message = err.Error()
+	json, e := json.Marshal(tile)
+	assert.NoError(t, e, "unable to marshal tile")
+
+	// Test
+	HttpErrorHandler(err, ctx)
+
+	assert.Equal(t, http.StatusOK, res.Code)
+	assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
+}
+
 func TestTimeoutError_WithoutCacheStore(t *testing.T) {
 	// Init
 	ctx, res := initErrorEcho()
@@ -120,7 +141,7 @@ func TestTimeoutError_WithoutCacheStore(t *testing.T) {
 
 	// Expected
 	tile := err.Tile
-	tile.Status = tiles.TimeoutStatus
+	tile.Status = tiles.WarningStatus
 	tile.Message = err.Error()
 	json, e := json.Marshal(tile)
 	assert.NoError(t, e, "unable to marshal tile")
@@ -142,7 +163,7 @@ func TestTimeoutError_WithCastErrorOnGetCacheStore(t *testing.T) {
 
 	// Expected
 	tile := err.Tile
-	tile.Status = tiles.TimeoutStatus
+	tile.Status = tiles.WarningStatus
 	tile.Message = err.Error()
 	json, e := json.Marshal(tile)
 	assert.NoError(t, e, "unable to marshal tile")
@@ -166,7 +187,7 @@ func TestTimeoutError_CacheMiss(t *testing.T) {
 
 	// Expected
 	tile := err.Tile
-	tile.Status = tiles.TimeoutStatus
+	tile.Status = tiles.WarningStatus
 	tile.Message = err.Error()
 	json, e := json.Marshal(tile)
 	assert.NoError(t, e, "unable to marshal tile")
