@@ -23,5 +23,6 @@ func main() {
 	cli.PrintBanner()
 
 	// Start Service
-	service.Start(config)
+	server := service.Init(config)
+	server.Start()
 }

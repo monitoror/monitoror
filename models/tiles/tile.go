@@ -17,7 +17,11 @@ type (
 
 // List of all Response Status
 const (
-	SuccessStatus TileStatus = "SUCCESS"
-	FailStatus    TileStatus = "FAILURE"
-	TimeoutStatus TileStatus = "TIMEOUT"
+	SuccessStatus  TileStatus = "SUCCESS"
+	FailedStatus   TileStatus = "FAILURE"
+	RunningStatus  TileStatus = "RUNNING"
+	QueuedStatus   TileStatus = "QUEUED"
+	WarningStatus  TileStatus = "WARNING"
+	CanceledStatus TileStatus = "CANCELED"
+	UnknownStatus  TileStatus = "UNKNOWN"
 )

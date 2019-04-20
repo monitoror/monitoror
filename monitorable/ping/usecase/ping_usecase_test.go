@@ -17,7 +17,7 @@ import (
 func TestUsecase_Ping_Success(t *testing.T) {
 	// Init
 	mockRepo := new(mocks.Repository)
-	mockRepo.On("CheckPing", AnythingOfType("string")).Return(&model.Ping{
+	mockRepo.On("Ping", Anything, AnythingOfType("string")).Return(&model.Ping{
 		Average: time.Second,
 		Min:     time.Second,
 		Max:     time.Second,
@@ -40,7 +40,7 @@ func TestUsecase_Ping_Success(t *testing.T) {
 
 	if assert.NoError(t, err) {
 		assert.Equal(t, eTile, rTile)
-		mockRepo.AssertNumberOfCalls(t, "CheckPing", 1)
+		mockRepo.AssertNumberOfCalls(t, "Ping", 1)
 		mockRepo.AssertExpectations(t)
 	}
 }
@@ -48,7 +48,7 @@ func TestUsecase_Ping_Success(t *testing.T) {
 func TestUsecase_Ping_Fail(t *testing.T) {
 	// Init
 	mockRepo := new(mocks.Repository)
-	mockRepo.On("CheckPing", AnythingOfType("string")).Return(nil, errors.New("ping error"))
+	mockRepo.On("Ping", Anything, AnythingOfType("string")).Return(nil, errors.New("ping error"))
 
 	usecase := NewPingUsecase(mockRepo)
 
@@ -60,14 +60,14 @@ func TestUsecase_Ping_Fail(t *testing.T) {
 	// Expected
 	eTile := tiles.NewHealthTile(PingTileSubType)
 	eTile.Label = param.Hostname
-	eTile.Status = tiles.FailStatus
+	eTile.Status = tiles.FailedStatus
 
 	// Test
 	rTile, err := usecase.Ping(param)
 
 	if assert.NoError(t, err) {
 		assert.Equal(t, eTile, rTile)
-		mockRepo.AssertNumberOfCalls(t, "CheckPing", 1)
+		mockRepo.AssertNumberOfCalls(t, "Ping", 1)
 		mockRepo.AssertExpectations(t)
 	}
 }

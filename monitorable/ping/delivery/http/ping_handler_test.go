@@ -18,24 +18,12 @@ import (
 	. "github.com/stretchr/testify/mock"
 )
 
-func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
-	e := echo.New()
-	req := httptest.NewRequest(echo.GET, "/api/v1/info", nil)
-	res = httptest.NewRecorder()
-	ctx = e.NewContext(req, res)
-
-	return
-}
-
 func TestDelivery_GetPing_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
-	hostname := "test.com"
-	ctx.QueryParams().Set("hostname", hostname)
-
 	tile := tiles.NewHealthTile(PingTileSubType)
-	tile.Label = hostname
+	tile.Label = "test.com"
 	tile.Status = tiles.SuccessStatus
 	tile.Message = "1s"
 
@@ -59,6 +47,7 @@ func TestDelivery_GetPing_Success(t *testing.T) {
 func TestDelivery_GetPing_QueryParamsError(t *testing.T) {
 	// Init
 	ctx, _ := initEcho()
+	ctx.QueryParams().Del("hostname")
 
 	mockUsecase := new(mocks.Usecase)
 	handler := NewHttpPingHandler(mockUsecase)
@@ -73,9 +62,6 @@ func TestDelivery_GetPing_Error(t *testing.T) {
 	// Init
 	ctx, _ := initEcho()
 
-	hostname := "test.com"
-	ctx.QueryParams().Set("hostname", hostname)
-
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Ping", Anything).Return(nil, errors.New("ping error"))
 	handler := NewHttpPingHandler(mockUsecase)
@@ -84,4 +70,15 @@ func TestDelivery_GetPing_Error(t *testing.T) {
 	assert.Error(t, handler.GetPing(ctx))
 	mockUsecase.AssertNumberOfCalls(t, "Ping", 1)
 	mockUsecase.AssertExpectations(t)
+}
+
+func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
+	e := echo.New()
+	req := httptest.NewRequest(echo.GET, "/api/v1/info", nil)
+	res = httptest.NewRecorder()
+	ctx = e.NewContext(req, res)
+
+	ctx.QueryParams().Set("hostname", "test.com")
+
+	return
 }

@@ -3,7 +3,6 @@ package http
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -19,26 +18,12 @@ import (
 	. "github.com/stretchr/testify/mock"
 )
 
-func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
-	e := echo.New()
-	req := httptest.NewRequest(echo.GET, "/api/v1/info", nil)
-	res = httptest.NewRecorder()
-	ctx = e.NewContext(req, res)
-
-	return
-}
-
 func TestDelivery_GetPort_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
-	hostname := "test.com"
-	port := "1234"
-	ctx.QueryParams().Set("hostname", hostname)
-	ctx.QueryParams().Set("port", port)
-
 	tile := tiles.NewHealthTile(PortTileSubType)
-	tile.Label = fmt.Sprintf("%s:%s", hostname, port)
+	tile.Label = "test.com:1234"
 	tile.Status = tiles.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)
@@ -59,40 +44,16 @@ func TestDelivery_GetPort_Success(t *testing.T) {
 }
 
 func TestDelivery_GetPort_QueryParamsError_MissingHostname(t *testing.T) {
-	// Init
-	ctx, _ := initEcho()
-
-	mockUsecase := new(mocks.Usecase)
-	handler := NewHttpPortHandler(mockUsecase)
-	ctx.QueryParams().Set("Port", "1234")
-
-	// Test
-	err := handler.GetPort(ctx)
-	assert.Error(t, err)
-	assert.IsType(t, &mErrors.QueryParamsError{}, err)
+	missingParam(t, "hostname")
 }
 
 func TestDelivery_GetPort_QueryParamsError_MissingPort(t *testing.T) {
-	// Init
-	ctx, _ := initEcho()
-
-	mockUsecase := new(mocks.Usecase)
-	handler := NewHttpPortHandler(mockUsecase)
-	ctx.QueryParams().Set("hostname", "test.com")
-
-	// Test
-	err := handler.GetPort(ctx)
-	assert.Error(t, err)
-	assert.IsType(t, &mErrors.QueryParamsError{}, err)
+	missingParam(t, "port")
 }
 
 func TestDelivery_GetPort_Error(t *testing.T) {
 	// Init
 	ctx, _ := initEcho()
-
-	hostname := "test.com"
-	ctx.QueryParams().Set("hostname", hostname)
-	ctx.QueryParams().Set("port", "1234")
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Port", Anything).Return(nil, errors.New("port error"))
@@ -102,4 +63,28 @@ func TestDelivery_GetPort_Error(t *testing.T) {
 	assert.Error(t, handler.GetPort(ctx))
 	mockUsecase.AssertNumberOfCalls(t, "Port", 1)
 	mockUsecase.AssertExpectations(t)
+}
+
+func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
+	e := echo.New()
+	req := httptest.NewRequest(echo.GET, "/api/v1/info", nil)
+	res = httptest.NewRecorder()
+	ctx = e.NewContext(req, res)
+
+	ctx.QueryParams().Set("hostname", "test.com")
+	ctx.QueryParams().Set("port", "1234")
+
+	return
+}
+
+func missingParam(t *testing.T, param string) {
+	// Init
+	ctx, _ := initEcho()
+	ctx.QueryParams().Del(param)
+	mockUsecase := new(mocks.Usecase)
+	handler := NewHttpPortHandler(mockUsecase)
+	// Test
+	err := handler.GetPort(ctx)
+	assert.Error(t, err)
+	assert.IsType(t, &mErrors.QueryParamsError{}, err)
 }

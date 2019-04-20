@@ -22,4 +22,6 @@ func TestInitConfig_WithEnv(t *testing.T) {
 
 	assert.NoError(t, err)
 	assert.Equal(t, 3000, config.Port)
+	assert.Equal(t, 2, config.Monitorable.Ping.Count)
+	assert.Equal(t, 2000, config.Monitorable.Port.Timeout)
 }

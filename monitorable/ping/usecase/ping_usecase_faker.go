@@ -6,6 +6,8 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
+
 	. "github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/ping"
 	"github.com/monitoror/monitoror/monitorable/ping/model"
@@ -28,24 +30,20 @@ func (pu *pingUsecase) Ping(params *model.PingParams) (tile *HealthTile, err err
 	rand.Seed(time.Now().UnixNano())
 
 	// Status
-	if params.Status != "" {
-		tile.Status = params.Status
-	} else {
-		if rand.Intn(2) == 0 {
-			tile.Status = SuccessStatus
-		} else {
-			tile.Status = FailStatus
-		}
-	}
+	tile.Status = nonempty.Struct(params.Status, randomStatus()).(TileStatus)
 
 	// Message
 	if tile.Status == SuccessStatus {
-		if params.Message != "" {
-			tile.Message = params.Message
-		} else {
-			tile.Message = (time.Duration(rand.Intn(10000)) * time.Millisecond).String()
-		}
+		tile.Message = nonempty.String(params.Message, (time.Duration(rand.Intn(10000)) * time.Millisecond).String())
 	}
 
 	return
+}
+
+func randomStatus() TileStatus {
+	if rand.Intn(2) == 0 {
+		return SuccessStatus
+	} else {
+		return FailedStatus
+	}
 }
