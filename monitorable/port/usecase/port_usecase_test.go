@@ -17,7 +17,7 @@ import (
 func TestUsecase_CheckPort_Success(t *testing.T) {
 	// Init
 	mockRepo := new(mocks.Repository)
-	mockRepo.On("CheckPort", AnythingOfType("string"), AnythingOfType("int")).Return(nil)
+	mockRepo.On("OpenSocket", Anything, AnythingOfType("string"), AnythingOfType("int")).Return(nil)
 	usecase := NewPortUsecase(mockRepo)
 
 	// Params
@@ -36,7 +36,7 @@ func TestUsecase_CheckPort_Success(t *testing.T) {
 
 	if assert.NoError(t, err) {
 		assert.Equal(t, eTile, rTile)
-		mockRepo.AssertNumberOfCalls(t, "CheckPort", 1)
+		mockRepo.AssertNumberOfCalls(t, "OpenSocket", 1)
 		mockRepo.AssertExpectations(t)
 	}
 }
@@ -44,7 +44,7 @@ func TestUsecase_CheckPort_Success(t *testing.T) {
 func TestUsecase_CheckPort_Fail(t *testing.T) {
 	// Init
 	mockRepo := new(mocks.Repository)
-	mockRepo.On("CheckPort", AnythingOfType("string"), AnythingOfType("int")).Return(errors.New("port error"))
+	mockRepo.On("OpenSocket", Anything, AnythingOfType("string"), AnythingOfType("int")).Return(errors.New("port error"))
 	usecase := NewPortUsecase(mockRepo)
 
 	// Params
@@ -56,14 +56,14 @@ func TestUsecase_CheckPort_Fail(t *testing.T) {
 	// Expected
 	eTile := tiles.NewHealthTile(PortTileSubType)
 	eTile.Label = fmt.Sprintf("%s:%d", param.Hostname, param.Port)
-	eTile.Status = tiles.FailStatus
+	eTile.Status = tiles.FailedStatus
 
 	// Test
 	rTile, err := usecase.Port(param)
 
 	if assert.NoError(t, err) {
 		assert.Equal(t, eTile, rTile)
-		mockRepo.AssertNumberOfCalls(t, "CheckPort", 1)
+		mockRepo.AssertNumberOfCalls(t, "OpenSocket", 1)
 		mockRepo.AssertExpectations(t)
 	}
 }

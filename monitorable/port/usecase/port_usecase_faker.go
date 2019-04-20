@@ -7,6 +7,8 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
+
 	. "github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/port"
 	"github.com/monitoror/monitoror/monitorable/port/model"
@@ -29,15 +31,15 @@ func (pu *portUsecase) Port(params *model.PortParams) (tile *HealthTile, err err
 	rand.Seed(time.Now().UnixNano())
 
 	// Status
-	if params.Status != "" {
-		tile.Status = params.Status
-	} else {
-		if rand.Intn(2) == 0 {
-			tile.Status = SuccessStatus
-		} else {
-			tile.Status = FailStatus
-		}
-	}
+	tile.Status = nonempty.Struct(params.Status, randomStatus()).(TileStatus)
 
 	return
+}
+
+func randomStatus() TileStatus {
+	if rand.Intn(2) == 0 {
+		return SuccessStatus
+	} else {
+		return FailedStatus
+	}
 }

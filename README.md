@@ -31,7 +31,7 @@ TODO
 ### Installing tools
 ```bash
 # Go tools, execute this command outside of monitoror project or use `go mod tidy` after
-go get github.com/vektra/mockery          # Generating mock for backend
+go get github.com/vektra/mockery/.../     # Generating mock for backend
 go get gotest.tools/gotestsum             # Tests utilities
 go get github.com/GeertJohan/go.rice/rice # Pack front dist into go source
 

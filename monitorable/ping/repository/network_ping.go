@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"errors"
 	"time"
 
@@ -21,15 +22,15 @@ func NewNetworkPingRepository(config *config.Config) ping.Repository {
 	return &systemPingRepository{config}
 }
 
-func (r *systemPingRepository) CheckPing(hostname string) (*model.Ping, error) {
+func (r *systemPingRepository) Ping(ctx context.Context, hostname string) (*model.Ping, error) {
 	pinger, err := goPing.NewPinger(hostname)
 	if err != nil {
 		return nil, err
 	}
 
-	pinger.Count = r.config.PingConfig.Count
-	pinger.Interval = time.Millisecond * time.Duration(r.config.PingConfig.Interval)
-	pinger.Timeout = time.Millisecond * time.Duration(r.config.PingConfig.Timeout)
+	pinger.Count = r.config.Monitorable.Ping.Count
+	pinger.Interval = time.Millisecond * time.Duration(r.config.Monitorable.Ping.Interval)
+	pinger.Timeout = time.Millisecond * time.Duration(r.config.Monitorable.Ping.Timeout)
 	pinger.SetPrivileged(true) // NEED ROOT PRIVILEGED
 
 	pinger.Run()

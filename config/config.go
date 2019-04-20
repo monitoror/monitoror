@@ -20,14 +20,8 @@ type (
 		//DownstreamCache is used to respond after executing the request in case of timeout error.
 		DownstreamCache Cache
 
-		// --- Ping Configuration ---
-		PingConfig PingConfig
-
-		// --- Port Configuration ---
-		PortConfig PortConfig
-
-		// --- Gitlab Configuration ---
-		GitlabConfig GitlabConfig
+		//Monitorables Config
+		Monitorable Monitorable
 	}
 
 	Cache struct {
@@ -35,18 +29,45 @@ type (
 		CleanupInterval int // In Millisecond
 	}
 
-	PingConfig struct {
+	Monitorable struct {
+		// --- Ping Configuration ---
+		Ping Ping
+
+		// --- Port Configuration ---
+		Port Port
+
+		// --- Gitlab Configuration ---
+		Gitlab Gitlab
+
+		// --- Github Configuration ---
+		Github Github
+
+		// --- TravisCI Configuration ---
+		TravisCI TravisCI
+	}
+
+	Ping struct {
 		Count    int
 		Timeout  int // In Millisecond
 		Interval int // In Millisecond
 	}
 
-	PortConfig struct {
+	Port struct {
 		Timeout int // In Millisecond
 	}
 
-	GitlabConfig struct {
+	Gitlab struct {
 		Token string
+	}
+
+	Github struct {
+		Token string
+	}
+
+	TravisCI struct {
+		Token   string
+		Timeout int // In Millisecond
+		Url     string
 	}
 )
 
@@ -71,12 +92,16 @@ func InitConfig() (*Config, error) {
 	viper.SetDefault("DownstreamCache.CleanupInterval", 10000)
 
 	// --- Ping Configuration ---
-	viper.SetDefault("PingConfig.Count", 2)
-	viper.SetDefault("PingConfig.Timeout", 1000)
-	viper.SetDefault("PingConfig.Interval", 100)
+	viper.SetDefault("Monitorable.Ping.Count", 2)
+	viper.SetDefault("Monitorable.Ping.Timeout", 1000)
+	viper.SetDefault("Monitorable.Ping.Interval", 100)
 
 	// --- Port Configuration ---
-	viper.SetDefault("PortConfig.Timeout", 1000)
+	viper.SetDefault("Monitorable.Port.Timeout", 2000)
+
+	// --- TravisCI Configuration ---
+	viper.SetDefault("Monitorable.TravisCI.Timeout", 2000)
+	viper.SetDefault("Monitorable.TravisCI.Url", "https://api.travis-ci.org/")
 
 	// Read Configuration
 	_ = viper.Unmarshal(&config)

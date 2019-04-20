@@ -1,34 +1,40 @@
 package repository
 
 import (
+	"context"
 	"errors"
 	"testing"
 
-	"github.com/monitoror/monitoror/config"
+	pkgNet "github.com/monitoror/monitoror/pkg/net"
+
+	. "github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/pkg/net/mocks"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
+	. "github.com/stretchr/testify/mock"
 )
 
-func TestRepository_CheckPort_Success(t *testing.T) {
-	mockConn := new(mocks.Conn)
-	mockConn.On("Close").Return(nil)
-	mockDialer := new(mocks.Dialer)
-	mockDialer.On("Dial", mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(mockConn, nil)
-
-	conf := &config.Config{
-		PortConfig: config.PortConfig{
-			Timeout: 1000,
-		},
-	}
+func initRepository(t *testing.T, dialer pkgNet.Dialer) *systemPortRepository {
+	conf, _ := InitConfig()
 	repository := NewNetworkPortRepository(conf)
 
 	systemPortRepository, ok := repository.(*systemPortRepository)
 	if assert.True(t, ok) {
-		systemPortRepository.dialer = mockDialer
+		systemPortRepository.dialer = dialer
+		return systemPortRepository
+	}
+	return nil
+}
 
-		assert.NoError(t, systemPortRepository.CheckPort("test", 1234))
+func TestRepository_OpenSocket_Success(t *testing.T) {
+	mockConn := new(mocks.Conn)
+	mockConn.On("Close").Return(nil)
+	mockDialer := new(mocks.Dialer)
+	mockDialer.On("Dial", AnythingOfType("string"), AnythingOfType("string")).Return(mockConn, nil)
+
+	repository := initRepository(t, mockDialer)
+	if repository != nil {
+		assert.NoError(t, repository.OpenSocket(context.Background(), "test", 1234))
 		mockConn.AssertNumberOfCalls(t, "Close", 1)
 		mockConn.AssertExpectations(t)
 		mockDialer.AssertNumberOfCalls(t, "Dial", 1)
@@ -36,22 +42,13 @@ func TestRepository_CheckPort_Success(t *testing.T) {
 	}
 }
 
-func TestRepository_CheckPort_Failed(t *testing.T) {
+func TestRepository_OpenSocket_Failed(t *testing.T) {
 	mockDialer := new(mocks.Dialer)
-	mockDialer.On("Dial", mock.AnythingOfType("string"), mock.AnythingOfType("string")).Return(nil, errors.New("check port failed"))
+	mockDialer.On("Dial", AnythingOfType("string"), AnythingOfType("string")).Return(nil, errors.New("check port failed"))
 
-	conf := &config.Config{
-		PortConfig: config.PortConfig{
-			Timeout: 1000,
-		},
-	}
-	repository := NewNetworkPortRepository(conf)
-
-	systemPortRepository, ok := repository.(*systemPortRepository)
-	if assert.True(t, ok) {
-		systemPortRepository.dialer = mockDialer
-
-		assert.Error(t, systemPortRepository.CheckPort("test", 1234))
+	repository := initRepository(t, mockDialer)
+	if repository != nil {
+		assert.Error(t, repository.OpenSocket(context.Background(), "test", 1234))
 		mockDialer.AssertNumberOfCalls(t, "Dial", 1)
 		mockDialer.AssertExpectations(t)
 	}

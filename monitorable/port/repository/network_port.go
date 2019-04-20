@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"time"
@@ -18,11 +19,11 @@ type (
 )
 
 func NewNetworkPortRepository(conf *config.Config) port.Repository {
-	timeout := time.Millisecond * time.Duration(conf.PortConfig.Timeout)
+	timeout := time.Millisecond * time.Duration(conf.Monitorable.Port.Timeout)
 	return &systemPortRepository{conf, &net.Dialer{Timeout: timeout}}
 }
 
-func (r *systemPortRepository) CheckPort(hostname string, port int) (err error) {
+func (r *systemPortRepository) OpenSocket(ctx context.Context, hostname string, port int) (err error) {
 	target := fmt.Sprintf("%s:%d", hostname, port)
 
 	conn, err := r.dialer.Dial("tcp", target)
