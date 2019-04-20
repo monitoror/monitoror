@@ -11,15 +11,15 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type HttpPingHandler struct {
+type httpPingHandler struct {
 	pingUsecase ping.Usecase
 }
 
-func NewHttpPingHandler(p ping.Usecase) *HttpPingHandler {
-	return &HttpPingHandler{p}
+func NewHttpPingHandler(p ping.Usecase) *httpPingHandler {
+	return &httpPingHandler{p}
 }
 
-func (h *HttpPingHandler) GetPing(c echo.Context) error {
+func (h *httpPingHandler) GetPing(c echo.Context) error {
 	// Bind / Validate Params
 	params := &model.PingParams{}
 	err := c.Bind(params)
