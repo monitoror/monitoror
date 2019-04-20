@@ -1,9 +1,3 @@
-# Branch filter (build only master and tags) this whitelist is ignored in case of pull request
-branches:
-  only:
-    - master
-    - /^\d+\.\d+(\.\d+)?(-\S*)?$/
-
 # Alias
 alias:
   nodejs: &nodejs
@@ -53,7 +47,7 @@ jobs:
     # Build
     - stage: Build
       name: "Front & Back"
-      if: type != pull_request
+      if: branch = master OR branch =~ /^\d+\.\d+(\.\d+)?(-\S*)?$/
       <<: *nodejs
       cache:
         directories:
