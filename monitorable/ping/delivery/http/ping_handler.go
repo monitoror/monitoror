@@ -20,10 +20,10 @@ func NewHttpPingHandler(p ping.Usecase) *httpPingHandler {
 }
 
 func (h *httpPingHandler) GetPing(c echo.Context) error {
-	// Bind / Validate Params
+	// Bind / Check Params
 	params := &model.PingParams{}
 	err := c.Bind(params)
-	if err != nil || !params.Validate() {
+	if err != nil || !params.IsValid() {
 		return errors.NewQueryParamsError(err)
 	}
 

@@ -9,6 +9,6 @@ type (
 	}
 )
 
-func (p *PortParams) Validate() bool {
+func (p *PortParams) IsValid() bool {
 	return p.Hostname != "" && p.Port != 0
 }

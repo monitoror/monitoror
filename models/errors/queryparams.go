@@ -14,8 +14,8 @@ func NewQueryParamsError(err error) *QueryParamsError {
 
 func (qpe *QueryParamsError) Error() string {
 	if qpe.err != nil {
-		return fmt.Sprintf("unable to parse/validate queryParams into struct, %v", qpe.err)
+		return fmt.Sprintf("unable to parse/check queryParams into struct, %v", qpe.err)
 	} else {
-		return fmt.Sprintf("unable to parse/validate queryParams into struct")
+		return fmt.Sprintf("unable to parse/check queryParams into struct")
 	}
 }

@@ -20,10 +20,10 @@ func NewHttpPortHandler(p port.Usecase) *httpPortHandler {
 }
 
 func (h *httpPortHandler) GetPort(c echo.Context) error {
-	// Bind / Validate Params
+	// Bind / check Params
 	params := &model.PortParams{}
 	err := c.Bind(params)
-	if err != nil || !params.Validate() {
+	if err != nil || !params.IsValid() {
 		return errors.NewQueryParamsError(err)
 	}
 

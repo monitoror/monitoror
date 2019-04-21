@@ -20,10 +20,10 @@ func NewHttpTravisCIHandler(p travisci.Usecase) *httpTravisCIHandler {
 }
 
 func (h *httpTravisCIHandler) GetTravisCIBuild(c echo.Context) error {
-	// Bind / Validate Params
+	// Bind / check Params
 	params := &model.BuildParams{}
 	err := c.Bind(params)
-	if err != nil || !params.Validate() {
+	if err != nil || !params.IsValid() {
 		return errors.NewQueryParamsError(err)
 	}
 

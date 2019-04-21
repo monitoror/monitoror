@@ -22,6 +22,6 @@ type (
 	}
 )
 
-func (p *BuildParams) Validate() bool {
+func (p *BuildParams) IsValid() bool {
 	return p.Group != "" && p.Repository != "" && p.Branch != ""
 }

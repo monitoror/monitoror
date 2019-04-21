@@ -13,6 +13,6 @@ type (
 	}
 )
 
-func (p *PingParams) Validate() bool {
+func (p *PingParams) IsValid() bool {
 	return p.Hostname != ""
 }
