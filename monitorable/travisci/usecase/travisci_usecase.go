@@ -105,8 +105,6 @@ func parseState(state string) TileStatus {
 		return FailedStatus
 	case "errored":
 		return FailedStatus
-	case "canceled":
-		return CanceledStatus
 	default:
 		return UnknownStatus
 	}

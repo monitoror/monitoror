@@ -52,7 +52,7 @@ func (tu *travisCIUsecase) Build(params *model.BuildParams) (tile *BuildTile, er
 	tile.Author.Name = nonempty.String(params.AuthorName, "Faker")
 	tile.Author.AvatarUrl = nonempty.String(params.AuthorAvatarUrl, "https://www.gravatar.com/avatar/00000000000000000000000000000000")
 
-	if tile.Status == SuccessStatus || tile.Status == FailedStatus || tile.Status == CanceledStatus {
+	if tile.Status == SuccessStatus || tile.Status == FailedStatus {
 		min := time.Now().Unix() - int64(time.Hour.Seconds()*24*30) - 3600
 		max := time.Now().Unix() - 3600
 		delta := max - min

@@ -258,10 +258,6 @@ func TestBuild_Running(t *testing.T) {
 	}
 }
 
-func TestNonemptyStatus(t *testing.T) {
-
-}
-
 func TestParseState(t *testing.T) {
 	assert.Equal(t, QueuedStatus, parseState("created"))
 	assert.Equal(t, QueuedStatus, parseState("received"))
@@ -269,7 +265,6 @@ func TestParseState(t *testing.T) {
 	assert.Equal(t, SuccessStatus, parseState("passed"))
 	assert.Equal(t, FailedStatus, parseState("failed"))
 	assert.Equal(t, FailedStatus, parseState("errored"))
-	assert.Equal(t, CanceledStatus, parseState("canceled"))
 	assert.Equal(t, UnknownStatus, parseState(""))
 }
 
