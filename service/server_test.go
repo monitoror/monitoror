@@ -18,7 +18,7 @@ func TestInitEcho(t *testing.T) {
 }
 
 func TestInitMiddleware(t *testing.T) {
-	conf, _ := config.InitConfig()
+	conf := config.InitConfig()
 	server := &Server{config: conf}
 	server.initEcho()
 	server.initMiddleware()

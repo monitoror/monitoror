@@ -30,19 +30,10 @@ type (
 	}
 
 	Monitorable struct {
-		// --- Ping Configuration ---
-		Ping Ping
-
-		// --- Port Configuration ---
-		Port Port
-
-		// --- Gitlab Configuration ---
-		Gitlab Gitlab
-
-		// --- Github Configuration ---
-		Github Github
-
-		// --- TravisCI Configuration ---
+		Ping     Ping
+		Port     Port
+		Gitlab   Gitlab
+		Github   Github
 		TravisCI TravisCI
 	}
 
@@ -72,7 +63,7 @@ type (
 )
 
 // Load confiuration from configuration file / env / default value
-func InitConfig() (*Config, error) {
+func InitConfig() *Config {
 	var config Config
 
 	// Setup Env
@@ -106,5 +97,9 @@ func InitConfig() (*Config, error) {
 	// Read Configuration
 	_ = viper.Unmarshal(&config)
 
-	return &config, nil
+	return &config
+}
+
+func (t *TravisCI) IsValid() bool {
+	return t.Url != ""
 }
