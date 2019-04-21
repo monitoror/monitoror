@@ -28,7 +28,7 @@ func TestBuild_Error_NoHost(t *testing.T) {
 	mockRepository.On("Build", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(nil, errors.New("no such host"))
 
-	conf, _ := config.InitConfig()
+	conf := config.InitConfig()
 	tu := NewTravisCIUsecase(conf, mockRepository)
 
 	tile, err := tu.Build(&model.BuildParams{Group: group, Repository: repo, Branch: branch})
@@ -45,7 +45,7 @@ func TestBuild_Error_NoNetwork(t *testing.T) {
 	mockRepository.On("Build", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(nil, errors.New("dial tcp: lookup"))
 
-	conf, _ := config.InitConfig()
+	conf := config.InitConfig()
 	tu := NewTravisCIUsecase(conf, mockRepository)
 
 	tile, err := tu.Build(&model.BuildParams{Group: group, Repository: repo, Branch: branch})
@@ -62,7 +62,7 @@ func TestBuild_Timeout(t *testing.T) {
 	mockRepository.On("Build", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(nil, context.DeadlineExceeded)
 
-	conf, _ := config.InitConfig()
+	conf := config.InitConfig()
 	tu := NewTravisCIUsecase(conf, mockRepository)
 
 	tile, err := tu.Build(&model.BuildParams{Group: group, Repository: repo, Branch: branch})
@@ -79,7 +79,7 @@ func TestBuild_Error_System(t *testing.T) {
 	mockRepository.On("Build", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(nil, errors.New("boom"))
 
-	conf, _ := config.InitConfig()
+	conf := config.InitConfig()
 	tu := NewTravisCIUsecase(conf, mockRepository)
 
 	tile, err := tu.Build(&model.BuildParams{Group: group, Repository: repo, Branch: branch})
@@ -96,7 +96,7 @@ func TestBuild_Error_NoBuild(t *testing.T) {
 	mockRepository.On("Build", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(nil, nil)
 
-	conf, _ := config.InitConfig()
+	conf := config.InitConfig()
 	tu := NewTravisCIUsecase(conf, mockRepository)
 
 	tile, err := tu.Build(&model.BuildParams{Group: group, Repository: repo, Branch: branch})
@@ -115,7 +115,7 @@ func TestBuild_Success(t *testing.T) {
 	mockRepository.On("Build", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(build, nil)
 
-	conf, _ := config.InitConfig()
+	conf := config.InitConfig()
 	tu := NewTravisCIUsecase(conf, mockRepository)
 	tUsecase, ok := tu.(*travisCIUsecase)
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
@@ -154,7 +154,7 @@ func TestBuild_Failed(t *testing.T) {
 	mockRepository.On("Build", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(build, nil)
 
-	conf, _ := config.InitConfig()
+	conf := config.InitConfig()
 	tu := NewTravisCIUsecase(conf, mockRepository)
 	tUsecase, ok := tu.(*travisCIUsecase)
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
@@ -191,7 +191,7 @@ func TestBuild_Queued(t *testing.T) {
 	mockRepository.On("Build", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(build, nil)
 
-	conf, _ := config.InitConfig()
+	conf := config.InitConfig()
 	tu := NewTravisCIUsecase(conf, mockRepository)
 
 	// Expected
@@ -220,7 +220,7 @@ func TestBuild_Running(t *testing.T) {
 	mockRepository.On("Build", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(build, nil)
 
-	conf, _ := config.InitConfig()
+	conf := config.InitConfig()
 	tu := NewTravisCIUsecase(conf, mockRepository)
 	tUsecase, ok := tu.(*travisCIUsecase)
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {

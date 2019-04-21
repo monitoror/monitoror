@@ -17,11 +17,11 @@ import (
 	"github.com/monitoror/monitoror/pkg/gotravis/mocks"
 )
 
-func initRepository(t *testing.T, buildsApi pkgTravis.Builds) *apiTravisCIRepository {
-	conf, _ := InitConfig()
-	repository := NewApiTravisCIRepository(conf)
+func initRepository(t *testing.T, buildsApi pkgTravis.Builds) *travisCIRepository {
+	conf := InitConfig()
+	repository := NewTravisCIRepository(conf)
 
-	apiTravisCIRepository, ok := repository.(*apiTravisCIRepository)
+	apiTravisCIRepository, ok := repository.(*travisCIRepository)
 	if assert.True(t, ok) {
 		apiTravisCIRepository.travisBuildsApi = buildsApi
 		return apiTravisCIRepository
@@ -30,12 +30,12 @@ func initRepository(t *testing.T, buildsApi pkgTravis.Builds) *apiTravisCIReposi
 }
 
 func TestNewApiTravisCIRepository_Panic(t *testing.T) {
-	conf, _ := InitConfig()
+	conf := InitConfig()
 	conf.Monitorable.Github.Token = "token"
 	conf.Monitorable.TravisCI.Url = ""
 
 	// Panic because ApiUrl is not define
-	assert.Panics(t, func() { _ = NewApiTravisCIRepository(conf) })
+	assert.Panics(t, func() { _ = NewTravisCIRepository(conf) })
 }
 
 func TestRepository_Build_Error(t *testing.T) {

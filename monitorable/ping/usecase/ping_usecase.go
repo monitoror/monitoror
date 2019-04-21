@@ -16,8 +16,8 @@ type (
 	}
 )
 
-func NewPingUsecase(pr ping.Repository) ping.Usecase {
-	return &pingUsecase{pr}
+func NewPingUsecase(repository ping.Repository) ping.Usecase {
+	return &pingUsecase{repository}
 }
 
 func (pu *pingUsecase) Ping(params *model.PingParams) (tile *HealthTile, err error) {

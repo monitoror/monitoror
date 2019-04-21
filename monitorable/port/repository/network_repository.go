@@ -12,18 +12,18 @@ import (
 )
 
 type (
-	systemPortRepository struct {
+	portRepository struct {
 		config *config.Config
 		dialer pkgNet.Dialer
 	}
 )
 
-func NewNetworkPortRepository(conf *config.Config) port.Repository {
+func NewPortRepository(conf *config.Config) port.Repository {
 	timeout := time.Millisecond * time.Duration(conf.Monitorable.Port.Timeout)
-	return &systemPortRepository{conf, &net.Dialer{Timeout: timeout}}
+	return &portRepository{conf, &net.Dialer{Timeout: timeout}}
 }
 
-func (r *systemPortRepository) OpenSocket(ctx context.Context, hostname string, port int) (err error) {
+func (r *portRepository) OpenSocket(ctx context.Context, hostname string, port int) (err error) {
 	target := fmt.Sprintf("%s:%d", hostname, port)
 
 	conn, err := r.dialer.Dial("tcp", target)

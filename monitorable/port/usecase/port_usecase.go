@@ -17,8 +17,8 @@ type (
 	}
 )
 
-func NewPortUsecase(pr port.Repository) port.Usecase {
-	return &portUsecase{pr}
+func NewPortUsecase(repository port.Repository) port.Usecase {
+	return &portUsecase{repository}
 }
 
 func (pu *portUsecase) Port(params *model.PortParams) (tile *HealthTile, err error) {

@@ -31,7 +31,7 @@ func (s *Server) initApis() {
 
 	// ------------- PING ------------- //
 	register("ping", true, func() {
-		pingRepo := _pingRepository.NewNetworkPingRepository(s.config)
+		pingRepo := _pingRepository.NewPingRepository(s.config)
 		pingUC := _pingUsecase.NewPingUsecase(pingRepo)
 		pingHandler := _pingDelivery.NewHttpPingHandler(pingUC)
 
@@ -40,7 +40,7 @@ func (s *Server) initApis() {
 
 	// ------------- PORT ------------- //
 	register("port", true, func() {
-		portRepo := _portRepository.NewNetworkPortRepository(s.config)
+		portRepo := _portRepository.NewPortRepository(s.config)
 		portUC := _portUsecase.NewPortUsecase(portRepo)
 		portHandler := _portDelivery.NewHttpPortHandler(portUC)
 
@@ -49,7 +49,7 @@ func (s *Server) initApis() {
 
 	// ------------- TRAVIS CI ------------- //
 	register("travis-ci", s.config.Monitorable.TravisCI.Url != "", func() {
-		travisciRepo := _travisciRepository.NewApiTravisCIRepository(s.config)
+		travisciRepo := _travisciRepository.NewTravisCIRepository(s.config)
 		travisciUC := _travisciUsecase.NewTravisCIUsecase(s.config, travisciRepo)
 		travisciHandler := _travisciDelivery.NewHttpTravisCIHandler(travisciUC)
 

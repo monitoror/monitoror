@@ -15,7 +15,7 @@ import (
 )
 
 type (
-	apiTravisCIRepository struct {
+	travisCIRepository struct {
 		config *config.Config
 
 		// Interfaces for Builds route
@@ -23,7 +23,7 @@ type (
 	}
 )
 
-func NewApiTravisCIRepository(conf *config.Config) travisci.Repository {
+func NewTravisCIRepository(conf *config.Config) travisci.Repository {
 	client := travis.NewClient(conf.Monitorable.TravisCI.Url, conf.Monitorable.TravisCI.Token)
 
 	// Using Github token if exist
@@ -34,14 +34,14 @@ func NewApiTravisCIRepository(conf *config.Config) travisci.Repository {
 		}
 	}
 
-	return &apiTravisCIRepository{
+	return &travisCIRepository{
 		conf,
 		client.Builds,
 	}
 }
 
 //Build fetch build information from travis-ci
-func (r *apiTravisCIRepository) Build(ctx context.Context, group, repository, branch string) (build *model.Build, err error) {
+func (r *travisCIRepository) Build(ctx context.Context, group, repository, branch string) (build *model.Build, err error) {
 	// Config
 	repoSlug := fmt.Sprintf("%s/%s", group, repository)
 	options := &travis.BuildsByRepoOption{

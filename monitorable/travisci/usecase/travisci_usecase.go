@@ -20,16 +20,16 @@ import (
 
 type (
 	travisCIUsecase struct {
-		repository travisci.Repository
 		config     *config.Config
+		repository travisci.Repository
 
 		// Estimated duration cache
 		estimatedDurations map[string]time.Duration
 	}
 )
 
-func NewTravisCIUsecase(conf *config.Config, pr travisci.Repository) travisci.Usecase {
-	return &travisCIUsecase{pr, conf, make(map[string]time.Duration)}
+func NewTravisCIUsecase(conf *config.Config, repository travisci.Repository) travisci.Usecase {
+	return &travisCIUsecase{conf, repository, make(map[string]time.Duration)}
 }
 
 func (tu *travisCIUsecase) Build(params *model.BuildParams) (tile *BuildTile, err error) {

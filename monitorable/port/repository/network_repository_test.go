@@ -14,11 +14,11 @@ import (
 	. "github.com/stretchr/testify/mock"
 )
 
-func initRepository(t *testing.T, dialer pkgNet.Dialer) *systemPortRepository {
-	conf, _ := InitConfig()
-	repository := NewNetworkPortRepository(conf)
+func initRepository(t *testing.T, dialer pkgNet.Dialer) *portRepository {
+	conf := InitConfig()
+	repository := NewPortRepository(conf)
 
-	systemPortRepository, ok := repository.(*systemPortRepository)
+	systemPortRepository, ok := repository.(*portRepository)
 	if assert.True(t, ok) {
 		systemPortRepository.dialer = dialer
 		return systemPortRepository
