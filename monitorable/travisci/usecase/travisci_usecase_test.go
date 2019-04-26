@@ -40,6 +40,23 @@ func TestBuild_Error_NoHost(t *testing.T) {
 	}
 }
 
+func TestBuild_Error_NoNetwork(t *testing.T) {
+	mockRepository := new(mocks.Repository)
+	mockRepository.On("Build", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
+		Return(nil, errors.New("dial tcp: lookup"))
+
+	conf, _ := config.InitConfig()
+	tu := NewTravisCIUsecase(conf, mockRepository)
+
+	tile, err := tu.Build(&model.BuildParams{Group: group, Repository: repo, Branch: branch})
+	if assert.Error(t, err) {
+		assert.Nil(t, tile)
+		assert.IsType(t, &mErrors.TimeoutError{}, err)
+		mockRepository.AssertNumberOfCalls(t, "Build", 1)
+		mockRepository.AssertExpectations(t)
+	}
+}
+
 func TestBuild_Timeout(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("Build", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).

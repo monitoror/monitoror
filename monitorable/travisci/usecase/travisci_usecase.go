@@ -42,10 +42,10 @@ func (tu *travisCIUsecase) Build(params *model.BuildParams) (tile *BuildTile, er
 	// Request
 	build, err := tu.repository.Build(ctx, params.Group, params.Repository, params.Branch)
 	if err != nil {
-		if err == context.DeadlineExceeded || strings.Contains(err.Error(), "no such host") {
+		if err == context.DeadlineExceeded || strings.Contains(err.Error(), "no such host") || strings.Contains(err.Error(), "dial tcp: lookup") {
 			err = errors.NewTimeoutError(tile.Tile, "Timeout/Host Unreachable")
 		} else {
-			err = errors.NewSystemError("unable to get travisci build", err)
+			err = errors.NewSystemError("unable to get travisci build", nil)
 		}
 		return nil, err
 	}
