@@ -28,6 +28,8 @@ type Server struct {
 	cm *middlewares.CacheMiddleware
 }
 
+var colorer = color.New()
+
 // Init create echo server with middlewares, front, routes
 func Init(config *config.Config) *Server {
 	server := &Server{config: config}
@@ -44,11 +46,15 @@ func (s *Server) initEcho() {
 	s.Echo = echo.New()
 	s.HideBanner = true
 
-	//  ----- Logger -----
-	if l, ok := s.Logger.(*log.Logger); ok {
-		l.SetHeader("⇨ ${time_rfc3339} [${level}]")
-		l.SetLevel(log.INFO)
-	}
+	//  ----- Default Logger -----
+	log.SetPrefix("")
+	log.SetHeader("[${level}]")
+	log.SetLevel(log.INFO)
+
+	//  ----- Echo Logger -----
+	s.Logger.SetPrefix("")
+	s.Logger.SetHeader("[${level}]")
+	s.Logger.SetLevel(log.INFO)
 
 	// ----- Errors Handler -----
 	s.HTTPErrorHandler = handlers.HttpErrorHandler
@@ -60,7 +66,7 @@ func (s *Server) initMiddleware() {
 
 	// Log requests
 	s.Use(echoMiddleware.LoggerWithConfig(echoMiddleware.LoggerConfig{
-		Format: `⇨ ${time_rfc3339} [REQUEST] ${method} ${uri} status:${status} error:"${error}"` + "\n",
+		Format: `[-] ` + colorer.Green("${method}") + ` ${uri} status:${status} error:"${error}"` + "\n",
 	}))
 
 	// Cache
@@ -79,7 +85,7 @@ func (s *Server) initFront() {
 		// Never use constant or variable according to docs : https://github.com/GeertJohan/go.rice#calling-findbox-and-mustfindbox
 		frontAssets, err := rice.FindBox("../front/dist")
 		if err != nil {
-			panic("Static front/dist not found. Build them with `cd front && yarn run build` first.")
+			panic("static front/dist not found. Build them with `cd front && yarn run build` first.")
 		}
 
 		assetHandler := http.FileServer(frontAssets.HTTPBox())
@@ -92,22 +98,16 @@ func (s *Server) initFront() {
 }
 
 func (s *Server) Start() {
-	s.Logger.Fatal(s.Echo.Start(fmt.Sprintf(":%d", s.config.Port)))
+	fmt.Println()
+	log.Fatal(s.Echo.Start(fmt.Sprintf(":%d", s.config.Port)))
 }
 
 // register route utility function (used for print if route is enabled at start
 func register(name string, enabled bool, handle func()) {
 	if enabled {
 		handle()
-	}
-	printModule(name, enabled)
-}
-
-func printModule(name string, enabled bool) {
-	colorer := color.New()
-	if enabled {
-		colorer.Printf("⇨ %s: %s\n", name, colorer.Green("enabled"))
+		fmt.Printf("⇨ %s: %s\n", name, colorer.Green("enabled"))
 	} else {
-		colorer.Printf("⇨ %s: %s\n", name, colorer.Red("disabled"))
+		fmt.Printf("⇨ %s: %s\n", name, colorer.Red("disabled"))
 	}
 }

@@ -3,6 +3,8 @@ package handlers
 import (
 	"net/http"
 
+	"github.com/labstack/gommon/log"
+
 	"github.com/monitoror/monitoror/middlewares"
 	"github.com/monitoror/monitoror/models/errors"
 	"github.com/monitoror/monitoror/models/tiles"
@@ -46,13 +48,13 @@ func HttpErrorHandler(err error, c echo.Context) {
 }
 
 func systemError(c echo.Context, e error) {
-	c.Logger().Error(e.Error())
+	log.Error(e.Error())
 	tile := tiles.NewErrorTile("System Error", e.Error())
 	_ = c.JSON(http.StatusInternalServerError, tile)
 }
 
 func queryParamsError(c echo.Context, qpe *errors.QueryParamsError) {
-	c.Logger().Error(qpe.Error())
+	log.Error(qpe.Error())
 	tile := tiles.NewErrorTile("Wrong Configuration", qpe.Error())
 	_ = c.JSON(http.StatusBadRequest, tile)
 }
@@ -76,13 +78,13 @@ func timeoutError(c echo.Context, te *errors.TimeoutError) {
 	// Looking for TimeoutCache in echo.context
 	value := c.Get(middlewares.DownstreamStoreContextKey)
 	if value == nil {
-		c.Logger().Warn("unable to find DownstreamStore in echo.context")
+		log.Warn("unable to find DownstreamStore in echo.context")
 		sendTimeout(c)
 		return
 	}
 	store, ok := value.(cache.Store)
 	if !ok {
-		c.Logger().Warn("unable to cast value in cache.Store")
+		log.Warn("unable to cast value in cache.Store")
 		sendTimeout(c)
 		return
 	}
