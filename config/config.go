@@ -9,6 +9,7 @@ import (
 const EnvPrefix = "MO"
 
 type (
+	//Backend Configuration
 	Config struct {
 		// --- General Configuration ---
 		Port int    // Default: 8080
