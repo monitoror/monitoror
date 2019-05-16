@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	PortTileSubType TileSubType = "PORT"
+	PortTileType TileType = "PORT"
 )
 
 // Usecase represent the port's usecases

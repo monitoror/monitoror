@@ -1,6 +1,6 @@
 package tiles
 
-const ErrorTileType TileType = "ERROR"
+const ErrorTileCategory TileCategory = "ERROR"
 
 type (
 	// commonTile struct used by every response of monitorable route
@@ -12,9 +12,9 @@ type (
 func NewErrorTile(label, message string) *ErrorTile {
 	return &ErrorTile{
 		Tile: &Tile{
-			Type:    ErrorTileType,
-			Label:   label,
-			Message: message,
+			Category: ErrorTileCategory,
+			Label:    label,
+			Message:  message,
 		},
 	}
 }

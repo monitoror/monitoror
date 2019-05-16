@@ -3,19 +3,19 @@ package tiles
 type (
 	// commonTile struct used by every response of monitorable route
 	Tile struct {
-		Type    TileType    `json:"type"`
-		SubType TileSubType `json:"subtype,omitempty"`
-		Status  TileStatus  `json:"status,omitempty"`
-		Label   string      `json:"label"`
-		Message string      `json:"message,omitempty"`
+		Category TileCategory `json:"category"`
+		Type     TileType     `json:"type,omitempty"`
+		Status   TileStatus   `json:"status,omitempty"`
+		Label    string       `json:"label"`
+		Message  string       `json:"message,omitempty"`
 	}
 
-	TileType    string // BUILD, HEALTH ...
-	TileSubType string // PING, JENKINS_JOB ...
-	TileStatus  string // SUCCESS, FAILURE ...
+	TileCategory string // BUILD, HEALTH ...
+	TileType     string // PING, JENKINS_JOB ...
+	TileStatus   string // SUCCESS, FAILURE ...
 )
 
-// List of all Response Status
+// List of all Response Code
 const (
 	SuccessStatus  TileStatus = "SUCCESS"
 	FailedStatus   TileStatus = "FAILURE"

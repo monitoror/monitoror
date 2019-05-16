@@ -1,6 +1,6 @@
 package tiles
 
-const BuildTileType TileType = "BUILD"
+const BuildTileCategory TileCategory = "BUILD"
 
 type (
 	// Used by Jenkins, Gitlab, Teamcity ... as response structure
@@ -22,11 +22,11 @@ type (
 	}
 )
 
-func NewBuildTile(subType TileSubType) *BuildTile {
+func NewBuildTile(t TileType) *BuildTile {
 	return &BuildTile{
 		Tile: &Tile{
-			Type:    BuildTileType,
-			SubType: subType,
+			Category: BuildTileCategory,
+			Type:     t,
 		},
 	}
 }

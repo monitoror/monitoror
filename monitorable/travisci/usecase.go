@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	TravisCIBuildTileSubType TileSubType = "TRAVISCI-BUILD"
+	TravisCIBuildTileType TileType = "TRAVISCI-BUILD"
 )
 
 // Usecase represent the circleci's usecases

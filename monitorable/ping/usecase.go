@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	PingTileSubType TileSubType = "PING"
+	PingTileType TileType = "PING"
 )
 
 // Usecase represent the ping's usecases

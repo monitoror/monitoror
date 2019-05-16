@@ -1,6 +1,6 @@
 package tiles
 
-const HealthTileType TileType = "HEALTH"
+const HealthTileCategory TileCategory = "HEALTH"
 
 type (
 	// Used by Ping, Port ... as response structure
@@ -9,11 +9,11 @@ type (
 	}
 )
 
-func NewHealthTile(subType TileSubType) *HealthTile {
+func NewHealthTile(t TileType) *HealthTile {
 	return &HealthTile{
 		Tile: &Tile{
-			Type:    HealthTileType,
-			SubType: subType,
+			Category: HealthTileCategory,
+			Type:     t,
 		},
 	}
 }
