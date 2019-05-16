@@ -1,15 +1,11 @@
-//+build faker
+//+build !faker
 
-package model
-
-import "github.com/monitoror/monitoror/models/tiles"
+package models
 
 type (
 	PortParams struct {
 		Hostname string `json:"hostname" query:"hostname"`
 		Port     int    `json:"port" query:"port"`
-
-		Status tiles.TileStatus `json:"status" query:"status"`
 	}
 )
 

@@ -8,7 +8,7 @@ import (
 
 	. "github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/port"
-	"github.com/monitoror/monitoror/monitorable/port/model"
+	"github.com/monitoror/monitoror/monitorable/port/models"
 )
 
 type (
@@ -21,8 +21,8 @@ func NewPortUsecase(repository port.Repository) port.Usecase {
 	return &portUsecase{repository}
 }
 
-func (pu *portUsecase) Port(params *model.PortParams) (tile *HealthTile, err error) {
-	tile = NewHealthTile(port.PortTileSubType)
+func (pu *portUsecase) Port(params *models.PortParams) (tile *HealthTile, err error) {
+	tile = NewHealthTile(port.PortTileType)
 	tile.Label = fmt.Sprintf("%s:%d", params.Hostname, params.Port)
 
 	err = pu.repository.OpenSocket(context.Background(), params.Hostname, params.Port)

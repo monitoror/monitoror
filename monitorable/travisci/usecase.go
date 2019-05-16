@@ -2,7 +2,7 @@ package travisci
 
 import (
 	. "github.com/monitoror/monitoror/models/tiles"
-	"github.com/monitoror/monitoror/monitorable/travisci/model"
+	"github.com/monitoror/monitoror/monitorable/travisci/models"
 )
 
 const (
@@ -12,6 +12,6 @@ const (
 // Usecase represent the circleci's usecases
 type (
 	Usecase interface {
-		Build(params *model.BuildParams) (*BuildTile, error)
+		Build(params *models.BuildParams) (*BuildTile, error)
 	}
 )

@@ -9,20 +9,44 @@ import (
 	"testing"
 
 	mErrors "github.com/monitoror/monitoror/models/errors"
-
-	"github.com/labstack/echo/v4"
 	"github.com/monitoror/monitoror/models/tiles"
 	. "github.com/monitoror/monitoror/monitorable/port"
 	"github.com/monitoror/monitoror/monitorable/port/mocks"
+
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"
 )
+
+func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
+	e := echo.New()
+	req := httptest.NewRequest(echo.GET, "/api/v1/info", nil)
+	res = httptest.NewRecorder()
+	ctx = e.NewContext(req, res)
+
+	ctx.QueryParams().Set("hostname", "test.com")
+	ctx.QueryParams().Set("port", "1234")
+
+	return
+}
+
+func missingParam(t *testing.T, param string) {
+	// Init
+	ctx, _ := initEcho()
+	ctx.QueryParams().Del(param)
+	mockUsecase := new(mocks.Usecase)
+	handler := NewHttpPortHandler(mockUsecase)
+	// Test
+	err := handler.GetPort(ctx)
+	assert.Error(t, err)
+	assert.IsType(t, &mErrors.QueryParamsError{}, err)
+}
 
 func TestDelivery_GetPort_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
-	tile := tiles.NewHealthTile(PortTileSubType)
+	tile := tiles.NewHealthTile(PortTileType)
 	tile.Label = "test.com:1234"
 	tile.Status = tiles.SuccessStatus
 
@@ -63,28 +87,4 @@ func TestDelivery_GetPort_Error(t *testing.T) {
 	assert.Error(t, handler.GetPort(ctx))
 	mockUsecase.AssertNumberOfCalls(t, "Port", 1)
 	mockUsecase.AssertExpectations(t)
-}
-
-func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
-	e := echo.New()
-	req := httptest.NewRequest(echo.GET, "/api/v1/info", nil)
-	res = httptest.NewRecorder()
-	ctx = e.NewContext(req, res)
-
-	ctx.QueryParams().Set("hostname", "test.com")
-	ctx.QueryParams().Set("port", "1234")
-
-	return
-}
-
-func missingParam(t *testing.T, param string) {
-	// Init
-	ctx, _ := initEcho()
-	ctx.QueryParams().Del(param)
-	mockUsecase := new(mocks.Usecase)
-	handler := NewHttpPortHandler(mockUsecase)
-	// Test
-	err := handler.GetPort(ctx)
-	assert.Error(t, err)
-	assert.IsType(t, &mErrors.QueryParamsError{}, err)
 }

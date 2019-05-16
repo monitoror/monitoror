@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/monitoror/monitoror/models/errors"
-	"github.com/monitoror/monitoror/monitorable/port/model"
+	"github.com/monitoror/monitoror/monitorable/port/models"
 
 	"github.com/monitoror/monitoror/monitorable/port"
 
@@ -21,7 +21,7 @@ func NewHttpPortHandler(p port.Usecase) *httpPortHandler {
 
 func (h *httpPortHandler) GetPort(c echo.Context) error {
 	// Bind / check Params
-	params := &model.PortParams{}
+	params := &models.PortParams{}
 	err := c.Bind(params)
 	if err != nil || !params.IsValid() {
 		return errors.NewQueryParamsError(err)

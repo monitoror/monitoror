@@ -7,7 +7,7 @@ import (
 
 	"github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/monitorable/ping"
-	"github.com/monitoror/monitoror/monitorable/ping/model"
+	"github.com/monitoror/monitoror/monitorable/ping/models"
 
 	goPing "github.com/sparrc/go-ping"
 )
@@ -22,7 +22,7 @@ func NewPingRepository(config *config.Config) ping.Repository {
 	return &pingRepository{config}
 }
 
-func (r *pingRepository) Ping(ctx context.Context, hostname string) (*model.Ping, error) {
+func (r *pingRepository) Ping(ctx context.Context, hostname string) (*models.Ping, error) {
 	pinger, err := goPing.NewPinger(hostname)
 	if err != nil {
 		return nil, err
@@ -40,7 +40,7 @@ func (r *pingRepository) Ping(ctx context.Context, hostname string) (*model.Ping
 		return nil, errors.New("ping failed")
 	}
 
-	ping := &model.Ping{}
+	ping := &models.Ping{}
 	ping.Min = stats.MinRtt
 	ping.Max = stats.MaxRtt
 	ping.Average = stats.AvgRtt

@@ -15,7 +15,7 @@ import (
 
 	. "github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/travisci"
-	"github.com/monitoror/monitoror/monitorable/travisci/model"
+	"github.com/monitoror/monitoror/monitorable/travisci/models"
 )
 
 type (
@@ -32,8 +32,8 @@ func NewTravisCIUsecase(conf *config.Config, repository travisci.Repository) tra
 	return &travisCIUsecase{conf, repository, make(map[string]time.Duration)}
 }
 
-func (tu *travisCIUsecase) Build(params *model.BuildParams) (tile *BuildTile, err error) {
-	tile = NewBuildTile(travisci.TravisCIBuildTileSubType)
+func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *BuildTile, err error) {
+	tile = NewBuildTile(travisci.TravisCIBuildTileType)
 	tile.Label = fmt.Sprintf("%s : #%s", params.Repository, params.Branch)
 
 	ctx := context.Background()

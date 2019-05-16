@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/monitoror/monitoror/models/errors"
-	"github.com/monitoror/monitoror/monitorable/ping/model"
+	"github.com/monitoror/monitoror/monitorable/ping/models"
 
 	"github.com/monitoror/monitoror/monitorable/ping"
 
@@ -21,7 +21,7 @@ func NewHttpPingHandler(p ping.Usecase) *httpPingHandler {
 
 func (h *httpPingHandler) GetPing(c echo.Context) error {
 	// Bind / Check Params
-	params := &model.PingParams{}
+	params := &models.PingParams{}
 	err := c.Bind(params)
 	if err != nil || !params.IsValid() {
 		return errors.NewQueryParamsError(err)

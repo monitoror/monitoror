@@ -7,7 +7,7 @@ import (
 
 	. "github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/ping"
-	"github.com/monitoror/monitoror/monitorable/ping/model"
+	"github.com/monitoror/monitoror/monitorable/ping/models"
 )
 
 type (
@@ -20,8 +20,8 @@ func NewPingUsecase(repository ping.Repository) ping.Usecase {
 	return &pingUsecase{repository}
 }
 
-func (pu *pingUsecase) Ping(params *model.PingParams) (tile *HealthTile, err error) {
-	tile = NewHealthTile(ping.PingTileSubType)
+func (pu *pingUsecase) Ping(params *models.PingParams) (tile *HealthTile, err error) {
+	tile = NewHealthTile(ping.PingTileType)
 	tile.Label = params.Hostname
 
 	ping, err := pu.repository.Ping(context.Background(), params.Hostname)

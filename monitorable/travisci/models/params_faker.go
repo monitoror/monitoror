@@ -1,6 +1,6 @@
 //+build faker
 
-package model
+package models
 
 import "github.com/monitoror/monitoror/models/tiles"
 

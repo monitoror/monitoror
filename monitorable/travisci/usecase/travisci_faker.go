@@ -13,7 +13,7 @@ import (
 
 	. "github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/travisci"
-	"github.com/monitoror/monitoror/monitorable/travisci/model"
+	"github.com/monitoror/monitoror/monitorable/travisci/models"
 )
 
 var AvailableStatus = []TileStatus{SuccessStatus, FailedStatus, RunningStatus, QueuedStatus, WarningStatus}
@@ -34,8 +34,8 @@ func NewTravisCIUsecase() travisci.Usecase {
 	return &travisCIUsecase{make(map[string]*durations)}
 }
 
-func (tu *travisCIUsecase) Build(params *model.BuildParams) (tile *BuildTile, err error) {
-	tile = NewBuildTile(travisci.TravisCIBuildTileSubType)
+func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *BuildTile, err error) {
+	tile = NewBuildTile(travisci.TravisCIBuildTileType)
 	tile.Label = fmt.Sprintf("%s : #%s", params.Repository, params.Branch)
 
 	// Init random generator

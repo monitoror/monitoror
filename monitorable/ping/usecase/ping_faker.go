@@ -10,7 +10,7 @@ import (
 
 	. "github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/ping"
-	"github.com/monitoror/monitoror/monitorable/ping/model"
+	"github.com/monitoror/monitoror/monitorable/ping/models"
 )
 
 type (
@@ -22,14 +22,14 @@ func NewPingUsecase() ping.Usecase {
 	return &pingUsecase{}
 }
 
-func (pu *pingUsecase) Ping(params *model.PingParams) (tile *HealthTile, err error) {
-	tile = NewHealthTile(ping.PingTileSubType)
+func (pu *pingUsecase) Ping(params *models.PingParams) (tile *HealthTile, err error) {
+	tile = NewHealthTile(ping.PingTileType)
 	tile.Label = params.Hostname
 
 	// Init random generator
 	rand.Seed(time.Now().UnixNano())
 
-	// Status
+	// Code
 	tile.Status = nonempty.Struct(params.Status, randomStatus()).(TileStatus)
 
 	// Message

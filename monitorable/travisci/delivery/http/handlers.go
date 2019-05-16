@@ -4,7 +4,7 @@ import (
 	"net/http"
 
 	"github.com/monitoror/monitoror/models/errors"
-	"github.com/monitoror/monitoror/monitorable/travisci/model"
+	"github.com/monitoror/monitoror/monitorable/travisci/models"
 
 	"github.com/monitoror/monitoror/monitorable/travisci"
 
@@ -21,7 +21,7 @@ func NewHttpTravisCIHandler(p travisci.Usecase) *httpTravisCIHandler {
 
 func (h *httpTravisCIHandler) GetTravisCIBuild(c echo.Context) error {
 	// Bind / check Params
-	params := &model.BuildParams{}
+	params := &models.BuildParams{}
 	err := c.Bind(params)
 	if err != nil || !params.IsValid() {
 		return errors.NewQueryParamsError(err)

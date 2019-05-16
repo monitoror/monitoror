@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/monitoror/monitoror/monitorable/travisci/model"
 	pkgTravis "github.com/monitoror/monitoror/pkg/gotravis"
 
 	"github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/monitorable/travisci"
+	"github.com/monitoror/monitoror/monitorable/travisci/models"
 
 	"github.com/jsdidierlaurent/go-travis"
 )
@@ -41,7 +41,7 @@ func NewTravisCIRepository(conf *config.Config) travisci.Repository {
 }
 
 //Build fetch build information from travis-ci
-func (r *travisCIRepository) Build(ctx context.Context, group, repository, branch string) (build *model.Build, err error) {
+func (r *travisCIRepository) Build(ctx context.Context, group, repository, branch string) (build *models.Build, err error) {
 	// Config
 	repoSlug := fmt.Sprintf("%s/%s", group, repository)
 	options := &travis.BuildsByRepoOption{
@@ -71,9 +71,9 @@ func (r *travisCIRepository) Build(ctx context.Context, group, repository, branc
 	}
 
 	tBuild := builds[0]
-	build = &model.Build{
+	build = &models.Build{
 		Branch: tBuild.Branch.Name,
-		Author: model.Author{
+		Author: models.Author{
 			Name:      tBuild.Commit.Author.Name,
 			AvatarUrl: tBuild.Commit.Author.AvatarUrl,
 		},

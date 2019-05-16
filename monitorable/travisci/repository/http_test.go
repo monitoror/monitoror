@@ -5,9 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/monitoror/monitoror/monitorable/travisci/model"
-
 	. "github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/monitorable/travisci/models"
 	"github.com/stretchr/testify/assert"
 
 	"github.com/jsdidierlaurent/go-travis"
@@ -95,9 +94,9 @@ func TestRepository_Build_Success(t *testing.T) {
 		Return([]travis.Build{travisBuild}, nil, nil)
 
 	// Expected
-	expectedBuild := &model.Build{
+	expectedBuild := &models.Build{
 		Branch: travisBuild.Branch.Name,
-		Author: model.Author{
+		Author: models.Author{
 			Name:      travisBuild.Commit.Author.Name,
 			AvatarUrl: travisBuild.Commit.Author.AvatarUrl,
 		},

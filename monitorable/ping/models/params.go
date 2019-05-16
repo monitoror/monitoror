@@ -1,6 +1,6 @@
 //+build !faker
 
-package model
+package models
 
 type (
 	PingParams struct {

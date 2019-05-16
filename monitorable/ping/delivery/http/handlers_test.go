@@ -18,11 +18,22 @@ import (
 	. "github.com/stretchr/testify/mock"
 )
 
+func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
+	e := echo.New()
+	req := httptest.NewRequest(echo.GET, "/api/v1/info", nil)
+	res = httptest.NewRecorder()
+	ctx = e.NewContext(req, res)
+
+	ctx.QueryParams().Set("hostname", "test.com")
+
+	return
+}
+
 func TestDelivery_GetPing_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
-	tile := tiles.NewHealthTile(PingTileSubType)
+	tile := tiles.NewHealthTile(PingTileType)
 	tile.Label = "test.com"
 	tile.Status = tiles.SuccessStatus
 	tile.Message = "1s"
@@ -70,15 +81,4 @@ func TestDelivery_GetPing_Error(t *testing.T) {
 	assert.Error(t, handler.GetPing(ctx))
 	mockUsecase.AssertNumberOfCalls(t, "Ping", 1)
 	mockUsecase.AssertExpectations(t)
-}
-
-func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
-	e := echo.New()
-	req := httptest.NewRequest(echo.GET, "/api/v1/info", nil)
-	res = httptest.NewRecorder()
-	ctx = e.NewContext(req, res)
-
-	ctx.QueryParams().Set("hostname", "test.com")
-
-	return
 }

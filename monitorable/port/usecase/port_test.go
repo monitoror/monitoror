@@ -8,7 +8,7 @@ import (
 	"github.com/monitoror/monitoror/models/tiles"
 	. "github.com/monitoror/monitoror/monitorable/port"
 	"github.com/monitoror/monitoror/monitorable/port/mocks"
-	"github.com/monitoror/monitoror/monitorable/port/model"
+	"github.com/monitoror/monitoror/monitorable/port/models"
 
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"
@@ -21,13 +21,13 @@ func TestUsecase_CheckPort_Success(t *testing.T) {
 	usecase := NewPortUsecase(mockRepo)
 
 	// Params
-	param := &model.PortParams{
+	param := &models.PortParams{
 		Hostname: "test.com",
 		Port:     1234,
 	}
 
 	// Expected
-	eTile := tiles.NewHealthTile(PortTileSubType)
+	eTile := tiles.NewHealthTile(PortTileType)
 	eTile.Label = fmt.Sprintf("%s:%d", param.Hostname, param.Port)
 	eTile.Status = tiles.SuccessStatus
 
@@ -48,13 +48,13 @@ func TestUsecase_CheckPort_Fail(t *testing.T) {
 	usecase := NewPortUsecase(mockRepo)
 
 	// Params
-	param := &model.PortParams{
+	param := &models.PortParams{
 		Hostname: "test.com",
 		Port:     1234,
 	}
 
 	// Expected
-	eTile := tiles.NewHealthTile(PortTileSubType)
+	eTile := tiles.NewHealthTile(PortTileType)
 	eTile.Label = fmt.Sprintf("%s:%d", param.Hostname, param.Port)
 	eTile.Status = tiles.FailedStatus
 

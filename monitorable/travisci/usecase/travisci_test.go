@@ -16,7 +16,7 @@ import (
 	mErrors "github.com/monitoror/monitoror/models/errors"
 	. "github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/travisci/mocks"
-	"github.com/monitoror/monitoror/monitorable/travisci/model"
+	"github.com/monitoror/monitoror/monitorable/travisci/models"
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"
 )
@@ -31,7 +31,7 @@ func TestBuild_Error_NoHost(t *testing.T) {
 	conf := config.InitConfig()
 	tu := NewTravisCIUsecase(conf, mockRepository)
 
-	tile, err := tu.Build(&model.BuildParams{Group: group, Repository: repo, Branch: branch})
+	tile, err := tu.Build(&models.BuildParams{Group: group, Repository: repo, Branch: branch})
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
 		assert.IsType(t, &mErrors.TimeoutError{}, err)
@@ -48,7 +48,7 @@ func TestBuild_Error_NoNetwork(t *testing.T) {
 	conf := config.InitConfig()
 	tu := NewTravisCIUsecase(conf, mockRepository)
 
-	tile, err := tu.Build(&model.BuildParams{Group: group, Repository: repo, Branch: branch})
+	tile, err := tu.Build(&models.BuildParams{Group: group, Repository: repo, Branch: branch})
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
 		assert.IsType(t, &mErrors.TimeoutError{}, err)
@@ -65,7 +65,7 @@ func TestBuild_Timeout(t *testing.T) {
 	conf := config.InitConfig()
 	tu := NewTravisCIUsecase(conf, mockRepository)
 
-	tile, err := tu.Build(&model.BuildParams{Group: group, Repository: repo, Branch: branch})
+	tile, err := tu.Build(&models.BuildParams{Group: group, Repository: repo, Branch: branch})
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
 		assert.IsType(t, &mErrors.TimeoutError{}, err)
@@ -82,7 +82,7 @@ func TestBuild_Error_System(t *testing.T) {
 	conf := config.InitConfig()
 	tu := NewTravisCIUsecase(conf, mockRepository)
 
-	tile, err := tu.Build(&model.BuildParams{Group: group, Repository: repo, Branch: branch})
+	tile, err := tu.Build(&models.BuildParams{Group: group, Repository: repo, Branch: branch})
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
 		assert.IsType(t, &mErrors.SystemError{}, err)
@@ -99,7 +99,7 @@ func TestBuild_Error_NoBuild(t *testing.T) {
 	conf := config.InitConfig()
 	tu := NewTravisCIUsecase(conf, mockRepository)
 
-	tile, err := tu.Build(&model.BuildParams{Group: group, Repository: repo, Branch: branch})
+	tile, err := tu.Build(&models.BuildParams{Group: group, Repository: repo, Branch: branch})
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
 		assert.IsType(t, &mErrors.NoBuildError{}, err)
@@ -120,7 +120,7 @@ func TestBuild_Success(t *testing.T) {
 	tUsecase, ok := tu.(*travisCIUsecase)
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		// Expected
-		expected := NewBuildTile(travisci.TravisCIBuildTileSubType)
+		expected := NewBuildTile(travisci.TravisCIBuildTileType)
 		expected.Label = fmt.Sprintf("%s : #%s", repo, branch)
 		expected.Status = parseState(build.State)
 		expected.StartedAt = ToInt64(build.StartedAt.Unix())
@@ -131,7 +131,7 @@ func TestBuild_Success(t *testing.T) {
 		}
 
 		// Tests
-		tile, err := tu.Build(&model.BuildParams{Group: group, Repository: repo, Branch: branch})
+		tile, err := tu.Build(&models.BuildParams{Group: group, Repository: repo, Branch: branch})
 		if assert.NotNil(t, tile) {
 			assert.NoError(t, err)
 			assert.Equal(t, expected, tile)
@@ -159,7 +159,7 @@ func TestBuild_Failed(t *testing.T) {
 	tUsecase, ok := tu.(*travisCIUsecase)
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		// Expected
-		expected := NewBuildTile(travisci.TravisCIBuildTileSubType)
+		expected := NewBuildTile(travisci.TravisCIBuildTileType)
 		expected.Label = fmt.Sprintf("%s : #%s", repo, branch)
 		expected.Status = parseState(build.State)
 		expected.StartedAt = ToInt64(build.StartedAt.Unix())
@@ -169,7 +169,7 @@ func TestBuild_Failed(t *testing.T) {
 			AvatarUrl: build.Author.AvatarUrl,
 		}
 
-		tile, err := tu.Build(&model.BuildParams{Group: group, Repository: repo, Branch: branch})
+		tile, err := tu.Build(&models.BuildParams{Group: group, Repository: repo, Branch: branch})
 		if assert.NotNil(t, tile) {
 			assert.NoError(t, err)
 			assert.Equal(t, expected, tile)
@@ -195,7 +195,7 @@ func TestBuild_Queued(t *testing.T) {
 	tu := NewTravisCIUsecase(conf, mockRepository)
 
 	// Expected
-	expected := NewBuildTile(travisci.TravisCIBuildTileSubType)
+	expected := NewBuildTile(travisci.TravisCIBuildTileType)
 	expected.Label = fmt.Sprintf("%s : #%s", repo, branch)
 	expected.Status = parseState(build.State)
 	expected.PreviousStatus = parseState(build.PreviousState)
@@ -206,7 +206,7 @@ func TestBuild_Queued(t *testing.T) {
 	}
 
 	// Without Estimated Duration
-	tile, err := tu.Build(&model.BuildParams{Group: group, Repository: repo, Branch: branch})
+	tile, err := tu.Build(&models.BuildParams{Group: group, Repository: repo, Branch: branch})
 	if assert.NotNil(t, tile) {
 		assert.NoError(t, err)
 		assert.Equal(t, expected, tile)
@@ -226,7 +226,7 @@ func TestBuild_Running(t *testing.T) {
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 
 		// Expected
-		expected := NewBuildTile(travisci.TravisCIBuildTileSubType)
+		expected := NewBuildTile(travisci.TravisCIBuildTileType)
 		expected.Label = fmt.Sprintf("%s : #%s", repo, branch)
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = parseState(build.PreviousState)
@@ -238,7 +238,7 @@ func TestBuild_Running(t *testing.T) {
 		}
 
 		// Without Estimated Duration
-		tile, err := tu.Build(&model.BuildParams{Group: group, Repository: repo, Branch: branch})
+		tile, err := tu.Build(&models.BuildParams{Group: group, Repository: repo, Branch: branch})
 		if assert.NotNil(t, tile) {
 			assert.NoError(t, err)
 			assert.Equal(t, expected, tile)
@@ -247,7 +247,7 @@ func TestBuild_Running(t *testing.T) {
 		// With Estimated Duration
 		expected.EstimatedDuration = ToInt64(int64(120))
 		tUsecase.estimatedDurations[expected.Label] = time.Second * 120
-		tile, err = tu.Build(&model.BuildParams{Group: group, Repository: repo, Branch: branch})
+		tile, err = tu.Build(&models.BuildParams{Group: group, Repository: repo, Branch: branch})
 		if assert.NotNil(t, tile) {
 			assert.NoError(t, err)
 			assert.Equal(t, expected, tile)
@@ -268,10 +268,10 @@ func TestParseState(t *testing.T) {
 	assert.Equal(t, UnknownStatus, parseState(""))
 }
 
-func buildResponse(branch, state, previousState string, startedAt, finishedAt time.Time, duration time.Duration) *model.Build {
-	return &model.Build{
+func buildResponse(branch, state, previousState string, startedAt, finishedAt time.Time, duration time.Duration) *models.Build {
+	return &models.Build{
 		Branch: branch,
-		Author: model.Author{
+		Author: models.Author{
 			Name:      "me",
 			AvatarUrl: "http://avatar.com",
 		},

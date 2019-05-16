@@ -11,7 +11,7 @@ import (
 
 	. "github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/port"
-	"github.com/monitoror/monitoror/monitorable/port/model"
+	"github.com/monitoror/monitoror/monitorable/port/models"
 )
 
 type (
@@ -23,14 +23,14 @@ func NewPortUsecase() port.Usecase {
 	return &portUsecase{}
 }
 
-func (pu *portUsecase) Port(params *model.PortParams) (tile *HealthTile, err error) {
-	tile = NewHealthTile(port.PortTileSubType)
+func (pu *portUsecase) Port(params *models.PortParams) (tile *HealthTile, err error) {
+	tile = NewHealthTile(port.PortTileType)
 	tile.Label = fmt.Sprintf("%s:%d", params.Hostname, params.Port)
 
 	// Init random generator
 	rand.Seed(time.Now().UnixNano())
 
-	// Status
+	// Code
 	tile.Status = nonempty.Struct(params.Status, randomStatus()).(TileStatus)
 
 	return
