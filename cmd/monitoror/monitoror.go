@@ -14,10 +14,7 @@ func main() {
 	_ = godotenv.Load(".env")
 
 	// Load Config from File/Env
-	config, err := config.InitConfig()
-	if err != nil {
-		panic(err)
-	}
+	config := config.InitConfig()
 
 	// Banner
 	cli.PrintBanner()

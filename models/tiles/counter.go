@@ -1,6 +1,6 @@
 package tiles
 
-const CounterTileType TileType = "BUILD"
+const CounterTileCategory TileCategory = "BUILD"
 
 type (
 	// Used by Youtrack, Sentry ... as response structure
@@ -11,11 +11,11 @@ type (
 	}
 )
 
-func NewCounterTile(subType TileSubType) *CounterTile {
+func NewCounterTile(t TileType) *CounterTile {
 	return &CounterTile{
 		Tile: &Tile{
-			Type:    CounterTileType,
-			SubType: subType,
+			Category: CounterTileCategory,
+			Type:     t,
 		},
 	}
 }

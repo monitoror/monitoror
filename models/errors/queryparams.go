@@ -2,6 +2,12 @@ package errors
 
 import (
 	"fmt"
+	"net/http"
+
+	"github.com/labstack/gommon/log"
+
+	"github.com/labstack/echo/v4"
+	"github.com/monitoror/monitoror/models/tiles"
 )
 
 type QueryParamsError struct {
@@ -12,10 +18,15 @@ func NewQueryParamsError(err error) *QueryParamsError {
 	return &QueryParamsError{err}
 }
 
-func (qpe *QueryParamsError) Error() string {
+func (qpe *QueryParamsError) Send(ctx echo.Context) {
+	log.Warn(qpe.Error())
+	_ = ctx.JSON(http.StatusBadRequest, tiles.NewErrorTile("Wrong Configuration", qpe.Error()))
+}
+
+func (qpe *QueryParamsError) Error() (err string) {
+	err = fmt.Sprintf("unable to parse/check queryParams into struct")
 	if qpe.err != nil {
-		return fmt.Sprintf("unable to parse/validate queryParams into struct, %v", qpe.err)
-	} else {
-		return fmt.Sprintf("unable to parse/validate queryParams into struct")
+		err += fmt.Sprintf(", %v", qpe.err)
 	}
+	return
 }

@@ -8,15 +8,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/monitoror/monitoror/middlewares"
-	mErrors "github.com/monitoror/monitoror/models/errors"
 	"github.com/monitoror/monitoror/models/tiles"
 
-	"github.com/jsdidierlaurent/echo-middleware/cache"
-	"github.com/jsdidierlaurent/echo-middleware/cache/mocks"
+	mErrors "github.com/monitoror/monitoror/models/errors"
+
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
-	. "github.com/stretchr/testify/mock"
 )
 
 func initErrorEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
@@ -37,7 +34,7 @@ func TestHttpError_404(t *testing.T) {
 
 	// Expected
 	apiError := ApiError{
-		Status:  http.StatusNotFound,
+		Code:    http.StatusNotFound,
 		Message: "Not Found",
 	}
 	json, e := json.Marshal(apiError)
@@ -59,7 +56,7 @@ func TestHttpError_500(t *testing.T) {
 
 	// Expected
 	apiError := ApiError{
-		Status:  http.StatusInternalServerError,
+		Code:    http.StatusInternalServerError,
 		Message: err.Error(),
 	}
 	json, e := json.Marshal(apiError)
@@ -72,166 +69,21 @@ func TestHttpError_500(t *testing.T) {
 	assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
 }
 
-func TestSystemError(t *testing.T) {
+func TestHttpError_TileError(t *testing.T) {
 	// Init
 	ctx, res := initErrorEcho()
 
 	// Parameters
-	message := "system error"
-	err := mErrors.NewSystemError(message, nil)
+	err := mErrors.NewSystemError("BOOM", nil)
 
 	// Expected
-	tile := tiles.NewErrorTile("System Error", message)
-	json, e := json.Marshal(tile)
+	tile := tiles.NewErrorTile("System Error", err.Error())
+	j, e := json.Marshal(tile)
 	assert.NoError(t, e, "unable to marshal tile")
 
 	// Test
 	HttpErrorHandler(err, ctx)
 
 	assert.Equal(t, http.StatusInternalServerError, res.Code)
-	assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
-}
-
-func TestQueryParamsError(t *testing.T) {
-	// Init
-	ctx, res := initErrorEcho()
-
-	// Parameters
-	err := mErrors.NewQueryParamsError(nil)
-
-	// Expected
-	tile := tiles.NewErrorTile("Wrong Configuration", err.Error())
-	json, e := json.Marshal(tile)
-	assert.NoError(t, e, "unable to marshal tile")
-
-	// Test
-	HttpErrorHandler(err, ctx)
-
-	assert.Equal(t, http.StatusBadRequest, res.Code)
-	assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
-}
-
-func TestNoBuildError(t *testing.T) {
-	// Init
-	ctx, res := initErrorEcho()
-
-	// Parameters
-	err := mErrors.NewNoBuildError(tiles.NewBuildTile("TEST"))
-
-	// Expected
-	tile := err.BuildTile
-	tile.Status = tiles.WarningStatus
-	tile.Message = err.Error()
-	json, e := json.Marshal(tile)
-	assert.NoError(t, e, "unable to marshal tile")
-
-	// Test
-	HttpErrorHandler(err, ctx)
-
-	assert.Equal(t, http.StatusOK, res.Code)
-	assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
-}
-
-func TestTimeoutError_WithoutCacheStore(t *testing.T) {
-	// Init
-	ctx, res := initErrorEcho()
-
-	// Parameters
-	err := mErrors.NewTimeoutError(tiles.NewHealthTile("TEST").Tile, "service is burning")
-
-	// Expected
-	tile := err.Tile
-	tile.Status = tiles.WarningStatus
-	tile.Message = err.Error()
-	json, e := json.Marshal(tile)
-	assert.NoError(t, e, "unable to marshal tile")
-
-	// Test
-	HttpErrorHandler(err, ctx)
-
-	assert.Equal(t, http.StatusOK, res.Code)
-	assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
-}
-
-func TestTimeoutError_WithCastErrorOnGetCacheStore(t *testing.T) {
-	// Init
-	ctx, res := initErrorEcho()
-	ctx.Set(middlewares.DownstreamStoreContextKey, "store")
-
-	// Parameters
-	err := mErrors.NewTimeoutError(tiles.NewHealthTile("TEST").Tile, "service is burning")
-
-	// Expected
-	tile := err.Tile
-	tile.Status = tiles.WarningStatus
-	tile.Message = err.Error()
-	json, e := json.Marshal(tile)
-	assert.NoError(t, e, "unable to marshal tile")
-
-	// Test
-	HttpErrorHandler(err, ctx)
-
-	assert.Equal(t, http.StatusOK, res.Code)
-	assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
-}
-
-func TestTimeoutError_CacheMiss(t *testing.T) {
-	// Init
-	ctx, res := initErrorEcho()
-	mockStore := new(mocks.Store)
-	mockStore.On("Get", AnythingOfType("string"), Anything).Return(cache.ErrCacheMiss)
-	ctx.Set(middlewares.DownstreamStoreContextKey, mockStore)
-
-	// Parameters
-	err := mErrors.NewTimeoutError(tiles.NewHealthTile("TEST").Tile, "service is burning")
-
-	// Expected
-	tile := err.Tile
-	tile.Status = tiles.WarningStatus
-	tile.Message = err.Error()
-	json, e := json.Marshal(tile)
-	assert.NoError(t, e, "unable to marshal tile")
-
-	// Test
-	HttpErrorHandler(err, ctx)
-
-	assert.Equal(t, http.StatusOK, res.Code)
-	assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
-	mockStore.AssertNumberOfCalls(t, "Get", 1)
-	mockStore.AssertExpectations(t)
-}
-
-func TestTimeoutError_Success(t *testing.T) {
-	// Init
-	ctx, res := initErrorEcho()
-
-	status := http.StatusOK
-	header := ctx.Request().Header
-	header.Add("header", "true")
-	body := "body"
-
-	mockStore := new(mocks.Store)
-	mockStore.
-		On("Get", AnythingOfType("string"), AnythingOfType("*cache.ResponseCache")).
-		Return(nil).
-		Run(func(args Arguments) {
-			arg := args.Get(1).(*cache.ResponseCache)
-			arg.Data = []byte(body)
-			arg.Header = header
-			arg.Status = status
-		})
-	ctx.Set(middlewares.DownstreamStoreContextKey, mockStore)
-
-	// Parameters
-	te := mErrors.NewTimeoutError(tiles.NewHealthTile("TEST").Tile, "service is burning")
-
-	// Test
-	HttpErrorHandler(te, ctx)
-	header.Add("Timeout-Recover", "true")
-
-	assert.Equal(t, status, res.Code)
-	assert.Equal(t, header, res.Header())
-	assert.Equal(t, body, res.Body.String())
-	mockStore.AssertNumberOfCalls(t, "Get", 1)
-	mockStore.AssertExpectations(t)
+	assert.Equal(t, string(j), strings.TrimSpace(res.Body.String()))
 }

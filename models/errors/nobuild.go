@@ -2,6 +2,9 @@ package errors
 
 import (
 	"fmt"
+	"net/http"
+
+	"github.com/labstack/echo/v4"
 
 	. "github.com/monitoror/monitoror/models/tiles"
 )
@@ -16,4 +19,12 @@ func NewNoBuildError(buildTile *BuildTile) *NoBuildError {
 
 func (nbe *NoBuildError) Error() string {
 	return fmt.Sprintf("no build found for %s", nbe.BuildTile.Label)
+}
+
+func (nbe *NoBuildError) Send(ctx echo.Context) {
+	tile := nbe.BuildTile
+	tile.Status = WarningStatus
+	tile.Message = nbe.Error()
+
+	_ = ctx.JSON(http.StatusOK, tile)
 }
