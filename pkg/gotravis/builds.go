@@ -4,9 +4,9 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/jsdidierlaurent/go-travis"
+	"github.com/shuheiktgw/go-travis"
 )
 
 type Builds interface {
-	ListByRepoSlug(ctx context.Context, repoSlug string, opt *travis.BuildsByRepoOption) ([]travis.Build, *http.Response, error)
+	ListByRepoSlug(ctx context.Context, repoSlug string, opt *travis.BuildsByRepoOption) ([]*travis.Build, *http.Response, error)
 }

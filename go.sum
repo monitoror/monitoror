@@ -39,8 +39,6 @@ github.com/joho/godotenv v1.3.0 h1:Zjp+RcGpHhGlrMbJzXTrZZPrWj+1vfm90La1wgB6Bhc=
 github.com/joho/godotenv v1.3.0/go.mod h1:7hK45KPybAkOC6peb+G5yklZfMxEjkZhHbwpqxOKXbg=
 github.com/jsdidierlaurent/echo-middleware v1.0.1 h1:H7PnwCRhq0xWW9C+AzAPgqWEyyoqFZ1621w6oj15L5E=
 github.com/jsdidierlaurent/echo-middleware v1.0.1/go.mod h1:7KRCXCnk/wqEFjW22H9bMiJ9MsGHaDryJhhBBEAcnEU=
-github.com/jsdidierlaurent/go-travis v0.1.10-0.20190420134833-55678f74fbd0 h1:oGgReSw+Xx0BvoFcNlKuf4Qsc97IeINQlnZxvmQtySw=
-github.com/jsdidierlaurent/go-travis v0.1.10-0.20190420134833-55678f74fbd0/go.mod h1:a2jhu7iPjHxVjfWKZZFfW0Sfs4dQsivdWI5vjoVDjjw=
 github.com/kr/pretty v0.1.0 h1:L/CwN0zerZDmRFUapSPitk6f+Q3+0za1rQkzVuMiMFI=
 github.com/kr/pretty v0.1.0/go.mod h1:dAy3ld7l9f0ibDNOQOHHMYYIIbhfbHSm3C4ZsoJORNo=
 github.com/kr/pty v1.1.1/go.mod h1:pFQYn66WHrOpPYNljwOMqo10TkYh1fy3cYio2l3bCsQ=
@@ -69,6 +67,8 @@ github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZb
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/robfig/go-cache v0.0.0-20130306151617-9fc39e0dbf62 h1:pyecQtsPmlkCsMkYhT5iZ+sUXuwee+OvfuJjinEA3ko=
 github.com/robfig/go-cache v0.0.0-20130306151617-9fc39e0dbf62/go.mod h1:65XQgovT59RWatovFwnwocoUxiI/eENTnOY5GK3STuY=
+github.com/shuheiktgw/go-travis v0.2.1 h1:VMoIyNpZ+mGCjgrx1vlINAt6tOpbEOD5qhScKM76Pxw=
+github.com/shuheiktgw/go-travis v0.2.1/go.mod h1:QJJOek1pLVgh75HK4mUDw99bME0MIyam8+fH6Ebnjq4=
 github.com/sparrc/go-ping v0.0.0-20181106165434-ef3ab45e41b0 h1:mu7brOsdaH5Dqf93vdch+mr/0To8Sgc+yInt/jE/RJM=
 github.com/sparrc/go-ping v0.0.0-20181106165434-ef3ab45e41b0/go.mod h1:eMyUVp6f/5jnzM+3zahzl7q6UXLbgSc3MKg/+ow9QW0=
 github.com/spf13/afero v1.1.2/go.mod h1:j4pytiNVoe2o6bmDsKpLACNPDBIoEAkihy7loJ1B0CQ=
