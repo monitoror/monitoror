@@ -5,12 +5,14 @@ import (
 	"errors"
 	"testing"
 
+	. "github.com/AlekSi/pointer"
+
 	. "github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/monitorable/travisci/models"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/jsdidierlaurent/go-travis"
 	pkgTravis "github.com/monitoror/monitoror/pkg/gotravis"
+	"github.com/shuheiktgw/go-travis"
 	. "github.com/stretchr/testify/mock"
 
 	"github.com/monitoror/monitoror/pkg/gotravis/mocks"
@@ -43,7 +45,7 @@ func TestRepository_Build_Error(t *testing.T) {
 
 	mockTravis := new(mocks.Builds)
 	mockTravis.On("ListByRepoSlug", Anything, AnythingOfType("string"), Anything).
-		Return([]travis.Build{}, nil, travisErr)
+		Return([]*travis.Build{}, nil, travisErr)
 
 	repository := initRepository(t, mockTravis)
 	if repository != nil {
@@ -58,7 +60,7 @@ func TestRepository_Build_Error(t *testing.T) {
 func TestRepository_Build_NoBuild(t *testing.T) {
 	mockTravis := new(mocks.Builds)
 	mockTravis.On("ListByRepoSlug", Anything, AnythingOfType("string"), Anything).
-		Return([]travis.Build{}, nil, nil)
+		Return([]*travis.Build{}, nil, nil)
 
 	repository := initRepository(t, mockTravis)
 	if repository != nil {
@@ -72,39 +74,39 @@ func TestRepository_Build_NoBuild(t *testing.T) {
 
 func TestRepository_Build_Success(t *testing.T) {
 	// Params
-	travisBuild := travis.Build{
-		Branch: travis.MinimalBranch{
-			Name: "test",
+	travisBuild := &travis.Build{
+		Branch: &travis.Branch{
+			Name: ToString("test"),
 		},
-		Commit: travis.StandardCommit{
-			Author: travis.Author{
+		Commit: &travis.Commit{
+			Author: &travis.Author{
 				Name:      "test",
-				AvatarUrl: "test.com",
+				AvatarURL: "test.com",
 			},
 		},
-		State:         "passed",
-		PreviousState: "passed",
-		StartedAt:     "2019-04-12T20:39:59Z",
-		FinishedAt:    "2019-04-12T20:39:59Z",
-		Duration:      154,
+		State:         ToString("passed"),
+		PreviousState: ToString("passed"),
+		StartedAt:     ToString("2019-04-12T20:39:59Z"),
+		FinishedAt:    ToString("2019-04-12T20:39:59Z"),
+		Duration:      ToUint(154),
 	}
 
 	mockTravis := new(mocks.Builds)
 	mockTravis.On("ListByRepoSlug", Anything, AnythingOfType("string"), Anything).
-		Return([]travis.Build{travisBuild}, nil, nil)
+		Return([]*travis.Build{travisBuild}, nil, nil)
 
 	// Expected
 	expectedBuild := &models.Build{
-		Branch: travisBuild.Branch.Name,
+		Branch: *travisBuild.Branch.Name,
 		Author: models.Author{
 			Name:      travisBuild.Commit.Author.Name,
-			AvatarUrl: travisBuild.Commit.Author.AvatarUrl,
+			AvatarUrl: travisBuild.Commit.Author.AvatarURL,
 		},
-		State:         travisBuild.State,
-		PreviousState: travisBuild.PreviousState,
-		StartedAt:     parseDate(travisBuild.StartedAt),
-		FinishedAt:    parseDate(travisBuild.FinishedAt),
-		Duration:      parseDuration(travisBuild.Duration),
+		State:         *travisBuild.State,
+		PreviousState: *travisBuild.PreviousState,
+		StartedAt:     parseDate(*travisBuild.StartedAt),
+		FinishedAt:    parseDate(*travisBuild.FinishedAt),
+		Duration:      parseDuration(*travisBuild.Duration),
 	}
 
 	repository := initRepository(t, mockTravis)

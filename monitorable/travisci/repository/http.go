@@ -5,13 +5,12 @@ import (
 	"fmt"
 	"time"
 
-	pkgTravis "github.com/monitoror/monitoror/pkg/gotravis"
-
 	"github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/monitorable/travisci"
 	"github.com/monitoror/monitoror/monitorable/travisci/models"
+	pkgTravis "github.com/monitoror/monitoror/pkg/gotravis"
 
-	"github.com/jsdidierlaurent/go-travis"
+	"github.com/shuheiktgw/go-travis"
 )
 
 type (
@@ -56,7 +55,7 @@ func (r *travisCIRepository) Build(ctx context.Context, group, repository, branc
 			travis.BuildStateCreated,
 			travis.BuildStateErrored,
 		},
-		Include: "build.commit",
+		Include: []string{"build.commit"},
 	}
 
 	// Request
@@ -72,16 +71,16 @@ func (r *travisCIRepository) Build(ctx context.Context, group, repository, branc
 
 	tBuild := builds[0]
 	build = &models.Build{
-		Branch: tBuild.Branch.Name,
+		Branch: *tBuild.Branch.Name,
 		Author: models.Author{
 			Name:      tBuild.Commit.Author.Name,
-			AvatarUrl: tBuild.Commit.Author.AvatarUrl,
+			AvatarUrl: tBuild.Commit.Author.AvatarURL,
 		},
-		State:         tBuild.State,
-		PreviousState: tBuild.PreviousState,
-		StartedAt:     parseDate(tBuild.StartedAt),
-		FinishedAt:    parseDate(tBuild.FinishedAt),
-		Duration:      parseDuration(tBuild.Duration),
+		State:         *tBuild.State,
+		PreviousState: *tBuild.PreviousState,
+		StartedAt:     parseDate(*tBuild.StartedAt),
+		FinishedAt:    parseDate(*tBuild.FinishedAt),
+		Duration:      parseDuration(*tBuild.Duration),
 	}
 
 	return
