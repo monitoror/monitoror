@@ -2,7 +2,7 @@
   "name": "monitoror",
   "version": "0.0.2-beta",
   "private": true,
-  "description": "Monitoring wall to healh check services, servers, builds, ...",
+  "description": "Monitoring wall to health check services, servers, builds, ...",
   "main": "index.js",
   "scripts": {
     "serve": "vue-cli-service serve",
