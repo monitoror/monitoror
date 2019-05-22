@@ -37,14 +37,14 @@ type (
 		store responsesStore
 	}
 
-	//responsesStore implement cache.Store to provide it to CacheMiddleware
+	// responsesStore implements cache.Store to provide it to CacheMiddleware
 	responsesStore struct {
 		UpstreamStore   cache.Store
 		DownstreamStore cache.Store
 	}
 )
 
-//NewCacheMiddleware used config to instantiate CacheMiddleware
+// NewCacheMiddleware used config to instantiate CacheMiddleware
 func NewCacheMiddleware(config *config.Config) *CacheMiddleware {
 	store := responsesStore{
 		UpstreamStore: cache.NewGoCacheStore(

@@ -20,11 +20,11 @@ func NewQueryParamsError(err error) *QueryParamsError {
 
 func (qpe *QueryParamsError) Send(ctx echo.Context) {
 	log.Warn(qpe.Error())
-	_ = ctx.JSON(http.StatusBadRequest, tiles.NewErrorTile("Wrong Configuration", qpe.Error()))
+	_ = ctx.JSON(http.StatusBadRequest, tiles.NewErrorTile("Invalid configuration", qpe.Error()))
 }
 
 func (qpe *QueryParamsError) Error() (err string) {
-	err = fmt.Sprintf("unable to parse/check queryParams into struct")
+	err = fmt.Sprintf("Unable to parse/check queryParams into struct")
 	if qpe.err != nil {
 		err += fmt.Sprintf(", %v", qpe.err)
 	}
