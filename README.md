@@ -13,57 +13,64 @@
 
 ------------------------------------
 
-## Introduction
+TODO: Introduction, Documentation, Contributing
 
-TODO
 
-## Documentation
-
-## Contribution
 
 ## Development
-### Requirement
+
+### Requirements
+
 - Go v1.12+
 - Nodejs v10+
 - Yarn v1.7+
 - GNU make
 
-### Installing tools
-```bash
-# Go tools, execute this command outside of monitoror project or use `go mod tidy` after
-go get github.com/vektra/mockery/.../     # Generating mock for backend
-go get gotest.tools/gotestsum             # Tests utilities
-go get github.com/GeertJohan/go.rice/rice # Pack front dist into go source
 
-# Node tools
-yarn global add @vue/cli  # Not necessarily required
+### Installing Go tools
+
+Execute these commands either:
+- outside of Monitoror project
+- or use `go mod tidy` after them
+
+```bash
+# Generating mock for backend
+go get github.com/vektra/mockery/.../
+# Test utilities
+go get gotest.tools/gotestsum
+# Embed front dist into go binary
+go get github.com/GeertJohan/go.rice/rice
 ```
+
 
 ### Running project
 ```bash
 # Front
 cd front
-yarn install
+yarn
 yarn run serve
 ```
 
 ```bash
 # Back
 make install
+
 make run
 # Or
 make run-faker
 ```
 
+
 ### Building project
 ```bash
 cd front
-yarn install
+yarn
 yarn run build
 cd ..
 make install
 make build
 ```
+
 
 ### Generating mocks
 ```bash
@@ -73,6 +80,8 @@ make mock
 # For generating all mocks (only needed if golang net interface change)
 make mock-all
 ```
+
+
 
 ## License
 This project is under [MIT license](LICENSE).
