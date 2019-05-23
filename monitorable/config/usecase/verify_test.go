@@ -42,7 +42,6 @@ func TestUsecase_Verify_Success(t *testing.T) {
 	input := `
 {
   "columns": 4,
-  "apiBaseUrl": "http://localhost:8080/",
   "tiles": [
 		{ "type": "empty" }
   ]
@@ -61,9 +60,7 @@ func TestUsecase_Verify_Success(t *testing.T) {
 
 func TestUsecase_Verify_Failed(t *testing.T) {
 	input := `
-{
-  "apiBaseUrl": "null"
-}
+{}
 `
 	reader := ioutil.NopCloser(strings.NewReader(input))
 	config, err := repository.GetConfig(reader)
@@ -75,9 +72,8 @@ func TestUsecase_Verify_Failed(t *testing.T) {
 		if assert.Error(t, err) {
 			configError := err.(*models.ConfigError)
 
-			assert.Equal(t, 3, configError.Count())
+			assert.Equal(t, 2, configError.Count())
 			assert.Contains(t, configError.Error(), `Missing or invalid "columns" field. Must be a positive integer.`)
-			assert.Contains(t, configError.Error(), `Invalid "columns" field. Must be a valid url.`)
 			assert.Contains(t, configError.Error(), `Missing or invalid "tiles" field. Must be an array not empty.`)
 		}
 	}

@@ -3,7 +3,6 @@ package usecase
 import (
 	"encoding/json"
 	"fmt"
-	"net/url"
 	"reflect"
 	"strings"
 
@@ -34,10 +33,6 @@ func (cu *configUsecase) Verify(config *models.Config) error {
 	err := models.NewConfigError()
 	if config.Columns == 0 {
 		err.Add(`Missing or invalid "columns" field. Must be a positive integer.`)
-	}
-
-	if config.ApiBaseUrl != "" && !isUrl(config.ApiBaseUrl) {
-		err.Add(`Invalid "columns" field. Must be a valid url.`)
 	}
 
 	if config.Tiles == nil || len(config.Tiles) == 0 {
@@ -128,11 +123,6 @@ func (cu *configUsecase) verifyTile(tile map[string]interface{}, group bool, err
 }
 
 // --- Utility functions ---
-func isUrl(str string) bool {
-	u, err := url.Parse(str)
-	return err == nil && u.Scheme != "" && u.Host != ""
-}
-
 func keys(m interface{}) string {
 	keys := reflect.ValueOf(m).MapKeys()
 	strkeys := make([]string, len(keys))
