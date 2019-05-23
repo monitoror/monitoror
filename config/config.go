@@ -12,54 +12,54 @@ type (
 	//Backend Configuration
 	Config struct {
 		// --- General Configuration ---
-		Port int    // Default: 8080
-		Env  string // Default: production
+		Port int    `json:"port"` // Default: 8080
+		Env  string `json:"env"`  // Default: production
 
 		// --- Cache Configuration ---
 		//UpstreamCache is used to respond before executing the request. Avoid overloading services.
-		UpstreamCache Cache
+		UpstreamCache Cache `json:"upstreamCache"`
 		//DownstreamCache is used to respond after executing the request in case of timeout error.
-		DownstreamCache Cache
+		DownstreamCache Cache `json:"downstreamCache"`
 
 		//Monitorables Config
-		Monitorable Monitorable
+		Monitorable Monitorable `json:"monitorable"`
 	}
 
 	Cache struct {
-		Expire          int // In Millisecond
-		CleanupInterval int // In Millisecond
+		Expire          int `json:"expire"`          // In Millisecond
+		CleanupInterval int `json:"cleanupInterval"` // In Millisecond
 	}
 
 	Monitorable struct {
-		Ping     Ping
-		Port     Port
-		Gitlab   Gitlab
-		Github   Github
-		TravisCI TravisCI
+		Ping     Ping     `json:"ping"`
+		Port     Port     `json:"port"`
+		Gitlab   Gitlab   `json:"gitlab"`
+		Github   Github   `json:"github"`
+		TravisCI TravisCI `json:"travisCI"`
 	}
 
 	Ping struct {
-		Count    int
-		Timeout  int // In Millisecond
-		Interval int // In Millisecond
+		Count    int `json:"count"`
+		Timeout  int `json:"timeout"`  // In Millisecond
+		Interval int `json:"interval"` // In Millisecond
 	}
 
 	Port struct {
-		Timeout int // In Millisecond
+		Timeout int `json:"timeout"` // In Millisecond
 	}
 
 	Gitlab struct {
-		Token string
+		Token string `json:"token"`
 	}
 
 	Github struct {
-		Token string
+		Token string `json:"token"`
 	}
 
 	TravisCI struct {
-		Token   string
-		Timeout int // In Millisecond
-		Url     string
+		Token   string `json:"token"`
+		Timeout int    `json:"timeout"` // In Millisecond
+		Url     string `json:"url"`
 	}
 )
 
