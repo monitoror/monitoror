@@ -118,9 +118,26 @@ func TestUsecase_VerifyTile_Failed_WrongKey(t *testing.T) {
 	assert.Contains(t, configError.Error(), `Unknown key "test" in tile definition. Must be`)
 }
 
-func TestUsecase_VerifyTile_Failed_EmptyInGroup(t *testing.T) {
+func TestUsecase_VerifyTile_Failed_ParamsInGroup(t *testing.T) {
 	input := `
       { "type": "group", "label": "...", "params": [
+          { "type": "ping", "params": { "hostname": "aserver.com" } }
+			]}
+`
+	configError := &models.ConfigError{}
+
+	tile := initTile(t, input)
+	useCase := initVerifyUsecase()
+
+	useCase.verifyTile(tile, false, configError)
+
+	assert.Equal(t, 1, configError.Count())
+	assert.Contains(t, configError.Error(), `Unauthorized "params" key in group tile definition.`)
+}
+
+func TestUsecase_VerifyTile_Failed_EmptyInGroup(t *testing.T) {
+	input := `
+      { "type": "group", "label": "...", "tiles": [
           { "type": "empty" }
 			]}
 `
@@ -132,7 +149,7 @@ func TestUsecase_VerifyTile_Failed_EmptyInGroup(t *testing.T) {
 	useCase.verifyTile(tile, false, configError)
 
 	assert.Equal(t, 1, configError.Count())
-	assert.Contains(t, configError.Error(), `Unauthorized "empty"" type in group tile.`)
+	assert.Contains(t, configError.Error(), `Unauthorized "empty" type in group tile.`)
 }
 
 func TestUsecase_VerifyTile_Failed_MissingParamsKey(t *testing.T) {
@@ -150,7 +167,7 @@ func TestUsecase_VerifyTile_Failed_MissingParamsKey(t *testing.T) {
 
 func TestUsecase_VerifyTile_Success_Group(t *testing.T) {
 	input := `
-      { "type": "group", "label": "...", "params": [
+      { "type": "group", "label": "...", "tiles": [
           { "type": "ping", "params": { "hostname": "aserver.com" } },
           { "type": "port", "params": { "hostname": "bserver.com", "port": 22 } }
 			]}
@@ -167,7 +184,7 @@ func TestUsecase_VerifyTile_Success_Group(t *testing.T) {
 
 func TestUsecase_VerifyTile_Failed_GroupInGroup(t *testing.T) {
 	input := `
-      { "type": "group", "label": "...", "params": [
+      { "type": "group", "label": "...", "tiles": [
           { "type": "group", "params": "test" }
 			]}
 `
@@ -179,12 +196,12 @@ func TestUsecase_VerifyTile_Failed_GroupInGroup(t *testing.T) {
 	useCase.verifyTile(tile, false, configError)
 
 	assert.Equal(t, 1, configError.Count())
-	assert.Contains(t, configError.Error(), `Unauthorized "group"" type in group tile.`)
+	assert.Contains(t, configError.Error(), `Unauthorized "group" type in group tile.`)
 }
 
-func TestUsecase_VerifyTile_Failed_GroupWithWrongParams(t *testing.T) {
+func TestUsecase_VerifyTile_Failed_GroupWithWrongTiles(t *testing.T) {
 	input := `
-      { "type": "group", "label": "...", "params": "test"}
+      { "type": "group", "label": "...", "tiles": "test"}
 `
 	configError := &models.ConfigError{}
 
@@ -194,12 +211,12 @@ func TestUsecase_VerifyTile_Failed_GroupWithWrongParams(t *testing.T) {
 	useCase.verifyTile(tile, false, configError)
 
 	assert.Equal(t, 1, configError.Count())
-	assert.Contains(t, configError.Error(), `Incorrect "params" key in group tile definition.`)
+	assert.Contains(t, configError.Error(), `Incorrect "tiles" key in group tile definition.`)
 }
 
 func TestUsecase_VerifyTile_Failed_GroupWithWrongTile(t *testing.T) {
 	input := `
-      { "type": "group", "label": "...", "params": [
+      { "type": "group", "label": "...", "tiles": [
           { "type": "ping", "params": { "hostname": "aserver.com" } },
           "test"
 			]}
