@@ -11,15 +11,15 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type httpTravisCIHandler struct {
+type httpTravisCIDelivery struct {
 	travisciUsecase travisci.Usecase
 }
 
-func NewHttpTravisCIHandler(p travisci.Usecase) *httpTravisCIHandler {
-	return &httpTravisCIHandler{p}
+func NewHttpTravisCIDelivery(p travisci.Usecase) *httpTravisCIDelivery {
+	return &httpTravisCIDelivery{p}
 }
 
-func (h *httpTravisCIHandler) GetTravisCIBuild(c echo.Context) error {
+func (h *httpTravisCIDelivery) GetTravisCIBuild(c echo.Context) error {
 	// Bind / check Params
 	params := &models.BuildParams{}
 	err := c.Bind(params)

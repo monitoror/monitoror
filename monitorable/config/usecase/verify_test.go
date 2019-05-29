@@ -6,25 +6,26 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/monitoror/monitoror/models/tiles"
+
 	"github.com/monitoror/monitoror/monitorable/config/models"
 
-	"github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/config/repository"
 	"github.com/monitoror/monitoror/monitorable/ping"
 	_pingModels "github.com/monitoror/monitoror/monitorable/ping/models"
 	"github.com/monitoror/monitoror/monitorable/port"
 	_portModels "github.com/monitoror/monitoror/monitorable/port/models"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func initVerifyUsecase() *configUsecase {
-	usecase := &configUsecase{}
+	usecase := &configUsecase{
+		monitorableConfigs: make(map[tiles.TileType]*MonitorableConfig),
+	}
 
-	usecase.monitorableParams = make(map[tiles.TileType]utils.Validator)
-	usecase.monitorableParams[ping.PingTileType] = &_pingModels.PingParams{}
-	usecase.monitorableParams[port.PortTileType] = &_portModels.PortParams{}
+	usecase.Register(ping.PingTileType, "/ping", &_pingModels.PingParams{})
+	usecase.Register(port.PortTileType, "/port", &_portModels.PortParams{})
 
 	return usecase
 }

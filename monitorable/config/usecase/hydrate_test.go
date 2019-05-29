@@ -5,24 +5,26 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/monitoror/monitoror/monitorable/config/repository"
-
-	"github.com/stretchr/testify/assert"
-
 	"github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/ping"
 	_pingModels "github.com/monitoror/monitoror/monitorable/ping/models"
 	"github.com/monitoror/monitoror/monitorable/port"
 	_portModels "github.com/monitoror/monitoror/monitorable/port/models"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils"
+
+	"github.com/monitoror/monitoror/monitorable/config"
+
+	"github.com/monitoror/monitoror/monitorable/config/repository"
+
+	"github.com/stretchr/testify/assert"
 )
 
-func initHydrateUsecase() *configUsecase {
-	usecase := &configUsecase{}
+func initHydrateUsecase() config.Usecase {
+	usecase := &configUsecase{
+		monitorableConfigs: make(map[tiles.TileType]*MonitorableConfig),
+	}
 
-	usecase.monitorableParams = make(map[tiles.TileType]utils.Validator)
-	usecase.monitorableParams[ping.PingTileType] = &_pingModels.PingParams{}
-	usecase.monitorableParams[port.PortTileType] = &_portModels.PortParams{}
+	usecase.Register(ping.PingTileType, "/ping", &_pingModels.PingParams{})
+	usecase.Register(port.PortTileType, "/port", &_portModels.PortParams{})
 
 	return usecase
 }

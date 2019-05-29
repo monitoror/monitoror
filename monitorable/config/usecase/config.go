@@ -9,13 +9,28 @@ import (
 
 type (
 	configUsecase struct {
-		monitorableParams map[tiles.TileType]utils.Validator
-		repository        config.Repository
+		monitorableConfigs map[tiles.TileType]*MonitorableConfig
+		repository         config.Repository
+	}
+
+	MonitorableConfig struct {
+		Path            string
+		ConfigValidator utils.Validator
 	}
 )
 
-func NewConfigUsecase(monitorableParams map[tiles.TileType]utils.Validator, repository config.Repository) config.Usecase {
-	return &configUsecase{monitorableParams, repository}
+func NewConfigUsecase(repository config.Repository) config.Usecase {
+	return &configUsecase{
+		monitorableConfigs: make(map[tiles.TileType]*MonitorableConfig),
+		repository:         repository,
+	}
+}
+
+func (cu *configUsecase) Register(tileType tiles.TileType, path string, configValidator utils.Validator) {
+	cu.monitorableConfigs[tileType] = &MonitorableConfig{
+		Path:            path,
+		ConfigValidator: configValidator,
+	}
 }
 
 //Config load and parse Config

@@ -25,13 +25,3 @@ func TestInitMiddleware(t *testing.T) {
 
 	assert.NotNil(t, server.cm)
 }
-
-func TestRegister(t *testing.T) {
-	register("test", true, func() {
-		assert.True(t, true)
-	})
-
-	register("test", false, func() {
-		assert.True(t, false)
-	})
-}

@@ -3,78 +3,80 @@
 package service
 
 import (
-	"github.com/jsdidierlaurent/echo-middleware/cache"
-	"github.com/monitoror/monitoror/handlers"
-	"github.com/monitoror/monitoror/models/tiles"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils"
+	"github.com/labstack/echo/v4"
+	"github.com/monitoror/monitoror/monitorable/config"
 
-	_configDelivery "github.com/monitoror/monitoror/monitorable/config/delivery/http"
-	_configRepository "github.com/monitoror/monitoror/monitorable/config/repository"
-	_configUsecase "github.com/monitoror/monitoror/monitorable/config/usecase"
 	"github.com/monitoror/monitoror/monitorable/ping"
 	_pingDelivery "github.com/monitoror/monitoror/monitorable/ping/delivery/http"
-	_pingModel "github.com/monitoror/monitoror/monitorable/ping/models"
+	_pingModels "github.com/monitoror/monitoror/monitorable/ping/models"
 	_pingRepository "github.com/monitoror/monitoror/monitorable/ping/repository"
 	_pingUsecase "github.com/monitoror/monitoror/monitorable/ping/usecase"
 	"github.com/monitoror/monitoror/monitorable/port"
 	_portDelivery "github.com/monitoror/monitoror/monitorable/port/delivery/http"
-	_portModel "github.com/monitoror/monitoror/monitorable/port/models"
+	_portModels "github.com/monitoror/monitoror/monitorable/port/models"
 	_portRepository "github.com/monitoror/monitoror/monitorable/port/repository"
 	_portUsecase "github.com/monitoror/monitoror/monitorable/port/usecase"
 	"github.com/monitoror/monitoror/monitorable/travisci"
 	_travisciDelivery "github.com/monitoror/monitoror/monitorable/travisci/delivery/http"
-	_travisciModel "github.com/monitoror/monitoror/monitorable/travisci/models"
+	_travisciModels "github.com/monitoror/monitoror/monitorable/travisci/models"
 	_travisciRepository "github.com/monitoror/monitoror/monitorable/travisci/repository"
 	_travisciUsecase "github.com/monitoror/monitoror/monitorable/travisci/usecase"
 )
 
-func (s *Server) initApis() {
-	v1 := s.Group("/api/v1")
+func (s *Server) registerPing(g *echo.Group, registerer config.Regiterer) {
+	path := "/ping"
+	tileType := ping.PingTileType
 
-	// Init monitorableParams for config verification
-	monitorableParams := make(map[tiles.TileType]utils.Validator)
+	factory := func() (handler echo.HandlerFunc) {
+		repository := _pingRepository.NewPingRepository(s.config)
+		usecase := _pingUsecase.NewPingUsecase(repository)
+		delivery := _pingDelivery.NewHttpPingDelivery(usecase)
 
-	// ------------- INFO ------------- //
-	infoHandler := handlers.HttpInfoHandler(s.config)
-	v1.GET("/info", s.cm.UpstreamCacheHandlerWithExpiration(cache.NEVER, infoHandler.GetInfo))
+		// Registering route param
+		registerer.Register(tileType, path, &_pingModels.PingParams{})
 
-	// ------------- PING ------------- //
-	register("ping", true, func() {
-		pingRepo := _pingRepository.NewPingRepository(s.config)
-		pingUC := _pingUsecase.NewPingUsecase(pingRepo)
-		pingHandler := _pingDelivery.NewHttpPingHandler(pingUC)
+		handler = s.cm.UpstreamCacheHandler(delivery.GetPing)
+		return
+	}
 
-		monitorableParams[ping.PingTileType] = &_pingModel.PingParams{}
+	s.register(g, true, path, tileType, factory)
+}
 
-		v1.GET("/ping", s.cm.UpstreamCacheHandler(pingHandler.GetPing))
-	})
+func (s *Server) registerPort(g *echo.Group, registerer config.Regiterer) {
+	path := "/port"
+	tileType := port.PortTileType
 
-	// ------------- PORT ------------- //
-	register("port", true, func() {
-		portRepo := _portRepository.NewPortRepository(s.config)
-		portUC := _portUsecase.NewPortUsecase(portRepo)
-		portHandler := _portDelivery.NewHttpPortHandler(portUC)
+	factory := func() (handler echo.HandlerFunc) {
+		repository := _portRepository.NewPortRepository(s.config)
+		usecase := _portUsecase.NewPortUsecase(repository)
+		delivery := _portDelivery.NewHttpPortDelivery(usecase)
 
-		monitorableParams[port.PortTileType] = &_portModel.PortParams{}
+		// Registering route param
+		registerer.Register(tileType, path, &_portModels.PortParams{})
 
-		v1.GET("/port", s.cm.UpstreamCacheHandler(portHandler.GetPort))
-	})
+		handler = s.cm.UpstreamCacheHandler(delivery.GetPort)
+		return
+	}
 
-	// ------------- TRAVIS CI ------------- //
-	register("travis-ci", s.config.Monitorable.TravisCI.Url != "", func() {
-		travisciRepo := _travisciRepository.NewTravisCIRepository(s.config)
-		travisciUC := _travisciUsecase.NewTravisCIUsecase(s.config, travisciRepo)
-		travisciHandler := _travisciDelivery.NewHttpTravisCIHandler(travisciUC)
+	s.register(g, true, path, tileType, factory)
+}
 
-		monitorableParams[travisci.TravisCIBuildTileType] = &_travisciModel.BuildParams{}
+func (s *Server) registerTravisCIBuild(g *echo.Group, registerer config.Regiterer) {
+	valid := s.config.Monitorable.TravisCI.Url != ""
+	path := "/travisci/build"
+	tileType := travisci.TravisCIBuildTileType
 
-		v1.GET("/travisci/build", s.cm.UpstreamCacheHandler(travisciHandler.GetTravisCIBuild))
-	})
+	factory := func() (handler echo.HandlerFunc) {
+		repository := _travisciRepository.NewTravisCIRepository(s.config)
+		usecase := _travisciUsecase.NewTravisCIUsecase(s.config, repository)
+		delivery := _travisciDelivery.NewHttpTravisCIDelivery(usecase)
 
-	// ------------- CONFIG ------------- //
-	configRepo := _configRepository.NewConfigRepository()
-	configUC := _configUsecase.NewConfigUsecase(monitorableParams, configRepo)
-	configHandler := _configDelivery.NewHttpConfigHandler(configUC)
-	v1.GET("/config", s.cm.UpstreamCacheHandler(configHandler.GetConfig))
+		// Registering route param
+		registerer.Register(tileType, path, &_travisciModels.BuildParams{})
 
+		handler = s.cm.UpstreamCacheHandler(delivery.GetTravisCIBuild)
+		return
+	}
+
+	s.register(g, valid, path, tileType, factory)
 }

@@ -107,14 +107,14 @@ func (cu *configUsecase) verifyTile(tile map[string]interface{}, group bool, err
 		return
 	}
 
-	validator, exists := cu.monitorableParams[tileType]
+	validator, exists := cu.monitorableConfigs[tileType]
 	if !exists {
-		err.Add(fmt.Sprintf(`Unknown "%s" type in tile definition. Must be %s`, tile[TypeKey], keys(cu.monitorableParams)))
+		err.Add(fmt.Sprintf(`Unknown "%s" type in tile definition. Must be %s`, tile[TypeKey], keys(cu.monitorableConfigs)))
 		return
 	}
 
 	// Create new validator by reflexion
-	rType := reflect.TypeOf(validator)
+	rType := reflect.TypeOf(validator.ConfigValidator)
 	rInstance := reflect.New(rType.Elem()).Interface()
 
 	// Marshal / Unmarshal the map[string]interface{} struct in new instance of Validator

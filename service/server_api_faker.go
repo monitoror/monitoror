@@ -3,71 +3,73 @@
 package service
 
 import (
-	"github.com/monitoror/monitoror/handlers"
-	"github.com/monitoror/monitoror/models/tiles"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils"
-
-	_configDelivery "github.com/monitoror/monitoror/monitorable/config/delivery/http"
-	_configRepository "github.com/monitoror/monitoror/monitorable/config/repository"
-	_configUsecase "github.com/monitoror/monitoror/monitorable/config/usecase"
+	"github.com/labstack/echo/v4"
+	"github.com/monitoror/monitoror/monitorable/config"
 	"github.com/monitoror/monitoror/monitorable/ping"
 	_pingDelivery "github.com/monitoror/monitoror/monitorable/ping/delivery/http"
-	_pingModel "github.com/monitoror/monitoror/monitorable/ping/models"
+	_pingModels "github.com/monitoror/monitoror/monitorable/ping/models"
 	_pingUsecase "github.com/monitoror/monitoror/monitorable/ping/usecase"
 	"github.com/monitoror/monitoror/monitorable/port"
 	_portDelivery "github.com/monitoror/monitoror/monitorable/port/delivery/http"
-	_portModel "github.com/monitoror/monitoror/monitorable/port/models"
+	_portModels "github.com/monitoror/monitoror/monitorable/port/models"
 	_portUsecase "github.com/monitoror/monitoror/monitorable/port/usecase"
 	"github.com/monitoror/monitoror/monitorable/travisci"
 	_travisciDelivery "github.com/monitoror/monitoror/monitorable/travisci/delivery/http"
-	_travisciModel "github.com/monitoror/monitoror/monitorable/travisci/models"
+	_travisciModels "github.com/monitoror/monitoror/monitorable/travisci/models"
 	_travisciUsecase "github.com/monitoror/monitoror/monitorable/travisci/usecase"
 )
 
-func (s *Server) initApis() {
-	v1 := s.Group("/api/v1")
+func (s *Server) registerPing(g *echo.Group, registerer config.Regiterer) {
+	path := "/ping"
+	tileType := ping.PingTileType
 
-	// Init monitorableParams for config verification
-	monitorableParams := make(map[tiles.TileType]utils.Validator)
+	factory := func() (handler echo.HandlerFunc) {
+		usecase := _pingUsecase.NewPingUsecase()
+		delivery := _pingDelivery.NewHttpPingDelivery(usecase)
 
-	// ------------- INFO ------------- //
-	infoHandler := handlers.HttpInfoHandler(s.config)
-	v1.GET("/info", infoHandler.GetInfo)
+		// Registering route param
+		registerer.Register(tileType, path, &_pingModels.PingParams{})
 
-	// ------------- PING ------------- //
-	register("ping", true, func() {
-		pingUC := _pingUsecase.NewPingUsecase()
-		pingHandler := _pingDelivery.NewHttpPingHandler(pingUC)
+		handler = delivery.GetPing
+		return
+	}
 
-		monitorableParams[ping.PingTileType] = &_pingModel.PingParams{}
+	s.register(g, true, path, tileType, factory)
+}
 
-		v1.GET("/ping", pingHandler.GetPing)
-	})
+func (s *Server) registerPort(g *echo.Group, registerer config.Regiterer) {
+	path := "/port"
+	tileType := port.PortTileType
 
-	// ------------- PORT ------------- //
-	register("port", true, func() {
-		portUC := _portUsecase.NewPortUsecase()
-		portHandler := _portDelivery.NewHttpPortHandler(portUC)
+	factory := func() (handler echo.HandlerFunc) {
+		usecase := _portUsecase.NewPortUsecase()
+		delivery := _portDelivery.NewHttpPortDelivery(usecase)
 
-		monitorableParams[port.PortTileType] = &_portModel.PortParams{}
+		// Registering route param
+		registerer.Register(tileType, path, &_portModels.PortParams{})
 
-		v1.GET("/port", portHandler.GetPort)
-	})
+		handler = delivery.GetPort
+		return
+	}
 
-	// ------------- TRAVIS CI ------------- //
-	register("travis-ci", s.config.Monitorable.TravisCI.Url != "", func() {
-		travisciUC := _travisciUsecase.NewTravisCIUsecase()
-		travisciHandler := _travisciDelivery.NewHttpTravisCIHandler(travisciUC)
+	s.register(g, true, path, tileType, factory)
+}
 
-		monitorableParams[travisci.TravisCIBuildTileType] = &_travisciModel.BuildParams{}
+func (s *Server) registerTravisCIBuild(g *echo.Group, registerer config.Regiterer) {
+	valid := s.config.Monitorable.TravisCI.Url != ""
+	path := "/travisci/build"
+	tileType := travisci.TravisCIBuildTileType
 
-		v1.GET("/travisci/build", travisciHandler.GetTravisCIBuild)
-	})
+	factory := func() (handler echo.HandlerFunc) {
+		usecase := _travisciUsecase.NewTravisCIUsecase()
+		delivery := _travisciDelivery.NewHttpTravisCIDelivery(usecase)
 
-	// ------------- CONFIG ------------- //
-	configRepo := _configRepository.NewConfigRepository()
-	configUC := _configUsecase.NewConfigUsecase(monitorableParams, configRepo)
-	configHandler := _configDelivery.NewHttpConfigHandler(configUC)
-	v1.GET("/config", configHandler.GetConfig)
+		// Registering route param
+		registerer.Register(tileType, path, &_travisciModels.BuildParams{})
 
+		handler = delivery.GetTravisCIBuild
+		return
+	}
+
+	s.register(g, valid, path, tileType, factory)
 }

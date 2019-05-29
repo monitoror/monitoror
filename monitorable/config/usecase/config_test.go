@@ -15,7 +15,7 @@ func TestUsecase_Config_WithUrl(t *testing.T) {
 	mockRepo := new(mocks.Repository)
 	mockRepo.On("GetConfigFromUrl", AnythingOfType("string")).Return(nil, nil)
 
-	usecase := NewConfigUsecase(nil, mockRepo)
+	usecase := NewConfigUsecase(mockRepo)
 
 	_, err := usecase.Config(&models.ConfigParams{Url: "test"})
 	if assert.NoError(t, err) {
@@ -28,7 +28,7 @@ func TestUsecase_Config_WithPath(t *testing.T) {
 	mockRepo := new(mocks.Repository)
 	mockRepo.On("GetConfigFromPath", AnythingOfType("string")).Return(nil, nil)
 
-	usecase := NewConfigUsecase(nil, mockRepo)
+	usecase := NewConfigUsecase(mockRepo)
 
 	_, err := usecase.Config(&models.ConfigParams{Path: "test"})
 	if assert.NoError(t, err) {

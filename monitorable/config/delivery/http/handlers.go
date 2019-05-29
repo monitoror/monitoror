@@ -10,15 +10,15 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type httpConfigHandler struct {
+type httpConfigDelivery struct {
 	configUsecase config.Usecase
 }
 
-func NewHttpConfigHandler(cu config.Usecase) *httpConfigHandler {
-	return &httpConfigHandler{cu}
+func NewHttpConfigDelivery(cu config.Usecase) *httpConfigDelivery {
+	return &httpConfigDelivery{cu}
 }
 
-func (h *httpConfigHandler) GetConfig(c echo.Context) error {
+func (h *httpConfigDelivery) GetConfig(c echo.Context) error {
 	// Bind / check Params
 	params := &models.ConfigParams{}
 	err := c.Bind(params)
