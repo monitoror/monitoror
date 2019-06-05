@@ -35,7 +35,7 @@ func missingParam(t *testing.T, param string) {
 	ctx, _ := initEcho()
 	ctx.QueryParams().Del(param)
 	mockUsecase := new(mocks.Usecase)
-	handler := NewHttpPortHandler(mockUsecase)
+	handler := NewHttpPortDelivery(mockUsecase)
 	// Test
 	err := handler.GetPort(ctx)
 	assert.Error(t, err)
@@ -52,7 +52,7 @@ func TestDelivery_GetPort_Success(t *testing.T) {
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Port", Anything).Return(tile, nil)
-	handler := NewHttpPortHandler(mockUsecase)
+	handler := NewHttpPortDelivery(mockUsecase)
 
 	// Expected
 	json, err := json.Marshal(tile)
@@ -81,7 +81,7 @@ func TestDelivery_GetPort_Error(t *testing.T) {
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Port", Anything).Return(nil, errors.New("port error"))
-	handler := NewHttpPortHandler(mockUsecase)
+	handler := NewHttpPortDelivery(mockUsecase)
 
 	// Test
 	assert.Error(t, handler.GetPort(ctx))

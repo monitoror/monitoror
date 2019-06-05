@@ -12,7 +12,8 @@ done
 
 # Add mock of net.Conn (this take rly long time ...)
 mockery \
-  -dir ${GOROOT}/src/net \
+  -dir $(go env GOROOT)/src/net \
   -output ./pkg/net/mocks \
   -name "Conn" \
   -note "If you want to rebuild this file, make mock-pkg"
+ GOROOT

@@ -3,7 +3,6 @@ package usecase
 import (
 	"encoding/json"
 	"fmt"
-	"net/url"
 	"reflect"
 	"strings"
 
@@ -13,20 +12,12 @@ import (
 	"github.com/monitoror/monitoror/monitorable/config/models"
 )
 
-const (
-	KeyType   = "type"
-	KeyLabel  = "label"
-	KeyParams = "params"
-
-	EmptyTileType tiles.TileType = "EMPTY"
-	GroupTileType tiles.TileType = "GROUP"
-)
-
 var (
 	AuthorizedTileKey = map[string]bool{
-		KeyType:   true,
-		KeyLabel:  true,
-		KeyParams: true,
+		TypeKey:   true,
+		LabelKey:  true,
+		ParamsKey: true,
+		TilesKey:  true,
 	}
 )
 
@@ -34,10 +25,6 @@ func (cu *configUsecase) Verify(config *models.Config) error {
 	err := models.NewConfigError()
 	if config.Columns == 0 {
 		err.Add(`Missing or invalid "columns" field. Must be a positive integer.`)
-	}
-
-	if config.ApiBaseUrl != "" && !isUrl(config.ApiBaseUrl) {
-		err.Add(`Invalid "columns" field. Must be a valid url.`)
 	}
 
 	if config.Tiles == nil || len(config.Tiles) == 0 {
@@ -64,31 +51,31 @@ func (cu *configUsecase) verifyTile(tile map[string]interface{}, group bool, err
 		}
 	}
 
-	tileType := tiles.TileType(strings.ToUpper(tile[KeyType].(string)))
+	tileType := tiles.TileType(strings.ToUpper(tile[TypeKey].(string)))
 
 	// Empty tile, skip
 	if tileType == EmptyTileType {
 		if group {
-			err.Add(`Unauthorized "empty"" type in group tile.`)
+			err.Add(`Unauthorized "empty" type in group tile.`)
 		}
-		return
-	}
-
-	if _, exists := tile[KeyParams]; !exists {
-		err.Add(fmt.Sprintf(`Missing "%s" key in %s tile definition.`, KeyParams, tile[KeyType]))
 		return
 	}
 
 	// Group tile, parse and call verifyTile for each grouped tile
 	if tileType == GroupTileType {
 		if group {
-			err.Add(`Unauthorized "group"" type in group tile.`)
+			err.Add(`Unauthorized "group" type in group tile.`)
 			return
 		}
 
-		groupTiles, ok := tile[KeyParams].([]interface{})
+		if _, exists := tile[ParamsKey]; exists {
+			err.Add(fmt.Sprintf(`Unauthorized "%s" key in %s tile definition.`, ParamsKey, tile[TypeKey]))
+			return
+		}
+
+		groupTiles, ok := tile[TilesKey].([]interface{})
 		if !ok {
-			err.Add(fmt.Sprintf(`Incorrect "%s" key in group tile definition.`, KeyParams))
+			err.Add(fmt.Sprintf(`Incorrect "%s" key in %s tile definition.`, TilesKey, tile[TypeKey]))
 			return
 		}
 
@@ -105,22 +92,27 @@ func (cu *configUsecase) verifyTile(tile map[string]interface{}, group bool, err
 		return
 	}
 
-	validator, exists := cu.monitorableParams[tileType]
+	if _, exists := tile[ParamsKey]; !exists {
+		err.Add(fmt.Sprintf(`Missing "%s" key in %s tile definition.`, ParamsKey, tile[TypeKey]))
+		return
+	}
+
+	tileConfig, exists := cu.tileConfigs[tileType]
 	if !exists {
-		err.Add(fmt.Sprintf(`Unknown "%s" type in tile definition. Must be %s`, tile[KeyType], keys(cu.monitorableParams)))
+		err.Add(fmt.Sprintf(`Unknown "%s" type in tile definition. Must be %s`, tile[TypeKey], keys(cu.tileConfigs)))
 		return
 	}
 
 	// Create new validator by reflexion
-	rType := reflect.TypeOf(validator)
+	rType := reflect.TypeOf(tileConfig.Validator)
 	rInstance := reflect.New(rType.Elem()).Interface()
 
 	// Marshal / Unmarshal the map[string]interface{} struct in new instance of Validator
-	bParams, _ := json.Marshal(tile[KeyParams])
+	bParams, _ := json.Marshal(tile[ParamsKey])
 	unmarshalErr := json.Unmarshal(bParams, &rInstance)
 
 	if unmarshalErr != nil || !rInstance.(utils.Validator).IsValid() {
-		err.Add(fmt.Sprintf(`Invalid params definition for "%s": "%s".`, tile[KeyType], string(bParams)))
+		err.Add(fmt.Sprintf(`Invalid params definition for "%s": "%s".`, tile[TypeKey], string(bParams)))
 		return
 	}
 
@@ -128,11 +120,6 @@ func (cu *configUsecase) verifyTile(tile map[string]interface{}, group bool, err
 }
 
 // --- Utility functions ---
-func isUrl(str string) bool {
-	u, err := url.Parse(str)
-	return err == nil && u.Scheme != "" && u.Host != ""
-}
-
 func keys(m interface{}) string {
 	keys := reflect.ValueOf(m).MapKeys()
 	strkeys := make([]string, len(keys))

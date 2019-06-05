@@ -8,26 +8,10 @@ import (
 
 	"github.com/monitoror/monitoror/monitorable/config/models"
 
-	"github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/config/repository"
-	"github.com/monitoror/monitoror/monitorable/ping"
-	_pingModels "github.com/monitoror/monitoror/monitorable/ping/models"
-	"github.com/monitoror/monitoror/monitorable/port"
-	_portModels "github.com/monitoror/monitoror/monitorable/port/models"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils"
 
 	"github.com/stretchr/testify/assert"
 )
-
-func initVerifyUsecase() *configUsecase {
-	usecase := &configUsecase{}
-
-	usecase.monitorableParams = make(map[tiles.TileType]utils.Validator)
-	usecase.monitorableParams[ping.PingTileType] = &_pingModels.PingParams{}
-	usecase.monitorableParams[port.PortTileType] = &_portModels.PortParams{}
-
-	return usecase
-}
 
 func initTile(t *testing.T, input string) (tiles map[string]interface{}) {
 	tiles = make(map[string]interface{})
@@ -42,7 +26,6 @@ func TestUsecase_Verify_Success(t *testing.T) {
 	input := `
 {
   "columns": 4,
-  "apiBaseUrl": "http://localhost:8080/",
   "tiles": [
 		{ "type": "empty" }
   ]
@@ -52,7 +35,7 @@ func TestUsecase_Verify_Success(t *testing.T) {
 	config, err := repository.GetConfig(reader)
 
 	if assert.NoError(t, err) {
-		useCase := initVerifyUsecase()
+		useCase := initConfigUsecase()
 
 		err = useCase.Verify(config)
 		assert.NoError(t, err)
@@ -61,23 +44,20 @@ func TestUsecase_Verify_Success(t *testing.T) {
 
 func TestUsecase_Verify_Failed(t *testing.T) {
 	input := `
-{
-  "apiBaseUrl": "null"
-}
+{}
 `
 	reader := ioutil.NopCloser(strings.NewReader(input))
 	config, err := repository.GetConfig(reader)
 
 	if assert.NoError(t, err) {
-		useCase := initVerifyUsecase()
+		useCase := initConfigUsecase()
 		err := useCase.Verify(config)
 
 		if assert.Error(t, err) {
 			configError := err.(*models.ConfigError)
 
-			assert.Equal(t, 3, configError.Count())
+			assert.Equal(t, 2, configError.Count())
 			assert.Contains(t, configError.Error(), `Missing or invalid "columns" field. Must be a positive integer.`)
-			assert.Contains(t, configError.Error(), `Invalid "columns" field. Must be a valid url.`)
 			assert.Contains(t, configError.Error(), `Missing or invalid "tiles" field. Must be an array not empty.`)
 		}
 	}
@@ -89,7 +69,7 @@ func TestUsecase_VerifyTile_Success(t *testing.T) {
 	configError := &models.ConfigError{}
 
 	tile := initTile(t, input)
-	useCase := initVerifyUsecase()
+	useCase := initConfigUsecase()
 
 	useCase.verifyTile(tile, false, configError)
 
@@ -102,7 +82,7 @@ func TestUsecase_VerifyTile_Success_Empty(t *testing.T) {
 	configError := &models.ConfigError{}
 
 	tile := initTile(t, input)
-	useCase := initVerifyUsecase()
+	useCase := initConfigUsecase()
 
 	useCase.verifyTile(tile, false, configError)
 
@@ -114,7 +94,7 @@ func TestUsecase_VerifyTile_Failed_WrongKey(t *testing.T) {
 	configError := &models.ConfigError{}
 
 	tile := initTile(t, input)
-	useCase := initVerifyUsecase()
+	useCase := initConfigUsecase()
 
 	useCase.verifyTile(tile, false, configError)
 
@@ -122,21 +102,38 @@ func TestUsecase_VerifyTile_Failed_WrongKey(t *testing.T) {
 	assert.Contains(t, configError.Error(), `Unknown key "test" in tile definition. Must be`)
 }
 
-func TestUsecase_VerifyTile_Failed_EmptyInGroup(t *testing.T) {
+func TestUsecase_VerifyTile_Failed_ParamsInGroup(t *testing.T) {
 	input := `
       { "type": "group", "label": "...", "params": [
+          { "type": "ping", "params": { "hostname": "aserver.com" } }
+			]}
+`
+	configError := &models.ConfigError{}
+
+	tile := initTile(t, input)
+	useCase := initConfigUsecase()
+
+	useCase.verifyTile(tile, false, configError)
+
+	assert.Equal(t, 1, configError.Count())
+	assert.Contains(t, configError.Error(), `Unauthorized "params" key in group tile definition.`)
+}
+
+func TestUsecase_VerifyTile_Failed_EmptyInGroup(t *testing.T) {
+	input := `
+      { "type": "group", "label": "...", "tiles": [
           { "type": "empty" }
 			]}
 `
 	configError := &models.ConfigError{}
 
 	tile := initTile(t, input)
-	useCase := initVerifyUsecase()
+	useCase := initConfigUsecase()
 
 	useCase.verifyTile(tile, false, configError)
 
 	assert.Equal(t, 1, configError.Count())
-	assert.Contains(t, configError.Error(), `Unauthorized "empty"" type in group tile.`)
+	assert.Contains(t, configError.Error(), `Unauthorized "empty" type in group tile.`)
 }
 
 func TestUsecase_VerifyTile_Failed_MissingParamsKey(t *testing.T) {
@@ -144,7 +141,7 @@ func TestUsecase_VerifyTile_Failed_MissingParamsKey(t *testing.T) {
 	configError := &models.ConfigError{}
 
 	tile := initTile(t, input)
-	useCase := initVerifyUsecase()
+	useCase := initConfigUsecase()
 
 	useCase.verifyTile(tile, false, configError)
 
@@ -154,7 +151,7 @@ func TestUsecase_VerifyTile_Failed_MissingParamsKey(t *testing.T) {
 
 func TestUsecase_VerifyTile_Success_Group(t *testing.T) {
 	input := `
-      { "type": "group", "label": "...", "params": [
+      { "type": "group", "label": "...", "tiles": [
           { "type": "ping", "params": { "hostname": "aserver.com" } },
           { "type": "port", "params": { "hostname": "bserver.com", "port": 22 } }
 			]}
@@ -162,7 +159,7 @@ func TestUsecase_VerifyTile_Success_Group(t *testing.T) {
 	configError := &models.ConfigError{}
 
 	tile := initTile(t, input)
-	useCase := initVerifyUsecase()
+	useCase := initConfigUsecase()
 
 	useCase.verifyTile(tile, false, configError)
 
@@ -171,39 +168,39 @@ func TestUsecase_VerifyTile_Success_Group(t *testing.T) {
 
 func TestUsecase_VerifyTile_Failed_GroupInGroup(t *testing.T) {
 	input := `
-      { "type": "group", "label": "...", "params": [
+      { "type": "group", "label": "...", "tiles": [
           { "type": "group", "params": "test" }
 			]}
 `
 	configError := &models.ConfigError{}
 
 	tile := initTile(t, input)
-	useCase := initVerifyUsecase()
+	useCase := initConfigUsecase()
 
 	useCase.verifyTile(tile, false, configError)
 
 	assert.Equal(t, 1, configError.Count())
-	assert.Contains(t, configError.Error(), `Unauthorized "group"" type in group tile.`)
+	assert.Contains(t, configError.Error(), `Unauthorized "group" type in group tile.`)
 }
 
-func TestUsecase_VerifyTile_Failed_GroupWithWrongParams(t *testing.T) {
+func TestUsecase_VerifyTile_Failed_GroupWithWrongTiles(t *testing.T) {
 	input := `
-      { "type": "group", "label": "...", "params": "test"}
+      { "type": "group", "label": "...", "tiles": "test"}
 `
 	configError := &models.ConfigError{}
 
 	tile := initTile(t, input)
-	useCase := initVerifyUsecase()
+	useCase := initConfigUsecase()
 
 	useCase.verifyTile(tile, false, configError)
 
 	assert.Equal(t, 1, configError.Count())
-	assert.Contains(t, configError.Error(), `Incorrect "params" key in group tile definition.`)
+	assert.Contains(t, configError.Error(), `Incorrect "tiles" key in group tile definition.`)
 }
 
 func TestUsecase_VerifyTile_Failed_GroupWithWrongTile(t *testing.T) {
 	input := `
-      { "type": "group", "label": "...", "params": [
+      { "type": "group", "label": "...", "tiles": [
           { "type": "ping", "params": { "hostname": "aserver.com" } },
           "test"
 			]}
@@ -211,7 +208,7 @@ func TestUsecase_VerifyTile_Failed_GroupWithWrongTile(t *testing.T) {
 	configError := &models.ConfigError{}
 
 	tile := initTile(t, input)
-	useCase := initVerifyUsecase()
+	useCase := initConfigUsecase()
 
 	useCase.verifyTile(tile, false, configError)
 
@@ -225,7 +222,7 @@ func TestUsecase_VerifyTile_Failed_WrongTileType(t *testing.T) {
 	configError := &models.ConfigError{}
 
 	tile := initTile(t, input)
-	useCase := initVerifyUsecase()
+	useCase := initConfigUsecase()
 
 	useCase.verifyTile(tile, false, configError)
 
@@ -239,7 +236,7 @@ func TestUsecase_VerifyTile_Failed_InvalidParams(t *testing.T) {
 	configError := &models.ConfigError{}
 
 	tile := initTile(t, input)
-	useCase := initVerifyUsecase()
+	useCase := initConfigUsecase()
 
 	useCase.verifyTile(tile, false, configError)
 

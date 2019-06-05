@@ -9,29 +9,30 @@ import (
 )
 
 // This tests are realy basic and juste check if Server member are not nil
+func TestInit_WithAllTile(t *testing.T) {
+	conf := config.InitConfig()
+	conf.Env = "Test"
 
-func TestInitEcho(t *testing.T) {
-	server := &Server{}
+	server := &Server{config: conf}
 	server.initEcho()
+	server.initMiddleware()
+	server.initFront()
+	server.initApis()
 
 	assert.NotNil(t, server.Echo)
 }
 
-func TestInitMiddleware(t *testing.T) {
+// This tests are realy basic and juste check if Server member are not nil
+func TestInit_WithoutAllTile(t *testing.T) {
 	conf := config.InitConfig()
+	conf.Env = "Test"
+	conf.Monitorable.TravisCI.Url = ""
+
 	server := &Server{config: conf}
 	server.initEcho()
 	server.initMiddleware()
+	server.initFront()
+	server.initApis()
 
-	assert.NotNil(t, server.cm)
-}
-
-func TestRegister(t *testing.T) {
-	register("test", true, func() {
-		assert.True(t, true)
-	})
-
-	register("test", false, func() {
-		assert.True(t, false)
-	})
+	assert.NotNil(t, server.Echo)
 }

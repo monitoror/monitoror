@@ -37,7 +37,7 @@ func missingParam(t *testing.T, param string) {
 	ctx.QueryParams().Del(param)
 
 	mockUsecase := new(mocks.Usecase)
-	handler := NewHttpTravisCIHandler(mockUsecase)
+	handler := NewHttpTravisCIDelivery(mockUsecase)
 
 	// Test
 	err := handler.GetTravisCIBuild(ctx)
@@ -55,7 +55,7 @@ func TestDelivery_GetTravisCIBuild_Success(t *testing.T) {
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Build", Anything).Return(tile, nil)
-	handler := NewHttpTravisCIHandler(mockUsecase)
+	handler := NewHttpTravisCIDelivery(mockUsecase)
 
 	// Expected
 	json, err := json.Marshal(tile)
@@ -88,7 +88,7 @@ func TestDelivery_GetPing_Error(t *testing.T) {
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Build", Anything).Return(nil, errors.New("ping error"))
-	handler := NewHttpTravisCIHandler(mockUsecase)
+	handler := NewHttpTravisCIDelivery(mockUsecase)
 
 	// Test
 	assert.Error(t, handler.GetTravisCIBuild(ctx))

@@ -5,16 +5,19 @@ fixes:
   - "github.com/monitoror/::"
 
 coverage:
-  precision: 2  # 2 = xx.xx%, 0 = xx%
-  range: 60...80 # default 70...90. red...green
-
   status:
-    patch: off
     project:
-      default:
-        base: pr
-        threshold: 5%
+      default: off
       front:
-        paths: "front/"
+        flags: front
       back:
-        paths: "!front/"
+        target: 70%
+        flags: back
+
+flags:
+  backe:
+    paths:
+      - front/
+  front:
+    paths:
+      - !front/

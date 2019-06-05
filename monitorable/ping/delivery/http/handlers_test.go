@@ -40,7 +40,7 @@ func TestDelivery_GetPing_Success(t *testing.T) {
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Ping", Anything).Return(tile, nil)
-	handler := NewHttpPingHandler(mockUsecase)
+	handler := NewHttpPingDelivery(mockUsecase)
 
 	// Expected
 	json, err := json.Marshal(tile)
@@ -61,7 +61,7 @@ func TestDelivery_GetPing_QueryParamsError(t *testing.T) {
 	ctx.QueryParams().Del("hostname")
 
 	mockUsecase := new(mocks.Usecase)
-	handler := NewHttpPingHandler(mockUsecase)
+	handler := NewHttpPingDelivery(mockUsecase)
 
 	// Test
 	err := handler.GetPing(ctx)
@@ -75,7 +75,7 @@ func TestDelivery_GetPing_Error(t *testing.T) {
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Ping", Anything).Return(nil, errors.New("ping error"))
-	handler := NewHttpPingHandler(mockUsecase)
+	handler := NewHttpPingDelivery(mockUsecase)
 
 	// Test
 	assert.Error(t, handler.GetPing(ctx))

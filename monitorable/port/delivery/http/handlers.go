@@ -11,15 +11,15 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type httpPortHandler struct {
+type httpPortDelivery struct {
 	portUsecase port.Usecase
 }
 
-func NewHttpPortHandler(p port.Usecase) *httpPortHandler {
-	return &httpPortHandler{p}
+func NewHttpPortDelivery(p port.Usecase) *httpPortDelivery {
+	return &httpPortDelivery{p}
 }
 
-func (h *httpPortHandler) GetPort(c echo.Context) error {
+func (h *httpPortDelivery) GetPort(c echo.Context) error {
 	// Bind / check Params
 	params := &models.PortParams{}
 	err := c.Bind(params)

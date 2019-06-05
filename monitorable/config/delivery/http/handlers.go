@@ -10,15 +10,15 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type httpConfigHandler struct {
+type httpConfigDelivery struct {
 	configUsecase config.Usecase
 }
 
-func NewHttpConfigHandler(cu config.Usecase) *httpConfigHandler {
-	return &httpConfigHandler{cu}
+func NewHttpConfigDelivery(cu config.Usecase) *httpConfigDelivery {
+	return &httpConfigDelivery{cu}
 }
 
-func (h *httpConfigHandler) GetConfig(c echo.Context) error {
+func (h *httpConfigDelivery) GetConfig(c echo.Context) error {
 	// Bind / check Params
 	params := &models.ConfigParams{}
 	err := c.Bind(params)
@@ -35,7 +35,8 @@ func (h *httpConfigHandler) GetConfig(c echo.Context) error {
 		return err
 	}
 
-	if err = h.configUsecase.Hydrate(config); err != nil {
+	host := c.Scheme() + "://" + c.Request().Host
+	if err = h.configUsecase.Hydrate(config, host); err != nil {
 		return err
 	}
 
