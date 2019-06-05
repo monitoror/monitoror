@@ -10,15 +10,15 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type httpInfoHandler struct {
+type httpInfoDelivery struct {
 	config *config.Config
 }
 
-func HttpInfoHandler(config *config.Config) *httpInfoHandler {
-	return &httpInfoHandler{config}
+func NewHttpInfoDelivery(config *config.Config) *httpInfoDelivery {
+	return &httpInfoDelivery{config}
 }
 
-func (h *httpInfoHandler) GetInfo(c echo.Context) error {
+func (h *httpInfoDelivery) GetInfo(c echo.Context) error {
 	response := models.NewInfoResponse(version.Version, version.GitCommit, version.BuildTime, h.config)
 	return c.JSON(http.StatusOK, response)
 }

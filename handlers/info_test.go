@@ -28,7 +28,7 @@ func TestGetInfo(t *testing.T) {
 	// Init
 	ctx, res := initInfoEcho()
 	emptyConfig := &config.Config{}
-	handler := HttpInfoHandler(emptyConfig)
+	handler := NewHttpInfoDelivery(emptyConfig)
 
 	// Create expected value
 	json, err := json.Marshal(models.NewInfoResponse(version.Version, version.GitCommit, version.BuildTime, emptyConfig))

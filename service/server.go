@@ -3,23 +3,18 @@ package service
 import (
 	"fmt"
 	"net/http"
-	"strings"
+
+	"github.com/labstack/gommon/log"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
-
-	"github.com/monitoror/monitoror/config"
-	"github.com/monitoror/monitoror/handlers"
-	"github.com/monitoror/monitoror/middlewares"
-	"github.com/monitoror/monitoror/models/tiles"
-	_configDelivery "github.com/monitoror/monitoror/monitorable/config/delivery/http"
-	_configRepository "github.com/monitoror/monitoror/monitorable/config/repository"
-	_configUsecase "github.com/monitoror/monitoror/monitorable/config/usecase"
 
 	rice "github.com/GeertJohan/go.rice"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/color"
-	"github.com/labstack/gommon/log"
+	"github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/handlers"
+	"github.com/monitoror/monitoror/middlewares"
 )
 
 type (
@@ -32,6 +27,10 @@ type (
 
 		// Middleware
 		cm *middlewares.CacheMiddleware
+
+		// Groups
+		api *echo.Group
+		v1  *echo.Group
 	}
 )
 
@@ -80,7 +79,7 @@ func (s *Server) initMiddleware() {
 
 	// Log requests
 	s.Use(echoMiddleware.LoggerWithConfig(echoMiddleware.LoggerConfig{
-		Format: `[-] ` + colorer.Green("${method}") + ` ${uri} status:${status} error:"${error}"` + "\n",
+		Format: `[-] ` + colorer.Green("${method}") + ` ${uri} status:${status} latency:` + colorer.Green("${latency_human}") + ` error:"${error}"` + "\n",
 	}))
 
 	// Cache
@@ -95,8 +94,10 @@ func (s *Server) initMiddleware() {
 }
 
 func (s *Server) initFront() {
-	if s.config.Env != "production" {
-		fmt.Printf("⇨ %s: %s\n", "front", colorer.Red("disabled"))
+	loadFront := s.config.Env == "production"
+	defer logStatus("FRONT", loadFront)
+
+	if !loadFront {
 		return
 	}
 
@@ -112,41 +113,37 @@ func (s *Server) initFront() {
 	s.GET("/js/*", echo.WrapHandler(http.StripPrefix("/", assetHandler)))
 	s.GET("/fonts/*", echo.WrapHandler(http.StripPrefix("/", assetHandler)))
 	s.GET("/img/*", echo.WrapHandler(http.StripPrefix("/", assetHandler)))
-
-	fmt.Printf("⇨ %s: %s\n", "front", colorer.Green("enabled"))
 }
 
 func (s *Server) initApis() {
-	v1 := s.Group("/api/v1")
+	// Api group definition
+	s.api = s.Group("/api")
+
+	// V1
+	s.v1 = s.api.Group("/v1")
 
 	// ------------- INFO ------------- //
-	infoHandler := handlers.HttpInfoHandler(s.config)
-	v1.GET("/info", s.cm.UpstreamCacheHandlerWithExpiration(cache.NEVER, infoHandler.GetInfo))
+	infoDelivery := handlers.NewHttpInfoDelivery(s.config)
+	s.v1.GET("/info", s.cm.UpstreamCacheHandlerWithExpiration(cache.NEVER, infoDelivery.GetInfo))
 
 	// ------------- CONFIG ------------- //
-	configRepo := _configRepository.NewConfigRepository()
-	configUC := _configUsecase.NewConfigUsecase(configRepo)
-	configHandler := _configDelivery.NewHttpConfigDelivery(configUC)
-	v1.GET("/config", s.cm.UpstreamCacheHandler(configHandler.GetConfig))
+	configHelper := s.registerConfig()
 
 	// ------------- PING ------------- //
-	s.registerPing(v1, configUC)
+	s.registerPing(configHelper)
 
 	// ------------- PORT ------------- //
-	s.registerPort(v1, configUC)
+	s.registerPort(configHelper)
 
 	// ------------- TRAVIS-CI ------------- //
-	s.registerTravisCIBuild(v1, configUC)
+	s.registerTravisCI(configHelper)
 }
 
-func (s *Server) register(g *echo.Group, valid bool, path string, tileType tiles.TileType, factory func() (handler echo.HandlerFunc)) {
-	if !valid {
-		fmt.Printf("⇨ %s: %s\n", strings.ToLower(string(tileType)), colorer.Red("disabled"))
-		return
+func logStatus(name interface{}, enabled bool) {
+	status := colorer.Green("enabled")
+	if !enabled {
+		status = colorer.Red("disabled")
 	}
 
-	// Registering route
-	g.GET(path, factory())
-
-	fmt.Printf("⇨ %s: %s\n", strings.ToLower(string(tileType)), colorer.Green("enabled"))
+	fmt.Printf("⇨ %s: %s\n", name, status)
 }

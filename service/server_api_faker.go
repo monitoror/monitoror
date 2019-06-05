@@ -3,8 +3,10 @@
 package service
 
 import (
-	"github.com/labstack/echo/v4"
 	"github.com/monitoror/monitoror/monitorable/config"
+	_configDelivery "github.com/monitoror/monitoror/monitorable/config/delivery/http"
+	_configRepository "github.com/monitoror/monitoror/monitorable/config/repository"
+	_configUsecase "github.com/monitoror/monitoror/monitorable/config/usecase"
 	"github.com/monitoror/monitoror/monitorable/ping"
 	_pingDelivery "github.com/monitoror/monitoror/monitorable/ping/delivery/http"
 	_pingModels "github.com/monitoror/monitoror/monitorable/ping/models"
@@ -19,57 +21,57 @@ import (
 	_travisciUsecase "github.com/monitoror/monitoror/monitorable/travisci/usecase"
 )
 
-func (s *Server) registerPing(g *echo.Group, registerer config.Regiterer) {
-	path := "/ping"
-	tileType := ping.PingTileType
+func (s *Server) registerConfig() config.Helper {
+	repository := _configRepository.NewConfigRepository()
+	usecase := _configUsecase.NewConfigUsecase(repository)
+	delivery := _configDelivery.NewHttpConfigDelivery(usecase)
 
-	factory := func() (handler echo.HandlerFunc) {
-		usecase := _pingUsecase.NewPingUsecase()
-		delivery := _pingDelivery.NewHttpPingDelivery(usecase)
+	s.v1.GET("/config", delivery.GetConfig)
 
-		// Registering route param
-		registerer.Register(tileType, path, &_pingModels.PingParams{})
-
-		handler = delivery.GetPing
-		return
-	}
-
-	s.register(g, true, path, tileType, factory)
+	return usecase
 }
 
-func (s *Server) registerPort(g *echo.Group, registerer config.Regiterer) {
-	path := "/port"
-	tileType := port.PortTileType
+func (s *Server) registerPing(configHelper config.Helper) {
+	defer logStatus(ping.PingTileType, true)
 
-	factory := func() (handler echo.HandlerFunc) {
-		usecase := _portUsecase.NewPortUsecase()
-		delivery := _portDelivery.NewHttpPortDelivery(usecase)
+	usecase := _pingUsecase.NewPingUsecase()
+	delivery := _pingDelivery.NewHttpPingDelivery(usecase)
 
-		// Registering route param
-		registerer.Register(tileType, path, &_portModels.PortParams{})
+	// Register route to echo
+	route := s.v1.GET("/ping", delivery.GetPing)
 
-		handler = delivery.GetPort
-		return
-	}
-
-	s.register(g, true, path, tileType, factory)
+	// Register param and path to config usecase
+	configHelper.RegisterTile(ping.PingTileType, route.Path, &_pingModels.PingParams{})
 }
 
-func (s *Server) registerTravisCIBuild(g *echo.Group, registerer config.Regiterer) {
-	valid := s.config.Monitorable.TravisCI.Url != ""
-	path := "/travisci/build"
-	tileType := travisci.TravisCIBuildTileType
+func (s *Server) registerPort(configHelper config.Helper) {
+	defer logStatus(port.PortTileType, true)
 
-	factory := func() (handler echo.HandlerFunc) {
-		usecase := _travisciUsecase.NewTravisCIUsecase()
-		delivery := _travisciDelivery.NewHttpTravisCIDelivery(usecase)
+	usecase := _portUsecase.NewPortUsecase()
+	delivery := _portDelivery.NewHttpPortDelivery(usecase)
 
-		// Registering route param
-		registerer.Register(tileType, path, &_travisciModels.BuildParams{})
+	// Register route to echo
+	route := s.v1.GET("/port", delivery.GetPort)
 
-		handler = delivery.GetTravisCIBuild
+	// Register param and path to config usecase
+	configHelper.RegisterTile(port.PortTileType, route.Path, &_portModels.PortParams{})
+}
+
+func (s *Server) registerTravisCI(configHelper config.Helper) {
+	loadTravisci := s.config.Monitorable.TravisCI.Url != ""
+	defer logStatus(travisci.TravisCIBuildTileType, loadTravisci)
+
+	if !loadTravisci {
 		return
 	}
 
-	s.register(g, valid, path, tileType, factory)
+	usecase := _travisciUsecase.NewTravisCIUsecase()
+	delivery := _travisciDelivery.NewHttpTravisCIDelivery(usecase)
+
+	// Register route to echo
+	travisCIGroup := s.v1.Group("/travisci")
+	route := travisCIGroup.GET("/build", delivery.GetTravisCIBuild)
+
+	// Register param and path to config usecase
+	configHelper.RegisterTile(travisci.TravisCIBuildTileType, route.Path, &_travisciModels.BuildParams{})
 }
