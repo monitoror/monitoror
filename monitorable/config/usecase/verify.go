@@ -12,16 +12,6 @@ import (
 	"github.com/monitoror/monitoror/monitorable/config/models"
 )
 
-const (
-	TypeKey   = "type"
-	LabelKey  = "label"
-	ParamsKey = "params"
-	TilesKey  = "tiles"
-
-	EmptyTileType tiles.TileType = "EMPTY"
-	GroupTileType tiles.TileType = "GROUP"
-)
-
 var (
 	AuthorizedTileKey = map[string]bool{
 		TypeKey:   true,
@@ -107,14 +97,14 @@ func (cu *configUsecase) verifyTile(tile map[string]interface{}, group bool, err
 		return
 	}
 
-	validator, exists := cu.monitorableConfigs[tileType]
+	tileConfig, exists := cu.tileConfigs[tileType]
 	if !exists {
-		err.Add(fmt.Sprintf(`Unknown "%s" type in tile definition. Must be %s`, tile[TypeKey], keys(cu.monitorableConfigs)))
+		err.Add(fmt.Sprintf(`Unknown "%s" type in tile definition. Must be %s`, tile[TypeKey], keys(cu.tileConfigs)))
 		return
 	}
 
 	// Create new validator by reflexion
-	rType := reflect.TypeOf(validator.ConfigValidator)
+	rType := reflect.TypeOf(tileConfig.Validator)
 	rInstance := reflect.New(rType.Elem()).Interface()
 
 	// Marshal / Unmarshal the map[string]interface{} struct in new instance of Validator

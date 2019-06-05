@@ -37,13 +37,13 @@ func (_m *Usecase) Config(params *models.ConfigParams) (*models.Config, error) {
 	return r0, r1
 }
 
-// Hydrate provides a mock function with given fields: _a0
-func (_m *Usecase) Hydrate(_a0 *models.Config) error {
-	ret := _m.Called(_a0)
+// Hydrate provides a mock function with given fields: _a0, host
+func (_m *Usecase) Hydrate(_a0 *models.Config, host string) error {
+	ret := _m.Called(_a0, host)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.Config) error); ok {
-		r0 = rf(_a0)
+	if rf, ok := ret.Get(0).(func(*models.Config, string) error); ok {
+		r0 = rf(_a0, host)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -51,9 +51,9 @@ func (_m *Usecase) Hydrate(_a0 *models.Config) error {
 	return r0
 }
 
-// Register provides a mock function with given fields: tileType, path, configValidator
-func (_m *Usecase) Register(tileType tiles.TileType, path string, configValidator utils.Validator) {
-	_m.Called(tileType, path, configValidator)
+// RegisterTile provides a mock function with given fields: tileType, path, validator
+func (_m *Usecase) RegisterTile(tileType tiles.TileType, path string, validator utils.Validator) {
+	_m.Called(tileType, path, validator)
 }
 
 // Verify provides a mock function with given fields: _a0

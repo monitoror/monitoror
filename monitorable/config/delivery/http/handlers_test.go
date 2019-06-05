@@ -38,7 +38,7 @@ func TestDelivery_GetConfig_Success(t *testing.T) {
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Config", Anything).Return(config, nil)
 	mockUsecase.On("Verify", Anything).Return(nil)
-	mockUsecase.On("Hydrate", Anything).Return(nil)
+	mockUsecase.On("Hydrate", Anything, Anything).Return(nil)
 	handler := NewHttpConfigDelivery(mockUsecase)
 
 	// Expected
@@ -112,7 +112,7 @@ func TestDelivery_GetConfig_ErrorHydrate(t *testing.T) {
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Config", Anything).Return(nil, nil)
 	mockUsecase.On("Verify", Anything).Return(nil)
-	mockUsecase.On("Hydrate", Anything).Return(errors.New("boom"))
+	mockUsecase.On("Hydrate", Anything, Anything).Return(errors.New("boom"))
 	handler := NewHttpConfigDelivery(mockUsecase)
 
 	// Test

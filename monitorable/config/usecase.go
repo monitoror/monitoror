@@ -8,15 +8,15 @@ import (
 
 // Usecase represent the config's usecases
 type (
-	Regiterer interface {
-		Register(tileType tiles.TileType, path string, configValidator utils.Validator)
+	Helper interface {
+		RegisterTile(tileType tiles.TileType, path string, validator utils.Validator)
 	}
 
 	Usecase interface {
-		Regiterer
+		Helper
 
 		Config(params *models.ConfigParams) (*models.Config, error)
 		Verify(config *models.Config) error
-		Hydrate(config *models.Config) error
+		Hydrate(config *models.Config, host string) error
 	}
 )

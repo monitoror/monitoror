@@ -23,14 +23,13 @@ func (ce *ConfigError) Count() int {
 }
 
 func (ce *ConfigError) Send(ctx echo.Context) {
-	//TODO
-	_ = ctx.NoContent(http.StatusBadRequest)
+	_ = ctx.JSON(http.StatusBadRequest, ce.reasons)
 }
 
 func (ce *ConfigError) Error() string {
-	str := "invalid configuration: \n"
+	str := "invalid configuration:"
 	for _, value := range ce.reasons {
-		str += value + "\n"
+		str += "\n - " + value
 	}
 
 	return str

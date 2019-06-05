@@ -7,29 +7,41 @@ import (
 	"github.com/monitoror/monitoror/pkg/monitoror/utils"
 )
 
+const (
+	TypeKey   = "type"
+	LabelKey  = "label"
+	ParamsKey = "params"
+	TilesKey  = "tiles"
+	UrlKey    = "url" // Inject by hydrate function
+
+	EmptyTileType tiles.TileType = "EMPTY"
+	GroupTileType tiles.TileType = "GROUP"
+)
+
 type (
 	configUsecase struct {
-		monitorableConfigs map[tiles.TileType]*MonitorableConfig
-		repository         config.Repository
+		repository  config.Repository
+		tileConfigs map[tiles.TileType]*TileConfig
 	}
 
-	MonitorableConfig struct {
-		Path            string
-		ConfigValidator utils.Validator
+	// TileConfig struct is used by Config endpoint to check / hydrate config
+	TileConfig struct {
+		Path      string
+		Validator utils.Validator
 	}
 )
 
 func NewConfigUsecase(repository config.Repository) config.Usecase {
 	return &configUsecase{
-		monitorableConfigs: make(map[tiles.TileType]*MonitorableConfig),
-		repository:         repository,
+		repository:  repository,
+		tileConfigs: make(map[tiles.TileType]*TileConfig),
 	}
 }
 
-func (cu *configUsecase) Register(tileType tiles.TileType, path string, configValidator utils.Validator) {
-	cu.monitorableConfigs[tileType] = &MonitorableConfig{
-		Path:            path,
-		ConfigValidator: configValidator,
+func (cu *configUsecase) RegisterTile(tileType tiles.TileType, path string, validator utils.Validator) {
+	cu.tileConfigs[tileType] = &TileConfig{
+		Path:      path,
+		Validator: validator,
 	}
 }
 

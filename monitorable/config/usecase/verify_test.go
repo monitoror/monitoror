@@ -6,29 +6,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/monitoror/monitoror/models/tiles"
-
 	"github.com/monitoror/monitoror/monitorable/config/models"
 
 	"github.com/monitoror/monitoror/monitorable/config/repository"
-	"github.com/monitoror/monitoror/monitorable/ping"
-	_pingModels "github.com/monitoror/monitoror/monitorable/ping/models"
-	"github.com/monitoror/monitoror/monitorable/port"
-	_portModels "github.com/monitoror/monitoror/monitorable/port/models"
 
 	"github.com/stretchr/testify/assert"
 )
-
-func initVerifyUsecase() *configUsecase {
-	usecase := &configUsecase{
-		monitorableConfigs: make(map[tiles.TileType]*MonitorableConfig),
-	}
-
-	usecase.Register(ping.PingTileType, "/ping", &_pingModels.PingParams{})
-	usecase.Register(port.PortTileType, "/port", &_portModels.PortParams{})
-
-	return usecase
-}
 
 func initTile(t *testing.T, input string) (tiles map[string]interface{}) {
 	tiles = make(map[string]interface{})
@@ -52,7 +35,7 @@ func TestUsecase_Verify_Success(t *testing.T) {
 	config, err := repository.GetConfig(reader)
 
 	if assert.NoError(t, err) {
-		useCase := initVerifyUsecase()
+		useCase := initConfigUsecase()
 
 		err = useCase.Verify(config)
 		assert.NoError(t, err)
@@ -67,7 +50,7 @@ func TestUsecase_Verify_Failed(t *testing.T) {
 	config, err := repository.GetConfig(reader)
 
 	if assert.NoError(t, err) {
-		useCase := initVerifyUsecase()
+		useCase := initConfigUsecase()
 		err := useCase.Verify(config)
 
 		if assert.Error(t, err) {
@@ -86,7 +69,7 @@ func TestUsecase_VerifyTile_Success(t *testing.T) {
 	configError := &models.ConfigError{}
 
 	tile := initTile(t, input)
-	useCase := initVerifyUsecase()
+	useCase := initConfigUsecase()
 
 	useCase.verifyTile(tile, false, configError)
 
@@ -99,7 +82,7 @@ func TestUsecase_VerifyTile_Success_Empty(t *testing.T) {
 	configError := &models.ConfigError{}
 
 	tile := initTile(t, input)
-	useCase := initVerifyUsecase()
+	useCase := initConfigUsecase()
 
 	useCase.verifyTile(tile, false, configError)
 
@@ -111,7 +94,7 @@ func TestUsecase_VerifyTile_Failed_WrongKey(t *testing.T) {
 	configError := &models.ConfigError{}
 
 	tile := initTile(t, input)
-	useCase := initVerifyUsecase()
+	useCase := initConfigUsecase()
 
 	useCase.verifyTile(tile, false, configError)
 
@@ -128,7 +111,7 @@ func TestUsecase_VerifyTile_Failed_ParamsInGroup(t *testing.T) {
 	configError := &models.ConfigError{}
 
 	tile := initTile(t, input)
-	useCase := initVerifyUsecase()
+	useCase := initConfigUsecase()
 
 	useCase.verifyTile(tile, false, configError)
 
@@ -145,7 +128,7 @@ func TestUsecase_VerifyTile_Failed_EmptyInGroup(t *testing.T) {
 	configError := &models.ConfigError{}
 
 	tile := initTile(t, input)
-	useCase := initVerifyUsecase()
+	useCase := initConfigUsecase()
 
 	useCase.verifyTile(tile, false, configError)
 
@@ -158,7 +141,7 @@ func TestUsecase_VerifyTile_Failed_MissingParamsKey(t *testing.T) {
 	configError := &models.ConfigError{}
 
 	tile := initTile(t, input)
-	useCase := initVerifyUsecase()
+	useCase := initConfigUsecase()
 
 	useCase.verifyTile(tile, false, configError)
 
@@ -176,7 +159,7 @@ func TestUsecase_VerifyTile_Success_Group(t *testing.T) {
 	configError := &models.ConfigError{}
 
 	tile := initTile(t, input)
-	useCase := initVerifyUsecase()
+	useCase := initConfigUsecase()
 
 	useCase.verifyTile(tile, false, configError)
 
@@ -192,7 +175,7 @@ func TestUsecase_VerifyTile_Failed_GroupInGroup(t *testing.T) {
 	configError := &models.ConfigError{}
 
 	tile := initTile(t, input)
-	useCase := initVerifyUsecase()
+	useCase := initConfigUsecase()
 
 	useCase.verifyTile(tile, false, configError)
 
@@ -207,7 +190,7 @@ func TestUsecase_VerifyTile_Failed_GroupWithWrongTiles(t *testing.T) {
 	configError := &models.ConfigError{}
 
 	tile := initTile(t, input)
-	useCase := initVerifyUsecase()
+	useCase := initConfigUsecase()
 
 	useCase.verifyTile(tile, false, configError)
 
@@ -225,7 +208,7 @@ func TestUsecase_VerifyTile_Failed_GroupWithWrongTile(t *testing.T) {
 	configError := &models.ConfigError{}
 
 	tile := initTile(t, input)
-	useCase := initVerifyUsecase()
+	useCase := initConfigUsecase()
 
 	useCase.verifyTile(tile, false, configError)
 
@@ -239,7 +222,7 @@ func TestUsecase_VerifyTile_Failed_WrongTileType(t *testing.T) {
 	configError := &models.ConfigError{}
 
 	tile := initTile(t, input)
-	useCase := initVerifyUsecase()
+	useCase := initConfigUsecase()
 
 	useCase.verifyTile(tile, false, configError)
 
@@ -253,7 +236,7 @@ func TestUsecase_VerifyTile_Failed_InvalidParams(t *testing.T) {
 	configError := &models.ConfigError{}
 
 	tile := initTile(t, input)
-	useCase := initVerifyUsecase()
+	useCase := initConfigUsecase()
 
 	useCase.verifyTile(tile, false, configError)
 

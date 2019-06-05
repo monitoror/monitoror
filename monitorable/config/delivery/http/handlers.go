@@ -35,7 +35,8 @@ func (h *httpConfigDelivery) GetConfig(c echo.Context) error {
 		return err
 	}
 
-	if err = h.configUsecase.Hydrate(config); err != nil {
+	host := c.Scheme() + "://" + c.Request().Host
+	if err = h.configUsecase.Hydrate(config, host); err != nil {
 		return err
 	}
 
