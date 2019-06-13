@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "columns": 4,
+  "tiles": [
+    { "type": "empty" },
+    { "type": "ping", "params": { "hostname": "localhost" } },
+    { "type": "port", "params": { "hostname": "localhost", "port": 8080 } },
+    { "type": "group", "label": "...", "tiles": [
+      { "type": "ping", "params": { "hostname": "localhost" } },
+      { "type": "port", "params": { "hostname": "localhost", "port": 8080 } }
+    ]}
+  ]
+}

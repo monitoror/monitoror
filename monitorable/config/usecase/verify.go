@@ -12,17 +12,13 @@ import (
 	"github.com/monitoror/monitoror/monitorable/config/models"
 )
 
-var (
-	AuthorizedTileKey = map[string]bool{
-		TypeKey:   true,
-		LabelKey:  true,
-		ParamsKey: true,
-		TilesKey:  true,
-	}
-)
-
 func (cu *configUsecase) Verify(config *models.Config) error {
 	err := models.NewConfigError()
+
+	if exists := SupportedVersions[config.Version]; !exists {
+		err.Add(fmt.Sprintf(`Unsupported "version" field. Must be %s.`, keys(SupportedVersions)))
+	}
+
 	if config.Columns == 0 {
 		err.Add(`Missing or invalid "columns" field. Must be a positive integer.`)
 	}
@@ -125,7 +121,7 @@ func keys(m interface{}) string {
 	strkeys := make([]string, len(keys))
 
 	for i := 0; i < len(keys); i++ {
-		strkeys[i] = strings.ToLower(keys[i].String())
+		strkeys[i] = strings.ToLower(fmt.Sprintf("%v", keys[i]))
 	}
 
 	return strings.Join(strkeys, ",")
