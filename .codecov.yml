@@ -6,6 +6,9 @@ fixes:
 
 coverage:
   status:
+    patch:
+      default:
+        enabled: no
     project:
       default: off
       front:
