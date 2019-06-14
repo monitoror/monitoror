@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"strings"
 	"testing"
@@ -25,6 +26,7 @@ func initTile(t *testing.T, input string) (tiles map[string]interface{}) {
 func TestUsecase_Verify_Success(t *testing.T) {
 	input := `
 {
+	"version" : 1,
   "columns": 4,
   "tiles": [
 		{ "type": "empty" }
@@ -56,7 +58,8 @@ func TestUsecase_Verify_Failed(t *testing.T) {
 		if assert.Error(t, err) {
 			configError := err.(*models.ConfigError)
 
-			assert.Equal(t, 2, configError.Count())
+			assert.Equal(t, 3, configError.Count())
+			assert.Contains(t, configError.Error(), fmt.Sprintf(`Unsupported "version" field. Must be %s.`, keys(SupportedVersions)))
 			assert.Contains(t, configError.Error(), `Missing or invalid "columns" field. Must be a positive integer.`)
 			assert.Contains(t, configError.Error(), `Missing or invalid "tiles" field. Must be an array not empty.`)
 		}

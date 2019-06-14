@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/monitoror/monitoror/models/tiles"
@@ -29,9 +30,9 @@ func initConfigUsecase() *configUsecase {
 	return usecase
 }
 
-func TestUsecase_Config_WithUrl(t *testing.T) {
+func TestUsecase_Config_WithUrl_Success(t *testing.T) {
 	mockRepo := new(mocks.Repository)
-	mockRepo.On("GetConfigFromUrl", AnythingOfType("string")).Return(nil, nil)
+	mockRepo.On("GetConfigFromUrl", AnythingOfType("string")).Return(&models.Config{}, nil)
 
 	usecase := NewConfigUsecase(mockRepo)
 
@@ -42,15 +43,44 @@ func TestUsecase_Config_WithUrl(t *testing.T) {
 	}
 }
 
-func TestUsecase_Config_WithPath(t *testing.T) {
+func TestUsecase_Config_WithPath_Success(t *testing.T) {
 	mockRepo := new(mocks.Repository)
-	mockRepo.On("GetConfigFromPath", AnythingOfType("string")).Return(nil, nil)
+	mockRepo.On("GetConfigFromPath", AnythingOfType("string")).Return(&models.Config{}, nil)
 
 	usecase := NewConfigUsecase(mockRepo)
 
 	_, err := usecase.Config(&models.ConfigParams{Path: "test"})
 	if assert.NoError(t, err) {
+		mockRepo.AssertNumberOfCalls(t, "G&models.Config{}etConfigFromPath", 1)
+		mockRepo.AssertExpectations(t)
+	}
+}
+
+func TestUsecase_Config_Failed(t *testing.T) {
+	mockRepo := new(mocks.Repository)
+	mockRepo.On("GetConfigFromPath", AnythingOfType("string")).Return(nil, errors.New("boom"))
+
+	usecase := NewConfigUsecase(mockRepo)
+
+	_, err := usecase.Config(&models.ConfigParams{Path: "test"})
+	if assert.Error(t, err) {
 		mockRepo.AssertNumberOfCalls(t, "GetConfigFromPath", 1)
 		mockRepo.AssertExpectations(t)
 	}
+}
+
+func TestUsecase_Config_Version(t *testing.T) {
+	mockRepo := new(mocks.Repository)
+	mockRepo.On("GetConfigFromPath", AnythingOfType("string")).Return(&models.Config{}, nil)
+	usecase := NewConfigUsecase(mockRepo)
+
+	config, _ := usecase.Config(&models.ConfigParams{Path: "test"})
+	assert.Equal(t, CurrentVersion, config.Version)
+
+	mockRepo = new(mocks.Repository)
+	mockRepo.On("GetConfigFromPath", AnythingOfType("string")).Return(&models.Config{Version: 2}, nil)
+	usecase = NewConfigUsecase(mockRepo)
+
+	config, _ = usecase.Config(&models.ConfigParams{Path: "test"})
+	assert.Equal(t, 2, config.Version)
 }
