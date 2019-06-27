@@ -13,8 +13,8 @@ type Repository struct {
 	mock.Mock
 }
 
-// Ping provides a mock function with given fields: ctx, hostname
-func (_m *Repository) Ping(ctx context.Context, hostname string) (*models.Ping, error) {
+// ExecutePing provides a mock function with given fields: ctx, hostname
+func (_m *Repository) ExecutePing(ctx context.Context, hostname string) (*models.Ping, error) {
 	ret := _m.Called(ctx, hostname)
 
 	var r0 *models.Ping

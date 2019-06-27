@@ -13,8 +13,8 @@ type Repository struct {
 	mock.Mock
 }
 
-// Build provides a mock function with given fields: ctx, group, repository, branch
-func (_m *Repository) Build(ctx context.Context, group string, repository string, branch string) (*models.Build, error) {
+// GetBuildStatus provides a mock function with given fields: ctx, group, repository, branch
+func (_m *Repository) GetBuildStatus(ctx context.Context, group string, repository string, branch string) (*models.Build, error) {
 	ret := _m.Called(ctx, group, repository, branch)
 
 	var r0 *models.Build

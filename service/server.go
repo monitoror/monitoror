@@ -22,7 +22,7 @@ type (
 		// Echo Server
 		*echo.Echo
 
-		// Config
+		// GetConfig
 		config *config.Config
 
 		// Middleware
@@ -104,7 +104,7 @@ func (s *Server) initFront() {
 	// Never use constant or variable according to docs : https://github.com/GeertJohan/go.rice#calling-findbox-and-mustfindbox
 	frontAssets, err := rice.FindBox("../front/dist")
 	if err != nil {
-		panic("static front/dist not found. Build them with `cd front && yarn run build` first.")
+		panic("static front/dist not found. GetBuildStatus them with `cd front && yarn run build` first.")
 	}
 
 	assetHandler := http.FileServer(frontAssets.HTTPBox())

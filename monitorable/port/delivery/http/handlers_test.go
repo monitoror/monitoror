@@ -37,12 +37,12 @@ func missingParam(t *testing.T, param string) {
 	mockUsecase := new(mocks.Usecase)
 	handler := NewHttpPortDelivery(mockUsecase)
 	// Test
-	err := handler.GetPort(ctx)
+	err := handler.MonitorPort(ctx)
 	assert.Error(t, err)
 	assert.IsType(t, &mErrors.QueryParamsError{}, err)
 }
 
-func TestDelivery_GetPort_Success(t *testing.T) {
+func TestDelivery_MonitorPort_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
@@ -59,7 +59,7 @@ func TestDelivery_GetPort_Success(t *testing.T) {
 	assert.NoError(t, err, "unable to marshal tile")
 
 	// Test
-	if assert.NoError(t, handler.GetPort(ctx)) {
+	if assert.NoError(t, handler.MonitorPort(ctx)) {
 		assert.Equal(t, http.StatusOK, res.Code)
 		assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
 		mockUsecase.AssertNumberOfCalls(t, "Port", 1)
@@ -67,15 +67,15 @@ func TestDelivery_GetPort_Success(t *testing.T) {
 	}
 }
 
-func TestDelivery_GetPort_QueryParamsError_MissingHostname(t *testing.T) {
+func TestDelivery_MonitorPort_QueryParamsError_MissingHostname(t *testing.T) {
 	missingParam(t, "hostname")
 }
 
-func TestDelivery_GetPort_QueryParamsError_MissingPort(t *testing.T) {
+func TestDelivery_MonitorPort_QueryParamsError_MissingPort(t *testing.T) {
 	missingParam(t, "port")
 }
 
-func TestDelivery_GetPort_Error(t *testing.T) {
+func TestDelivery_MonitorPort_Error(t *testing.T) {
 	// Init
 	ctx, _ := initEcho()
 
@@ -84,7 +84,7 @@ func TestDelivery_GetPort_Error(t *testing.T) {
 	handler := NewHttpPortDelivery(mockUsecase)
 
 	// Test
-	assert.Error(t, handler.GetPort(ctx))
+	assert.Error(t, handler.MonitorPort(ctx))
 	mockUsecase.AssertNumberOfCalls(t, "Port", 1)
 	mockUsecase.AssertExpectations(t)
 }

@@ -40,12 +40,12 @@ func missingParam(t *testing.T, param string) {
 	handler := NewHttpTravisCIDelivery(mockUsecase)
 
 	// Test
-	err := handler.GetTravisCIBuild(ctx)
+	err := handler.MonitorBuild(ctx)
 	assert.Error(t, err)
 	assert.IsType(t, &mErrors.QueryParamsError{}, err)
 }
 
-func TestDelivery_GetTravisCIBuild_Success(t *testing.T) {
+func TestDelivery_MonitorBuild_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
@@ -62,7 +62,7 @@ func TestDelivery_GetTravisCIBuild_Success(t *testing.T) {
 	assert.NoError(t, err, "unable to marshal tile")
 
 	// Test
-	if assert.NoError(t, handler.GetTravisCIBuild(ctx)) {
+	if assert.NoError(t, handler.MonitorBuild(ctx)) {
 		assert.Equal(t, http.StatusOK, res.Code)
 		assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
 		mockUsecase.AssertNumberOfCalls(t, "Build", 1)
@@ -70,15 +70,15 @@ func TestDelivery_GetTravisCIBuild_Success(t *testing.T) {
 	}
 }
 
-func TestDelivery_GetTravisCIBuild_QueryParamsError_MissingGroup(t *testing.T) {
+func TestDelivery_MonitorBuild_QueryParamsError_MissingGroup(t *testing.T) {
 	missingParam(t, "group")
 }
 
-func TestDelivery_GetTravisCIBuild_QueryParamsError_MissingRepository(t *testing.T) {
+func TestDelivery_MonitorBuild_QueryParamsError_MissingRepository(t *testing.T) {
 	missingParam(t, "repository")
 }
 
-func TestDelivery_GetTravisCIBuild_QueryParamsError_MissingBranch(t *testing.T) {
+func TestDelivery_MonitorBuild_QueryParamsError_MissingBranch(t *testing.T) {
 	missingParam(t, "branch")
 }
 
@@ -91,7 +91,7 @@ func TestDelivery_GetPing_Error(t *testing.T) {
 	handler := NewHttpTravisCIDelivery(mockUsecase)
 
 	// Test
-	assert.Error(t, handler.GetTravisCIBuild(ctx))
+	assert.Error(t, handler.MonitorBuild(ctx))
 	mockUsecase.AssertNumberOfCalls(t, "Build", 1)
 	mockUsecase.AssertExpectations(t)
 }

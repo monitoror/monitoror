@@ -38,7 +38,7 @@ func (s *Server) registerPing(configHelper config.Helper) {
 	delivery := _pingDelivery.NewHttpPingDelivery(usecase)
 
 	// Register route to echo
-	route := s.v1.GET("/ping", delivery.GetPing)
+	route := s.v1.GET("/ping", delivery.MonitorPing)
 
 	// Register param and path to config usecase
 	configHelper.RegisterTile(ping.PingTileType, route.Path, &_pingModels.PingParams{})
@@ -51,7 +51,7 @@ func (s *Server) registerPort(configHelper config.Helper) {
 	delivery := _portDelivery.NewHttpPortDelivery(usecase)
 
 	// Register route to echo
-	route := s.v1.GET("/port", delivery.GetPort)
+	route := s.v1.GET("/port", delivery.MonitorPort)
 
 	// Register param and path to config usecase
 	configHelper.RegisterTile(port.PortTileType, route.Path, &_portModels.PortParams{})
@@ -70,7 +70,7 @@ func (s *Server) registerTravisCI(configHelper config.Helper) {
 
 	// Register route to echo
 	travisCIGroup := s.v1.Group("/travisci")
-	route := travisCIGroup.GET("/build", delivery.GetTravisCIBuild)
+	route := travisCIGroup.GET("/build", delivery.MonitorBuild)
 
 	// Register param and path to config usecase
 	configHelper.RegisterTile(travisci.TravisCIBuildTileType, route.Path, &_travisciModels.BuildParams{})

@@ -39,9 +39,9 @@ func NewTravisCIRepository(conf *config.Config) travisci.Repository {
 	}
 }
 
-//Build fetch build information from travis-ci
-func (r *travisCIRepository) Build(ctx context.Context, group, repository, branch string) (build *models.Build, err error) {
-	// Config
+//GetBuildStatus fetch build information from travis-ci
+func (r *travisCIRepository) GetBuildStatus(ctx context.Context, group, repository, branch string) (build *models.Build, err error) {
+	// GetConfig
 	repoSlug := fmt.Sprintf("%s/%s", group, repository)
 	options := &travis.BuildsByRepoOption{
 		BranchName: []string{branch},

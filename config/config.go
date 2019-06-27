@@ -21,7 +21,7 @@ type (
 		//DownstreamCache is used to respond after executing the request in case of timeout error.
 		DownstreamCache Cache `json:"downstreamCache"`
 
-		//Monitorables Config
+		//Monitorables GetConfig
 		Monitorable Monitorable `json:"monitorable"`
 	}
 

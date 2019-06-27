@@ -36,7 +36,7 @@ func TestDelivery_GetConfig_Success(t *testing.T) {
 	}
 
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("Config", Anything).Return(config, nil)
+	mockUsecase.On("GetConfig", Anything).Return(config, nil)
 	mockUsecase.On("Verify", Anything).Return(nil)
 	mockUsecase.On("Hydrate", Anything, Anything).Return(nil)
 	handler := NewHttpConfigDelivery(mockUsecase)
@@ -49,7 +49,7 @@ func TestDelivery_GetConfig_Success(t *testing.T) {
 	if assert.NoError(t, handler.GetConfig(ctx)) {
 		assert.Equal(t, http.StatusOK, res.Code)
 		assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
-		mockUsecase.AssertNumberOfCalls(t, "Config", 1)
+		mockUsecase.AssertNumberOfCalls(t, "GetConfig", 1)
 		mockUsecase.AssertNumberOfCalls(t, "Verify", 1)
 		mockUsecase.AssertNumberOfCalls(t, "Hydrate", 1)
 		mockUsecase.AssertExpectations(t)
@@ -76,12 +76,12 @@ func TestDelivery_GetConfig_ErrorConfig(t *testing.T) {
 	ctx.QueryParams().Set("url", "test.com")
 
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("Config", Anything).Return(nil, errors.New("boom"))
+	mockUsecase.On("GetConfig", Anything).Return(nil, errors.New("boom"))
 	handler := NewHttpConfigDelivery(mockUsecase)
 
 	// Test
 	if assert.Error(t, handler.GetConfig(ctx)) {
-		mockUsecase.AssertNumberOfCalls(t, "Config", 1)
+		mockUsecase.AssertNumberOfCalls(t, "GetConfig", 1)
 		mockUsecase.AssertExpectations(t)
 	}
 }
@@ -92,13 +92,13 @@ func TestDelivery_GetConfig_ErrorVerify(t *testing.T) {
 	ctx.QueryParams().Set("url", "test.com")
 
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("Config", Anything).Return(nil, nil)
+	mockUsecase.On("GetConfig", Anything).Return(nil, nil)
 	mockUsecase.On("Verify", Anything).Return(errors.New("boom"))
 	handler := NewHttpConfigDelivery(mockUsecase)
 
 	// Test
 	if assert.Error(t, handler.GetConfig(ctx)) {
-		mockUsecase.AssertNumberOfCalls(t, "Config", 1)
+		mockUsecase.AssertNumberOfCalls(t, "GetConfig", 1)
 		mockUsecase.AssertNumberOfCalls(t, "Verify", 1)
 		mockUsecase.AssertExpectations(t)
 	}
@@ -110,14 +110,14 @@ func TestDelivery_GetConfig_ErrorHydrate(t *testing.T) {
 	ctx.QueryParams().Set("url", "test.com")
 
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("Config", Anything).Return(nil, nil)
+	mockUsecase.On("GetConfig", Anything).Return(nil, nil)
 	mockUsecase.On("Verify", Anything).Return(nil)
 	mockUsecase.On("Hydrate", Anything, Anything).Return(errors.New("boom"))
 	handler := NewHttpConfigDelivery(mockUsecase)
 
 	// Test
 	if assert.Error(t, handler.GetConfig(ctx)) {
-		mockUsecase.AssertNumberOfCalls(t, "Config", 1)
+		mockUsecase.AssertNumberOfCalls(t, "GetConfig", 1)
 		mockUsecase.AssertNumberOfCalls(t, "Verify", 1)
 		mockUsecase.AssertNumberOfCalls(t, "Hydrate", 1)
 		mockUsecase.AssertExpectations(t)

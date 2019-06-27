@@ -46,7 +46,7 @@ type (
 		tileConfigs map[tiles.TileType]*TileConfig
 	}
 
-	// TileConfig struct is used by Config endpoint to check / hydrate config
+	// TileConfig struct is used by GetConfig endpoint to check / hydrate config
 	TileConfig struct {
 		Path      string
 		Validator utils.Validator
@@ -67,8 +67,8 @@ func (cu *configUsecase) RegisterTile(tileType tiles.TileType, path string, vali
 	}
 }
 
-//Config load and parse Config
-func (cu *configUsecase) Config(params *models.ConfigParams) (config *models.Config, err error) {
+//GetConfig load and parse GetConfig
+func (cu *configUsecase) GetConfig(params *models.ConfigParams) (config *models.Config, err error) {
 	if params.Url != "" {
 		config, err = cu.repository.GetConfigFromUrl(params.Url)
 	} else if params.Path != "" {

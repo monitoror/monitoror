@@ -49,7 +49,7 @@ func TestRepository_Build_Error(t *testing.T) {
 
 	repository := initRepository(t, mockTravis)
 	if repository != nil {
-		_, err := repository.Build(context.Background(), "test", "test", "test")
+		_, err := repository.GetBuildStatus(context.Background(), "test", "test", "test")
 		assert.Error(t, err)
 		assert.Equal(t, travisErr, err)
 		mockTravis.AssertNumberOfCalls(t, "ListByRepoSlug", 1)
@@ -64,7 +64,7 @@ func TestRepository_Build_NoBuild(t *testing.T) {
 
 	repository := initRepository(t, mockTravis)
 	if repository != nil {
-		build, err := repository.Build(context.Background(), "test", "test", "test")
+		build, err := repository.GetBuildStatus(context.Background(), "test", "test", "test")
 		assert.NoError(t, err)
 		assert.Nil(t, build)
 		mockTravis.AssertNumberOfCalls(t, "ListByRepoSlug", 1)
@@ -111,7 +111,7 @@ func TestRepository_Build_Success(t *testing.T) {
 
 	repository := initRepository(t, mockTravis)
 	if repository != nil {
-		build, err := repository.Build(context.Background(), "test", "test", "test")
+		build, err := repository.GetBuildStatus(context.Background(), "test", "test", "test")
 		assert.NoError(t, err)
 		assert.Equal(t, expectedBuild, build)
 		mockTravis.AssertNumberOfCalls(t, "ListByRepoSlug", 1)

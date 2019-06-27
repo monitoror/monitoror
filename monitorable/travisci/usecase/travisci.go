@@ -40,7 +40,7 @@ func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *BuildTile, e
 	ctx, _ = context.WithTimeout(ctx, time.Duration(tu.config.Monitorable.TravisCI.Timeout)*time.Millisecond)
 
 	// Request
-	build, err := tu.repository.Build(ctx, params.Group, params.Repository, params.Branch)
+	build, err := tu.repository.GetBuildStatus(ctx, params.Group, params.Repository, params.Branch)
 	if err != nil {
 		if err == context.DeadlineExceeded || strings.Contains(err.Error(), "no such host") || strings.Contains(err.Error(), "dial tcp: lookup") {
 			err = errors.NewTimeoutError(tile.Tile, "Timeout/Host Unreachable")

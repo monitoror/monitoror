@@ -24,7 +24,7 @@ func (pu *pingUsecase) Ping(params *models.PingParams) (tile *HealthTile, err er
 	tile = NewHealthTile(ping.PingTileType)
 	tile.Label = params.Hostname
 
-	ping, err := pu.repository.Ping(context.Background(), params.Hostname)
+	ping, err := pu.repository.ExecutePing(context.Background(), params.Hostname)
 	if err == nil {
 		tile.Status = SuccessStatus
 		tile.Message = ping.Average.String()

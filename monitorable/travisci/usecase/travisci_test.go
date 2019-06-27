@@ -25,7 +25,7 @@ var group, repo, branch = "test", "test", "master"
 
 func TestBuild_Error_NoHost(t *testing.T) {
 	mockRepository := new(mocks.Repository)
-	mockRepository.On("Build", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
+	mockRepository.On("GetBuildStatus", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(nil, errors.New("no such host"))
 
 	conf := config.InitConfig()
@@ -35,14 +35,14 @@ func TestBuild_Error_NoHost(t *testing.T) {
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
 		assert.IsType(t, &mErrors.TimeoutError{}, err)
-		mockRepository.AssertNumberOfCalls(t, "Build", 1)
+		mockRepository.AssertNumberOfCalls(t, "GetBuildStatus", 1)
 		mockRepository.AssertExpectations(t)
 	}
 }
 
 func TestBuild_Error_NoNetwork(t *testing.T) {
 	mockRepository := new(mocks.Repository)
-	mockRepository.On("Build", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
+	mockRepository.On("GetBuildStatus", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(nil, errors.New("dial tcp: lookup"))
 
 	conf := config.InitConfig()
@@ -52,14 +52,14 @@ func TestBuild_Error_NoNetwork(t *testing.T) {
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
 		assert.IsType(t, &mErrors.TimeoutError{}, err)
-		mockRepository.AssertNumberOfCalls(t, "Build", 1)
+		mockRepository.AssertNumberOfCalls(t, "GetBuildStatus", 1)
 		mockRepository.AssertExpectations(t)
 	}
 }
 
 func TestBuild_Timeout(t *testing.T) {
 	mockRepository := new(mocks.Repository)
-	mockRepository.On("Build", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
+	mockRepository.On("GetBuildStatus", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(nil, context.DeadlineExceeded)
 
 	conf := config.InitConfig()
@@ -69,14 +69,14 @@ func TestBuild_Timeout(t *testing.T) {
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
 		assert.IsType(t, &mErrors.TimeoutError{}, err)
-		mockRepository.AssertNumberOfCalls(t, "Build", 1)
+		mockRepository.AssertNumberOfCalls(t, "GetBuildStatus", 1)
 		mockRepository.AssertExpectations(t)
 	}
 }
 
 func TestBuild_Error_System(t *testing.T) {
 	mockRepository := new(mocks.Repository)
-	mockRepository.On("Build", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
+	mockRepository.On("GetBuildStatus", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(nil, errors.New("boom"))
 
 	conf := config.InitConfig()
@@ -86,14 +86,14 @@ func TestBuild_Error_System(t *testing.T) {
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
 		assert.IsType(t, &mErrors.SystemError{}, err)
-		mockRepository.AssertNumberOfCalls(t, "Build", 1)
+		mockRepository.AssertNumberOfCalls(t, "GetBuildStatus", 1)
 		mockRepository.AssertExpectations(t)
 	}
 }
 
 func TestBuild_Error_NoBuild(t *testing.T) {
 	mockRepository := new(mocks.Repository)
-	mockRepository.On("Build", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
+	mockRepository.On("GetBuildStatus", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(nil, nil)
 
 	conf := config.InitConfig()
@@ -103,7 +103,7 @@ func TestBuild_Error_NoBuild(t *testing.T) {
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
 		assert.IsType(t, &mErrors.NoBuildError{}, err)
-		mockRepository.AssertNumberOfCalls(t, "Build", 1)
+		mockRepository.AssertNumberOfCalls(t, "GetBuildStatus", 1)
 		mockRepository.AssertExpectations(t)
 	}
 }
@@ -112,7 +112,7 @@ func TestBuild_Success(t *testing.T) {
 	build := buildResponse(branch, "passed", "", time.Now(), time.Now(), 100)
 
 	mockRepository := new(mocks.Repository)
-	mockRepository.On("Build", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
+	mockRepository.On("GetBuildStatus", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(build, nil)
 
 	conf := config.InitConfig()
@@ -141,7 +141,7 @@ func TestBuild_Success(t *testing.T) {
 			assert.True(t, ok)
 			assert.Equal(t, build.Duration, previousDuration)
 
-			mockRepository.AssertNumberOfCalls(t, "Build", 1)
+			mockRepository.AssertNumberOfCalls(t, "GetBuildStatus", 1)
 			mockRepository.AssertExpectations(t)
 		}
 	}
@@ -151,7 +151,7 @@ func TestBuild_Failed(t *testing.T) {
 	build := buildResponse(branch, "failed", "", time.Now(), time.Now(), 100)
 
 	mockRepository := new(mocks.Repository)
-	mockRepository.On("Build", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
+	mockRepository.On("GetBuildStatus", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(build, nil)
 
 	conf := config.InitConfig()
@@ -178,7 +178,7 @@ func TestBuild_Failed(t *testing.T) {
 			_, ok = tUsecase.estimatedDurations[tile.Label]
 			assert.False(t, ok)
 
-			mockRepository.AssertNumberOfCalls(t, "Build", 1)
+			mockRepository.AssertNumberOfCalls(t, "GetBuildStatus", 1)
 			mockRepository.AssertExpectations(t)
 		}
 	}
@@ -188,7 +188,7 @@ func TestBuild_Queued(t *testing.T) {
 	build := buildResponse(branch, "received", "passed", time.Now(), time.Time{}, 100)
 
 	mockRepository := new(mocks.Repository)
-	mockRepository.On("Build", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
+	mockRepository.On("GetBuildStatus", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(build, nil)
 
 	conf := config.InitConfig()
@@ -217,7 +217,7 @@ func TestBuild_Running(t *testing.T) {
 	build := buildResponse(branch, "started", "passed", time.Now(), time.Time{}, 100)
 
 	mockRepository := new(mocks.Repository)
-	mockRepository.On("Build", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
+	mockRepository.On("GetBuildStatus", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(build, nil)
 
 	conf := config.InitConfig()
@@ -253,7 +253,7 @@ func TestBuild_Running(t *testing.T) {
 			assert.Equal(t, expected, tile)
 		}
 
-		mockRepository.AssertNumberOfCalls(t, "Build", 2)
+		mockRepository.AssertNumberOfCalls(t, "GetBuildStatus", 2)
 		mockRepository.AssertExpectations(t)
 	}
 }

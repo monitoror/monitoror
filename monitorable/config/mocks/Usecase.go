@@ -14,8 +14,8 @@ type Usecase struct {
 	mock.Mock
 }
 
-// Config provides a mock function with given fields: params
-func (_m *Usecase) Config(params *models.ConfigParams) (*models.Config, error) {
+// GetConfig provides a mock function with given fields: params
+func (_m *Usecase) GetConfig(params *models.ConfigParams) (*models.Config, error) {
 	ret := _m.Called(params)
 
 	var r0 *models.Config
