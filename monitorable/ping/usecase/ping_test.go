@@ -17,7 +17,7 @@ import (
 func TestUsecase_Ping_Success(t *testing.T) {
 	// Init
 	mockRepo := new(mocks.Repository)
-	mockRepo.On("ExecutePing", Anything, AnythingOfType("string")).Return(&models.Ping{
+	mockRepo.On("ExecutePing", AnythingOfType("string")).Return(&models.Ping{
 		Average: time.Second,
 		Min:     time.Second,
 		Max:     time.Second,
@@ -48,7 +48,7 @@ func TestUsecase_Ping_Success(t *testing.T) {
 func TestUsecase_Ping_Fail(t *testing.T) {
 	// Init
 	mockRepo := new(mocks.Repository)
-	mockRepo.On("ExecutePing", Anything, AnythingOfType("string")).Return(nil, errors.New("ping error"))
+	mockRepo.On("ExecutePing", AnythingOfType("string")).Return(nil, errors.New("ping error"))
 
 	usecase := NewPingUsecase(mockRepo)
 

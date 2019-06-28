@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"context"
 	"errors"
 	"time"
 
@@ -22,7 +21,7 @@ func NewPingRepository(config *config.Config) ping.Repository {
 	return &pingRepository{config}
 }
 
-func (r *pingRepository) ExecutePing(ctx context.Context, hostname string) (*models.Ping, error) {
+func (r *pingRepository) ExecutePing(hostname string) (*models.Ping, error) {
 	pinger, err := goPing.NewPinger(hostname)
 	if err != nil {
 		return nil, err

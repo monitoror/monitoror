@@ -3,13 +3,13 @@ package config
 import (
 	"github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/config/models"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils"
+	. "github.com/monitoror/monitoror/pkg/monitoror/utils/validator"
 )
 
 // Usecase represent the config's usecases
 type (
 	Helper interface {
-		RegisterTile(tileType tiles.TileType, path string, validator utils.Validator)
+		RegisterTile(tileType tiles.TileType, path string, validator Validator)
 	}
 
 	Usecase interface {

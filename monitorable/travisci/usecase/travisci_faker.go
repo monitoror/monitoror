@@ -16,7 +16,7 @@ import (
 	"github.com/monitoror/monitoror/monitorable/travisci/models"
 )
 
-var AvailableStatus = []TileStatus{SuccessStatus, FailedStatus, RunningStatus, QueuedStatus, WarningStatus}
+var AvailableStatus = []TileStatus{SuccessStatus, FailedStatus, AbortedStatus, RunningStatus, QueuedStatus, WarningStatus}
 var AvailablePreviousStatus = []TileStatus{SuccessStatus, FailedStatus}
 
 type (
@@ -61,7 +61,7 @@ func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *BuildTile, e
 		tile.FinishedAt = ToInt64(nonempty.Int64(params.FinishedAt, *tile.StartedAt+rand.Int63n(3600)))
 	}
 
-	if tile.Status == QueuedStatus || tile.Status == RunningStatus {
+	if tile.Status == QueuedStatus || tile.Status == AbortedStatus || tile.Status == RunningStatus {
 		tile.StartedAt = ToInt64(nonempty.Int64(params.StartedAt, time.Now().Unix()-rand.Int63n(3600)))
 		tile.PreviousStatus = nonempty.Struct(params.PreviousStatus, randomStatus(AvailablePreviousStatus)).(TileStatus)
 	}

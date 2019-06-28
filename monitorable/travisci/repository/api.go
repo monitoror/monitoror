@@ -40,23 +40,18 @@ func NewTravisCIRepository(conf *config.Config) travisci.Repository {
 }
 
 //GetBuildStatus fetch build information from travis-ci
-func (r *travisCIRepository) GetBuildStatus(ctx context.Context, group, repository, branch string) (build *models.Build, err error) {
+func (r *travisCIRepository) GetLastBuildStatus(group, repository, branch string) (build *models.Build, err error) {
 	// GetConfig
 	repoSlug := fmt.Sprintf("%s/%s", group, repository)
 	options := &travis.BuildsByRepoOption{
 		BranchName: []string{branch},
 		EventType:  []string{travis.BuildEventTypePush},
 		Limit:      1,
-		State: []string{
-			travis.BuildStatePassed,
-			travis.BuildStateFailed,
-			travis.BuildStateStarted,
-			travis.BuildStateReceived,
-			travis.BuildStateCreated,
-			travis.BuildStateErrored,
-		},
-		Include: []string{"build.commit"},
+		Include:    []string{"build.commit"},
 	}
+
+	ctx := context.Background()
+	ctx, _ = context.WithTimeout(ctx, time.Duration(r.config.Monitorable.TravisCI.Timeout)*time.Millisecond)
 
 	// Request
 	builds, _, err := r.travisBuildsApi.ListByRepoSlug(ctx, repoSlug, options)
@@ -76,11 +71,10 @@ func (r *travisCIRepository) GetBuildStatus(ctx context.Context, group, reposito
 			Name:      tBuild.Commit.Author.Name,
 			AvatarUrl: tBuild.Commit.Author.AvatarURL,
 		},
-		State:         *tBuild.State,
-		PreviousState: *tBuild.PreviousState,
-		StartedAt:     parseDate(*tBuild.StartedAt),
-		FinishedAt:    parseDate(*tBuild.FinishedAt),
-		Duration:      parseDuration(*tBuild.Duration),
+		State:      *tBuild.State,
+		StartedAt:  parseDate(*tBuild.StartedAt),
+		FinishedAt: parseDate(*tBuild.FinishedAt),
+		Duration:   parseDuration(*tBuild.Duration),
 	}
 
 	return

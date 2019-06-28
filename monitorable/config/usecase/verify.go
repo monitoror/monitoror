@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/monitoror/monitoror/pkg/monitoror/utils"
+	. "github.com/monitoror/monitoror/pkg/monitoror/utils/validator"
 
 	"github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/config/models"
@@ -107,7 +107,7 @@ func (cu *configUsecase) verifyTile(tile map[string]interface{}, group bool, err
 	bParams, _ := json.Marshal(tile[ParamsKey])
 	unmarshalErr := json.Unmarshal(bParams, &rInstance)
 
-	if unmarshalErr != nil || !rInstance.(utils.Validator).IsValid() {
+	if unmarshalErr != nil || !rInstance.(Validator).IsValid() {
 		err.Add(fmt.Sprintf(`Invalid params definition for "%s": "%s".`, tile[TypeKey], string(bParams)))
 		return
 	}

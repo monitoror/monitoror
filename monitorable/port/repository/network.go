@@ -1,7 +1,6 @@
 package repository
 
 import (
-	"context"
 	"fmt"
 	"net"
 	"time"
@@ -23,7 +22,7 @@ func NewPortRepository(conf *config.Config) port.Repository {
 	return &portRepository{conf, &net.Dialer{Timeout: timeout}}
 }
 
-func (r *portRepository) OpenSocket(ctx context.Context, hostname string, port int) (err error) {
+func (r *portRepository) OpenSocket(hostname string, port int) (err error) {
 	target := fmt.Sprintf("%s:%d", hostname, port)
 
 	conn, err := r.dialer.Dial("tcp", target)

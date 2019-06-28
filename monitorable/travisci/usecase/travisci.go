@@ -8,9 +8,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/monitoror/monitoror/pkg/monitoror/cache"
+
 	. "github.com/AlekSi/pointer"
 
-	"github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/models/errors"
 
 	. "github.com/monitoror/monitoror/models/tiles"
@@ -20,27 +21,25 @@ import (
 
 type (
 	travisCIUsecase struct {
-		config     *config.Config
 		repository travisci.Repository
 
-		// Estimated duration cache
-		estimatedDurations map[string]time.Duration
+		// builds cache
+		buildsCache *cache.BuildCache
 	}
 )
 
-func NewTravisCIUsecase(conf *config.Config, repository travisci.Repository) travisci.Usecase {
-	return &travisCIUsecase{conf, repository, make(map[string]time.Duration)}
+const cacheSize = 5
+
+func NewTravisCIUsecase(repository travisci.Repository) travisci.Usecase {
+	return &travisCIUsecase{repository, cache.NewBuildCache(cacheSize)}
 }
 
 func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *BuildTile, err error) {
 	tile = NewBuildTile(travisci.TravisCIBuildTileType)
 	tile.Label = fmt.Sprintf("%s : #%s", params.Repository, params.Branch)
 
-	ctx := context.Background()
-	ctx, _ = context.WithTimeout(ctx, time.Duration(tu.config.Monitorable.TravisCI.Timeout)*time.Millisecond)
-
 	// Request
-	build, err := tu.repository.GetBuildStatus(ctx, params.Group, params.Repository, params.Branch)
+	build, err := tu.repository.GetLastBuildStatus(params.Group, params.Repository, params.Branch)
 	if err != nil {
 		if err == context.DeadlineExceeded || strings.Contains(err.Error(), "no such host") || strings.Contains(err.Error(), "dial tcp: lookup") {
 			err = errors.NewTimeoutError(tile.Tile, "Timeout/Host Unreachable")
@@ -54,28 +53,39 @@ func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *BuildTile, e
 		return nil, err
 	}
 
-	// Parsing to BuildTile
+	// Set Status
 	tile.Status = parseState(build.State)
+
+	// Set Previous Status
+	if tile.Status == RunningStatus || tile.Status == AbortedStatus || tile.Status == QueuedStatus {
+		previousStatus := tu.buildsCache.GetPreviousStatus(tile.Label)
+		if previousStatus != nil {
+			tile.PreviousStatus = *previousStatus
+		} else {
+			tile.PreviousStatus = UnknownStatus
+		}
+	}
+
+	// Set StartedAt
 	if !build.StartedAt.IsZero() {
 		tile.StartedAt = ToInt64(build.StartedAt.Unix())
 	}
+	// Set FinishedAt
 	if !build.FinishedAt.IsZero() {
 		tile.FinishedAt = ToInt64(build.FinishedAt.Unix())
 	}
 
-	if tile.Status == RunningStatus || tile.Status == QueuedStatus {
-		tile.PreviousStatus = parseState(build.PreviousState)
-	}
-
+	// Set Duration / EstimatedDuration
 	if tile.Status == RunningStatus {
 		tile.Duration = ToInt64(int64(time.Now().Sub(build.StartedAt).Seconds()))
 
-		// Use cached estimated duration
-		if estimatedDuration, ok := tu.estimatedDurations[tile.Label]; ok {
-			tile.EstimatedDuration = ToInt64(int64(estimatedDuration / time.Second))
+		estimatedDuration := tu.buildsCache.GetEstimatedDuration(tile.Label)
+		if estimatedDuration != nil {
+			tile.EstimatedDuration = ToInt64(int64(*estimatedDuration / time.Second))
 		}
 	}
 
+	// Set Author
 	if build.Author.Name != "" || build.Author.AvatarUrl != "" {
 		tile.Author = &Author{
 			Name:      build.Author.Name,
@@ -83,9 +93,9 @@ func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *BuildTile, e
 		}
 	}
 
-	// Cache Duration when success
-	if tile.Status == SuccessStatus {
-		tu.estimatedDurations[tile.Label] = build.Duration
+	// Cache Duration when success / failed
+	if tile.Status == SuccessStatus || tile.Status == FailedStatus {
+		tu.buildsCache.Add(tile.Label, tile.Status, build.Duration)
 	}
 
 	return
@@ -105,6 +115,8 @@ func parseState(state string) TileStatus {
 		return FailedStatus
 	case "errored":
 		return FailedStatus
+	case "canceled":
+		return AbortedStatus
 	default:
 		return UnknownStatus
 	}

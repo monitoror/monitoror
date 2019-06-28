@@ -15,13 +15,14 @@ type (
 	TileStatus   string // SUCCESS, FAILURE ...
 )
 
-// List of all Response Code
+// List of all Status Code
 const (
 	SuccessStatus  TileStatus = "SUCCESS"
 	FailedStatus   TileStatus = "FAILURE"
 	RunningStatus  TileStatus = "RUNNING"
 	QueuedStatus   TileStatus = "QUEUED"
+	DisabledStatus TileStatus = "DISABLED"
+	AbortedStatus  TileStatus = "ABORTED"
 	WarningStatus  TileStatus = "WARNING"
-	CanceledStatus TileStatus = "CANCELED"
 	UnknownStatus  TileStatus = "UNKNOWN"
 )

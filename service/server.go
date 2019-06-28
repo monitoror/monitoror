@@ -137,6 +137,9 @@ func (s *Server) initApis() {
 
 	// ------------- TRAVIS-CI ------------- //
 	s.registerTravisCI(configHelper)
+
+	// ------------- JENKINS ------------- //
+	s.registerJenkins(configHelper)
 }
 
 func logStatus(name interface{}, enabled bool) {
