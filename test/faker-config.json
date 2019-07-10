@@ -1,0 +1,23 @@
+{
+  "columns": 4,
+  "tiles": [
+    { "type": "ping", "label": "test1" ,"params": { "hostname": "test.com", "status": "SUCCESS" } },
+    { "type": "ping", "label": "test2" ,"params": { "hostname": "test.com", "status": "FAILURE" } },
+    { "type": "port", "params": { "hostname": "bserver.com", "port": 22, "status": "SUCCESS" } },
+    { "type": "port", "params": { "hostname": "bserver.com", "port": 22, "status": "FAILURE" } },
+    { "type": "group", "label": "Group SUCCESS", "tiles": [
+      { "type": "ping", "params": { "hostname": "test.com", "status": "SUCCESS" } },
+      { "type": "port", "params": { "hostname": "bserver.com", "port": 22, "status": "SUCCESS" } }
+    ]},
+    { "type": "group", "label": "Group FAILURE", "tiles": [
+      { "type": "ping", "params": { "hostname": "test.com", "status": "FAILURE" } },
+      { "type": "port", "params": { "hostname": "bserver.com", "port": 22, "status": "FAILURE" } }
+    ]},
+    { "type": "group", "tiles": [
+      { "type": "ping", "params": { "hostname": "test.com", "status": "SUCCESS" } },
+      { "type": "port", "params": { "hostname": "bserver.com", "port": 22, "status": "FAILURE" } }
+    ]},
+    { "type": "empty" },
+    { "type": "travisci-build", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "SUCCESS" } }
+  ]
+}
