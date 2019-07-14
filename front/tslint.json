@@ -23,7 +23,9 @@
     "object-literal-sort-keys": false
   },
   "rulesDirectory": [],
-  "exclude": [
-    "node_modules"
-  ]
+  "linterOptions": {
+    "exclude": [
+      "node_modules/**"
+    ]
+  }
 }

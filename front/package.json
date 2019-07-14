@@ -10,9 +10,13 @@
   },
   "main": "index.js",
   "dependencies": {
+    "@babel/core": "^7.5.4",
+    "core-js": "^3.1.4",
+    "date-fns": "^1.30.1",
     "vue": "^2.6.10",
     "vue-class-component": "^7.1.0",
     "vue-property-decorator": "^8.2.1",
+    "vue-resource": "^1.5.1",
     "vuex": "^3.1.1"
   },
   "devDependencies": {
@@ -24,8 +28,7 @@
     "@vue/cli-service": "^3.9.2",
     "@vue/eslint-config-standard": "^4.0.0",
     "@vue/eslint-config-typescript": "^4.0.0",
-    "@vue/test-utils": "1.0.0-beta.29",
-    "babel-core": "7.0.0-bridge.0",
+    "@vue/test-utils": "^1.0.0-beta.29",
     "babel-eslint": "^10.0.2",
     "babel-jest": "^24.8.0",
     "eslint": "^5.16.0",
@@ -37,5 +40,11 @@
     "typescript": "^3.5.3",
     "vue-template-compiler": "^2.6.10"
   },
+  "browserslist": [
+    "defaults",
+    "not <1%",
+    "not Explorer >6",
+    "not OperaMini all"
+  ],
   "license": "MIT"
 }
