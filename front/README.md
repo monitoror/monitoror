@@ -1,4 +1,4 @@
-# monitoror
+# Monitoror
 
 ## Project setup
 ```

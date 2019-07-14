@@ -1,37 +1,41 @@
 {
   "name": "monitoror",
-  "version": "0.0.2-beta",
   "private": true,
-  "description": "Monitoring wall to health check services, servers, builds, ...",
-  "main": "index.js",
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "test": "npm-run-all lint test:unit",
     "lint": "vue-cli-service lint",
-    "test:unit": "vue-cli-service test:unit",
-    "test": "yarn run lint && yarn run test:unit"
+    "test:unit": "vue-cli-service test:unit"
   },
-  "author": "Jean-Sébastien Didierlaurent",
-  "license": "MIT",
+  "main": "index.js",
   "dependencies": {
-    "core-js": "^2.6.5",
-    "vue": "^2.6.6",
-    "vuex": "^3.0.1"
+    "vue": "^2.6.10",
+    "vue-class-component": "^7.1.0",
+    "vue-property-decorator": "^8.2.1",
+    "vuex": "^3.1.1"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^3.5.0",
-    "@vue/cli-plugin-eslint": "^3.5.0",
-    "@vue/cli-plugin-unit-jest": "^3.5.0",
-    "@vue/cli-service": "^3.5.0",
+    "@types/jest": "^24.0.15",
+    "@vue/cli-plugin-babel": "^3.9.2",
+    "@vue/cli-plugin-eslint": "^3.9.2",
+    "@vue/cli-plugin-typescript": "^3.9.0",
+    "@vue/cli-plugin-unit-jest": "^3.9.0",
+    "@vue/cli-service": "^3.9.2",
     "@vue/eslint-config-standard": "^4.0.0",
+    "@vue/eslint-config-typescript": "^4.0.0",
     "@vue/test-utils": "1.0.0-beta.29",
     "babel-core": "7.0.0-bridge.0",
-    "babel-eslint": "^10.0.1",
-    "babel-jest": "^23.6.0",
-    "eslint": "^5.8.0",
-    "eslint-plugin-vue": "^5.0.0",
-    "node-sass": "^4.9.0",
+    "babel-eslint": "^10.0.2",
+    "babel-jest": "^24.8.0",
+    "eslint": "^5.16.0",
+    "eslint-plugin-vue": "^5.2.3",
+    "node-sass": "^4.12.0",
+    "npm-run-all": "^4.1.5",
     "sass-loader": "^7.1.0",
-    "vue-template-compiler": "^2.5.21"
-  }
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.5.3",
+    "vue-template-compiler": "^2.6.10"
+  },
+  "license": "MIT"
 }
