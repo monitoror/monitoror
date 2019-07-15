@@ -126,3 +126,7 @@ func InitConfig() *Config {
 func (t *TravisCI) IsValid() bool {
 	return t.Url != ""
 }
+
+func (t *Jenkins) IsValid() bool {
+	return t.Url != ""
+}

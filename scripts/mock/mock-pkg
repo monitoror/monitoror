@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+dirs=("pkg/gotravis" "pkg/gojenkins")
+
+# Generate mocks of interfaces find inside directory listed on dirs
+for dir in "${dirs[@]}"; do
+    rm -rf ${dir}/mocks
+    mockery \
+      -dir ${dir} \
+      -output ${dir}/mocks \
+      -all \
+      -note "If you want to rebuild this file, make mock-pkg"
+done

@@ -18,9 +18,9 @@ func NewHttpJenkinsDelivery(p jenkins.Usecase) *httpJenkinsDelivery {
 	return &httpJenkinsDelivery{p}
 }
 
-func (h *httpJenkinsDelivery) MonitorBuild(c echo.Context) error {
+func (h *httpJenkinsDelivery) GetBuild(c echo.Context) error {
 	// Bind / check Params
-	params := &models.JobParams{}
+	params := &models.BuildParams{}
 	err := c.Bind(params)
 	if err != nil || !params.IsValid() {
 		return errors.NewQueryParamsError(err)

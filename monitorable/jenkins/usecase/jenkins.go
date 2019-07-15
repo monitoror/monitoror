@@ -34,7 +34,7 @@ func NewJenkinsUsecase(repository jenkins.Repository) jenkins.Usecase {
 	return &jenkinsUsecase{repository, cache.NewBuildCache(cacheSize)}
 }
 
-func (tu *jenkinsUsecase) Build(params *models.JobParams) (tile *BuildTile, err error) {
+func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *BuildTile, err error) {
 	tile = NewBuildTile(jenkins.JenkinsBuildTileType)
 
 	jobLabel, _ := url.QueryUnescape(params.Job)
@@ -47,20 +47,40 @@ func (tu *jenkinsUsecase) Build(params *models.JobParams) (tile *BuildTile, err 
 
 	job, err := tu.repository.GetJob(params.Job, params.Parent)
 	if err != nil {
-		if strings.Contains(err.Error(), "request canceled while waiting for connection") ||
+		// TODO : Replace that by errors.Is when go 1.13 will be released
+		if strings.Contains(err.Error(), "no such host") ||
+			strings.Contains(err.Error(), "dial tcp: lookup") ||
+			strings.Contains(err.Error(), "request canceled while waiting for connection") ||
 			strings.Contains(err.Error(), "unsupported protocol scheme") {
-			err = errors.NewTimeoutError(tile.Tile, "Timeout/Host Unreachable")
+			err = errors.NewTimeoutError(tile.Tile)
 		} else {
-			err = errors.NewSystemError("unable to get jenkins job", nil)
+			err = errors.NewSystemError("unable to found job", nil)
 		}
 		return nil, err
 	}
 
+	// Is Buildable
 	if !job.Buildable {
 		tile.Status = DisabledStatus
 		return
 	}
 
+	// Set Previous Status
+	previousStatus := tu.buildsCache.GetPreviousStatus(tile.Label, "null")
+	if previousStatus != nil {
+		tile.PreviousStatus = *previousStatus
+	} else {
+		tile.PreviousStatus = UnknownStatus
+	}
+
+	// Queued build
+	if job.InQueue {
+		tile.Status = QueuedStatus
+		tile.StartedAt = job.QueuedAt
+		return
+	}
+
+	// Get Last Build
 	build, err := tu.repository.GetLastBuildStatus(job)
 	if err != nil || build == nil {
 		err = errors.NewNoBuildError(tile)
@@ -68,40 +88,26 @@ func (tu *jenkinsUsecase) Build(params *models.JobParams) (tile *BuildTile, err 
 	}
 
 	// Set Status
-	if job.InQueue {
-		tile.Status = QueuedStatus
-	} else if build.Building {
+	if build.Building {
 		tile.Status = RunningStatus
 	} else {
 		tile.Status = parseResult(build.Result)
 	}
 
-	// Set Previous Status
-	if tile.Status == RunningStatus || tile.Status == QueuedStatus || tile.Status == AbortedStatus {
-		previousStatus := tu.buildsCache.GetPreviousStatus(tile.Label)
-		if previousStatus != nil {
-			tile.PreviousStatus = *previousStatus
-		} else {
-			tile.PreviousStatus = UnknownStatus
-		}
-	}
-
 	// Set StartedAt
-	if !build.StartedAt.IsZero() {
-		tile.StartedAt = ToInt64(build.StartedAt.Unix())
-	}
-	// Set FinishedAt
-	if tile.Status != RunningStatus {
-		tile.FinishedAt = ToInt64(build.StartedAt.Add(build.Duration).Unix())
-	}
+	tile.StartedAt = ToTime(build.StartedAt)
 
-	// Set Duration / EstimatedDuration
-	if tile.Status == RunningStatus {
-		tile.Duration = ToInt64(int64(build.Duration.Seconds()))
+	// Set FinishedAt Or Duration
+	if tile.Status != RunningStatus {
+		tile.FinishedAt = ToTime(build.StartedAt.Add(build.Duration))
+	} else {
+		tile.Duration = ToInt64(int64(time.Now().Sub(build.StartedAt).Seconds()))
 
 		estimatedDuration := tu.buildsCache.GetEstimatedDuration(tile.Label)
 		if estimatedDuration != nil {
-			tile.EstimatedDuration = ToInt64(int64(*estimatedDuration / time.Second))
+			tile.EstimatedDuration = ToInt64(int64(estimatedDuration.Seconds()))
+		} else {
+			tile.EstimatedDuration = ToInt64(int64(0))
 		}
 	}
 
@@ -115,7 +121,7 @@ func (tu *jenkinsUsecase) Build(params *models.JobParams) (tile *BuildTile, err 
 
 	// Cache Duration when success / failed / warning
 	if tile.Status == SuccessStatus || tile.Status == FailedStatus || tile.Status == WarningStatus {
-		tu.buildsCache.Add(tile.Label, tile.Status, build.Duration)
+		tu.buildsCache.Add(tile.Label, build.Number, tile.Status, build.Duration)
 	}
 
 	return

@@ -19,7 +19,7 @@ func NewHttpPortDelivery(p port.Usecase) *httpPortDelivery {
 	return &httpPortDelivery{p}
 }
 
-func (h *httpPortDelivery) MonitorPort(c echo.Context) error {
+func (h *httpPortDelivery) GetPort(c echo.Context) error {
 	// Bind / check Params
 	params := &models.PortParams{}
 	err := c.Bind(params)

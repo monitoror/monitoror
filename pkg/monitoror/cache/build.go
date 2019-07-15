@@ -12,6 +12,7 @@ type BuildCache struct {
 }
 
 type build struct {
+	id       string
 	status   tiles.TileStatus
 	duration time.Duration
 }
@@ -34,18 +35,35 @@ func (c *BuildCache) GetEstimatedDuration(key string) *time.Duration {
 	return &duration
 }
 
-func (c *BuildCache) GetPreviousStatus(key string) *tiles.TileStatus {
-	if _, ok := c.previousBuilds[key]; !ok {
+// Get Previous Status excluse current status in case of multiple call with the same current build
+func (c *BuildCache) GetPreviousStatus(key, id string) *tiles.TileStatus {
+	builds, ok := c.previousBuilds[key]
+	if !ok {
 		return nil
 	}
 
-	return &c.previousBuilds[key][0].status
+	previous := builds[0]
+	if previous.id == id {
+		if len(builds) == 1 {
+			return nil
+		}
+		previous = builds[1]
+	}
+
+	return &previous.status
 }
 
-func (c *BuildCache) Add(key string, s tiles.TileStatus, d time.Duration) {
+func (c *BuildCache) Add(key, id string, s tiles.TileStatus, d time.Duration) {
 	// If cache is not found, create it
 	if _, ok := c.previousBuilds[key]; !ok {
 		c.previousBuilds[key] = []build{}
+	}
+
+	// if id already exist, skip
+	for _, value := range c.previousBuilds[key] {
+		if value.id == id {
+			return
+		}
 	}
 
 	// Remove old elements
@@ -53,5 +71,5 @@ func (c *BuildCache) Add(key string, s tiles.TileStatus, d time.Duration) {
 		c.previousBuilds[key] = c.previousBuilds[key][:len(c.previousBuilds[key])-1]
 	}
 
-	c.previousBuilds[key] = append([]build{{s, d}}, c.previousBuilds[key]...)
+	c.previousBuilds[key] = append([]build{{id, s, d}}, c.previousBuilds[key]...)
 }

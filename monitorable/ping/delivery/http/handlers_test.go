@@ -29,7 +29,7 @@ func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 	return
 }
 
-func TestDelivery_MonitorPing_Success(t *testing.T) {
+func TestDelivery_PingHandler_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
@@ -47,7 +47,7 @@ func TestDelivery_MonitorPing_Success(t *testing.T) {
 	assert.NoError(t, err, "unable to marshal tile")
 
 	// Test
-	if assert.NoError(t, handler.MonitorPing(ctx)) {
+	if assert.NoError(t, handler.GetPing(ctx)) {
 		assert.Equal(t, http.StatusOK, res.Code)
 		assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
 		mockUsecase.AssertNumberOfCalls(t, "Ping", 1)
@@ -55,7 +55,7 @@ func TestDelivery_MonitorPing_Success(t *testing.T) {
 	}
 }
 
-func TestDelivery_MonitorPing_QueryParamsError(t *testing.T) {
+func TestDelivery_PingHandler_QueryParamsError(t *testing.T) {
 	// Init
 	ctx, _ := initEcho()
 	ctx.QueryParams().Del("hostname")
@@ -64,12 +64,12 @@ func TestDelivery_MonitorPing_QueryParamsError(t *testing.T) {
 	handler := NewHttpPingDelivery(mockUsecase)
 
 	// Test
-	err := handler.MonitorPing(ctx)
+	err := handler.GetPing(ctx)
 	assert.Error(t, err)
 	assert.IsType(t, &mErrors.QueryParamsError{}, err)
 }
 
-func TestDelivery_MonitorPing_Error(t *testing.T) {
+func TestDelivery_PingHandler_Error(t *testing.T) {
 	// Init
 	ctx, _ := initEcho()
 
@@ -78,7 +78,7 @@ func TestDelivery_MonitorPing_Error(t *testing.T) {
 	handler := NewHttpPingDelivery(mockUsecase)
 
 	// Test
-	assert.Error(t, handler.MonitorPing(ctx))
+	assert.Error(t, handler.GetPing(ctx))
 	mockUsecase.AssertNumberOfCalls(t, "Ping", 1)
 	mockUsecase.AssertExpectations(t)
 }

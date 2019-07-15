@@ -2,7 +2,11 @@
 
 package models
 
-import "github.com/monitoror/monitoror/models/tiles"
+import (
+	"time"
+
+	"github.com/monitoror/monitoror/models/tiles"
+)
 
 type (
 	BuildParams struct {
@@ -15,8 +19,8 @@ type (
 
 		Status            tiles.TileStatus `json:"status" query:"status"`
 		PreviousStatus    tiles.TileStatus `json:"previousStatus" query:"previousStatus"`
-		StartedAt         int64            `json:"startedAt" query:"startedAt"`
-		FinishedAt        int64            `json:"finishedAt" query:"finishedAt"`
+		StartedAt         *time.Time       `json:"startedAt" query:"startedAt"`
+		FinishedAt        *time.Time       `json:"finishedAt" query:"finishedAt"`
 		Duration          int64            `json:"duration" query:"duration"`
 		EstimatedDuration int64            `json:"estimatedDuration" query:"estimatedDuration"`
 	}

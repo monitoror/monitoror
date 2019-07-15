@@ -18,7 +18,7 @@ type (
 		config *config.Config
 
 		// Interfaces for Builds route
-		travisBuildsApi pkgTravis.Builds
+		travisBuildsApi pkgTravis.TravisCI
 	}
 )
 
@@ -66,6 +66,7 @@ func (r *travisCIRepository) GetLastBuildStatus(group, repository, branch string
 
 	tBuild := builds[0]
 	build = &models.Build{
+		Id:     *tBuild.Id,
 		Branch: *tBuild.Branch.Name,
 		Author: models.Author{
 			Name:      tBuild.Commit.Author.Name,

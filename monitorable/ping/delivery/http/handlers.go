@@ -19,7 +19,7 @@ func NewHttpPingDelivery(p ping.Usecase) *httpPingDelivery {
 	return &httpPingDelivery{p}
 }
 
-func (h *httpPingDelivery) MonitorPing(c echo.Context) error {
+func (h *httpPingDelivery) GetPing(c echo.Context) error {
 	// Bind / Check Params
 	params := &models.PingParams{}
 	err := c.Bind(params)

@@ -12,6 +12,7 @@ import (
 func TestInit_WithAllTile(t *testing.T) {
 	conf := config.InitConfig()
 	conf.Env = "Test"
+	conf.Monitorable.Jenkins.Url = "http://jenkins.test.com"
 
 	server := &Server{config: conf}
 	server.initEcho()

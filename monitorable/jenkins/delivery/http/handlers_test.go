@@ -8,10 +8,11 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/monitoror/monitoror/monitorable/travisci"
+
 	mErrors "github.com/monitoror/monitoror/models/errors"
 	"github.com/monitoror/monitoror/models/tiles"
-	"github.com/monitoror/monitoror/monitorable/travisci"
-	"github.com/monitoror/monitoror/monitorable/travisci/mocks"
+	"github.com/monitoror/monitoror/monitorable/jenkins/mocks"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -20,13 +21,12 @@ import (
 
 func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 	e := echo.New()
-	req := httptest.NewRequest(echo.GET, "/api/v1/travisci/build", nil)
+	req := httptest.NewRequest(echo.GET, "/api/v1/jenkins/build", nil)
 	res = httptest.NewRecorder()
 	ctx = e.NewContext(req, res)
 
-	ctx.QueryParams().Set("group", "test")
-	ctx.QueryParams().Set("repository", "test")
-	ctx.QueryParams().Set("branch", "master")
+	ctx.QueryParams().Set("job", "master")
+	ctx.QueryParams().Set("parent", "test")
 
 	return
 }
@@ -37,7 +37,7 @@ func missingParam(t *testing.T, param string) {
 	ctx.QueryParams().Del(param)
 
 	mockUsecase := new(mocks.Usecase)
-	handler := NewHttpTravisCIDelivery(mockUsecase)
+	handler := NewHttpJenkinsDelivery(mockUsecase)
 
 	// Test
 	err := handler.GetBuild(ctx)
@@ -55,7 +55,7 @@ func TestDelivery_BuildHandler_Success(t *testing.T) {
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Build", Anything).Return(tile, nil)
-	handler := NewHttpTravisCIDelivery(mockUsecase)
+	handler := NewHttpJenkinsDelivery(mockUsecase)
 
 	// Expected
 	json, err := json.Marshal(tile)
@@ -71,15 +71,7 @@ func TestDelivery_BuildHandler_Success(t *testing.T) {
 }
 
 func TestDelivery_BuildHandler_QueryParamsError_MissingGroup(t *testing.T) {
-	missingParam(t, "group")
-}
-
-func TestDelivery_BuildHandler_QueryParamsError_MissingRepository(t *testing.T) {
-	missingParam(t, "repository")
-}
-
-func TestDelivery_BuildHandler_QueryParamsError_MissingBranch(t *testing.T) {
-	missingParam(t, "branch")
+	missingParam(t, "job")
 }
 
 func TestDelivery_BuildHandler_Error(t *testing.T) {
@@ -87,8 +79,8 @@ func TestDelivery_BuildHandler_Error(t *testing.T) {
 	ctx, _ := initEcho()
 
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("Build", Anything).Return(nil, errors.New("ping error"))
-	handler := NewHttpTravisCIDelivery(mockUsecase)
+	mockUsecase.On("Build", Anything).Return(nil, errors.New("build error"))
+	handler := NewHttpJenkinsDelivery(mockUsecase)
 
 	// Test
 	assert.Error(t, handler.GetBuild(ctx))

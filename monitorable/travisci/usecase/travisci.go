@@ -41,8 +41,11 @@ func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *BuildTile, e
 	// Request
 	build, err := tu.repository.GetLastBuildStatus(params.Group, params.Repository, params.Branch)
 	if err != nil {
-		if err == context.DeadlineExceeded || strings.Contains(err.Error(), "no such host") || strings.Contains(err.Error(), "dial tcp: lookup") {
-			err = errors.NewTimeoutError(tile.Tile, "Timeout/Host Unreachable")
+		// TODO : Replace that by errors.Is when go 1.13 will be released
+		if err == context.DeadlineExceeded ||
+			strings.Contains(err.Error(), "no such host") ||
+			strings.Contains(err.Error(), "dial tcp: lookup") {
+			err = errors.NewTimeoutError(tile.Tile)
 		} else {
 			err = errors.NewSystemError("unable to get travisci build", nil)
 		}
@@ -57,31 +60,30 @@ func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *BuildTile, e
 	tile.Status = parseState(build.State)
 
 	// Set Previous Status
-	if tile.Status == RunningStatus || tile.Status == AbortedStatus || tile.Status == QueuedStatus {
-		previousStatus := tu.buildsCache.GetPreviousStatus(tile.Label)
-		if previousStatus != nil {
-			tile.PreviousStatus = *previousStatus
-		} else {
-			tile.PreviousStatus = UnknownStatus
-		}
+	previousStatus := tu.buildsCache.GetPreviousStatus(tile.Label, string(build.Id))
+	if previousStatus != nil {
+		tile.PreviousStatus = *previousStatus
+	} else {
+		tile.PreviousStatus = UnknownStatus
 	}
 
 	// Set StartedAt
 	if !build.StartedAt.IsZero() {
-		tile.StartedAt = ToInt64(build.StartedAt.Unix())
+		tile.StartedAt = ToTime(build.StartedAt)
 	}
 	// Set FinishedAt
 	if !build.FinishedAt.IsZero() {
-		tile.FinishedAt = ToInt64(build.FinishedAt.Unix())
+		tile.FinishedAt = ToTime(build.FinishedAt)
 	}
 
-	// Set Duration / EstimatedDuration
 	if tile.Status == RunningStatus {
 		tile.Duration = ToInt64(int64(time.Now().Sub(build.StartedAt).Seconds()))
 
 		estimatedDuration := tu.buildsCache.GetEstimatedDuration(tile.Label)
 		if estimatedDuration != nil {
-			tile.EstimatedDuration = ToInt64(int64(*estimatedDuration / time.Second))
+			tile.EstimatedDuration = ToInt64(int64(estimatedDuration.Seconds()))
+		} else {
+			tile.EstimatedDuration = ToInt64(int64(0))
 		}
 	}
 
@@ -95,7 +97,7 @@ func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *BuildTile, e
 
 	// Cache Duration when success / failed
 	if tile.Status == SuccessStatus || tile.Status == FailedStatus {
-		tu.buildsCache.Add(tile.Label, tile.Status, build.Duration)
+		tu.buildsCache.Add(tile.Label, string(build.Id), tile.Status, build.Duration)
 	}
 
 	return

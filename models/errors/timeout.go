@@ -13,12 +13,11 @@ import (
 )
 
 type TimeoutError struct {
-	Tile   *Tile
-	Reason string
+	Tile *Tile
 }
 
-func NewTimeoutError(tile *Tile, reason string) *TimeoutError {
-	return &TimeoutError{tile, reason}
+func NewTimeoutError(tile *Tile) *TimeoutError {
+	return &TimeoutError{tile}
 }
 
 // timeoutError return cached value from downstreamStore if exist
@@ -67,5 +66,5 @@ func (te *TimeoutError) Send(ctx echo.Context) {
 }
 
 func (te *TimeoutError) Error() string {
-	return fmt.Sprintf("timeout on %s request. %s", te.Tile.Type, te.Reason)
+	return fmt.Sprintf("timeout/host unreachable")
 }

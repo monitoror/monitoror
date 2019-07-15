@@ -4,6 +4,7 @@ import "time"
 
 type (
 	Build struct {
+		Id     uint
 		Branch string
 		Author Author
 

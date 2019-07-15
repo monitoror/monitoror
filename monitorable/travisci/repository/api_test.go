@@ -6,16 +6,16 @@ import (
 
 	. "github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/monitorable/travisci/models"
+	pkgTravis "github.com/monitoror/monitoror/pkg/gotravis"
 	"github.com/monitoror/monitoror/pkg/gotravis/mocks"
 
 	. "github.com/AlekSi/pointer"
-	pkgTravis "github.com/monitoror/monitoror/pkg/gotravis"
 	"github.com/shuheiktgw/go-travis"
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"
 )
 
-func initRepository(t *testing.T, buildsApi pkgTravis.Builds) *travisCIRepository {
+func initRepository(t *testing.T, buildsApi pkgTravis.TravisCI) *travisCIRepository {
 	conf := InitConfig()
 	repository := NewTravisCIRepository(conf)
 
@@ -36,11 +36,11 @@ func TestNewApiTravisCIRepository_Panic(t *testing.T) {
 	assert.Panics(t, func() { _ = NewTravisCIRepository(conf) })
 }
 
-func TestRepository_Build_Error(t *testing.T) {
+func TestRepository_GetLastBuildStatus_Error(t *testing.T) {
 	// Params
 	travisErr := errors.New("TravisCI Error")
 
-	mockTravis := new(mocks.Builds)
+	mockTravis := new(mocks.TravisCI)
 	mockTravis.On("ListByRepoSlug", Anything, AnythingOfType("string"), Anything).
 		Return([]*travis.Build{}, nil, travisErr)
 
@@ -54,8 +54,8 @@ func TestRepository_Build_Error(t *testing.T) {
 	}
 }
 
-func TestRepository_Build_NoBuild(t *testing.T) {
-	mockTravis := new(mocks.Builds)
+func TestRepository_GetLastBuildStatus_NoBuild(t *testing.T) {
+	mockTravis := new(mocks.TravisCI)
 	mockTravis.On("ListByRepoSlug", Anything, AnythingOfType("string"), Anything).
 		Return([]*travis.Build{}, nil, nil)
 
@@ -69,9 +69,10 @@ func TestRepository_Build_NoBuild(t *testing.T) {
 	}
 }
 
-func TestRepository_Build_Success(t *testing.T) {
+func TestRepository_GetLastBuildStatus_Success(t *testing.T) {
 	// Params
 	travisBuild := &travis.Build{
+		Id: ToUint(1),
 		Branch: &travis.Branch{
 			Name: ToString("test"),
 		},
@@ -88,12 +89,13 @@ func TestRepository_Build_Success(t *testing.T) {
 		Duration:      ToUint(154),
 	}
 
-	mockTravis := new(mocks.Builds)
+	mockTravis := new(mocks.TravisCI)
 	mockTravis.On("ListByRepoSlug", Anything, AnythingOfType("string"), Anything).
 		Return([]*travis.Build{travisBuild}, nil, nil)
 
 	// Expected
 	expectedBuild := &models.Build{
+		Id:     1,
 		Branch: *travisBuild.Branch.Name,
 		Author: models.Author{
 			Name:      travisBuild.Commit.Author.Name,

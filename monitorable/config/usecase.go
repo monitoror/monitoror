@@ -3,7 +3,7 @@ package config
 import (
 	"github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/config/models"
-	. "github.com/monitoror/monitoror/pkg/monitoror/utils/validator"
+	. "github.com/monitoror/monitoror/pkg/monitoror/validator"
 )
 
 // Usecase represent the config's usecases

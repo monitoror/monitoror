@@ -32,7 +32,7 @@ func TestTimeoutError_WithoutCacheStore(t *testing.T) {
 
 	// Parameters
 	tile := tiles.NewHealthTile("TEST").Tile
-	err := NewTimeoutError(tile, "service is burning")
+	err := NewTimeoutError(tile)
 
 	// Expected
 	expectedTile := tile
@@ -55,7 +55,7 @@ func TestTimeoutError_WithCastErrorOnGetCacheStore(t *testing.T) {
 
 	// Parameters
 	tile := tiles.NewHealthTile("TEST")
-	err := NewTimeoutError(tile.Tile, "service is burning")
+	err := NewTimeoutError(tile.Tile)
 
 	// Expected
 	expectedTile := tile
@@ -80,7 +80,7 @@ func TestTimeoutError_CacheMiss(t *testing.T) {
 
 	// Parameters
 	tile := tiles.NewHealthTile("TEST")
-	err := NewTimeoutError(tile.Tile, "service is burning")
+	err := NewTimeoutError(tile.Tile)
 
 	// Expected
 	expectedTile := tile
@@ -120,7 +120,7 @@ func TestTimeoutError_Success(t *testing.T) {
 	ctx.Set(middlewares.DownstreamStoreContextKey, mockStore)
 
 	// Parameters
-	te := NewTimeoutError(tiles.NewHealthTile("TEST").Tile, "service is burning")
+	te := NewTimeoutError(tiles.NewHealthTile("TEST").Tile)
 
 	// Test
 	te.Send(ctx)

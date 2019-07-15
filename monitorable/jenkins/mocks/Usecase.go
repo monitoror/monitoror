@@ -14,11 +14,11 @@ type Usecase struct {
 }
 
 // Build provides a mock function with given fields: params
-func (_m *Usecase) Build(params *models.JobParams) (*tiles.BuildTile, error) {
+func (_m *Usecase) Build(params *models.BuildParams) (*tiles.BuildTile, error) {
 	ret := _m.Called(params)
 
 	var r0 *tiles.BuildTile
-	if rf, ok := ret.Get(0).(func(*models.JobParams) *tiles.BuildTile); ok {
+	if rf, ok := ret.Get(0).(func(*models.BuildParams) *tiles.BuildTile); ok {
 		r0 = rf(params)
 	} else {
 		if ret.Get(0) != nil {
@@ -27,7 +27,7 @@ func (_m *Usecase) Build(params *models.JobParams) (*tiles.BuildTile, error) {
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*models.JobParams) error); ok {
+	if rf, ok := ret.Get(1).(func(*models.BuildParams) error); ok {
 		r1 = rf(params)
 	} else {
 		r1 = ret.Error(1)

@@ -12,13 +12,36 @@ type Repository struct {
 	mock.Mock
 }
 
-// GetLastBuildStatus provides a mock function with given fields: jobId
-func (_m *Repository) GetLastBuildStatus(jobId string) (*models.Build, error) {
-	ret := _m.Called(jobId)
+// GetJob provides a mock function with given fields: jobName, jobParent
+func (_m *Repository) GetJob(jobName string, jobParent string) (*models.Job, error) {
+	ret := _m.Called(jobName, jobParent)
+
+	var r0 *models.Job
+	if rf, ok := ret.Get(0).(func(string, string) *models.Job); ok {
+		r0 = rf(jobName, jobParent)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*models.Job)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string, string) error); ok {
+		r1 = rf(jobName, jobParent)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetLastBuildStatus provides a mock function with given fields: job
+func (_m *Repository) GetLastBuildStatus(job *models.Job) (*models.Build, error) {
+	ret := _m.Called(job)
 
 	var r0 *models.Build
-	if rf, ok := ret.Get(0).(func(string) *models.Build); ok {
-		r0 = rf(jobId)
+	if rf, ok := ret.Get(0).(func(*models.Job) *models.Build); ok {
+		r0 = rf(job)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Build)
@@ -26,8 +49,8 @@ func (_m *Repository) GetLastBuildStatus(jobId string) (*models.Build, error) {
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(jobId)
+	if rf, ok := ret.Get(1).(func(*models.Job) error); ok {
+		r1 = rf(job)
 	} else {
 		r1 = ret.Error(1)
 	}

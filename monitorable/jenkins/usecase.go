@@ -6,12 +6,12 @@ import (
 )
 
 const (
-	JenkinsBuildTileType TileType = "JENKINS"
+	JenkinsBuildTileType TileType = "JENKINS-BUILD"
 )
 
 // Usecase represent the jenkins's usecases
 type (
 	Usecase interface {
-		Build(params *models.JobParams) (*BuildTile, error)
+		Build(params *models.BuildParams) (*BuildTile, error)
 	}
 )

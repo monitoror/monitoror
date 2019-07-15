@@ -1,5 +1,7 @@
 package tiles
 
+import "time"
+
 const BuildTileCategory TileCategory = "BUILD"
 
 type (
@@ -10,10 +12,10 @@ type (
 		PreviousStatus TileStatus `json:"previousStatus,omitempty"`
 		Author         *Author    `json:"author,omitempty"`
 
-		StartedAt         *int64 `json:"startedAt,omitempty"`
-		FinishedAt        *int64 `json:"finishedAt,omitempty"`
-		Duration          *int64 `json:"duration,omitempty"`
-		EstimatedDuration *int64 `json:"estimatedDuration,omitempty"`
+		StartedAt         *time.Time `json:"startedAt,omitempty"`
+		FinishedAt        *time.Time `json:"finishedAt,omitempty"`
+		Duration          *int64     `json:"duration,omitempty"`
+		EstimatedDuration *int64     `json:"estimatedDuration,omitempty"`
 	}
 
 	Author struct {

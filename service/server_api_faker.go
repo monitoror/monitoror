@@ -38,7 +38,7 @@ func (s *Server) registerPing(configHelper config.Helper) {
 	delivery := _pingDelivery.NewHttpPingDelivery(usecase)
 
 	// Register route to echo
-	route := s.v1.GET("/ping", delivery.MonitorPing)
+	route := s.v1.GET("/ping", delivery.GetPing)
 
 	// Register param and path to config usecase
 	configHelper.RegisterTile(ping.PingTileType, route.Path, &_pingModels.PingParams{})
@@ -51,26 +51,21 @@ func (s *Server) registerPort(configHelper config.Helper) {
 	delivery := _portDelivery.NewHttpPortDelivery(usecase)
 
 	// Register route to echo
-	route := s.v1.GET("/port", delivery.MonitorPort)
+	route := s.v1.GET("/port", delivery.GetPort)
 
 	// Register param and path to config usecase
 	configHelper.RegisterTile(port.PortTileType, route.Path, &_portModels.PortParams{})
 }
 
 func (s *Server) registerTravisCI(configHelper config.Helper) {
-	loadTravisci := s.config.Monitorable.TravisCI.Url != ""
-	defer logStatus(travisci.TravisCIBuildTileType, loadTravisci)
-
-	if !loadTravisci {
-		return
-	}
+	defer logStatus(travisci.TravisCIBuildTileType, true)
 
 	usecase := _travisciUsecase.NewTravisCIUsecase()
 	delivery := _travisciDelivery.NewHttpTravisCIDelivery(usecase)
 
 	// Register route to echo
 	travisCIGroup := s.v1.Group("/travisci")
-	route := travisCIGroup.GET("/build", delivery.MonitorBuild)
+	route := travisCIGroup.GET("/build", delivery.GetBuild)
 
 	// Register param and path to config usecase
 	configHelper.RegisterTile(travisci.TravisCIBuildTileType, route.Path, &_travisciModels.BuildParams{})

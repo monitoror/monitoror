@@ -3,12 +3,12 @@
 package models
 
 type (
-	JobParams struct {
+	BuildParams struct {
 		Job    string `json:"job" query:"job"`
 		Parent string `json:"parent" query:"parent"`
 	}
 )
 
-func (p *JobParams) IsValid() bool {
+func (p *BuildParams) IsValid() bool {
 	return p.Job != ""
 }

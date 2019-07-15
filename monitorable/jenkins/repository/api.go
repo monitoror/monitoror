@@ -65,6 +65,11 @@ func (r *jenkinsRepository) GetJob(jobName string, jobParent string) (job *model
 	job.Buildable = jenkinsJob.Buildable
 	job.InQueue = jenkinsJob.InQueue
 
+	if job.InQueue {
+		date := parseDate(jenkinsJob.QueueItem.InQueueSince)
+		job.QueuedAt = &date
+	}
+
 	return
 }
 
@@ -77,14 +82,14 @@ func (r *jenkinsRepository) GetLastBuildStatus(job *models.Job) (build *models.B
 	}
 
 	build = &models.Build{}
-	build.ID = jenkinsBuild.Id
+	build.Number = string(jenkinsBuild.Number)
 	build.FullName = jenkinsBuild.FullDisplayName
 
 	build.Building = jenkinsBuild.Building
 
 	build.Result = jenkinsBuild.Result
-	build.StartedAt = time.Unix(int64(jenkinsBuild.Timestamp/int(time.Microsecond)), 0)
-	build.Duration = time.Duration(jenkinsBuild.Duration) * time.Millisecond
+	build.StartedAt = parseDate(jenkinsBuild.Timestamp)
+	build.Duration = parseDuration(jenkinsBuild.Duration)
 
 	// ChangeSet or ChangeSets in case of pipeline
 	changeSet := jenkinsBuild.ChangeSet
@@ -104,4 +109,12 @@ func (r *jenkinsRepository) GetLastBuildStatus(job *models.Job) (build *models.B
 	}
 
 	return
+}
+
+func parseDate(date int) time.Time {
+	return time.Unix(int64(date/int(time.Microsecond)), 0)
+}
+
+func parseDuration(duration int) time.Duration {
+	return time.Duration(duration) * time.Millisecond
 }

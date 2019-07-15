@@ -10,7 +10,7 @@ require (
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/jsdidierlaurent/echo-middleware v1.0.1
-	github.com/jsdidierlaurent/golang-jenkins v0.0.0-20190712100358-e41dc3a0ff27
+	github.com/jsdidierlaurent/golang-jenkins v0.0.0-20190717143349-21414cce3e27
 	github.com/labstack/echo/v4 v4.1.6
 	github.com/labstack/gommon v0.2.9
 	github.com/shuheiktgw/go-travis v0.2.2

@@ -6,7 +6,7 @@ import (
 	"reflect"
 	"strings"
 
-	. "github.com/monitoror/monitoror/pkg/monitoror/utils/validator"
+	. "github.com/monitoror/monitoror/pkg/monitoror/validator"
 
 	"github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/config/models"

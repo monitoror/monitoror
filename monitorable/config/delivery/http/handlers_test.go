@@ -26,7 +26,7 @@ func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 	return
 }
 
-func TestDelivery_GetConfig_Success(t *testing.T) {
+func TestDelivery_ConfigHandler_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 	ctx.QueryParams().Set("url", "test.com")
@@ -56,7 +56,7 @@ func TestDelivery_GetConfig_Success(t *testing.T) {
 	}
 }
 
-func TestDelivery_GetConfig_QueryParamsError(t *testing.T) {
+func TestDelivery_ConfigHandler_QueryParamsError(t *testing.T) {
 	// Init
 	ctx, _ := initEcho()
 	ctx.QueryParams().Del("hostname")
@@ -70,7 +70,7 @@ func TestDelivery_GetConfig_QueryParamsError(t *testing.T) {
 	assert.IsType(t, &mErrors.QueryParamsError{}, err)
 }
 
-func TestDelivery_GetConfig_ErrorConfig(t *testing.T) {
+func TestDelivery_ConfigHandler_ErrorConfig(t *testing.T) {
 	// Init
 	ctx, _ := initEcho()
 	ctx.QueryParams().Set("url", "test.com")
@@ -86,7 +86,7 @@ func TestDelivery_GetConfig_ErrorConfig(t *testing.T) {
 	}
 }
 
-func TestDelivery_GetConfig_ErrorVerify(t *testing.T) {
+func TestDelivery_ConfigHandler_ErrorVerify(t *testing.T) {
 	// Init
 	ctx, _ := initEcho()
 	ctx.QueryParams().Set("url", "test.com")
@@ -104,7 +104,7 @@ func TestDelivery_GetConfig_ErrorVerify(t *testing.T) {
 	}
 }
 
-func TestDelivery_GetConfig_ErrorHydrate(t *testing.T) {
+func TestDelivery_ConfigHandler_ErrorHydrate(t *testing.T) {
 	// Init
 	ctx, _ := initEcho()
 	ctx.QueryParams().Set("url", "test.com")

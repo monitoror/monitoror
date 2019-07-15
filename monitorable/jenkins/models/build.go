@@ -4,15 +4,14 @@ import "time"
 
 type (
 	Build struct {
-		ID       string
+		Number   string
 		FullName string
 		Author   *Author
 
-		Building          bool
-		Result            string
-		StartedAt         time.Time
-		Duration          time.Duration
-		EstimatedDuration time.Duration
+		Building  bool
+		Result    string
+		StartedAt time.Time
+		Duration  time.Duration
 	}
 
 	Author struct {

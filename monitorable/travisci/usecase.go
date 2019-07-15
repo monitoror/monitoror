@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	TravisCIBuildTileType TileType = "TRAVISCI"
+	TravisCIBuildTileType TileType = "TRAVISCI-BUILD"
 )
 
 // Usecase represent the travisci's usecases

@@ -37,3 +37,12 @@ func TestTravisCI_IsValid(t *testing.T) {
 	config.Monitorable.TravisCI.Url = ""
 	assert.False(t, config.Monitorable.TravisCI.IsValid())
 }
+
+func TestJenkins_IsValid(t *testing.T) {
+	config := InitConfig()
+	config.Monitorable.Jenkins.Url = ""
+	assert.False(t, config.Monitorable.Jenkins.IsValid())
+
+	config.Monitorable.Jenkins.Url = "http://jenkins.test.com"
+	assert.True(t, config.Monitorable.Jenkins.IsValid())
+}

@@ -17,7 +17,7 @@ import (
 )
 
 var AvailableStatus = []TileStatus{SuccessStatus, FailedStatus, AbortedStatus, RunningStatus, QueuedStatus, WarningStatus}
-var AvailablePreviousStatus = []TileStatus{SuccessStatus, FailedStatus}
+var AvailablePreviousStatus = []TileStatus{SuccessStatus, FailedStatus, UnknownStatus}
 
 type (
 	travisCIUsecase struct {
@@ -48,6 +48,8 @@ func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *BuildTile, e
 		return
 	}
 
+	tile.PreviousStatus = nonempty.Struct(params.PreviousStatus, randomStatus(AvailablePreviousStatus)).(TileStatus)
+
 	tile.Author = &Author{}
 	tile.Author.Name = nonempty.String(params.AuthorName, "Faker")
 	tile.Author.AvatarUrl = nonempty.String(params.AuthorAvatarUrl, "https://www.gravatar.com/avatar/00000000000000000000000000000000")
@@ -57,13 +59,12 @@ func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *BuildTile, e
 		max := time.Now().Unix() - 3600
 		delta := max - min
 
-		tile.StartedAt = ToInt64(nonempty.Int64(params.StartedAt, time.Unix(rand.Int63n(delta)+min, 0).Unix()))
-		tile.FinishedAt = ToInt64(nonempty.Int64(params.FinishedAt, *tile.StartedAt+rand.Int63n(3600)))
+		tile.StartedAt = ToTime(nonempty.Time(*params.StartedAt, time.Unix(rand.Int63n(delta)+min, 0)))
+		tile.FinishedAt = ToTime(nonempty.Time(*params.FinishedAt, tile.StartedAt.Add(time.Second*time.Duration(rand.Int63n(3600)))))
 	}
 
 	if tile.Status == QueuedStatus || tile.Status == AbortedStatus || tile.Status == RunningStatus {
-		tile.StartedAt = ToInt64(nonempty.Int64(params.StartedAt, time.Now().Unix()-rand.Int63n(3600)))
-		tile.PreviousStatus = nonempty.Struct(params.PreviousStatus, randomStatus(AvailablePreviousStatus)).(TileStatus)
+		tile.StartedAt = ToTime(nonempty.Time(*params.StartedAt, time.Now().Add(-time.Second*time.Duration(rand.Int63n(3600)))))
 	}
 
 	if tile.Status == RunningStatus {

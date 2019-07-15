@@ -23,7 +23,7 @@ var group, repo, branch = "test", "test", "master"
 
 func TestBuild_Error_NoHost(t *testing.T) {
 	mockRepository := new(mocks.Repository)
-	mockRepository.On("GetLastBuildStatus", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
+	mockRepository.On("GetLastBuildStatus", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(nil, errors.New("no such host"))
 
 	tu := NewTravisCIUsecase(mockRepository)
@@ -39,7 +39,7 @@ func TestBuild_Error_NoHost(t *testing.T) {
 
 func TestBuild_Error_NoNetwork(t *testing.T) {
 	mockRepository := new(mocks.Repository)
-	mockRepository.On("GetLastBuildStatus", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
+	mockRepository.On("GetLastBuildStatus", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(nil, errors.New("dial tcp: lookup"))
 
 	tu := NewTravisCIUsecase(mockRepository)
@@ -55,7 +55,7 @@ func TestBuild_Error_NoNetwork(t *testing.T) {
 
 func TestBuild_Timeout(t *testing.T) {
 	mockRepository := new(mocks.Repository)
-	mockRepository.On("GetLastBuildStatus", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
+	mockRepository.On("GetLastBuildStatus", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(nil, context.DeadlineExceeded)
 
 	tu := NewTravisCIUsecase(mockRepository)
@@ -71,7 +71,7 @@ func TestBuild_Timeout(t *testing.T) {
 
 func TestBuild_Error_System(t *testing.T) {
 	mockRepository := new(mocks.Repository)
-	mockRepository.On("GetLastBuildStatus", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
+	mockRepository.On("GetLastBuildStatus", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(nil, errors.New("boom"))
 
 	tu := NewTravisCIUsecase(mockRepository)
@@ -87,7 +87,7 @@ func TestBuild_Error_System(t *testing.T) {
 
 func TestBuild_Error_NoBuild(t *testing.T) {
 	mockRepository := new(mocks.Repository)
-	mockRepository.On("GetLastBuildStatus", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
+	mockRepository.On("GetLastBuildStatus", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(nil, nil)
 
 	tu := NewTravisCIUsecase(mockRepository)
@@ -102,10 +102,10 @@ func TestBuild_Error_NoBuild(t *testing.T) {
 }
 
 func TestBuild_Success(t *testing.T) {
-	build := buildResponse(branch, "passed", time.Now(), time.Now(), 100)
+	build := buildResponse(branch, "passed", time.Now(), time.Now(), time.Second*100)
 
 	mockRepository := new(mocks.Repository)
-	mockRepository.On("GetLastBuildStatus", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
+	mockRepository.On("GetLastBuildStatus", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(build, nil)
 
 	tu := NewTravisCIUsecase(mockRepository)
@@ -115,14 +115,16 @@ func TestBuild_Success(t *testing.T) {
 		expected := NewBuildTile(travisci.TravisCIBuildTileType)
 		expected.Label = fmt.Sprintf("%s : #%s", repo, branch)
 		expected.Status = parseState(build.State)
-		expected.StartedAt = ToInt64(build.StartedAt.Unix())
-		expected.FinishedAt = ToInt64(build.FinishedAt.Unix())
+		expected.PreviousStatus = SuccessStatus
+		expected.StartedAt = ToTime(build.StartedAt)
+		expected.FinishedAt = ToTime(build.FinishedAt)
 		expected.Author = &Author{
 			Name:      build.Author.Name,
 			AvatarUrl: build.Author.AvatarUrl,
 		}
 
 		// Tests
+		tUsecase.buildsCache.Add(fmt.Sprintf("%s : #%s", repo, branch), "0", SuccessStatus, time.Second*120)
 		tile, err := tu.Build(&models.BuildParams{Group: group, Repository: repo, Branch: branch})
 		if assert.NotNil(t, tile) {
 			assert.NoError(t, err)
@@ -131,7 +133,7 @@ func TestBuild_Success(t *testing.T) {
 			// Check if duration is added into cache
 			previousDuration := tUsecase.buildsCache.GetEstimatedDuration(tile.Label)
 			assert.NotNil(t, previousDuration)
-			assert.Equal(t, build.Duration, *previousDuration)
+			assert.Equal(t, time.Second*110, *previousDuration)
 
 			mockRepository.AssertNumberOfCalls(t, "GetLastBuildStatus", 1)
 			mockRepository.AssertExpectations(t)
@@ -140,10 +142,10 @@ func TestBuild_Success(t *testing.T) {
 }
 
 func TestBuild_Failed(t *testing.T) {
-	build := buildResponse(branch, "failed", time.Now(), time.Now(), 100)
+	build := buildResponse(branch, "failed", time.Now(), time.Now(), time.Second*100)
 
 	mockRepository := new(mocks.Repository)
-	mockRepository.On("GetLastBuildStatus", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
+	mockRepository.On("GetLastBuildStatus", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(build, nil)
 
 	tu := NewTravisCIUsecase(mockRepository)
@@ -153,13 +155,15 @@ func TestBuild_Failed(t *testing.T) {
 		expected := NewBuildTile(travisci.TravisCIBuildTileType)
 		expected.Label = fmt.Sprintf("%s : #%s", repo, branch)
 		expected.Status = parseState(build.State)
-		expected.StartedAt = ToInt64(build.StartedAt.Unix())
-		expected.FinishedAt = ToInt64(build.FinishedAt.Unix())
+		expected.PreviousStatus = SuccessStatus
+		expected.StartedAt = ToTime(build.StartedAt)
+		expected.FinishedAt = ToTime(build.FinishedAt)
 		expected.Author = &Author{
 			Name:      build.Author.Name,
 			AvatarUrl: build.Author.AvatarUrl,
 		}
 
+		tUsecase.buildsCache.Add(fmt.Sprintf("%s : #%s", repo, branch), "0", SuccessStatus, time.Second*120)
 		tile, err := tu.Build(&models.BuildParams{Group: group, Repository: repo, Branch: branch})
 		if assert.NotNil(t, tile) {
 			assert.NoError(t, err)
@@ -168,7 +172,7 @@ func TestBuild_Failed(t *testing.T) {
 			// Check if duration is added into cache
 			previousDuration := tUsecase.buildsCache.GetEstimatedDuration(tile.Label)
 			assert.NotNil(t, previousDuration)
-			assert.Equal(t, build.Duration, *previousDuration)
+			assert.Equal(t, time.Second*110, *previousDuration)
 
 			mockRepository.AssertNumberOfCalls(t, "GetLastBuildStatus", 1)
 			mockRepository.AssertExpectations(t)
@@ -180,20 +184,20 @@ func TestBuild_Queued(t *testing.T) {
 	build := buildResponse(branch, "received", time.Now(), time.Time{}, 100)
 
 	mockRepository := new(mocks.Repository)
-	mockRepository.On("GetLastBuildStatus", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
+	mockRepository.On("GetLastBuildStatus", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(build, nil)
 
 	tu := NewTravisCIUsecase(mockRepository)
 	tUsecase, ok := tu.(*travisCIUsecase)
 	if assert.True(t, ok) {
-		tUsecase.buildsCache.Add(fmt.Sprintf("%s : #%s", repo, branch), SuccessStatus, time.Second*10)
+		tUsecase.buildsCache.Add(fmt.Sprintf("%s : #%s", repo, branch), "0", SuccessStatus, time.Second*10)
 
 		// Expected
 		expected := NewBuildTile(travisci.TravisCIBuildTileType)
 		expected.Label = fmt.Sprintf("%s : #%s", repo, branch)
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
-		expected.StartedAt = ToInt64(build.StartedAt.Unix())
+		expected.StartedAt = ToTime(build.StartedAt)
 		expected.Author = &Author{
 			Name:      build.Author.Name,
 			AvatarUrl: build.Author.AvatarUrl,
@@ -212,7 +216,7 @@ func TestBuild_Running(t *testing.T) {
 	build := buildResponse(branch, "started", time.Now(), time.Time{}, 100)
 
 	mockRepository := new(mocks.Repository)
-	mockRepository.On("GetLastBuildStatus", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
+	mockRepository.On("GetLastBuildStatus", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(build, nil)
 
 	tu := NewTravisCIUsecase(mockRepository)
@@ -224,7 +228,8 @@ func TestBuild_Running(t *testing.T) {
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = UnknownStatus
 		expected.Duration = ToInt64(int64(build.Duration / time.Second))
-		expected.StartedAt = ToInt64(build.StartedAt.Unix())
+		expected.EstimatedDuration = ToInt64(int64(0))
+		expected.StartedAt = ToTime(build.StartedAt)
 		expected.Author = &Author{
 			Name:      build.Author.Name,
 			AvatarUrl: build.Author.AvatarUrl,
@@ -240,7 +245,7 @@ func TestBuild_Running(t *testing.T) {
 		// With Previous Build
 		expected.PreviousStatus = SuccessStatus
 		expected.EstimatedDuration = ToInt64(int64(120))
-		tUsecase.buildsCache.Add(fmt.Sprintf("%s : #%s", repo, branch), SuccessStatus, time.Second*120)
+		tUsecase.buildsCache.Add(fmt.Sprintf("%s : #%s", repo, branch), "0", SuccessStatus, time.Second*120)
 
 		tile, err = tu.Build(&models.BuildParams{Group: group, Repository: repo, Branch: branch})
 		if assert.NotNil(t, tile) {
@@ -257,20 +262,20 @@ func TestBuild_Aborded(t *testing.T) {
 	build := buildResponse(branch, "canceled", time.Now(), time.Time{}, 100)
 
 	mockRepository := new(mocks.Repository)
-	mockRepository.On("GetLastBuildStatus", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
+	mockRepository.On("GetLastBuildStatus", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(build, nil)
 
 	tu := NewTravisCIUsecase(mockRepository)
 	tUsecase, ok := tu.(*travisCIUsecase)
 	if assert.True(t, ok) {
-		tUsecase.buildsCache.Add(fmt.Sprintf("%s : #%s", repo, branch), SuccessStatus, time.Second*10)
+		tUsecase.buildsCache.Add(fmt.Sprintf("%s : #%s", repo, branch), "0", SuccessStatus, time.Second*10)
 
 		// Expected
 		expected := NewBuildTile(travisci.TravisCIBuildTileType)
 		expected.Label = fmt.Sprintf("%s : #%s", repo, branch)
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
-		expected.StartedAt = ToInt64(build.StartedAt.Unix())
+		expected.StartedAt = ToTime(build.StartedAt)
 		expected.Author = &Author{
 			Name:      build.Author.Name,
 			AvatarUrl: build.Author.AvatarUrl,
@@ -298,6 +303,7 @@ func TestParseState(t *testing.T) {
 
 func buildResponse(branch, state string, startedAt, finishedAt time.Time, duration time.Duration) *models.Build {
 	return &models.Build{
+		Id:     1,
 		Branch: branch,
 		Author: models.Author{
 			Name:      "me",

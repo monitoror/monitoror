@@ -48,7 +48,7 @@ func (s *Server) registerPing(configHelper config.Helper) {
 	delivery := _pingDelivery.NewHttpPingDelivery(usecase)
 
 	// Register route to echo
-	route := s.v1.GET("/ping", s.cm.UpstreamCacheHandler(delivery.MonitorPing))
+	route := s.v1.GET("/ping", s.cm.UpstreamCacheHandler(delivery.GetPing))
 
 	// Register param and path to config usecase
 	configHelper.RegisterTile(ping.PingTileType, route.Path, &_pingModels.PingParams{})
@@ -62,17 +62,16 @@ func (s *Server) registerPort(configHelper config.Helper) {
 	delivery := _portDelivery.NewHttpPortDelivery(usecase)
 
 	// Register route to echo
-	route := s.v1.GET("/port", s.cm.UpstreamCacheHandler(delivery.MonitorPort))
+	route := s.v1.GET("/port", s.cm.UpstreamCacheHandler(delivery.GetPort))
 
 	// Register param and path to config usecase
 	configHelper.RegisterTile(port.PortTileType, route.Path, &_portModels.PortParams{})
 }
 
 func (s *Server) registerTravisCI(configHelper config.Helper) {
-	loadTravisci := s.config.Monitorable.TravisCI.Url != ""
-	defer logStatus(travisci.TravisCIBuildTileType, loadTravisci)
+	defer logStatus(travisci.TravisCIBuildTileType, s.config.Monitorable.TravisCI.IsValid())
 
-	if !loadTravisci {
+	if !s.config.Monitorable.TravisCI.IsValid() {
 		return
 	}
 
@@ -82,17 +81,16 @@ func (s *Server) registerTravisCI(configHelper config.Helper) {
 
 	// Register route to echo
 	travisCIGroup := s.v1.Group("/travisci")
-	route := travisCIGroup.GET("/build", s.cm.UpstreamCacheHandler(delivery.MonitorBuild))
+	route := travisCIGroup.GET("/build", s.cm.UpstreamCacheHandler(delivery.GetBuild))
 
 	// Register param and path to config usecase
 	configHelper.RegisterTile(travisci.TravisCIBuildTileType, route.Path, &_travisciModels.BuildParams{})
 }
 
 func (s *Server) registerJenkins(configHelper config.Helper) {
-	loadJenkins := s.config.Monitorable.Jenkins.Url != ""
-	defer logStatus(jenkins.JenkinsBuildTileType, loadJenkins)
+	defer logStatus(jenkins.JenkinsBuildTileType, s.config.Monitorable.Jenkins.IsValid())
 
-	if !loadJenkins {
+	if !s.config.Monitorable.Jenkins.IsValid() {
 		return
 	}
 
@@ -102,8 +100,8 @@ func (s *Server) registerJenkins(configHelper config.Helper) {
 
 	// Register route to echo
 	jenkinsGroup := s.v1.Group("/jenkins")
-	route := jenkinsGroup.GET("/build", s.cm.UpstreamCacheHandler(delivery.MonitorBuild))
+	route := jenkinsGroup.GET("/build", s.cm.UpstreamCacheHandler(delivery.GetBuild))
 
 	// Register param and path to config usecase
-	configHelper.RegisterTile(jenkins.JenkinsBuildTileType, route.Path, &_jenkinsModels.JobParams{})
+	configHelper.RegisterTile(jenkins.JenkinsBuildTileType, route.Path, &_jenkinsModels.BuildParams{})
 }

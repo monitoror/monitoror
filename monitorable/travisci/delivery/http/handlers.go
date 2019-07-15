@@ -19,7 +19,7 @@ func NewHttpTravisCIDelivery(p travisci.Usecase) *httpTravisCIDelivery {
 	return &httpTravisCIDelivery{p}
 }
 
-func (h *httpTravisCIDelivery) MonitorBuild(c echo.Context) error {
+func (h *httpTravisCIDelivery) GetBuild(c echo.Context) error {
 	// Bind / check Params
 	params := &models.BuildParams{}
 	err := c.Bind(params)
