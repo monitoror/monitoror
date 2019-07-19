@@ -7,6 +7,10 @@ import (
 	_configDelivery "github.com/monitoror/monitoror/monitorable/config/delivery/http"
 	_configRepository "github.com/monitoror/monitoror/monitorable/config/repository"
 	_configUsecase "github.com/monitoror/monitoror/monitorable/config/usecase"
+	"github.com/monitoror/monitoror/monitorable/jenkins"
+	_jenkinsDelivery "github.com/monitoror/monitoror/monitorable/jenkins/delivery/http"
+	_jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
+	_jenkinsUsecase "github.com/monitoror/monitoror/monitorable/jenkins/usecase"
 	"github.com/monitoror/monitoror/monitorable/ping"
 	_pingDelivery "github.com/monitoror/monitoror/monitorable/ping/delivery/http"
 	_pingModels "github.com/monitoror/monitoror/monitorable/ping/models"
@@ -69,4 +73,18 @@ func (s *Server) registerTravisCI(configHelper config.Helper) {
 
 	// Register param and path to config usecase
 	configHelper.RegisterTile(travisci.TravisCIBuildTileType, route.Path, &_travisciModels.BuildParams{})
+}
+
+func (s *Server) registerJenkins(configHelper config.Helper) {
+	defer logStatus(jenkins.JenkinsBuildTileType, true)
+
+	usecase := _jenkinsUsecase.NewJenkinsUsecase()
+	delivery := _jenkinsDelivery.NewHttpJenkinsDelivery(usecase)
+
+	// Register route to echo
+	jenkinsGroup := s.v1.Group("/jenkins")
+	route := jenkinsGroup.GET("/build", delivery.GetBuild)
+
+	// Register param and path to config usecase
+	configHelper.RegisterTile(jenkins.JenkinsBuildTileType, route.Path, &_jenkinsModels.BuildParams{})
 }

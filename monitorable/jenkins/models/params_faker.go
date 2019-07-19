@@ -10,9 +10,8 @@ import (
 
 type (
 	BuildParams struct {
-		Group      string `json:"group" query:"group"`
-		Repository string `json:"repository" query:"repository"`
-		Branch     string `json:"branch" query:"branch"`
+		Job    string `json:"job" query:"job"`
+		Parent string `json:"parent" query:"parent"`
 
 		AuthorName      string `json:"authorName" query:"authorName"`
 		AuthorAvatarUrl string `json:"authorAvatarUrl" query:"authorAvatarUrl"`
@@ -27,5 +26,5 @@ type (
 )
 
 func (p *BuildParams) IsValid() bool {
-	return p.Group != "" && p.Repository != "" && p.Branch != ""
+	return p.Job != ""
 }

@@ -26,7 +26,11 @@
   "status": "QUEUE",
   "previousStatus": "SUCCESS||FAILED||WARNING||UNKNOWN",
   "label": "Test-Job",
-  "startedAt": "2019-07-17T13:41:04+02:00"
+  "startedAt": "2019-07-17T13:41:04+02:00",
+  "author": {
+    "name": "Captain Teemo",
+    "avatarUrl": "https://www.gravatar.com/avatar/022a1cd3de7bcf2a3b7cb4253078ed65?d=blank"
+  }
 }
 ```
 

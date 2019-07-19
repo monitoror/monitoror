@@ -7,20 +7,20 @@ import (
 	"math/rand"
 	"time"
 
-	. "github.com/AlekSi/pointer"
-
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
+	"github.com/monitoror/monitoror/monitorable/jenkins/models"
 
 	. "github.com/monitoror/monitoror/models/tiles"
-	"github.com/monitoror/monitoror/monitorable/travisci"
-	"github.com/monitoror/monitoror/monitorable/travisci/models"
+	"github.com/monitoror/monitoror/monitorable/jenkins"
+	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
+
+	. "github.com/AlekSi/pointer"
 )
 
-var AvailableStatus = []TileStatus{SuccessStatus, FailedStatus, AbortedStatus, RunningStatus, QueuedStatus, WarningStatus}
-var AvailablePreviousStatus = []TileStatus{SuccessStatus, FailedStatus, UnknownStatus}
+var AvailableStatus = []TileStatus{SuccessStatus, FailedStatus, AbortedStatus, RunningStatus, QueuedStatus, WarningStatus, DisabledStatus}
+var AvailablePreviousStatus = []TileStatus{SuccessStatus, FailedStatus, WarningStatus, UnknownStatus}
 
 type (
-	travisCIUsecase struct {
+	jenkinsUsecase struct {
 		cachedRunningValue map[string]*durations
 	}
 
@@ -30,31 +30,46 @@ type (
 	}
 )
 
-func NewTravisCIUsecase() travisci.Usecase {
-	return &travisCIUsecase{make(map[string]*durations)}
+func NewJenkinsUsecase() jenkins.Usecase {
+	return &jenkinsUsecase{make(map[string]*durations)}
 }
 
-func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *BuildTile, err error) {
-	tile = NewBuildTile(travisci.TravisCIBuildTileType)
-	tile.Label = fmt.Sprintf("%s : #%s", params.Repository, params.Branch)
+func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *BuildTile, err error) {
+	tile = NewBuildTile(jenkins.JenkinsBuildTileType)
+	if params.Parent == "" {
+		tile.Label = params.Job
+	} else {
+		tile.Label = fmt.Sprintf("%s : #%s", params.Parent, params.Job)
+	}
 
 	// Init random generator
 	rand.Seed(time.Now().UnixNano())
 
 	tile.Status = nonempty.Struct(params.Status, randomStatus(AvailableStatus)).(TileStatus)
 
-	if tile.Status == WarningStatus {
-		tile.Message = "random error message"
+	if tile.Status == DisabledStatus {
 		return
+	}
+
+	if tile.Status == WarningStatus {
+		// Warning can be Unstable Build
+		if rand.Intn(2) == 0 {
+			tile.Message = "random error message"
+			return
+		}
 	}
 
 	tile.PreviousStatus = nonempty.Struct(params.PreviousStatus, randomStatus(AvailablePreviousStatus)).(TileStatus)
 
-	tile.Author = &Author{}
-	tile.Author.Name = nonempty.String(params.AuthorName, "Faker")
-	tile.Author.AvatarUrl = nonempty.String(params.AuthorAvatarUrl, "https://www.gravatar.com/avatar/00000000000000000000000000000000")
+	// Author
+	if tile.Status != QueuedStatus {
+		tile.Author = &Author{}
+		tile.Author.Name = nonempty.String(params.AuthorName, "Faker")
+		tile.Author.AvatarUrl = nonempty.String(params.AuthorAvatarUrl, "https://www.gravatar.com/avatar/00000000000000000000000000000000")
+	}
 
-	if tile.Status == SuccessStatus || tile.Status == FailedStatus || tile.Status == AbortedStatus {
+	// StartedAt / FinishedAt
+	if tile.Status == SuccessStatus || tile.Status == FailedStatus || tile.Status == WarningStatus || tile.Status == AbortedStatus {
 		min := time.Now().Unix() - int64(time.Hour.Seconds()*24*30) - 3600
 		max := time.Now().Unix() - 3600
 		delta := max - min
@@ -62,11 +77,11 @@ func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *BuildTile, e
 		tile.StartedAt = ToTime(nonempty.Time(params.StartedAt, time.Unix(rand.Int63n(delta)+min, 0)))
 		tile.FinishedAt = ToTime(nonempty.Time(params.FinishedAt, tile.StartedAt.Add(time.Second*time.Duration(rand.Int63n(3600)))))
 	}
-
 	if tile.Status == QueuedStatus || tile.Status == RunningStatus {
 		tile.StartedAt = ToTime(nonempty.Time(params.StartedAt, time.Now().Add(-time.Second*time.Duration(rand.Int63n(3600)))))
 	}
 
+	// Duration / EstimatedDuration
 	if tile.Status == RunningStatus {
 		// Creating cache for duration
 		dur, ok := tu.cachedRunningValue[tile.Label]
