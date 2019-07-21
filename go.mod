@@ -4,24 +4,20 @@ go 1.12
 
 require (
 	github.com/AlekSi/pointer v1.0.0
-	github.com/BurntSushi/toml v0.3.1 // indirect
 	github.com/GeertJohan/go.rice v1.0.0
+	github.com/bluele/gcache v0.0.0-20190518031135-bc40bd653833
 	github.com/bradfitz/gomemcache v0.0.0-20190329173943-551aad21a668 // indirect
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/jsdidierlaurent/echo-middleware v1.0.1
-	github.com/kr/pretty v0.1.0 // indirect
-	github.com/labstack/echo/v4 v4.0.0
-	github.com/labstack/gommon v0.2.8
-	github.com/shuheiktgw/go-travis v0.2.1
-	github.com/sparrc/go-ping v0.0.0-20181106165434-ef3ab45e41b0
-	github.com/spf13/afero v1.2.2 // indirect
-	github.com/spf13/jwalterweatherman v1.1.0 // indirect
-	github.com/spf13/viper v1.3.2
-	github.com/stretchr/objx v0.1.1 // indirect
+	github.com/jsdidierlaurent/golang-jenkins v0.0.0-20190717143349-21414cce3e27
+	github.com/labstack/echo/v4 v4.1.6
+	github.com/labstack/gommon v0.2.9
+	github.com/shuheiktgw/go-travis v0.2.2
+	github.com/sparrc/go-ping v0.0.0-20190613174326-4e5b6552494c
+	github.com/spf13/viper v1.4.0
 	github.com/stretchr/testify v1.3.0
-	golang.org/x/crypto v0.0.0-20190325154230-a5d413f7728c // indirect
-	golang.org/x/net v0.0.0-20190328230028-74de082e2cca // indirect
-	golang.org/x/sys v0.0.0-20190329044733-9eb1bfa1ce65 // indirect
-	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
+	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4 // indirect
+	golang.org/x/net v0.0.0-20190628185345-da137c7871d7 // indirect
+	golang.org/x/sys v0.0.0-20190626221950-04f50cda93cb // indirect
 )

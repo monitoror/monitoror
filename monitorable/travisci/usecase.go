@@ -9,7 +9,7 @@ const (
 	TravisCIBuildTileType TileType = "TRAVISCI-BUILD"
 )
 
-// Usecase represent the circleci's usecases
+// Usecase represent the travisci's usecases
 type (
 	Usecase interface {
 		Build(params *models.BuildParams) (*BuildTile, error)

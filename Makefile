@@ -24,17 +24,14 @@ test-coverage-html: ## run test coverage and generate cover.html
 
 # ============= MOCKS =============
 .PHONY: mock
-mock: mock-monitorable
-
-.PHONY: mock-full
-mock-full: mock-monitorable mock-pkg ## generate all mocks
+mock: mock-monitorable mock-pkg
 
 .PHONY: mock-monitorable
 mock-monitorable: ## generate mocks of monitorable sub-directories
 	@./scripts/mock/mock-monitorable
 
 .PHONY: mock-pkg
-mock-pkg: ## generate mocks of pkg sub-directories
+mock-pkg: ## generate mocks of pkg directory listed in scripts/mock/mock-pkg
 	@./scripts/mock/mock-pkg
 
 # ============= BUILDS =============

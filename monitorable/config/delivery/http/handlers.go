@@ -26,7 +26,7 @@ func (h *httpConfigDelivery) GetConfig(c echo.Context) error {
 		return errors.NewQueryParamsError(err)
 	}
 
-	config, err := h.configUsecase.Config(params)
+	config, err := h.configUsecase.GetConfig(params)
 	if err != nil {
 		return err
 	}

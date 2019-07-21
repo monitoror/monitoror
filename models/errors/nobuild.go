@@ -18,7 +18,7 @@ func NewNoBuildError(buildTile *BuildTile) *NoBuildError {
 }
 
 func (nbe *NoBuildError) Error() string {
-	return fmt.Sprintf("no build found for %s", nbe.BuildTile.Label)
+	return fmt.Sprintf("unable to found build")
 }
 
 func (nbe *NoBuildError) Send(ctx echo.Context) {

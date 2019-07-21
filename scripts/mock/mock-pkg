@@ -1,19 +1,13 @@
 #!/usr/bin/env bash
 
-# Generate mocks of interfaces find inside all sub-directory of monitorable
-for sd in pkg/*/; do
-    rm -rf ${sd}/mocks
+dirs=("pkg/gotravis" "pkg/gojenkins")
+
+# Generate mocks of interfaces find inside directory listed on dirs
+for dir in "${dirs[@]}"; do
+    rm -rf ${dir}/mocks
     mockery \
-      -dir ${sd} \
-      -output ${sd}/mocks \
+      -dir ${dir} \
+      -output ${dir}/mocks \
       -all \
       -note "If you want to rebuild this file, make mock-pkg"
 done
-
-# Add mock of net.Conn (this take rly long time ...)
-mockery \
-  -dir $(go env GOROOT)/src/net \
-  -output ./pkg/net/mocks \
-  -name "Conn" \
-  -note "If you want to rebuild this file, make mock-pkg"
- GOROOT

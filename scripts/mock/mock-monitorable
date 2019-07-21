@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 
 # Generate mocks of interfaces find inside all sub-directory of monitorable
-for sd in monitorable/*/; do
-    rm -rf ${sd}/mocks
+for dir in monitorable/*/; do
+    rm -rf ${dir}/mocks
     mockery \
-      -dir ${sd} \
-      -output ${sd}/mocks \
+      -dir ${dir} \
+      -output ${dir}/mocks \
       -all \
       -note "If you want to rebuild this file, make mock-monitorable"
 done

@@ -4,7 +4,6 @@
 
 package mocks
 
-import context "context"
 import mock "github.com/stretchr/testify/mock"
 import models "github.com/monitoror/monitoror/monitorable/ping/models"
 
@@ -13,13 +12,13 @@ type Repository struct {
 	mock.Mock
 }
 
-// Ping provides a mock function with given fields: ctx, hostname
-func (_m *Repository) Ping(ctx context.Context, hostname string) (*models.Ping, error) {
-	ret := _m.Called(ctx, hostname)
+// ExecutePing provides a mock function with given fields: hostname
+func (_m *Repository) ExecutePing(hostname string) (*models.Ping, error) {
+	ret := _m.Called(hostname)
 
 	var r0 *models.Ping
-	if rf, ok := ret.Get(0).(func(context.Context, string) *models.Ping); ok {
-		r0 = rf(ctx, hostname)
+	if rf, ok := ret.Get(0).(func(string) *models.Ping); ok {
+		r0 = rf(hostname)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Ping)
@@ -27,8 +26,8 @@ func (_m *Repository) Ping(ctx context.Context, hostname string) (*models.Ping, 
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
-		r1 = rf(ctx, hostname)
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(hostname)
 	} else {
 		r1 = ret.Error(1)
 	}

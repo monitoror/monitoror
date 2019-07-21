@@ -29,7 +29,7 @@ func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 	return
 }
 
-func TestDelivery_GetPing_Success(t *testing.T) {
+func TestDelivery_PingHandler_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
@@ -55,7 +55,7 @@ func TestDelivery_GetPing_Success(t *testing.T) {
 	}
 }
 
-func TestDelivery_GetPing_QueryParamsError(t *testing.T) {
+func TestDelivery_PingHandler_QueryParamsError(t *testing.T) {
 	// Init
 	ctx, _ := initEcho()
 	ctx.QueryParams().Del("hostname")
@@ -69,7 +69,7 @@ func TestDelivery_GetPing_QueryParamsError(t *testing.T) {
 	assert.IsType(t, &mErrors.QueryParamsError{}, err)
 }
 
-func TestDelivery_GetPing_Error(t *testing.T) {
+func TestDelivery_PingHandler_Error(t *testing.T) {
 	// Init
 	ctx, _ := initEcho()
 

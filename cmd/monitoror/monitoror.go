@@ -13,7 +13,7 @@ func main() {
 	_ = godotenv.Load(".env.local")
 	_ = godotenv.Load(".env")
 
-	// Load Config from File/Env
+	// Load GetConfig from File/Env
 	config := config.InitConfig()
 
 	// Banner

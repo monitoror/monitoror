@@ -21,7 +21,7 @@ type (
 		//DownstreamCache is used to respond after executing the request in case of timeout error.
 		DownstreamCache Cache `json:"downstreamCache"`
 
-		//Monitorables Config
+		//Monitorables GetConfig
 		Monitorable Monitorable `json:"monitorable"`
 	}
 
@@ -36,6 +36,7 @@ type (
 		Gitlab   Gitlab   `json:"gitlab"`
 		Github   Github   `json:"github"`
 		TravisCI TravisCI `json:"travisCI"`
+		Jenkins  Jenkins  `json:"jenkins"`
 	}
 
 	Ping struct {
@@ -57,9 +58,17 @@ type (
 	}
 
 	TravisCI struct {
-		Token   string `json:"token"`
-		Timeout int    `json:"timeout"` // In Millisecond
 		Url     string `json:"url"`
+		Timeout int    `json:"timeout"` // In Millisecond
+		Token   string `json:"token"`
+	}
+
+	Jenkins struct {
+		Url       string `json:"url"`
+		Timeout   int    `json:"timeout"` // In Millisecond
+		SSLVerify bool   `json:"sslVerify"`
+		Login     string `json:"login"`
+		Token     string `json:"token"`
 	}
 )
 
@@ -91,16 +100,33 @@ func InitConfig() *Config {
 	// --- Port Configuration ---
 	viper.SetDefault("Monitorable.Port.Timeout", 2000)
 
-	// --- TravisCI Configuration ---
-	viper.SetDefault("Monitorable.TravisCI.Timeout", 2000)
-	viper.SetDefault("Monitorable.TravisCI.Url", "https://api.travis-ci.org/")
+	// --- Gitlab Configuration ---
+	viper.SetDefault("Monitorable.Gitlab.Token", "")
 
-	// Read Configuration
+	// --- Github Configuration ---
+	viper.SetDefault("Monitorable.Github.Token", "")
+
+	// --- TravisCI Configuration ---
+	viper.SetDefault("Monitorable.TravisCI.Url", "https://api.travis-ci.org/")
+	viper.SetDefault("Monitorable.TravisCI.Timeout", 2000)
+	viper.SetDefault("Monitorable.TravisCI.Token", "")
+
+	// --- Jenkins Configuration ---
+	viper.SetDefault("Monitorable.Jenkins.Timeout", 2000)
+	viper.SetDefault("Monitorable.Jenkins.SSLVerify", true)
+	viper.SetDefault("Monitorable.Jenkins.Url", "")
+	viper.SetDefault("Monitorable.Jenkins.Login", "")
+	viper.SetDefault("Monitorable.Jenkins.Token", "")
+
 	_ = viper.Unmarshal(&config)
 
 	return &config
 }
 
 func (t *TravisCI) IsValid() bool {
+	return t.Url != ""
+}
+
+func (t *Jenkins) IsValid() bool {
 	return t.Url != ""
 }

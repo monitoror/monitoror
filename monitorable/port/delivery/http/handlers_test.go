@@ -42,7 +42,7 @@ func missingParam(t *testing.T, param string) {
 	assert.IsType(t, &mErrors.QueryParamsError{}, err)
 }
 
-func TestDelivery_GetPort_Success(t *testing.T) {
+func TestDelivery_PortHandler_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
@@ -67,15 +67,15 @@ func TestDelivery_GetPort_Success(t *testing.T) {
 	}
 }
 
-func TestDelivery_GetPort_QueryParamsError_MissingHostname(t *testing.T) {
+func TestDelivery_PortHandler_QueryParamsError_MissingHostname(t *testing.T) {
 	missingParam(t, "hostname")
 }
 
-func TestDelivery_GetPort_QueryParamsError_MissingPort(t *testing.T) {
+func TestDelivery_PortHandler_QueryParamsError_MissingPort(t *testing.T) {
 	missingParam(t, "port")
 }
 
-func TestDelivery_GetPort_Error(t *testing.T) {
+func TestDelivery_PortHandler_Error(t *testing.T) {
 	// Init
 	ctx, _ := initEcho()
 

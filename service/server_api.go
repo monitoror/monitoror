@@ -8,6 +8,11 @@ import (
 	_configRepository "github.com/monitoror/monitoror/monitorable/config/repository"
 	_configUsecase "github.com/monitoror/monitoror/monitorable/config/usecase"
 
+	"github.com/monitoror/monitoror/monitorable/jenkins"
+	_jenkinsDelivery "github.com/monitoror/monitoror/monitorable/jenkins/delivery/http"
+	_jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
+	_jenkinsRepository "github.com/monitoror/monitoror/monitorable/jenkins/repository"
+	_jenkinsUsecase "github.com/monitoror/monitoror/monitorable/jenkins/usecase"
 	"github.com/monitoror/monitoror/monitorable/ping"
 	_pingDelivery "github.com/monitoror/monitoror/monitorable/ping/delivery/http"
 	_pingModels "github.com/monitoror/monitoror/monitorable/ping/models"
@@ -64,21 +69,39 @@ func (s *Server) registerPort(configHelper config.Helper) {
 }
 
 func (s *Server) registerTravisCI(configHelper config.Helper) {
-	loadTravisci := s.config.Monitorable.TravisCI.Url != ""
-	defer logStatus(travisci.TravisCIBuildTileType, loadTravisci)
+	defer logStatus(travisci.TravisCIBuildTileType, s.config.Monitorable.TravisCI.IsValid())
 
-	if !loadTravisci {
+	if !s.config.Monitorable.TravisCI.IsValid() {
 		return
 	}
 
 	repository := _travisciRepository.NewTravisCIRepository(s.config)
-	usecase := _travisciUsecase.NewTravisCIUsecase(s.config, repository)
+	usecase := _travisciUsecase.NewTravisCIUsecase(repository)
 	delivery := _travisciDelivery.NewHttpTravisCIDelivery(usecase)
 
 	// Register route to echo
 	travisCIGroup := s.v1.Group("/travisci")
-	route := travisCIGroup.GET("/build", s.cm.UpstreamCacheHandler(delivery.GetTravisCIBuild))
+	route := travisCIGroup.GET("/build", s.cm.UpstreamCacheHandler(delivery.GetBuild))
 
 	// Register param and path to config usecase
 	configHelper.RegisterTile(travisci.TravisCIBuildTileType, route.Path, &_travisciModels.BuildParams{})
+}
+
+func (s *Server) registerJenkins(configHelper config.Helper) {
+	defer logStatus(jenkins.JenkinsBuildTileType, s.config.Monitorable.Jenkins.IsValid())
+
+	if !s.config.Monitorable.Jenkins.IsValid() {
+		return
+	}
+
+	repository := _jenkinsRepository.NewJenkinsRepository(s.config)
+	usecase := _jenkinsUsecase.NewJenkinsUsecase(repository)
+	delivery := _jenkinsDelivery.NewHttpJenkinsDelivery(usecase)
+
+	// Register route to echo
+	jenkinsGroup := s.v1.Group("/jenkins")
+	route := jenkinsGroup.GET("/build", s.cm.UpstreamCacheHandler(delivery.GetBuild))
+
+	// Register param and path to config usecase
+	configHelper.RegisterTile(jenkins.JenkinsBuildTileType, route.Path, &_jenkinsModels.BuildParams{})
 }

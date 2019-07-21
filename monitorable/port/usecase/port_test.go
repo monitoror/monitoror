@@ -17,7 +17,7 @@ import (
 func TestUsecase_CheckPort_Success(t *testing.T) {
 	// Init
 	mockRepo := new(mocks.Repository)
-	mockRepo.On("OpenSocket", Anything, AnythingOfType("string"), AnythingOfType("int")).Return(nil)
+	mockRepo.On("OpenSocket", AnythingOfType("string"), AnythingOfType("int")).Return(nil)
 	usecase := NewPortUsecase(mockRepo)
 
 	// Params
@@ -44,7 +44,7 @@ func TestUsecase_CheckPort_Success(t *testing.T) {
 func TestUsecase_CheckPort_Fail(t *testing.T) {
 	// Init
 	mockRepo := new(mocks.Repository)
-	mockRepo.On("OpenSocket", Anything, AnythingOfType("string"), AnythingOfType("int")).Return(errors.New("port error"))
+	mockRepo.On("OpenSocket", AnythingOfType("string"), AnythingOfType("int")).Return(errors.New("port error"))
 	usecase := NewPortUsecase(mockRepo)
 
 	// Params

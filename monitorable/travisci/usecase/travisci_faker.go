@@ -16,8 +16,8 @@ import (
 	"github.com/monitoror/monitoror/monitorable/travisci/models"
 )
 
-var AvailableStatus = []TileStatus{SuccessStatus, FailedStatus, RunningStatus, QueuedStatus, WarningStatus}
-var AvailablePreviousStatus = []TileStatus{SuccessStatus, FailedStatus}
+var AvailableStatus = []TileStatus{SuccessStatus, FailedStatus, AbortedStatus, RunningStatus, QueuedStatus, WarningStatus}
+var AvailablePreviousStatus = []TileStatus{SuccessStatus, FailedStatus, UnknownStatus}
 
 type (
 	travisCIUsecase struct {
@@ -48,22 +48,23 @@ func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *BuildTile, e
 		return
 	}
 
+	tile.PreviousStatus = nonempty.Struct(params.PreviousStatus, randomStatus(AvailablePreviousStatus)).(TileStatus)
+
 	tile.Author = &Author{}
 	tile.Author.Name = nonempty.String(params.AuthorName, "Faker")
 	tile.Author.AvatarUrl = nonempty.String(params.AuthorAvatarUrl, "https://www.gravatar.com/avatar/00000000000000000000000000000000")
 
-	if tile.Status == SuccessStatus || tile.Status == FailedStatus {
+	if tile.Status == SuccessStatus || tile.Status == FailedStatus || tile.Status == AbortedStatus {
 		min := time.Now().Unix() - int64(time.Hour.Seconds()*24*30) - 3600
 		max := time.Now().Unix() - 3600
 		delta := max - min
 
-		tile.StartedAt = ToInt64(nonempty.Int64(params.StartedAt, time.Unix(rand.Int63n(delta)+min, 0).Unix()))
-		tile.FinishedAt = ToInt64(nonempty.Int64(params.FinishedAt, *tile.StartedAt+rand.Int63n(3600)))
+		tile.StartedAt = ToTime(nonempty.Time(params.StartedAt, time.Unix(rand.Int63n(delta)+min, 0)))
+		tile.FinishedAt = ToTime(nonempty.Time(params.FinishedAt, tile.StartedAt.Add(time.Second*time.Duration(rand.Int63n(3600)))))
 	}
 
 	if tile.Status == QueuedStatus || tile.Status == RunningStatus {
-		tile.StartedAt = ToInt64(nonempty.Int64(params.StartedAt, time.Now().Unix()-rand.Int63n(3600)))
-		tile.PreviousStatus = nonempty.Struct(params.PreviousStatus, randomStatus(AvailablePreviousStatus)).(TileStatus)
+		tile.StartedAt = ToTime(nonempty.Time(params.StartedAt, time.Now().Add(-time.Second*time.Duration(rand.Int63n(3600)))))
 	}
 
 	if tile.Status == RunningStatus {
@@ -86,7 +87,12 @@ func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *BuildTile, e
 		}
 
 		tile.Duration = ToInt64(nonempty.Int64(params.Duration, dur.duration))
-		tile.EstimatedDuration = ToInt64(dur.estimatedDuration)
+
+		if tile.PreviousStatus != UnknownStatus {
+			tile.EstimatedDuration = ToInt64(dur.estimatedDuration)
+		} else {
+			tile.EstimatedDuration = ToInt64(0)
+		}
 	}
 
 	return

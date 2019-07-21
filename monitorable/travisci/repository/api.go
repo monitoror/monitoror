@@ -18,7 +18,7 @@ type (
 		config *config.Config
 
 		// Interfaces for Builds route
-		travisBuildsApi pkgTravis.Builds
+		travisBuildsApi pkgTravis.TravisCI
 	}
 )
 
@@ -39,24 +39,19 @@ func NewTravisCIRepository(conf *config.Config) travisci.Repository {
 	}
 }
 
-//Build fetch build information from travis-ci
-func (r *travisCIRepository) Build(ctx context.Context, group, repository, branch string) (build *models.Build, err error) {
-	// Config
+//GetBuildStatus fetch build information from travis-ci
+func (r *travisCIRepository) GetLastBuildStatus(group, repository, branch string) (build *models.Build, err error) {
+	// GetConfig
 	repoSlug := fmt.Sprintf("%s/%s", group, repository)
 	options := &travis.BuildsByRepoOption{
 		BranchName: []string{branch},
 		EventType:  []string{travis.BuildEventTypePush},
 		Limit:      1,
-		State: []string{
-			travis.BuildStatePassed,
-			travis.BuildStateFailed,
-			travis.BuildStateStarted,
-			travis.BuildStateReceived,
-			travis.BuildStateCreated,
-			travis.BuildStateErrored,
-		},
-		Include: []string{"build.commit"},
+		Include:    []string{"build.commit"},
 	}
+
+	ctx := context.Background()
+	ctx, _ = context.WithTimeout(ctx, time.Duration(r.config.Monitorable.TravisCI.Timeout)*time.Millisecond)
 
 	// Request
 	builds, _, err := r.travisBuildsApi.ListByRepoSlug(ctx, repoSlug, options)
@@ -71,16 +66,16 @@ func (r *travisCIRepository) Build(ctx context.Context, group, repository, branc
 
 	tBuild := builds[0]
 	build = &models.Build{
+		Id:     *tBuild.Id,
 		Branch: *tBuild.Branch.Name,
 		Author: models.Author{
 			Name:      tBuild.Commit.Author.Name,
 			AvatarUrl: tBuild.Commit.Author.AvatarURL,
 		},
-		State:         *tBuild.State,
-		PreviousState: *tBuild.PreviousState,
-		StartedAt:     parseDate(*tBuild.StartedAt),
-		FinishedAt:    parseDate(*tBuild.FinishedAt),
-		Duration:      parseDuration(*tBuild.Duration),
+		State:      *tBuild.State,
+		StartedAt:  parseDate(*tBuild.StartedAt),
+		FinishedAt: parseDate(*tBuild.FinishedAt),
+		Duration:   parseDuration(*tBuild.Duration),
 	}
 
 	return
