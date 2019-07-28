@@ -14,7 +14,9 @@ export enum TileCategory {
 export enum TileType {
   Ping = 'ping',
   Port = 'port',
-  Travis = 'travis',
+  GitLab = 'gitlab-build',
+  Travis = 'travisci-build',
+  Jenkins = 'jenkins-build',
 
   Empty = 'empty',
   Group = 'group',
@@ -116,16 +118,23 @@ const store: StoreOptions<RootState> = {
   },
   actions: {
     loadConfig({commit, getters}) {
+      function setTileStateKey(tile: TileConfig) {
+        // Create a random identifier
+        tile.stateKey = tile.type + '_' + Math.random().toString(36).substr(2, 9)
+
+        // Set stateKey on group subTiles
+        if (tile.tiles) {
+          tile.tiles = tile.tiles.map(setTileStateKey)
+        }
+
+        return tile
+      }
+
       return VueInstance.$http.get(getters.configUrl)
         .then(async (data) => {
           const config: ConfigInterface = await data.json()
 
-          config.tiles = config.tiles.map((tile) => {
-            // Create a random identifier
-            tile.stateKey = tile.type + '_' + Math.random().toString(36).substr(2, 9)
-
-            return tile
-          })
+          config.tiles = config.tiles.map(setTileStateKey)
 
           commit('setConfig', config)
         })
@@ -139,11 +148,22 @@ const store: StoreOptions<RootState> = {
         return VueInstance.$http.get(tile.url)
           .then(async (data) => {
             const tileState = await data.json()
+
             commit('setTileState', {tileStateKey: tile.stateKey, tileState})
           }) as Promise<void>
       }
 
-      function mostImportantStatus(status1: TileStatus, status2: TileStatus) {
+      function getPreviousOrStatus(subTileState: TileState): TileStatus {
+        let subTileStatus = subTileState.status
+
+        if ([TileStatus.Queued, TileStatus.Running].includes(subTileState.status)) {
+          subTileStatus = subTileState.previousStatus as TileStatus
+        }
+
+        return subTileStatus
+      }
+
+      function mostImportantStatus(status1: TileStatus, status2: TileStatus): TileStatus {
         return ORDERED_TILE_STATUS.indexOf(status1) < ORDERED_TILE_STATUS.indexOf(status2) ? status2 : status1
       }
 
@@ -168,21 +188,13 @@ const store: StoreOptions<RootState> = {
             .map((subTileStateKey) => state.tilesState[subTileStateKey])
 
           const groupStatus = groupSubTilesState.reduce((worstSubTileStatus, subTileState) => {
-            let subTileStatus = subTileState.status
-
-            if ([TileStatus.Queued, TileStatus.Running].includes(subTileState.status)) {
-              subTileStatus = subTileState.previousStatus as TileStatus
-            }
+            const subTileStatus = getPreviousOrStatus(subTileState)
 
             return mostImportantStatus(worstSubTileStatus, subTileStatus)
           }, TileStatus.Unknown)
 
           const groupSucceededSubTiles = groupSubTilesState.filter((subTileState) => {
-            let subTileStatus = subTileState.status
-
-            if ([TileStatus.Queued, TileStatus.Running].includes(subTileState.status)) {
-              subTileStatus = subTileState.previousStatus as TileStatus
-            }
+            const subTileStatus = getPreviousOrStatus(subTileState)
 
             return subTileStatus === TileStatus.Success
           })
