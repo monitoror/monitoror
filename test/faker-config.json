@@ -20,7 +20,7 @@
     { "type": "empty" },
     { "type": "travisci-build", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "SUCCESS" } },
     { "type": "travisci-build", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "FAILURE" } },
-    { "type": "travisci-build", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "WARNING" } },
+    { "type": "jenkins-build", "params": { "job":  "monitoror", "status": "WARNING" } },
     { "type": "travisci-build", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "QUEUED", "previousStatus": "SUCCESS" } },
     { "type": "travisci-build", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "QUEUED", "previousStatus": "FAILURE" } },
     { "type": "travisci-build", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "previousStatus": "SUCCESS" } },
