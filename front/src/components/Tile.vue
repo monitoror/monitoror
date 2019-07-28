@@ -9,6 +9,8 @@
         {{ message }}
       </div>
 
+      <monitoror-tile-icon :tile-type="type" class="c-monitoror-tile--icon"></monitoror-tile-icon>
+
       <div class="c-monitoror-tile--finished-at" v-if="finishedSince">
         {{ finishedSince }}
       </div>
@@ -30,9 +32,14 @@
   import Vue from 'vue'
   import {Component, Prop} from 'vue-property-decorator'
 
+  import MonitororTileIcon from '@/components/TileIcon.vue'
   import {TileCategory, TileConfig, TileState, TileStatus, TileType} from '@/store'
 
-  @Component
+  @Component({
+    components: {
+      MonitororTileIcon,
+    },
+  })
   export default class MonitororTile extends Vue {
     /*
      * Props
@@ -101,10 +108,10 @@
     }
 
     get columnSpan(): number {
-      return this.config.columnSpan || 0
+      return this.config.columnSpan || 1
     }
     get rowSpan(): number {
-      return this.config.rowSpan || 0
+      return this.config.rowSpan || 1
     }
 
     get url(): string | undefined {
@@ -237,7 +244,7 @@
         return
       }
 
-      return distanceInWordsToNow(new Date(this.finishedAt * 1000)) + ' ago'
+      return distanceInWordsToNow(this.finishedAt) + ' ago'
     }
   }
 </script>
@@ -247,10 +254,11 @@
   $border-radius: 4px;
 
   .c-monitoror-tile {
+    --tile-background: var(--color-unknown);
     position: relative;
     overflow: hidden;
     color: var(--color-text);
-    background: var(--color-unknown) linear-gradient(rgba(255, 255, 255, 0.1), transparent);
+    background: var(--tile-background) linear-gradient(rgba(255, 255, 255, 0.1), transparent);
     border-radius: $border-radius;
 
     &__empty {
@@ -258,15 +266,15 @@
     }
 
     &__status-succeeded {
-      background-color: var(--color-succeeded);
+      --tile-background: var(--color-succeeded);
     }
 
     &__status-failed {
-      background-color: var(--color-failed);
+      --tile-background: var(--color-failed);
     }
 
     &__status-warning {
-      background-color: var(--color-warning);
+      --tile-background: var(--color-warning);
     }
   }
 
@@ -357,5 +365,17 @@
     50% {
       opacity: 0.5;
     }
+  }
+
+  .c-monitoror-tile--icon {
+    position: absolute;
+    bottom: $tile-padding;
+    left: $tile-padding;
+    opacity: 0.35;
+  }
+
+  .c-monitoror-tile__status-queued .c-monitoror-tile--icon,
+  .c-monitoror-tile__status-running .c-monitoror-tile--icon {
+    bottom: $tile-padding + 10px;
   }
 </style>
