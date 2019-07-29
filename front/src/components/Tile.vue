@@ -5,8 +5,12 @@
         {{ label }}
       </div>
 
-      <div class="c-monitoror-tile--message">
+      <div class="c-monitoror-tile--message" v-if="message">
         {{ message }}
+      </div>
+
+      <div class="c-monitoror-tile--sub-tiles" v-if="isGroup">
+        <monitoror-sub-tile v-for="subTile in nonSucceededSubTiles" :key="subTile.stateKey" :config="subTile"></monitoror-sub-tile>
       </div>
 
       <monitoror-tile-icon :tile-type="type" class="c-monitoror-tile--icon"></monitoror-tile-icon>
@@ -32,11 +36,13 @@
   import Vue from 'vue'
   import {Component, Prop} from 'vue-property-decorator'
 
+  import MonitororSubTile from '@/components/SubTile.vue'
   import MonitororTileIcon from '@/components/TileIcon.vue'
   import {TileCategory, TileConfig, TileState, TileStatus, TileType} from '@/store'
 
   @Component({
     components: {
+      MonitororSubTile,
       MonitororTileIcon,
     },
   })
@@ -120,6 +126,22 @@
 
     get stateKey(): string {
       return this.config.stateKey
+    }
+
+    get nonSucceededSubTiles(): TileConfig[] | undefined {
+      if (!this.config.tiles) {
+        return
+      }
+
+      const nonSucceededSubTiles = this.config.tiles.filter((subTile) => {
+        if (!this.$store.state.tilesState.hasOwnProperty(subTile.stateKey)) {
+          return false
+        }
+
+        return this.$store.state.tilesState[subTile.stateKey].status !== TileStatus.Success
+      })
+
+      return nonSucceededSubTiles
     }
 
     get state(): TileState | undefined {
@@ -262,7 +284,7 @@
     border-radius: $border-radius;
 
     &__empty {
-      opacity: 0;
+      visibility: hidden;
     }
 
     &__status-succeeded {
@@ -275,6 +297,10 @@
 
     &__status-warning {
       --tile-background: var(--color-warning);
+    }
+
+    &__status-cancel {
+      --tile-background: var(--color-warning); // TODO: yellow
     }
   }
 
@@ -377,5 +403,11 @@
   .c-monitoror-tile__status-queued .c-monitoror-tile--icon,
   .c-monitoror-tile__status-running .c-monitoror-tile--icon {
     bottom: $tile-padding + 10px;
+  }
+
+  .c-monitoror-tile--sub-tiles {
+    overflow: hidden;
+    height: 70px;
+    margin-top: 7px;
   }
 </style>
