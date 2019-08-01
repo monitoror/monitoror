@@ -15,8 +15,6 @@ github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf/go.mod h1:ybxpYRF
 github.com/armon/consul-api v0.0.0-20180202201655-eb2c6b5be1b6/go.mod h1:grANhF5doyWs3UAsr3K4I6qtAmlQcZDesFNEHPZAzj8=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
 github.com/beorn7/perks v1.0.0/go.mod h1:KWe93zE9D1o94FZ5RNwFwVgaQK1VOXiVxmqh+CedLV8=
-github.com/bluele/gcache v0.0.0-20190518031135-bc40bd653833 h1:yCfXxYaelOyqnia8F/Yng47qhmfC9nKTRIbYRrRueq4=
-github.com/bluele/gcache v0.0.0-20190518031135-bc40bd653833/go.mod h1:8c4/i2VlovMO2gBnHGQPN5EJw+H0lx1u/5p+cgsXtCk=
 github.com/bradfitz/gomemcache v0.0.0-20180710155616-bc664df96737 h1:rRISKWyXfVxvoa702s91Zl5oREZTrR3yv+tXrrX7G/g=
 github.com/bradfitz/gomemcache v0.0.0-20180710155616-bc664df96737/go.mod h1:PmM6Mmwb0LSuEubjR8N7PtNe1KxZLtOUHtbeikc5h60=
 github.com/bradfitz/gomemcache v0.0.0-20190329173943-551aad21a668 h1:U/lr3Dgy4WK+hNk4tyD+nuGjpVLPEHuJSFXMw11/HPA=
@@ -71,8 +69,6 @@ github.com/joho/godotenv v1.3.0/go.mod h1:7hK45KPybAkOC6peb+G5yklZfMxEjkZhHbwpqx
 github.com/jonboulle/clockwork v0.1.0/go.mod h1:Ii8DK3G1RaLaWxj9trq07+26W01tbo22gdxWY5EU2bo=
 github.com/jsdidierlaurent/echo-middleware v1.0.1 h1:H7PnwCRhq0xWW9C+AzAPgqWEyyoqFZ1621w6oj15L5E=
 github.com/jsdidierlaurent/echo-middleware v1.0.1/go.mod h1:7KRCXCnk/wqEFjW22H9bMiJ9MsGHaDryJhhBBEAcnEU=
-github.com/jsdidierlaurent/golang-jenkins v0.0.0-20190712100358-e41dc3a0ff27 h1:Gx8B12uBmOBvUoqSjnwQ7IHrapmKF6QOZcOWfWdvcys=
-github.com/jsdidierlaurent/golang-jenkins v0.0.0-20190712100358-e41dc3a0ff27/go.mod h1:RELp2nyNx2vW0ZD/DAKROT0JRwiwTZNuGmsVeH5rCb4=
 github.com/jsdidierlaurent/golang-jenkins v0.0.0-20190717143349-21414cce3e27 h1:KvPxaDi89m7jrg9rGw/p7k9SPuwBcgbqGlYRu2rglEs=
 github.com/jsdidierlaurent/golang-jenkins v0.0.0-20190717143349-21414cce3e27/go.mod h1:RELp2nyNx2vW0ZD/DAKROT0JRwiwTZNuGmsVeH5rCb4=
 github.com/julienschmidt/httprouter v1.2.0/go.mod h1:SYymIcj16QtmaHHD7aYtjjsJG7VTCxuUUipMqKk8s4w=

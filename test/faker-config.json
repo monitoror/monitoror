@@ -1,7 +1,7 @@
 {
   "columns": 4,
   "tiles": [
-    { "type": "ping", "label": "test1" ,"params": { "hostname": "test.com", "status": "SUCCESS" } },
+    { "type": "ping", "columnSpan": 2, "label": "test1" ,"params": { "hostname": "test.com", "status": "SUCCESS" } },
     { "type": "ping", "label": "test2" ,"params": { "hostname": "test.com", "status": "FAILURE" } },
     { "type": "port", "params": { "hostname": "bserver.com", "port": 22, "status": "SUCCESS" } },
     { "type": "port", "params": { "hostname": "bserver.com", "port": 22, "status": "FAILURE" } },
