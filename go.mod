@@ -5,7 +5,6 @@ go 1.12
 require (
 	github.com/AlekSi/pointer v1.0.0
 	github.com/GeertJohan/go.rice v1.0.0
-	github.com/bluele/gcache v0.0.0-20190518031135-bc40bd653833
 	github.com/bradfitz/gomemcache v0.0.0-20190329173943-551aad21a668 // indirect
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/joho/godotenv v1.3.0

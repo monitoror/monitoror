@@ -3,6 +3,7 @@ package usecase
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"reflect"
 	"strings"
 
@@ -19,7 +20,7 @@ func (cu *configUsecase) Verify(config *models.Config) error {
 		err.Add(fmt.Sprintf(`Unsupported "version" field. Must be %s.`, keys(SupportedVersions)))
 	}
 
-	if config.Columns == 0 {
+	if config.Columns <= 0 {
 		err.Add(`Missing or invalid "columns" field. Must be a positive integer.`)
 	}
 
@@ -43,6 +44,24 @@ func (cu *configUsecase) verifyTile(tile map[string]interface{}, group bool, err
 	for key := range tile {
 		if exists := AuthorizedTileKey[key]; !exists {
 			err.Add(fmt.Sprintf(`Unknown key "%s" in tile definition. Must be %s.`, key, keys(AuthorizedTileKey)))
+			return
+		}
+	}
+
+	if columnSpan, ok := tile[ColumnSpanKey]; ok {
+		castedColumnSpan, ok := columnSpan.(float64)
+		if !ok || castedColumnSpan <= 0 ||
+			castedColumnSpan != math.Trunc(castedColumnSpan) {
+			err.Add(`Invalid "columnSpan" field. Must be a positive integer.`)
+			return
+		}
+	}
+
+	if rowSpan, ok := tile[RowSpanKey]; ok {
+		castedRowSpan, ok := rowSpan.(float64)
+		if !ok || castedRowSpan <= 0 ||
+			castedRowSpan != math.Trunc(castedRowSpan) {
+			err.Add(`Invalid "rowSpan" field. Must be a positive integer.`)
 			return
 		}
 	}

@@ -11,7 +11,7 @@ import (
 const (
 	CurrentVersion = Version1
 
-	Version1 = 1
+	Version1 = 2
 )
 
 var SupportedVersions = map[int]bool{
@@ -20,18 +20,22 @@ var SupportedVersions = map[int]bool{
 
 // Tile keys
 const (
-	TypeKey   = "type"
-	LabelKey  = "label"
-	ParamsKey = "params"
-	TilesKey  = "tiles"
-	UrlKey    = "url" // Injected by hydrate function
+	TypeKey       = "type"
+	LabelKey      = "label"
+	ColumnSpanKey = "columnSpan"
+	RowSpanKey    = "rowSpan"
+	ParamsKey     = "params"
+	TilesKey      = "tiles"
+	UrlKey        = "url" // Injected by hydrate function
 )
 
 var AuthorizedTileKey = map[string]bool{
-	TypeKey:   true,
-	LabelKey:  true,
-	ParamsKey: true,
-	TilesKey:  true,
+	TypeKey:       true,
+	LabelKey:      true,
+	ColumnSpanKey: true,
+	RowSpanKey:    true,
+	ParamsKey:     true,
+	TilesKey:      true,
 }
 
 const (

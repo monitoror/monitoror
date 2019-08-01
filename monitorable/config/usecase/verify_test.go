@@ -26,7 +26,7 @@ func initTile(t *testing.T, input string) (tiles map[string]interface{}) {
 func TestUsecase_Verify_Success(t *testing.T) {
 	input := `
 {
-	"version" : 1,
+	"version" : 2,
   "columns": 4,
   "tiles": [
 		{ "type": "empty" }
@@ -67,7 +67,7 @@ func TestUsecase_Verify_Failed(t *testing.T) {
 }
 
 func TestUsecase_VerifyTile_Success(t *testing.T) {
-	input := `{ "type": "port", "params": { "hostname": "bserver.com", "port": 22 } }`
+	input := `{ "type": "port", "columnSpan": 2, "rowSpan": 2, "params": { "hostname": "bserver.com", "port": 22 } }`
 
 	configError := &models.ConfigError{}
 
@@ -245,4 +245,32 @@ func TestUsecase_VerifyTile_Failed_InvalidParams(t *testing.T) {
 
 	assert.Equal(t, 1, configError.Count())
 	assert.Contains(t, configError.Error(), `Invalid params definition for "ping": "{"host":"server.com"}".`)
+}
+
+func TestUsecase_VerifyTile_Failed_InvalidColumSpan(t *testing.T) {
+	input := `{ "type": "ping", "columnSpan": -1, "params": { "host": "server.com" } }`
+
+	configError := &models.ConfigError{}
+
+	tile := initTile(t, input)
+	useCase := initConfigUsecase()
+
+	useCase.verifyTile(tile, false, configError)
+
+	assert.Equal(t, 1, configError.Count())
+	assert.Contains(t, configError.Error(), `Invalid "columnSpan" field. Must be a positive integer.`)
+}
+
+func TestUsecase_VerifyTile_Failed_InvalidRowSpan(t *testing.T) {
+	input := `{ "type": "ping", "rowSpan": "a", "params": { "host": "server.com" } }`
+
+	configError := &models.ConfigError{}
+
+	tile := initTile(t, input)
+	useCase := initConfigUsecase()
+
+	useCase.verifyTile(tile, false, configError)
+
+	assert.Equal(t, 1, configError.Count())
+	assert.Contains(t, configError.Error(), `Invalid "rowSpan" field. Must be a positive integer.`)
 }
