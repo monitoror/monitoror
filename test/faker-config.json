@@ -9,7 +9,7 @@
       { "type": "ping", "params": { "hostname": "test.com", "status": "SUCCESS" } },
       { "type": "port", "params": { "hostname": "bserver.com", "port": 22, "status": "SUCCESS" } }
     ]},
-    { "type": "group", "label": "Group FAILURE", "tiles": [
+    { "type": "group", "label": "Group FAILURE", "rowSpan": 3, "tiles": [
       { "type": "ping", "params": { "hostname": "test.com", "status": "FAILURE" } },
       { "type": "port", "params": { "hostname": "bserver.com", "port": 22, "status": "FAILURE" } },
       { "type": "port", "params": { "hostname": "bserver.com", "port": 25, "status": "FAILURE" } },

@@ -32,9 +32,13 @@
      */
 
     get cssProperties() {
+      const tilesCount = this.tiles.reduce((accumulator, tile) => {
+        return accumulator + (tile.rowSpan || 1) * (tile.columnSpan || 1)
+      }, 0)
+
       return {
         '--columns': this.columns,
-        '--rows': Math.ceil(this.tiles.length / this.columns),
+        '--rows': Math.ceil(tilesCount / this.columns),
       }
     }
 

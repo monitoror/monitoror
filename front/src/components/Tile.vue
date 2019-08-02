@@ -73,10 +73,12 @@
     }
 
     get styles() {
-      return {
-        'grid-columns': `auto / span ${this.columnSpan}`,
-        'grid-rows': `auto / span ${this.rowSpan}`,
+      const styles = {
+        'grid-column': `auto / span ${this.columnSpan}`,
+        'grid-row': `auto / span ${this.rowSpan}`,
       }
+
+      return styles
     }
 
     get progressBatStyle() {
@@ -366,6 +368,9 @@
     background: #fff;
     transform: translateX(-101%);
     transition: transform 150ms;
+  }
+
+  .c-monitoror-tile__status-running .c-monitoror-tile--progress-bar {
     animation: progressBarBlink 3s linear infinite;
   }
 
@@ -406,8 +411,10 @@
   }
 
   .c-monitoror-tile--sub-tiles {
+    position: relative;
     overflow: hidden;
     height: 70px;
     margin-top: 7px;
+    z-index: 1;
   }
 </style>
