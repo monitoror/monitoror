@@ -225,6 +225,15 @@
     display: inline-block;
   }
 
+  .c-monitoror-sub-tile__status-queued .c-monitoror-sub-tile--label,
+  .c-monitoror-sub-tile__status-running .c-monitoror-sub-tile--label {
+    max-width: calc(100vw / var(--columns) - 153px);
+    vertical-align: bottom;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   .c-monitoror-sub-tile--progress-time {
     display: inline-block;
     opacity: 0.8;

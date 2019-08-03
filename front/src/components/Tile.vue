@@ -86,6 +86,7 @@
       const styles = {
         'grid-column': `auto / span ${this.columnSpan}`,
         'grid-row': `auto / span ${this.rowSpan}`,
+        '--row-span': this.rowSpan,
       }
 
       return styles
@@ -456,7 +457,7 @@
   .c-monitoror-tile--sub-tiles {
     position: relative;
     overflow: hidden;
-    height: 70px;
+    height: calc((100vh / var(--rows)) * var(--row-span) - #{2 * $tile-padding + 85});
     margin-top: 7px;
     z-index: 1;
   }
