@@ -26,7 +26,12 @@
 
       <template v-if="isRunning || isQueued">
         <div class="c-monitoror-tile--progress-time">
-          {{ progressTime || 'Pending...' }}
+          <template v-if="isRunning">
+            {{ progressTime }}
+          </template>
+          <template v-else>
+            Pending...
+          </template>
         </div>
         <div class="c-monitoror-tile--progress">
           <div class="c-monitoror-tile--progress-bar" :style="progressBatStyle"></div>
@@ -228,7 +233,7 @@
     }
 
     get progress(): number | undefined {
-      if (!this.duration || !this.estimatedDuration) {
+      if (this.duration === undefined || this.estimatedDuration === undefined) {
         return
       }
 
@@ -238,7 +243,7 @@
     }
 
     get progressTime(): string | undefined {
-      if (!this.progress || !this.estimatedDuration || !this.duration) {
+      if (!this.progress || this.estimatedDuration === undefined || this.duration === undefined) {
         return
       }
 
