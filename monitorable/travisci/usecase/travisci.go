@@ -60,7 +60,7 @@ func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *BuildTile, e
 	tile.Status = parseState(build.State)
 
 	// Set Previous Status
-	previousStatus := tu.buildsCache.GetPreviousStatus(tile.Label, string(build.Id))
+	previousStatus := tu.buildsCache.GetPreviousStatus(tile.Label, fmt.Sprintf("%d", build.Id))
 	if previousStatus != nil {
 		tile.PreviousStatus = *previousStatus
 	} else {
@@ -97,7 +97,7 @@ func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *BuildTile, e
 
 	// Cache Duration when success / failed
 	if tile.Status == SuccessStatus || tile.Status == FailedStatus {
-		tu.buildsCache.Add(tile.Label, string(build.Id), tile.Status, build.Duration)
+		tu.buildsCache.Add(tile.Label, fmt.Sprintf("%d", build.Id), tile.Status, build.Duration)
 	}
 
 	return
