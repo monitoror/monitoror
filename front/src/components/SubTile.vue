@@ -11,7 +11,7 @@
 
       <template v-if="isRunning || isQueued">
         <div class="c-monitoror-sub-tile--progress-time">
-          {{ progressTime || '...' }}
+          {{ progressTime || '&bull;&bull;&bull;' }}
         </div>
         <div class="c-monitoror-sub-tile--progress">
           <div class="c-monitoror-sub-tile--progress-bar" :style="progressBatStyle"></div>
