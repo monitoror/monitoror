@@ -72,10 +72,19 @@ func (r *travisCIRepository) GetLastBuildStatus(group, repository, branch string
 			Name:      tBuild.Commit.Author.Name,
 			AvatarUrl: tBuild.Commit.Author.AvatarURL,
 		},
-		State:      *tBuild.State,
-		StartedAt:  parseDate(*tBuild.StartedAt),
-		FinishedAt: parseDate(*tBuild.FinishedAt),
-		Duration:   parseDuration(*tBuild.Duration),
+		State: *tBuild.State,
+	}
+
+	if tBuild.StartedAt != nil {
+		build.StartedAt = parseDate(*tBuild.StartedAt)
+	}
+
+	if tBuild.FinishedAt != nil {
+		build.FinishedAt = parseDate(*tBuild.FinishedAt)
+	}
+
+	if tBuild.Duration != nil {
+		build.Duration = parseDuration(*tBuild.Duration)
 	}
 
 	return

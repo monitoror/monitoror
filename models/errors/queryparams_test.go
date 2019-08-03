@@ -19,7 +19,7 @@ func TestQueryParamsError(t *testing.T) {
 	err := NewQueryParamsError(errors.New("BOOM"))
 
 	// Expected
-	tile := tiles.NewErrorTile("Invalid Configuration", err.Error())
+	tile := tiles.NewErrorTile("Invalid configuration", err.Error())
 	j, e := json.Marshal(tile)
 	assert.NoError(t, e, "unable to marshal tile")
 
