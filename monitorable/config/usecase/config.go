@@ -71,7 +71,7 @@ func (cu *configUsecase) RegisterTile(tileType tiles.TileType, path string, vali
 	}
 }
 
-//GetConfig load and parse GetConfig
+// GetConfig load and parse GetConfig
 func (cu *configUsecase) GetConfig(params *models.ConfigParams) (config *models.Config, err error) {
 	if params.Url != "" {
 		config, err = cu.repository.GetConfigFromUrl(params.Url)

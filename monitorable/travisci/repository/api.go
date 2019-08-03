@@ -39,7 +39,7 @@ func NewTravisCIRepository(conf *config.Config) travisci.Repository {
 	}
 }
 
-//GetBuildStatus fetch build information from travis-ci
+// GetBuildStatus fetch build information from travis-ci
 func (r *travisCIRepository) GetLastBuildStatus(group, repository, branch string) (build *models.Build, err error) {
 	// GetConfig
 	repoSlug := fmt.Sprintf("%s/%s", group, repository)

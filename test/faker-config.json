@@ -9,18 +9,22 @@
       { "type": "ping", "params": { "hostname": "test.com", "status": "SUCCESS" } },
       { "type": "port", "params": { "hostname": "bserver.com", "port": 22, "status": "SUCCESS" } }
     ]},
-    { "type": "group", "label": "Group FAILURE", "tiles": [
+    { "type": "group", "label": "Group FAILURE", "rowSpan": 3, "tiles": [
       { "type": "ping", "params": { "hostname": "test.com", "status": "FAILURE" } },
-      { "type": "port", "params": { "hostname": "bserver.com", "port": 22, "status": "FAILURE" } }
+      { "type": "port", "params": { "hostname": "bserver.com", "port": 22, "status": "FAILURE" } },
+      { "type": "port", "params": { "hostname": "bserver.com", "port": 25, "status": "FAILURE" } },
+      { "type": "port", "params": { "hostname": "bserver.com", "port": 80, "status": "FAILURE" } },
+      { "type": "port", "params": { "hostname": "bserver.com", "port": 443, "status": "FAILURE" } }
     ]},
-    { "type": "group", "tiles": [
+    { "type": "group", "label": "Partially failed group", "tiles": [
+      { "type": "travisci-build", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "previousStatus": "SUCCESS" } },
       { "type": "ping", "params": { "hostname": "test.com", "status": "SUCCESS" } },
       { "type": "port", "params": { "hostname": "bserver.com", "port": 22, "status": "FAILURE" } }
     ]},
     { "type": "empty" },
     { "type": "travisci-build", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "SUCCESS" } },
     { "type": "travisci-build", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "FAILURE" } },
-    { "type": "travisci-build", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "WARNING" } },
+    { "type": "jenkins-build", "params": { "job":  "monitoror", "status": "WARNING" } },
     { "type": "travisci-build", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "QUEUED", "previousStatus": "SUCCESS" } },
     { "type": "travisci-build", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "QUEUED", "previousStatus": "FAILURE" } },
     { "type": "travisci-build", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "previousStatus": "SUCCESS" } },

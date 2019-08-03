@@ -9,19 +9,19 @@ import (
 const EnvPrefix = "MO"
 
 type (
-	//Backend Configuration
+	// Backend Configuration
 	Config struct {
 		// --- General Configuration ---
 		Port int    `json:"port"` // Default: 8080
 		Env  string `json:"env"`  // Default: production
 
 		// --- Cache Configuration ---
-		//UpstreamCache is used to respond before executing the request. Avoid overloading services.
+		// UpstreamCache is used to respond before executing the request. Avoid overloading services.
 		UpstreamCache Cache `json:"upstreamCache"`
-		//DownstreamCache is used to respond after executing the request in case of timeout error.
+		// DownstreamCache is used to respond after executing the request in case of timeout error.
 		DownstreamCache Cache `json:"downstreamCache"`
 
-		//Monitorables GetConfig
+		// Monitorable Config
 		Monitorable Monitorable `json:"monitorable"`
 	}
 
@@ -72,7 +72,7 @@ type (
 	}
 )
 
-// Load confiuration from configuration file / env / default value
+// Load configuration from configuration file / env / default value
 func InitConfig() *Config {
 	var config Config
 

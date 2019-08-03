@@ -43,7 +43,7 @@ func (te *TimeoutError) Send(ctx echo.Context) {
 		return
 	}
 
-	//Looking for Data in DownstreamStore
+	// Looking for Data in DownstreamStore
 	var cachedResponse cache.ResponseCache
 	if err := store.Get(cache.GetKey(middlewares.CachePrefix, ctx.Request()), &cachedResponse); err != nil {
 		send()

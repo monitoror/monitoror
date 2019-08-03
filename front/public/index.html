@@ -1,17 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
-    <title>monitoror</title>
-  </head>
-  <body>
-    <noscript>
-      <strong>We're sorry but monitoror doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
-    </noscript>
-    <div id="app"></div>
-    <!-- built files will be auto injected -->
-  </body>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+  <title>Monitoror</title>
+  <style>
+    :root {
+      --color-background: #2c3e50;
+      --color-text: var(--color-background);
+      --color-succeeded: #88d8b0;
+      --color-failed: #ff6f69;
+      --color-warning: #ffcc5c;
+      --color-unknown: #9ca3ab;
+    }
+
+    html,
+    body {
+      padding: 0;
+      margin: 0;
+      height: 100%;
+      width: 100%;
+      background: var(--color-background);
+      color: #fff;
+      font-family: Arial, sans-serif;
+      font-size: 18px;
+      font-weight: bold;
+      user-select: none;
+      overflow: hidden;
+    }
+
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+  </style>
+</head>
+<body>
+<noscript>
+  <strong>
+    We're sorry but Monitoror doesn't work properly without JavaScript enabled. Please enable it to continue.
+  </strong>
+</noscript>
+<div id="app"></div>
+<!-- built files will be auto injected -->
+</body>
 </html>

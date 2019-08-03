@@ -1,10 +1,10 @@
 WIP
 
-- delivery/http :
-  - Methods starts with Get/Post with name of TileType ex : GetPing / GetPort
+- delivery & http
+  - method name starts with Get or Post followed by the name of the TileType (GetPing, GetPort, ...)
+
+- usecase
+  - method name is like TileType (Ping, Port, ...)
   
-- Usecase :
-  - Methods is named like TileType ex : Ping, Port
-  
-- Repository
-  - Methode is named by what she doing realy ex : ExecutePing, CheckPort, RequestGitlabMergeRequestStatus
+- repository
+  - method name is explicit and tell what it really does (ExecutePing, CheckPort, RequestGitlabMergeRequestStatus, ...)

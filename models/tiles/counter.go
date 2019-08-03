@@ -7,7 +7,7 @@ type (
 	CounterTile struct {
 		*Tile
 
-		//TODO
+		// TODO
 	}
 )
 

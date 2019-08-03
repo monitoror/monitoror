@@ -5,7 +5,7 @@ import (
 )
 
 type (
-	//InfoResponse response for info route
+	// InfoResponse response for info route
 	InfoResponse struct {
 		BuildInfo BuildInfo     `json:"build-info"`
 		Config    config.Config `json:"configuration"`

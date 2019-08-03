@@ -8,7 +8,7 @@ type (
 		Branch string
 		Author Author
 
-		State      string //see https://github.com/shuheiktgw/go-travis/blob/master/builds.go#L116
+		State      string // see https://github.com/shuheiktgw/go-travis/blob/master/builds.go#L116
 		StartedAt  time.Time
 		FinishedAt time.Time
 		Duration   time.Duration

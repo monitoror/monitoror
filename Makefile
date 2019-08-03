@@ -74,7 +74,7 @@ run: ## run monitoror
 run-faker: ## run monitoror in faker mode
 	@./scripts/run/faker
 
-# ============= TOOLINGS =============
+# ============= TOOLING =============
 .PHONY: clean
 clean: ## remove build artifacts
 	rm -rf ./build/*
