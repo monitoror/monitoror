@@ -3,7 +3,7 @@ set -eu
 
 VERSION=${VERSION:-$(git describe --tags 2> /dev/null || true)}
 GITCOMMIT=${GITCOMMIT:-$(git rev-parse --short HEAD 2> /dev/null || true)}
-BUILDTIME=${BUILDTIME:-$(date --utc --rfc-3339 seconds 2> /dev/null | sed -e 's/ /T/')}
+BUILDTIME=${BUILDTIME:-$(TZ=GMT date +"%F %H:%M:%S+00:00"ca 2> /dev/null | sed -e 's/ /T/')}
 GOOS="${GOOS:-$(go env GOHOSTOS)}"
 GOARCH="${GOARCH:-$(go env GOHOSTARCH)}"
 
