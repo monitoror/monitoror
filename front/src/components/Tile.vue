@@ -15,6 +15,11 @@
 
       <monitoror-tile-icon :tile-type="type" class="c-monitoror-tile--icon"></monitoror-tile-icon>
 
+      <div class="c-monitoror-tile--author" v-if="author && isFailed">
+        <img :src="author.avatarUrl" alt="" class="c-monitoror-tile--author-avatar">
+        {{ author.name }}
+      </div>
+
       <div class="c-monitoror-tile--finished-at" v-if="finishedSince">
         {{ finishedSince }}
       </div>
@@ -38,7 +43,7 @@
 
   import MonitororSubTile from '@/components/SubTile.vue'
   import MonitororTileIcon from '@/components/TileIcon.vue'
-  import {TileCategory, TileConfig, TileState, TileStatus, TileType} from '@/store'
+  import {TileAuthor, TileCategory, TileConfig, TileState, TileStatus, TileType} from '@/store'
 
   @Component({
     components: {
@@ -170,6 +175,10 @@
       return this.state.status
     }
 
+    get isFailed(): boolean {
+      return this.status === TileStatus.Failed
+    }
+
     get isRunning(): boolean {
       return this.status === TileStatus.Running
     }
@@ -192,14 +201,6 @@
       }
 
       return this.state.message
-    }
-
-    get startedAt(): number | undefined {
-      if (!this.state) {
-        return
-      }
-
-      return this.state.startedAt
     }
 
     get finishedAt(): number | undefined {
@@ -270,11 +271,20 @@
 
       return distanceInWordsToNow(this.finishedAt) + ' ago'
     }
+
+    get author(): TileAuthor | undefined {
+      if (!this.state) {
+        return
+      }
+
+      return this.state.author
+    }
   }
 </script>
 
 <style lang="scss">
   $tile-padding: 15px;
+  $tile-author-height: 40px;
   $border-radius: 4px;
 
   .c-monitoror-tile {
@@ -345,6 +355,34 @@
     &::first-letter {
       text-transform: uppercase;
     }
+  }
+
+  .c-monitoror-tile--author {
+    --tile-author-height: 40px;
+    position: absolute;
+    right: $tile-padding;
+    bottom: $tile-padding + 35px;
+    display: inline-block;
+    padding: 3px 20px 3px 3px;
+    max-width: calc(100% - 2 * #{$tile-padding});
+    height: $tile-author-height;
+    line-height: $tile-author-height - 6px;
+    font-size: 20px;
+    font-weight: normal;
+    color: var(--tile-background);
+    background: var(--color-background);
+    border-radius: $tile-author-height;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .c-monitoror-tile--author-avatar {
+    float: left;
+    width: $tile-author-height - 6px;
+    height: $tile-author-height - 6px;
+    margin-right: 10px;
+    border-radius: 100%;
   }
 
   .c-monitoror-tile--progress-time {
