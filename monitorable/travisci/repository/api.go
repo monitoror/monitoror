@@ -45,7 +45,6 @@ func (r *travisCIRepository) GetLastBuildStatus(group, repository, branch string
 	repoSlug := fmt.Sprintf("%s/%s", group, repository)
 	options := &travis.BuildsByRepoOption{
 		BranchName: []string{branch},
-		EventType:  []string{travis.BuildEventTypePush},
 		Limit:      1,
 		Include:    []string{"build.commit"},
 	}
