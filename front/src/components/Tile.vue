@@ -26,7 +26,12 @@
 
       <template v-if="isRunning || isQueued">
         <div class="c-monitoror-tile--progress-time">
-          {{ progressTime || 'Pending...' }}
+          <template v-if="isRunning">
+            {{ progressTime }}
+          </template>
+          <template v-else>
+            Pending...
+          </template>
         </div>
         <div class="c-monitoror-tile--progress">
           <div class="c-monitoror-tile--progress-bar" :style="progressBatStyle"></div>
@@ -81,6 +86,7 @@
       const styles = {
         'grid-column': `auto / span ${this.columnSpan}`,
         'grid-row': `auto / span ${this.rowSpan}`,
+        '--row-span': this.rowSpan,
       }
 
       return styles
@@ -228,7 +234,7 @@
     }
 
     get progress(): number | undefined {
-      if (!this.duration || !this.estimatedDuration) {
+      if (this.duration === undefined || this.estimatedDuration === undefined) {
         return
       }
 
@@ -238,7 +244,7 @@
     }
 
     get progressTime(): string | undefined {
-      if (!this.progress || !this.estimatedDuration || !this.duration) {
+      if (!this.progress || this.estimatedDuration === undefined || this.duration === undefined) {
         return
       }
 
@@ -451,7 +457,7 @@
   .c-monitoror-tile--sub-tiles {
     position: relative;
     overflow: hidden;
-    height: 70px;
+    height: calc((100vh / var(--rows)) * var(--row-span) - #{2 * $tile-padding + 85});
     margin-top: 7px;
     z-index: 1;
   }

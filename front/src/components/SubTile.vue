@@ -11,7 +11,12 @@
 
       <template v-if="isRunning || isQueued">
         <div class="c-monitoror-sub-tile--progress-time">
-          {{ progressTime || '&bull;&bull;&bull;' }}
+          <template v-if="isRunning">
+            {{ progressTime }}
+          </template>
+          <template v-else>
+            &bull;&bull;&bull;
+          </template>
         </div>
         <div class="c-monitoror-sub-tile--progress">
           <div class="c-monitoror-sub-tile--progress-bar" :style="progressBatStyle"></div>
@@ -139,7 +144,7 @@
     }
 
     get progress(): number | undefined {
-      if (!this.duration || !this.estimatedDuration) {
+      if (!this.duration || this.estimatedDuration === undefined) {
         return
       }
 
@@ -149,7 +154,7 @@
     }
 
     get progressTime(): string | undefined {
-      if (!this.progress || !this.estimatedDuration || !this.duration) {
+      if (!this.progress || this.estimatedDuration === undefined || !this.duration) {
         return
       }
 
@@ -218,6 +223,15 @@
 
   .c-monitoror-sub-tile--label {
     display: inline-block;
+  }
+
+  .c-monitoror-sub-tile__status-queued .c-monitoror-sub-tile--label,
+  .c-monitoror-sub-tile__status-running .c-monitoror-sub-tile--label {
+    max-width: calc(100vw / var(--columns) - 153px);
+    vertical-align: bottom;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .c-monitoror-sub-tile--progress-time {
