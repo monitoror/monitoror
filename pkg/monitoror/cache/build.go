@@ -3,12 +3,14 @@ package cache
 import (
 	"time"
 
+	cmap "github.com/orcaman/concurrent-map"
+
 	"github.com/monitoror/monitoror/models/tiles"
 )
 
 type BuildCache struct {
 	maxSize        int
-	previousBuilds map[string][]build
+	previousBuilds cmap.ConcurrentMap
 }
 
 type build struct {
@@ -18,29 +20,32 @@ type build struct {
 }
 
 func NewBuildCache(size int) *BuildCache {
-	return &BuildCache{maxSize: size, previousBuilds: make(map[string][]build)}
+	return &BuildCache{maxSize: size, previousBuilds: cmap.New()}
 }
 
 func (c *BuildCache) GetEstimatedDuration(key string) *time.Duration {
-	if _, ok := c.previousBuilds[key]; !ok {
+	value, ok := c.previousBuilds.Get(key)
+	if !ok {
 		return nil
 	}
+	builds := value.([]build)
 
 	var total int64
-	for _, c := range c.previousBuilds[key] {
+	for _, c := range builds {
 		total += int64(c.duration)
 	}
-	average := total / int64(len(c.previousBuilds[key]))
+	average := total / int64(len(builds))
 	duration := time.Duration(average)
 	return &duration
 }
 
 // Get Previous Status excluse current status in case of multiple call with the same current build
 func (c *BuildCache) GetPreviousStatus(key, id string) *tiles.TileStatus {
-	builds, ok := c.previousBuilds[key]
+	value, ok := c.previousBuilds.Get(key)
 	if !ok {
 		return nil
 	}
+	builds := value.([]build)
 
 	previous := builds[0]
 	if previous.id == id {
@@ -55,21 +60,24 @@ func (c *BuildCache) GetPreviousStatus(key, id string) *tiles.TileStatus {
 
 func (c *BuildCache) Add(key, id string, s tiles.TileStatus, d time.Duration) {
 	// If cache is not found, create it
-	if _, ok := c.previousBuilds[key]; !ok {
-		c.previousBuilds[key] = []build{}
+	var builds []build
+	if tmp, ok := c.previousBuilds.Get(key); !ok {
+		c.previousBuilds.Set(key, builds)
+	} else {
+		builds = tmp.([]build)
 	}
 
 	// if id already exist, skip
-	for _, value := range c.previousBuilds[key] {
+	for _, value := range builds {
 		if value.id == id {
 			return
 		}
 	}
 
 	// Remove old elements
-	if len(c.previousBuilds[key]) == c.maxSize {
-		c.previousBuilds[key] = c.previousBuilds[key][:len(c.previousBuilds[key])-1]
+	if len(builds) == c.maxSize {
+		builds = builds[:len(builds)-1]
 	}
 
-	c.previousBuilds[key] = append([]build{{id, s, d}}, c.previousBuilds[key]...)
+	c.previousBuilds.Set(key, append([]build{{id, s, d}}, builds...))
 }
