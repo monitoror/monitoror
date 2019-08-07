@@ -8,7 +8,6 @@ import (
 	"testing"
 
 	"github.com/monitoror/monitoror/cli/version"
-	"github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/models"
 
 	"github.com/labstack/echo/v4"
@@ -27,11 +26,10 @@ func initInfoEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 func TestGetInfo(t *testing.T) {
 	// Init
 	ctx, res := initInfoEcho()
-	emptyConfig := &config.Config{}
-	handler := NewHttpInfoDelivery(emptyConfig)
+	handler := NewHttpInfoDelivery()
 
 	// Create expected value
-	json, err := json.Marshal(models.NewInfoResponse(version.Version, version.GitCommit, version.BuildTime, emptyConfig))
+	json, err := json.Marshal(models.NewInfoResponse(version.Version, version.GitCommit, version.BuildTime))
 	assert.NoError(t, err, "unable to marshal InfoResponse")
 
 	// Test
