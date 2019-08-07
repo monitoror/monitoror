@@ -15,7 +15,7 @@
 
       <monitoror-tile-icon :tile-type="type" class="c-monitoror-tile--icon"></monitoror-tile-icon>
 
-      <div class="c-monitoror-tile--author" v-if="author && isFailed">
+      <div class="c-monitoror-tile--author" v-if="showAuthor">
         <img :src="author.avatarUrl" alt="" class="c-monitoror-tile--author-avatar">
         {{ author.name }}
       </div>
@@ -72,10 +72,10 @@
       return {
         'c-monitoror-tile__empty': this.isEmpty,
         'c-monitoror-tile__group': this.isGroup,
-        'c-monitoror-tile__centered-message': this.category && [TileCategory.Health].includes(this.category),
-        'c-monitoror-tile__status-succeeded': [this.previousStatus, this.status].includes(TileStatus.Success),
-        'c-monitoror-tile__status-failed': [this.previousStatus, this.status].includes(TileStatus.Failed),
-        'c-monitoror-tile__status-warning': [this.previousStatus, this.status].includes(TileStatus.Warning),
+        'c-monitoror-tile__centered-message': this.mustCenterMessage,
+        'c-monitoror-tile__status-succeeded': this.isSucceeded,
+        'c-monitoror-tile__status-failed': this.isFailed,
+        'c-monitoror-tile__status-warning': this.isWarning,
         'c-monitoror-tile__status-running': this.isRunning,
         'c-monitoror-tile__status-queued': this.isQueued,
         'c-monitoror-tile__status-canceled': this.status === TileStatus.Canceled,
@@ -114,6 +114,14 @@
 
     get isGroup(): boolean {
       return this.config.type === TileType.Group
+    }
+
+    get mustCenterMessage(): boolean {
+      if (this.category === undefined) {
+        return false
+      }
+
+      return [TileCategory.Health].includes(this.category)
     }
 
     get label(): string | undefined {
@@ -181,24 +189,44 @@
       return this.state.status
     }
 
-    get isFailed(): boolean {
-      return this.status === TileStatus.Failed
-    }
-
-    get isRunning(): boolean {
-      return this.status === TileStatus.Running
-    }
-
-    get isQueued(): boolean {
-      return this.status === TileStatus.Queued
-    }
-
     get previousStatus(): string | undefined {
       if (!this.state) {
         return
       }
 
       return this.state.previousStatus
+    }
+
+    get isQueued(): boolean {
+      return this.status === TileStatus.Queued
+    }
+
+    get isRunning(): boolean {
+      return this.status === TileStatus.Running
+    }
+
+    get isSucceeded(): boolean {
+      if (this.isQueued || this.isRunning) {
+        return this.previousStatus === TileStatus.Success
+      }
+
+      return this.status === TileStatus.Success
+    }
+
+    get isFailed(): boolean {
+      if (this.isQueued || this.isRunning) {
+        return this.previousStatus === TileStatus.Failed
+      }
+
+      return this.status === TileStatus.Failed
+    }
+
+    get isWarning(): boolean {
+      if (this.isQueued || this.isRunning) {
+        return this.previousStatus === TileStatus.Warning
+      }
+
+      return this.status === TileStatus.Warning
     }
 
     get message(): string | undefined {
@@ -284,6 +312,10 @@
       }
 
       return this.state.author
+    }
+
+    get showAuthor(): boolean {
+      return this.author !== undefined && this.status === TileStatus.Failed
     }
   }
 </script>
@@ -388,6 +420,7 @@
     width: $tile-author-height - 6px;
     height: $tile-author-height - 6px;
     margin-right: 10px;
+    background: #fff;
     border-radius: 100%;
   }
 

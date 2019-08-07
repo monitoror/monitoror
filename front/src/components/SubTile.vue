@@ -52,9 +52,9 @@
 
     get classes() {
       return {
-        'c-monitoror-sub-tile__status-succeeded': [this.previousStatus, this.status].includes(TileStatus.Success),
-        'c-monitoror-sub-tile__status-failed': [this.previousStatus, this.status].includes(TileStatus.Failed),
-        'c-monitoror-sub-tile__status-warning': [this.previousStatus, this.status].includes(TileStatus.Warning),
+        'c-monitoror-sub-tile__status-succeeded': this.isSucceeded,
+        'c-monitoror-sub-tile__status-failed': this.isFailed,
+        'c-monitoror-sub-tile__status-warning': this.isWarning,
         'c-monitoror-sub-tile__status-running': this.isRunning,
         'c-monitoror-sub-tile__status-queued': this.isQueued,
         'c-monitoror-sub-tile__status-canceled': this.status === TileStatus.Canceled,
@@ -111,20 +111,44 @@
       return this.state.status
     }
 
-    get isRunning(): boolean {
-      return this.status === TileStatus.Running
-    }
-
-    get isQueued(): boolean {
-      return this.status === TileStatus.Queued
-    }
-
     get previousStatus(): string | undefined {
       if (!this.state) {
         return
       }
 
       return this.state.previousStatus
+    }
+
+    get isQueued(): boolean {
+      return this.status === TileStatus.Queued
+    }
+
+    get isRunning(): boolean {
+      return this.status === TileStatus.Running
+    }
+
+    get isSucceeded(): boolean {
+      if (this.isQueued || this.isRunning) {
+        return this.previousStatus === TileStatus.Success
+      }
+
+      return this.status === TileStatus.Success
+    }
+
+    get isFailed(): boolean {
+      if (this.isQueued || this.isRunning) {
+        return this.previousStatus === TileStatus.Failed
+      }
+
+      return this.status === TileStatus.Failed
+    }
+
+    get isWarning(): boolean {
+      if (this.isQueued || this.isRunning) {
+        return this.previousStatus === TileStatus.Warning
+      }
+
+      return this.status === TileStatus.Warning
     }
 
     get duration(): number | undefined {
