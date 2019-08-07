@@ -123,7 +123,7 @@ func (s *Server) initApis() {
 	s.v1 = s.api.Group("/v1")
 
 	// ------------- INFO ------------- //
-	infoDelivery := handlers.NewHttpInfoDelivery(s.config)
+	infoDelivery := handlers.NewHttpInfoDelivery()
 	s.v1.GET("/info", s.cm.UpstreamCacheHandlerWithExpiration(cache.NEVER, infoDelivery.GetInfo))
 
 	// ------------- CONFIG ------------- //

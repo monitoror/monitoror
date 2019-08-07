@@ -16,6 +16,10 @@ if [[ $# -eq 1 ]]; then
   elif [[ $1 == "macos" ]]; then
     export GOOS=darwin
     export GOARCH=amd64
+  elif [[ $1 == "raspberrypi" ]]; then
+    export GOOS=linux
+    export GOARCH=arm
+    export GOARM=5
   fi
 fi
 
