@@ -36,7 +36,9 @@ mock-pkg: ## generate mocks of pkg directory listed in scripts/mock/mock-pkg
 
 # ============= BUILDS =============
 .PHONY: build
-build: build-cross
+build: ## build executable for current environment
+	@./scripts/build/rice
+	@./scripts/build/build
 
 .PHONY: build-all
 build-all: ## build all executables
@@ -44,9 +46,10 @@ build-all: ## build all executables
 	@./scripts/build/build linux
 	@./scripts/build/build windows
 	@./scripts/build/build macos
+	@./scripts/build/build raspberrypi
 
 .PHONY: build-linux
-build-binary: ## build executable for Linux
+build-linux: ## build executable for Linux
 	@./scripts/build/rice
 	@./scripts/build/build linux
 
@@ -60,10 +63,10 @@ build-macos: ## build executable for MacOs
 	@./scripts/build/rice
 	@./scripts/build/build macos
 
-.PHONY: build-cross
-build-cross: ## build executable for current environment
+.PHONY: build-raspberrypi
+build-raspberrypi: ## build executable for Raspberry Pi
 	@./scripts/build/rice
-	@./scripts/build/build
+	@./scripts/build/build raspberrypi
 
 # ============= RUN =============
 .PHONY: run
