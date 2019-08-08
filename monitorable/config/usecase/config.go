@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	. "github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/config"
 	"github.com/monitoror/monitoror/monitorable/config/models"
@@ -20,22 +21,24 @@ var SupportedVersions = map[int]bool{
 
 // Tile keys
 const (
-	TypeKey       = "type"
-	LabelKey      = "label"
-	ColumnSpanKey = "columnSpan"
-	RowSpanKey    = "rowSpan"
-	ParamsKey     = "params"
-	TilesKey      = "tiles"
-	UrlKey        = "url" // Injected by hydrate function
+	TypeKey          = "type"
+	ConfigVariantKey = "configVariant"
+	LabelKey         = "label"
+	ColumnSpanKey    = "columnSpan"
+	RowSpanKey       = "rowSpan"
+	ParamsKey        = "params"
+	TilesKey         = "tiles"
+	UrlKey           = "url" // Injected by hydrate function
 )
 
 var AuthorizedTileKey = map[string]bool{
-	TypeKey:       true,
-	LabelKey:      true,
-	ColumnSpanKey: true,
-	RowSpanKey:    true,
-	ParamsKey:     true,
-	TilesKey:      true,
+	TypeKey:          true,
+	ConfigVariantKey: true,
+	LabelKey:         true,
+	ColumnSpanKey:    true,
+	RowSpanKey:       true,
+	ParamsKey:        true,
+	TilesKey:         true,
 }
 
 const (
@@ -47,7 +50,7 @@ const (
 type (
 	configUsecase struct {
 		repository  config.Repository
-		tileConfigs map[tiles.TileType]*TileConfig
+		tileConfigs map[tiles.TileType]map[string]*TileConfig
 	}
 
 	// TileConfig struct is used by GetConfig endpoint to check / hydrate config
@@ -60,12 +63,22 @@ type (
 func NewConfigUsecase(repository config.Repository) config.Usecase {
 	return &configUsecase{
 		repository:  repository,
-		tileConfigs: make(map[tiles.TileType]*TileConfig),
+		tileConfigs: make(map[tiles.TileType]map[string]*TileConfig),
 	}
 }
 
 func (cu *configUsecase) RegisterTile(tileType tiles.TileType, path string, validator Validator) {
-	cu.tileConfigs[tileType] = &TileConfig{
+	cu.RegisterTileWithConfigVariant(tileType, DefaultVariant, path, validator)
+}
+
+func (cu *configUsecase) RegisterTileWithConfigVariant(tileType tiles.TileType, variant, path string, validator Validator) {
+	value, exists := cu.tileConfigs[tileType]
+	if !exists {
+		value = make(map[string]*TileConfig)
+		cu.tileConfigs[tileType] = value
+	}
+
+	value[variant] = &TileConfig{
 		Path:      path,
 		Validator: validator,
 	}

@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/prometheus/common/log"
+
 	"github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
 	"github.com/monitoror/monitoror/monitorable/jenkins/models"
@@ -17,33 +19,31 @@ import (
 
 type (
 	jenkinsRepository struct {
-		config *config.Config
+		config *config.Jenkins
 
 		// Interfaces for Jenkins API
 		jenkinsApi pkgJenkins.Jenkins
 	}
 )
 
-func NewJenkinsRepository(conf *config.Config) jenkins.Repository {
-	jenkinsConf := conf.Monitorable.Jenkins
-
+func NewJenkinsRepository(config *config.Jenkins) jenkins.Repository {
 	var auth *gojenkins.Auth
-	if jenkinsConf.Login != "" {
+	if config.Login != "" {
 		auth = &gojenkins.Auth{
-			Username: jenkinsConf.Login,
-			ApiToken: jenkinsConf.Token,
+			Username: config.Login,
+			ApiToken: config.Token,
 		}
 	}
-	jenkins := gojenkins.NewJenkins(auth, jenkinsConf.Url)
+	jenkins := gojenkins.NewJenkins(auth, config.Url)
 
 	tr := &http.Transport{
-		TLSClientConfig: &tls.Config{InsecureSkipVerify: !jenkinsConf.SSLVerify},
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: !config.SSLVerify},
 	}
-	client := &http.Client{Transport: tr, Timeout: time.Duration(jenkinsConf.Timeout) * time.Millisecond}
+	client := &http.Client{Transport: tr, Timeout: time.Duration(config.Timeout) * time.Millisecond}
 	jenkins.SetHTTPClient(client)
 
 	return &jenkinsRepository{
-		conf,
+		config,
 		jenkins,
 	}
 }
@@ -56,6 +56,7 @@ func (r *jenkinsRepository) GetJob(jobName string, jobParent string) (job *model
 
 	jenkinsJob, err := r.jenkinsApi.GetJob(jobId)
 	if err != nil {
+		log.Warn(err)
 		return nil, fmt.Errorf("unable to get job. %v", err)
 	}
 

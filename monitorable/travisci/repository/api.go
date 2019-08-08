@@ -15,26 +15,26 @@ import (
 
 type (
 	travisCIRepository struct {
-		config *config.Config
+		config *config.TravisCI
 
 		// Interfaces for Builds route
 		travisBuildsApi pkgTravis.TravisCI
 	}
 )
 
-func NewTravisCIRepository(conf *config.Config) travisci.Repository {
-	client := travis.NewClient(conf.Monitorable.TravisCI.Url, conf.Monitorable.TravisCI.Token)
+func NewTravisCIRepository(config *config.TravisCI, githubConfig *config.Github) travisci.Repository {
+	client := travis.NewClient(config.Url, config.Token)
 
 	// Using Github token if exist
-	if conf.Monitorable.Github.Token != "" {
-		_, _, err := client.Authentication.UsingGithubToken(context.Background(), conf.Monitorable.Github.Token)
+	if githubConfig.Token != "" {
+		_, _, err := client.Authentication.UsingGithubToken(context.Background(), githubConfig.Token)
 		if err != nil {
 			panic(fmt.Sprintf("Unable to connect to TravisCI Using Github Token\n. %v\n", err))
 		}
 	}
 
 	return &travisCIRepository{
-		conf,
+		config,
 		client.Builds,
 	}
 }
@@ -50,7 +50,7 @@ func (r *travisCIRepository) GetLastBuildStatus(group, repository, branch string
 	}
 
 	ctx := context.Background()
-	ctx, _ = context.WithTimeout(ctx, time.Duration(r.config.Monitorable.TravisCI.Timeout)*time.Millisecond)
+	ctx, _ = context.WithTimeout(ctx, time.Duration(r.config.Timeout)*time.Millisecond)
 
 	// Request
 	builds, _, err := r.travisBuildsApi.ListByRepoSlug(ctx, repoSlug, options)

@@ -17,3 +17,8 @@ type Helper struct {
 func (_m *Helper) RegisterTile(tileType tiles.TileType, path string, _a2 validator.Validator) {
 	_m.Called(tileType, path, _a2)
 }
+
+// RegisterTileWithConfigVariant provides a mock function with given fields: tileType, configVariant, path, _a3
+func (_m *Helper) RegisterTileWithConfigVariant(tileType tiles.TileType, configVariant string, path string, _a3 validator.Validator) {
+	_m.Called(tileType, configVariant, path, _a3)
+}

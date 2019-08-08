@@ -10,6 +10,7 @@ import (
 type (
 	Helper interface {
 		RegisterTile(tileType tiles.TileType, path string, validator Validator)
+		RegisterTileWithConfigVariant(tileType tiles.TileType, configVariant, path string, validator Validator)
 	}
 
 	Usecase interface {

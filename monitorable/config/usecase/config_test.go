@@ -4,6 +4,9 @@ import (
 	"errors"
 	"testing"
 
+	. "github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/monitorable/jenkins"
+
 	"github.com/monitoror/monitoror/models/tiles"
 
 	"github.com/monitoror/monitoror/monitorable/ping"
@@ -21,11 +24,13 @@ import (
 
 func initConfigUsecase() *configUsecase {
 	usecase := &configUsecase{
-		tileConfigs: make(map[tiles.TileType]*TileConfig),
+		tileConfigs: make(map[tiles.TileType]map[string]*TileConfig),
 	}
 
 	usecase.RegisterTile(ping.PingTileType, "/ping", &_pingModels.PingParams{})
 	usecase.RegisterTile(port.PortTileType, "/port", &_portModels.PortParams{})
+	usecase.RegisterTileWithConfigVariant(jenkins.JenkinsBuildTileType, DefaultVariant, "/jenkins/default", &_portModels.PortParams{})
+	usecase.RegisterTileWithConfigVariant(jenkins.JenkinsBuildTileType, "variant1", "/jenkins/variant1", &_portModels.PortParams{})
 
 	return usecase
 }
@@ -70,6 +75,22 @@ func TestUsecase_Config_Failed(t *testing.T) {
 }
 
 func TestUsecase_Config_Version(t *testing.T) {
+	mockRepo := new(mocks.Repository)
+	mockRepo.On("GetConfigFromPath", AnythingOfType("string")).Return(&models.Config{}, nil)
+	usecase := NewConfigUsecase(mockRepo)
+
+	config, _ := usecase.GetConfig(&models.ConfigParams{Path: "test"})
+	assert.Equal(t, CurrentVersion, config.Version)
+
+	mockRepo = new(mocks.Repository)
+	mockRepo.On("GetConfigFromPath", AnythingOfType("string")).Return(&models.Config{Version: 2}, nil)
+	usecase = NewConfigUsecase(mockRepo)
+
+	config, _ = usecase.GetConfig(&models.ConfigParams{Path: "test"})
+	assert.Equal(t, 2, config.Version)
+}
+
+func TestUsecase_Config_(t *testing.T) {
 	mockRepo := new(mocks.Repository)
 	mockRepo.On("GetConfigFromPath", AnythingOfType("string")).Return(&models.Config{}, nil)
 	usecase := NewConfigUsecase(mockRepo)

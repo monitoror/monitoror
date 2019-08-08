@@ -1,12 +1,14 @@
 package config
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/spf13/viper"
 )
 
 const EnvPrefix = "MO"
+const DefaultVariant = "default"
 
 type (
 	// Backend Configuration
@@ -31,12 +33,11 @@ type (
 	}
 
 	Monitorable struct {
-		Ping     Ping     `json:"ping"`
-		Port     Port     `json:"port"`
-		Gitlab   Gitlab   `json:"gitlab"`
-		Github   Github   `json:"github"`
-		TravisCI TravisCI `json:"travisCI"`
-		Jenkins  Jenkins  `json:"jenkins"`
+		Ping     Ping                 `json:"ping"`
+		Port     Port                 `json:"port"`
+		Github   map[string]*Github   `json:"github"`
+		TravisCI map[string]*TravisCI `json:"travisCI"`
+		Jenkins  map[string]*Jenkins  `json:"jenkins"`
 	}
 
 	Ping struct {
@@ -47,10 +48,6 @@ type (
 
 	Port struct {
 		Timeout int `json:"timeout"` // In Millisecond
-	}
-
-	Gitlab struct {
-		Token string `json:"token"`
 	}
 
 	Github struct {
@@ -81,6 +78,9 @@ func InitConfig() *Config {
 	viper.SetEnvPrefix(EnvPrefix)
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
+	// Transform Env and define Label for setting default value
+	variants := initEnvAndVariant()
+
 	// Setup default values
 	// --- General Configuration ---
 	viper.SetDefault("Port", 8080)
@@ -100,23 +100,26 @@ func InitConfig() *Config {
 	// --- Port Configuration ---
 	viper.SetDefault("Monitorable.Port.Timeout", 2000)
 
-	// --- Gitlab Configuration ---
-	viper.SetDefault("Monitorable.Gitlab.Token", "")
-
 	// --- Github Configuration ---
-	viper.SetDefault("Monitorable.Github.Token", "")
+	for variant := range variants["Github"] {
+		viper.SetDefault(fmt.Sprintf("Monitorable.Github.%s.Token", variant), "")
+	}
 
 	// --- TravisCI Configuration ---
-	viper.SetDefault("Monitorable.TravisCI.Url", "https://api.travis-ci.org/")
-	viper.SetDefault("Monitorable.TravisCI.Timeout", 2000)
-	viper.SetDefault("Monitorable.TravisCI.Token", "")
+	for variant := range variants["TravisCI"] {
+		viper.SetDefault(fmt.Sprintf("Monitorable.TravisCI.%s.Url", variant), "https://api.travis-ci.org/")
+		viper.SetDefault(fmt.Sprintf("Monitorable.TravisCI.%s.Timeout", variant), 2000)
+		viper.SetDefault(fmt.Sprintf("Monitorable.TravisCI.%s.Token", variant), "")
+	}
 
 	// --- Jenkins Configuration ---
-	viper.SetDefault("Monitorable.Jenkins.Timeout", 2000)
-	viper.SetDefault("Monitorable.Jenkins.SSLVerify", true)
-	viper.SetDefault("Monitorable.Jenkins.Url", "")
-	viper.SetDefault("Monitorable.Jenkins.Login", "")
-	viper.SetDefault("Monitorable.Jenkins.Token", "")
+	for variant := range variants["Jenkins"] {
+		viper.SetDefault(fmt.Sprintf("Monitorable.Jenkins.%s.Timeout", variant), 2000)
+		viper.SetDefault(fmt.Sprintf("Monitorable.Jenkins.%s.SSLVerify", variant), true)
+		viper.SetDefault(fmt.Sprintf("Monitorable.Jenkins.%s.Url", variant), "")
+		viper.SetDefault(fmt.Sprintf("Monitorable.Jenkins.%s.Login", variant), "")
+		viper.SetDefault(fmt.Sprintf("Monitorable.Jenkins.%s.Token", variant), "")
+	}
 
 	_ = viper.Unmarshal(&config)
 

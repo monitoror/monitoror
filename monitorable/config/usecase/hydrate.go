@@ -5,6 +5,8 @@ import (
 	"net/url"
 	"strings"
 
+	. "github.com/monitoror/monitoror/config"
+
 	"github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/config/models"
 )
@@ -35,8 +37,16 @@ func (cu *configUsecase) hydrateTile(tile map[string]interface{}, host string) {
 		return
 	}
 
+	// Define config Variant
+	var variant string
+	if configVariant, ok := tile[ConfigVariantKey]; ok {
+		variant = configVariant.(string)
+	} else {
+		variant = DefaultVariant
+	}
+
 	// Change Params by a valid Url
-	path := cu.tileConfigs[tileType].Path
+	path := cu.tileConfigs[tileType][variant].Path
 	params := url.Values{}
 	for key, value := range tile[ParamsKey].(map[string]interface{}) {
 		params.Add(key, fmt.Sprintf("%v", value))
@@ -44,6 +54,7 @@ func (cu *configUsecase) hydrateTile(tile map[string]interface{}, host string) {
 
 	tile[UrlKey] = fmt.Sprintf("%s%s?%s", host, path, params.Encode())
 
-	// Remove Params
+	// Remove Params / Variant
 	delete(tile, ParamsKey)
+	delete(tile, ConfigVariantKey)
 }

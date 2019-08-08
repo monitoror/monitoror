@@ -21,11 +21,11 @@ import (
 
 func initRepository(t *testing.T, buildsApi pkgJenkins.Jenkins) *jenkinsRepository {
 	conf := InitConfig()
-	conf.Monitorable.Jenkins.Url = "http://jenkins.test.com"
-	conf.Monitorable.Jenkins.Login = "test"
-	conf.Monitorable.Jenkins.Token = "test"
+	conf.Monitorable.Jenkins[DefaultVariant].Url = "http://jenkins.test.com"
+	conf.Monitorable.Jenkins[DefaultVariant].Login = "test"
+	conf.Monitorable.Jenkins[DefaultVariant].Token = "test"
 
-	repository := NewJenkinsRepository(conf)
+	repository := NewJenkinsRepository(conf.Monitorable.Jenkins[DefaultVariant])
 
 	apiJenkinsRepository, ok := repository.(*jenkinsRepository)
 	if assert.True(t, ok) {

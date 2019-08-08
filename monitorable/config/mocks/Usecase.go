@@ -56,6 +56,11 @@ func (_m *Usecase) RegisterTile(tileType tiles.TileType, path string, _a2 valida
 	_m.Called(tileType, path, _a2)
 }
 
+// RegisterTileWithConfigVariant provides a mock function with given fields: tileType, configVariant, path, _a3
+func (_m *Usecase) RegisterTileWithConfigVariant(tileType tiles.TileType, configVariant string, path string, _a3 validator.Validator) {
+	_m.Called(tileType, configVariant, path, _a3)
+}
+
 // Verify provides a mock function with given fields: _a0
 func (_m *Usecase) Verify(_a0 *models.Config) error {
 	ret := _m.Called(_a0)

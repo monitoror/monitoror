@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/joho/godotenv"
+	"github.com/labstack/gommon/log"
 
 	"github.com/monitoror/monitoror/cli"
 	"github.com/monitoror/monitoror/config"
@@ -9,6 +10,11 @@ import (
 )
 
 func main() {
+	//  Default Logger
+	log.SetPrefix("")
+	log.SetHeader("[${level}]")
+	log.SetLevel(log.INFO)
+
 	// Load .env file
 	_ = godotenv.Load(".env.local")
 	_ = godotenv.Load(".env")

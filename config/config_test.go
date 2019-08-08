@@ -24,25 +24,26 @@ func TestInitConfig_WithEnv(t *testing.T) {
 	assert.Equal(t, 3000, config.Port)
 	assert.Equal(t, 2, config.Monitorable.Ping.Count)
 	assert.Equal(t, 2000, config.Monitorable.Port.Timeout)
-	assert.Equal(t, "https://api.travis-ci.org/", config.Monitorable.TravisCI.Url)
-	assert.Equal(t, true, config.Monitorable.Jenkins.SSLVerify)
-	assert.Equal(t, 2000, config.Monitorable.Jenkins.Timeout)
-	assert.Equal(t, "test", config.Monitorable.Jenkins.Url)
+	assert.Equal(t, "https://api.travis-ci.org/", config.Monitorable.TravisCI[DefaultVariant].Url)
+	assert.Equal(t, true, config.Monitorable.Jenkins[DefaultVariant].SSLVerify)
+	assert.Equal(t, 2000, config.Monitorable.Jenkins[DefaultVariant].Timeout)
+	assert.Equal(t, "test", config.Monitorable.Jenkins[DefaultVariant].Url)
 }
 
 func TestTravisCI_IsValid(t *testing.T) {
 	config := InitConfig()
-	assert.True(t, config.Monitorable.TravisCI.IsValid())
+	assert.True(t, config.Monitorable.TravisCI[DefaultVariant].IsValid())
 
-	config.Monitorable.TravisCI.Url = ""
-	assert.False(t, config.Monitorable.TravisCI.IsValid())
+	config.Monitorable.TravisCI[DefaultVariant].Url = ""
+	assert.False(t, config.Monitorable.TravisCI[DefaultVariant].IsValid())
 }
 
 func TestJenkins_IsValid(t *testing.T) {
 	config := InitConfig()
-	config.Monitorable.Jenkins.Url = ""
-	assert.False(t, config.Monitorable.Jenkins.IsValid())
 
-	config.Monitorable.Jenkins.Url = "http://jenkins.test.com"
-	assert.True(t, config.Monitorable.Jenkins.IsValid())
+	config.Monitorable.Jenkins[DefaultVariant].Url = ""
+	assert.False(t, config.Monitorable.Jenkins[DefaultVariant].IsValid())
+
+	config.Monitorable.Jenkins[DefaultVariant].Url = "http://jenkins.test.com"
+	assert.True(t, config.Monitorable.Jenkins[DefaultVariant].IsValid())
 }
