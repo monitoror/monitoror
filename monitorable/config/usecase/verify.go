@@ -7,6 +7,8 @@ import (
 	"reflect"
 	"strings"
 
+	. "github.com/monitoror/monitoror/config"
+
 	. "github.com/monitoror/monitoror/pkg/monitoror/validator"
 
 	"github.com/monitoror/monitoror/models/tiles"
@@ -112,9 +114,22 @@ func (cu *configUsecase) verifyTile(tile map[string]interface{}, group bool, err
 		return
 	}
 
-	tileConfig, exists := cu.tileConfigs[tileType]
-	if !exists {
+	if _, exists := cu.tileConfigs[tileType]; !exists {
 		err.Add(fmt.Sprintf(`Unknown "%s" type in tile definition. Must be %s`, tile[TypeKey], keys(cu.tileConfigs)))
+		return
+	}
+
+	var variant string
+	if configVariant, ok := tile[ConfigVariantKey]; ok {
+		variant = configVariant.(string)
+	} else {
+		variant = DefaultVariant
+	}
+
+	var tileConfig *TileConfig
+	var exists bool
+	if tileConfig, exists = cu.tileConfigs[tileType][variant]; !exists {
+		err.Add(fmt.Sprintf(`Unknown "%s" variant for %s type in tile definition. Must be %s`, tile[ConfigVariantKey], tile[TypeKey], keys(cu.tileConfigs[tileType])))
 		return
 	}
 
@@ -140,7 +155,7 @@ func keys(m interface{}) string {
 	strkeys := make([]string, len(keys))
 
 	for i := 0; i < len(keys); i++ {
-		strkeys[i] = strings.ToLower(fmt.Sprintf("%v", keys[i]))
+		strkeys[i] = strings.ToLower(fmt.Sprintf(`%v`, keys[i]))
 	}
 
 	return strings.Join(strkeys, ",")

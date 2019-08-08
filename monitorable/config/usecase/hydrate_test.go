@@ -21,7 +21,9 @@ func TestUsecase_Hydrate(t *testing.T) {
     { "type": "group", "label": "...", "tiles": [
       { "type": "ping", "params": { "hostname": "aserver.com" } },
       { "type": "port", "params": { "hostname": "bserver.com", "port": 22 } }
-    ]}
+    ]},
+		{ "type": "jenkins-build", "params": { "job": "test" } },
+		{ "type": "jenkins-build", "configVariant": "variant1", "params": { "job": "test" } }
   ]
 }
 `
@@ -42,4 +44,7 @@ func TestUsecase_Hydrate(t *testing.T) {
 	assert.Equal(t, "http://localhost:8080/ping?hostname=aserver.com", gtile1[UrlKey])
 	gtile2 := group[1].(map[string]interface{})
 	assert.Equal(t, "http://localhost:8080/port?hostname=bserver.com&port=22", gtile2[UrlKey])
+
+	assert.Equal(t, "http://localhost:8080/jenkins/default?job=test", config.Tiles[4][UrlKey])
+	assert.Equal(t, "http://localhost:8080/jenkins/variant1?job=test", config.Tiles[5][UrlKey])
 }

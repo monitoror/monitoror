@@ -17,7 +17,7 @@ import (
 
 func initRepository(t *testing.T, buildsApi pkgTravis.TravisCI) *travisCIRepository {
 	conf := InitConfig()
-	repository := NewTravisCIRepository(conf)
+	repository := NewTravisCIRepository(conf.Monitorable.TravisCI[DefaultVariant], conf.Monitorable.Github[DefaultVariant])
 
 	apiTravisCIRepository, ok := repository.(*travisCIRepository)
 	if assert.True(t, ok) {
@@ -29,11 +29,13 @@ func initRepository(t *testing.T, buildsApi pkgTravis.TravisCI) *travisCIReposit
 
 func TestNewApiTravisCIRepository_Panic(t *testing.T) {
 	conf := InitConfig()
-	conf.Monitorable.Github.Token = "token"
-	conf.Monitorable.TravisCI.Url = ""
+	conf.Monitorable.Github[DefaultVariant].Token = "token"
+	conf.Monitorable.TravisCI[DefaultVariant].Url = ""
 
 	// Panic because ApiUrl is not define
-	assert.Panics(t, func() { _ = NewTravisCIRepository(conf) })
+	assert.Panics(t, func() {
+		_ = NewTravisCIRepository(conf.Monitorable.TravisCI[DefaultVariant], conf.Monitorable.Github[DefaultVariant])
+	})
 }
 
 func TestRepository_GetLastBuildStatus_Error(t *testing.T) {

@@ -1,8 +1,0 @@
-{
-  "columns": 2,
-  "tiles": [
-    { "type": "port","params": { "hostname": "google.com", "port": 80 } },
-    { "type": "port","params": { "hostname": "localhost", "port": 8000 } },
-    { "type": "travisci-build", "params": { "group": "monitoror", "repository": "monitoror", "branch": "master"} }
-  ]
-}

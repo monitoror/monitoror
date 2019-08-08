@@ -59,11 +59,6 @@ func (s *Server) initEcho() {
 	s.Echo = echo.New()
 	s.HideBanner = true
 
-	//  ----- Default Logger -----
-	log.SetPrefix("")
-	log.SetHeader("[${level}]")
-	log.SetLevel(log.INFO)
-
 	//  ----- Echo Logger -----
 	s.Logger.SetPrefix("")
 	s.Logger.SetHeader("[${level}]")
@@ -147,6 +142,16 @@ func logStatus(name interface{}, enabled bool) {
 	if !enabled {
 		status = colorer.Red("disabled")
 	}
-
 	fmt.Printf("⇨ %s: %s\n", name, status)
+}
+
+func logStatusWithConfigVariant(name interface{}, variant string, enabled bool) {
+	var nameWithVariant string
+	if variant != config.DefaultVariant && variant != "" {
+		nameWithVariant = fmt.Sprintf("%v (%s)", name, variant)
+	} else {
+		nameWithVariant = fmt.Sprintf("%v", name)
+	}
+
+	logStatus(nameWithVariant, enabled)
 }

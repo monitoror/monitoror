@@ -274,3 +274,16 @@ func TestUsecase_VerifyTile_Failed_InvalidRowSpan(t *testing.T) {
 	assert.Equal(t, 1, configError.Count())
 	assert.Contains(t, configError.Error(), `Invalid "rowSpan" field. Must be a positive integer.`)
 }
+
+func TestUsecase_VerifyTile_Failed_WrongVariant(t *testing.T) {
+	input := `{ "type": "jenkins-build", "configVariant": "test", "params": { "host": "server.com" } }`
+	configError := &models.ConfigError{}
+
+	tile := initTile(t, input)
+	useCase := initConfigUsecase()
+
+	useCase.verifyTile(tile, false, configError)
+
+	assert.Equal(t, 1, configError.Count())
+	assert.Contains(t, configError.Error(), `Unknown "test" variant for jenkins-build type in tile definition. Must be`)
+}
