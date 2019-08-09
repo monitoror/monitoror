@@ -73,8 +73,8 @@ github.com/joho/godotenv v1.3.0/go.mod h1:7hK45KPybAkOC6peb+G5yklZfMxEjkZhHbwpqx
 github.com/jonboulle/clockwork v0.1.0/go.mod h1:Ii8DK3G1RaLaWxj9trq07+26W01tbo22gdxWY5EU2bo=
 github.com/jsdidierlaurent/echo-middleware v1.0.2 h1:F8mA2b3j84/vgpn6OsHwhSOuyJND9eL/Xnd/E6BFGpw=
 github.com/jsdidierlaurent/echo-middleware v1.0.2/go.mod h1:7KRCXCnk/wqEFjW22H9bMiJ9MsGHaDryJhhBBEAcnEU=
-github.com/jsdidierlaurent/golang-jenkins v0.0.0-20190717143349-21414cce3e27 h1:KvPxaDi89m7jrg9rGw/p7k9SPuwBcgbqGlYRu2rglEs=
-github.com/jsdidierlaurent/golang-jenkins v0.0.0-20190717143349-21414cce3e27/go.mod h1:RELp2nyNx2vW0ZD/DAKROT0JRwiwTZNuGmsVeH5rCb4=
+github.com/jsdidierlaurent/golang-jenkins v0.0.0-20190809130356-79183d711e68 h1:HmD+FgYqCQ3+bQVTooD8EW6Cf6QD/yZooGwFrJhdo+I=
+github.com/jsdidierlaurent/golang-jenkins v0.0.0-20190809130356-79183d711e68/go.mod h1:RELp2nyNx2vW0ZD/DAKROT0JRwiwTZNuGmsVeH5rCb4=
 github.com/julienschmidt/httprouter v1.2.0/go.mod h1:SYymIcj16QtmaHHD7aYtjjsJG7VTCxuUUipMqKk8s4w=
 github.com/kisielk/errcheck v1.1.0/go.mod h1:EZBBE59ingxPouuu3KfxchcWSUPOHkagtvWXihfKN4Q=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=

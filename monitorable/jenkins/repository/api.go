@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/prometheus/common/log"
+	"github.com/labstack/gommon/log"
 
 	"github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
@@ -79,6 +79,7 @@ func (r *jenkinsRepository) GetLastBuildStatus(job *models.Job) (build *models.B
 	jenkinsBuild, err := r.jenkinsApi.GetLastBuildByJobId(job.ID)
 	if err != nil {
 		// No build found, return nil build but no error
+		log.Warn(err)
 		return nil, nil
 	}
 
@@ -112,10 +113,10 @@ func (r *jenkinsRepository) GetLastBuildStatus(job *models.Job) (build *models.B
 	return
 }
 
-func parseDate(date int) time.Time {
-	return time.Unix(int64(date/int(time.Microsecond)), 0)
+func parseDate(date int64) time.Time {
+	return time.Unix(date/int64(time.Microsecond), 0)
 }
 
-func parseDuration(duration int) time.Duration {
+func parseDuration(duration int64) time.Duration {
 	return time.Duration(duration) * time.Millisecond
 }
