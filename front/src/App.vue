@@ -24,6 +24,7 @@
      * Data
      */
 
+    private loadConfigurationInterval!: number
     private refreshTilesCount: number = 0
     private refreshTilesInterval!: number
 
@@ -56,8 +57,13 @@
 
     private async mounted() {
       await Vue.nextTick()
-      await this.$store.dispatch('loadConfig')
+      await this.$store.dispatch('loadConfiguration')
       await this.$store.dispatch('refreshTiles')
+
+      this.loadConfigurationInterval = setInterval(async () => {
+        await this.$store.dispatch('loadConfiguration')
+        await this.$store.dispatch('refreshTiles')
+      }, 10000)
 
       this.refreshTilesInterval = setInterval(() => {
         if (this.refreshTilesCount >= App.refreshTilesDelta) {
@@ -71,6 +77,7 @@
     }
 
     private beforeDestroy() {
+      clearInterval(this.loadConfigurationInterval)
       clearInterval(this.refreshTilesInterval)
     }
   }

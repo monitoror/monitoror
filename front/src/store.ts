@@ -1,3 +1,4 @@
+import {Md5 as md5} from 'ts-md5/dist/md5'
 import Vue from 'vue'
 import Vuex, {StoreOptions} from 'vuex'
 
@@ -106,7 +107,6 @@ const store: StoreOptions<RootState> = {
     setConfig(state, payload: ConfigInterface): void {
       state.columns = payload.columns
       state.tiles = payload.tiles
-      state.tilesState = {}
     },
     setTileState(state, payload: { tileStateKey: string, tileState: TileState }): void {
       if (!state.tilesState.hasOwnProperty(payload.tileStateKey)) {
@@ -117,10 +117,10 @@ const store: StoreOptions<RootState> = {
     },
   },
   actions: {
-    loadConfig({commit, getters}) {
+    loadConfiguration({commit, getters}) {
       function setTileStateKey(tile: TileConfig) {
         // Create a random identifier
-        tile.stateKey = tile.type + '_' + Math.random().toString(36).substr(2, 9)
+        tile.stateKey = tile.type + '_' + md5.hashStr(JSON.stringify(tile))
 
         // Set stateKey on group subTiles
         if (tile.tiles) {
