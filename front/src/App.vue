@@ -24,6 +24,7 @@
      * Data
      */
 
+    private autoUpdateInterval!: number
     private loadConfigurationInterval!: number
     private refreshTilesCount: number = 0
     private refreshTilesInterval!: number
@@ -57,8 +58,13 @@
 
     private async mounted() {
       await Vue.nextTick()
+      await this.$store.dispatch('autoUpdate')
       await this.$store.dispatch('loadConfiguration')
       await this.$store.dispatch('refreshTiles')
+
+      this.autoUpdateInterval = setInterval(async () => {
+        await this.$store.dispatch('autoUpdate')
+      }, 60000)
 
       this.loadConfigurationInterval = setInterval(async () => {
         await this.$store.dispatch('loadConfiguration')
@@ -77,6 +83,7 @@
     }
 
     private beforeDestroy() {
+      clearInterval(this.autoUpdateInterval)
       clearInterval(this.loadConfigurationInterval)
       clearInterval(this.refreshTilesInterval)
     }

@@ -6,6 +6,12 @@ import VueInstance from './main'
 
 Vue.use(Vuex)
 
+const INFO_URL = '/info'
+
+export interface InfoInterface {
+  version: string,
+}
+
 export enum TileCategory {
   Health = 'HEALTH',
   Build = 'BUILD',
@@ -77,7 +83,7 @@ export interface TileState {
 }
 
 interface RootState {
-  version: string,
+  version: string | undefined,
   columns: number,
   tiles: TileConfig[],
   tilesState: { [key: string]: TileState },
@@ -85,7 +91,7 @@ interface RootState {
 
 const store: StoreOptions<RootState> = {
   state: {
-    version: 'unknown',
+    version: undefined,
     columns: 4,
     tiles: [],
     tilesState: {},
@@ -104,6 +110,9 @@ const store: StoreOptions<RootState> = {
     },
   },
   mutations: {
+    setVersion(state, payload: string): void {
+      state.version = payload
+    },
     setConfig(state, payload: ConfigInterface): void {
       state.columns = payload.columns
       state.tiles = payload.tiles
@@ -117,6 +126,21 @@ const store: StoreOptions<RootState> = {
     },
   },
   actions: {
+    autoUpdate({commit, state, getters}) {
+      return VueInstance.$http.get(getters.configUrl.replace(/\/config.*$/, INFO_URL))
+        .then(async (data) => {
+          const info: InfoInterface = await data.json()
+
+          if (state.version === undefined) {
+            commit('setVersion', info.version)
+            return
+          }
+
+          if (info.version !== state.version) {
+            window.location.reload()
+          }
+        })
+    },
     loadConfiguration({commit, getters}) {
       function setTileStateKey(tile: TileConfig) {
         // Create a random identifier
