@@ -140,6 +140,9 @@ const store: StoreOptions<RootState> = {
         })
     },
     refreshTiles({commit, state}) {
+      function timeout(delay: number = 0) {
+        return new Promise(resolve => setTimeout(resolve, delay))
+      }
       function refreshTile(tile: TileConfig): Promise<void> {
         if (!tile.url) {
           return Promise.resolve()
@@ -170,12 +173,24 @@ const store: StoreOptions<RootState> = {
       // Classic tiles (all except empty and group types)
       state.tiles
         .filter((tile) => !!tile.url)
-        .forEach(refreshTile)
+        .forEach(async (tile) => {
+          if (state.tilesState.hasOwnProperty(tile.stateKey)) {
+            // Randomize delay for each tile to avoid DoS back-end services
+            await timeout(Math.random() * 10000)
+          }
+
+          await refreshTile(tile)
+        })
 
       // Group subTiles
-      state.tiles.forEach((tile) => {
+      state.tiles.forEach(async (tile) => {
         if (!tile.tiles) {
           return
+        }
+
+        if (state.tilesState.hasOwnProperty(tile.stateKey)) {
+          // Randomize delay for each group to avoid DoS back-end services
+          await timeout(Math.random() * 10000)
         }
 
         Promise.all(tile.tiles.map(refreshTile)).then(() => {
