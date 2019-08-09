@@ -10,13 +10,15 @@ import (
 
 // Versions
 const (
-	CurrentVersion = Version1
+	CurrentVersion = Version2
 
-	Version1 = 2
+	Version1 = 1
+	Version2 = 2
 )
 
 var SupportedVersions = map[int]bool{
 	Version1: true,
+	Version2: true,
 }
 
 // Tile keys
