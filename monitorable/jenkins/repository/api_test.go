@@ -125,7 +125,7 @@ func TestRepository_GetLastBuildStatus_Error(t *testing.T) {
 	repository := initRepository(t, mocksJenkins)
 	if repository != nil {
 		build, err := repository.GetLastBuildStatus(&models.Job{ID: "test/job/master"})
-		assert.NoError(t, err)
+		assert.Error(t, err)
 		assert.Nil(t, build)
 		mocksJenkins.AssertNumberOfCalls(t, "GetLastBuildByJobId", 1)
 		mocksJenkins.AssertExpectations(t)

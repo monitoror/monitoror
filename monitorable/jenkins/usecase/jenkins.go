@@ -50,8 +50,7 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *BuildTile, er
 		// TODO : Replace that by errors.Is when go 1.13 will be released
 		if strings.Contains(err.Error(), "no such host") ||
 			strings.Contains(err.Error(), "dial tcp: lookup") ||
-			strings.Contains(err.Error(), "request canceled") ||
-			strings.Contains(err.Error(), "unsupported protocol scheme") {
+			strings.Contains(err.Error(), "request canceled") {
 			err = errors.NewTimeoutError(tile.Tile)
 		} else {
 			err = errors.NewSystemError("unable to found job", nil)
@@ -85,8 +84,7 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *BuildTile, er
 	if err != nil || build == nil {
 		if err != nil && (strings.Contains(err.Error(), "no such host") ||
 			strings.Contains(err.Error(), "dial tcp: lookup") ||
-			strings.Contains(err.Error(), "request canceled") ||
-			strings.Contains(err.Error(), "unsupported protocol scheme")) {
+			strings.Contains(err.Error(), "request canceled")) {
 			err = errors.NewTimeoutError(tile.Tile)
 		} else {
 			err = errors.NewNoBuildError(tile)
