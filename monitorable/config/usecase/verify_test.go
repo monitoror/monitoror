@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"strings"
 	"testing"
@@ -59,7 +58,7 @@ func TestUsecase_Verify_Failed(t *testing.T) {
 			configError := err.(*models.ConfigError)
 
 			assert.Equal(t, 3, configError.Count())
-			assert.Contains(t, configError.Error(), fmt.Sprintf(`Unsupported "version" field. Must be %s.`, keys(SupportedVersions)))
+			assert.Contains(t, configError.Error(), `Unsupported "version" field. Must be`)
 			assert.Contains(t, configError.Error(), `Missing or invalid "columns" field. Must be a positive integer.`)
 			assert.Contains(t, configError.Error(), `Missing or invalid "tiles" field. Must be an array not empty.`)
 		}

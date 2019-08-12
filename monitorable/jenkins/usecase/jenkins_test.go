@@ -35,6 +35,27 @@ func TestBuild_Error_NoHost(t *testing.T) {
 		mockRepository.AssertNumberOfCalls(t, "GetJob", 1)
 		mockRepository.AssertExpectations(t)
 	}
+
+	repositoryJob := &models.Job{
+		Buildable: true,
+	}
+
+	mockRepository = new(mocks.Repository)
+	mockRepository.On("GetJob", AnythingOfType("string"), AnythingOfType("string")).
+		Return(repositoryJob, nil)
+	mockRepository.On("GetLastBuildStatus", Anything).
+		Return(nil, errors.New("no such host"))
+
+	tu = NewJenkinsUsecase(mockRepository)
+
+	tile, err = tu.Build(&models.BuildParams{Job: job, Parent: parent})
+	if assert.Error(t, err) {
+		assert.Nil(t, tile)
+		assert.IsType(t, &mErrors.TimeoutError{}, err)
+		mockRepository.AssertNumberOfCalls(t, "GetJob", 1)
+		mockRepository.AssertNumberOfCalls(t, "GetLastBuildStatus", 1)
+		mockRepository.AssertExpectations(t)
+	}
 }
 
 func TestBuild_Error_NoNetwork(t *testing.T) {
@@ -49,6 +70,27 @@ func TestBuild_Error_NoNetwork(t *testing.T) {
 		assert.Nil(t, tile)
 		assert.IsType(t, &mErrors.TimeoutError{}, err)
 		mockRepository.AssertNumberOfCalls(t, "GetJob", 1)
+		mockRepository.AssertExpectations(t)
+	}
+
+	repositoryJob := &models.Job{
+		Buildable: true,
+	}
+
+	mockRepository = new(mocks.Repository)
+	mockRepository.On("GetJob", AnythingOfType("string"), AnythingOfType("string")).
+		Return(repositoryJob, nil)
+	mockRepository.On("GetLastBuildStatus", Anything).
+		Return(nil, errors.New("dial tcp: lookup"))
+
+	tu = NewJenkinsUsecase(mockRepository)
+
+	tile, err = tu.Build(&models.BuildParams{Job: job, Parent: parent})
+	if assert.Error(t, err) {
+		assert.Nil(t, tile)
+		assert.IsType(t, &mErrors.TimeoutError{}, err)
+		mockRepository.AssertNumberOfCalls(t, "GetJob", 1)
+		mockRepository.AssertNumberOfCalls(t, "GetLastBuildStatus", 1)
 		mockRepository.AssertExpectations(t)
 	}
 }
@@ -67,6 +109,27 @@ func TestBuild_Timeout(t *testing.T) {
 		assert.Nil(t, tile)
 		assert.IsType(t, &mErrors.TimeoutError{}, err)
 		mockRepository.AssertNumberOfCalls(t, "GetJob", 1)
+		mockRepository.AssertExpectations(t)
+	}
+
+	repositoryJob := &models.Job{
+		Buildable: true,
+	}
+
+	mockRepository = new(mocks.Repository)
+	mockRepository.On("GetJob", AnythingOfType("string"), AnythingOfType("string")).
+		Return(repositoryJob, nil)
+	mockRepository.On("GetLastBuildStatus", Anything).
+		Return(nil, errRequestCanceledConn)
+
+	tu = NewJenkinsUsecase(mockRepository)
+
+	tile, err = tu.Build(&models.BuildParams{Job: job, Parent: parent})
+	if assert.Error(t, err) {
+		assert.Nil(t, tile)
+		assert.IsType(t, &mErrors.TimeoutError{}, err)
+		mockRepository.AssertNumberOfCalls(t, "GetJob", 1)
+		mockRepository.AssertNumberOfCalls(t, "GetLastBuildStatus", 1)
 		mockRepository.AssertExpectations(t)
 	}
 }

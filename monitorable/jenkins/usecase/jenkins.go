@@ -50,7 +50,7 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *BuildTile, er
 		// TODO : Replace that by errors.Is when go 1.13 will be released
 		if strings.Contains(err.Error(), "no such host") ||
 			strings.Contains(err.Error(), "dial tcp: lookup") ||
-			strings.Contains(err.Error(), "request canceled while waiting for connection") ||
+			strings.Contains(err.Error(), "request canceled") ||
 			strings.Contains(err.Error(), "unsupported protocol scheme") {
 			err = errors.NewTimeoutError(tile.Tile)
 		} else {
@@ -83,7 +83,14 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *BuildTile, er
 	// Get Last Build
 	build, err := tu.repository.GetLastBuildStatus(job)
 	if err != nil || build == nil {
-		err = errors.NewNoBuildError(tile)
+		if err != nil && (strings.Contains(err.Error(), "no such host") ||
+			strings.Contains(err.Error(), "dial tcp: lookup") ||
+			strings.Contains(err.Error(), "request canceled") ||
+			strings.Contains(err.Error(), "unsupported protocol scheme")) {
+			err = errors.NewTimeoutError(tile.Tile)
+		} else {
+			err = errors.NewNoBuildError(tile)
+		}
 		return nil, err
 	}
 
