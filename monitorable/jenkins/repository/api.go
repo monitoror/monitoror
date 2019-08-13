@@ -6,8 +6,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/labstack/gommon/log"
-
 	"github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
 	"github.com/monitoror/monitoror/monitorable/jenkins/models"
@@ -56,7 +54,6 @@ func (r *jenkinsRepository) GetJob(jobName string, jobParent string) (job *model
 
 	jenkinsJob, err := r.jenkinsApi.GetJob(jobId)
 	if err != nil {
-		log.Warn(err)
 		return nil, fmt.Errorf("unable to get job. %v", err)
 	}
 
@@ -78,9 +75,7 @@ func (r *jenkinsRepository) GetJob(jobName string, jobParent string) (job *model
 func (r *jenkinsRepository) GetLastBuildStatus(job *models.Job) (build *models.Build, err error) {
 	jenkinsBuild, err := r.jenkinsApi.GetLastBuildByJobId(job.ID)
 	if err != nil {
-		// No build found, return nil build but no error
-		log.Warn(err)
-		return nil, nil
+		return nil, err
 	}
 
 	build = &models.Build{}
