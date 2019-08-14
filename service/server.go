@@ -59,11 +59,6 @@ func (s *Server) initEcho() {
 	s.Echo = echo.New()
 	s.HideBanner = true
 
-	//  ----- Echo Logger -----
-	s.Logger.SetPrefix("")
-	s.Logger.SetHeader("[${level}]")
-	s.Logger.SetLevel(log.INFO)
-
 	// ----- Errors Handler -----
 	s.HTTPErrorHandler = handlers.HttpErrorHandler
 }
@@ -73,9 +68,11 @@ func (s *Server) initMiddleware() {
 	s.Use(echoMiddleware.Recover())
 
 	// Log requests
-	s.Use(echoMiddleware.LoggerWithConfig(echoMiddleware.LoggerConfig{
-		Format: `[-] ` + colorer.Green("${method}") + ` ${uri} status:${status} latency:` + colorer.Green("${latency_human}") + ` error:"${error}"` + "\n",
-	}))
+	if s.config.Env != "production" {
+		s.Use(echoMiddleware.LoggerWithConfig(echoMiddleware.LoggerConfig{
+			Format: `[-] ` + colorer.Green("${method}") + ` ${uri} status:${status} latency:` + colorer.Green("${latency_human}") + ` error:"${error}"` + "\n",
+		}))
+	}
 
 	// Cache
 	s.cm = middlewares.NewCacheMiddleware(s.config) // Used as Handler wrapper in routes

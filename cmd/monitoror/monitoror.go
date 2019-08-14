@@ -26,12 +26,12 @@ func main() {
 	_ = godotenv.Load(filepath.Join(dir, ".env"))
 
 	// Load GetConfig from File/Env
-	config := config.InitConfig()
+	conf := config.InitConfig()
 
 	// Banner
 	cli.PrintBanner()
 
 	// Start Service
-	server := service.Init(config)
+	server := service.Init(conf)
 	server.Start()
 }
