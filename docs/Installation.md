@@ -97,28 +97,6 @@ sudo service rsyslog restart
 ```
 
 ```bash
-# logrotate configuration
-# Copy the entire block until END tag (included)
-sudo tee -a /etc/logrotate.d/monitoror > /dev/null <<END
-/var/log/monitoror/monitoror.log {
-    size 5M
-    copytruncate
-    rotate 1
-    start 1
-    nocompress
-    postrotate
-        invoke-rc.d rsyslog rotate > /dev/null
-    endscript
-}
-END
-
-sudo tee -a /etc/cron-hourly/logrotate-monitoror > /dev/null <<END
-#!/bin/bash
-/usr/sbin/logrotate /etc/logrotate.d/monitoror
-END
-```
-
-```bash
 # Frontend startup with autostart
 # :warning: you need to do this with user starting x server (usually pi)
 # Copy the entire block until END tag (included)
