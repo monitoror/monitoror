@@ -37,7 +37,7 @@ func (s *Server) registerConfig() config.Helper {
 	usecase := _configUsecase.NewConfigUsecase(repository)
 	delivery := _configDelivery.NewHttpConfigDelivery(usecase)
 
-	s.v1.GET("/config", s.cm.UpstreamCacheHandler(delivery.GetConfig))
+	s.v1.GET("/config", delivery.GetConfig)
 
 	return usecase
 }
