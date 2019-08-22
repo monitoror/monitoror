@@ -3,58 +3,48 @@ package usecase
 import (
 	"fmt"
 	"net/url"
-	"strings"
 
 	. "github.com/monitoror/monitoror/config"
 
-	"github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/config/models"
 )
 
 func (cu *configUsecase) Hydrate(config *models.Config, host string) error {
-	for _, tile := range config.Tiles {
-		cu.hydrateTile(tile, host)
+	for i := range config.Tiles {
+		cu.hydrateTile(&config.Tiles[i], host)
 	}
 
 	return nil
 }
 
-func (cu *configUsecase) hydrateTile(tile map[string]interface{}, host string) {
-	tileType := tiles.TileType(strings.ToUpper(tile[TypeKey].(string)))
-
+func (cu *configUsecase) hydrateTile(tile *models.Tile, host string) {
 	// Empty tile, skip
-	if tileType == EmptyTileType {
+	if tile.Type == EmptyTileType {
 		return
 	}
 
-	if tileType == GroupTileType {
-		groupTiles, _ := tile[TilesKey].([]interface{})
-		for _, gt := range groupTiles {
-			groupTile, _ := gt.(map[string]interface{})
-			cu.hydrateTile(groupTile, host)
+	if tile.Type == GroupTileType {
+		for i := range tile.Tiles {
+			cu.hydrateTile(&tile.Tiles[i], host)
 		}
-
 		return
 	}
 
 	// Define config Variant
-	var variant string
-	if configVariant, ok := tile[ConfigVariantKey]; ok {
-		variant = configVariant.(string)
-	} else {
-		variant = DefaultVariant
+	if tile.ConfigVariant == "" {
+		tile.ConfigVariant = DefaultVariant
 	}
 
 	// Change Params by a valid Url
-	path := cu.tileConfigs[tileType][variant].Path
-	params := url.Values{}
-	for key, value := range tile[ParamsKey].(map[string]interface{}) {
-		params.Add(key, fmt.Sprintf("%v", value))
+	path := cu.tileConfigs[tile.Type][tile.ConfigVariant].Path
+	urlParams := url.Values{}
+	for key, value := range tile.Params {
+		urlParams.Add(key, fmt.Sprintf("%v", value))
 	}
 
-	tile[UrlKey] = fmt.Sprintf("%s%s?%s", host, path, params.Encode())
+	tile.Url = fmt.Sprintf("%s%s?%s", host, path, urlParams.Encode())
 
 	// Remove Params / Variant
-	delete(tile, ParamsKey)
-	delete(tile, ConfigVariantKey)
+	tile.Params = nil
+	tile.ConfigVariant = ""
 }

@@ -25,8 +25,7 @@ func GetConfig(reader io.Reader) (config *models.Config, err error) {
 		return
 	}
 
-	err = json.Unmarshal(bytes, &config)
-	if err != nil {
+	if err = json.Unmarshal(bytes, &config); err != nil {
 		return
 	}
 

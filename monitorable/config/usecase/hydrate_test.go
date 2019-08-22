@@ -15,15 +15,15 @@ func TestUsecase_Hydrate(t *testing.T) {
 {
   "columns": 4,
   "tiles": [
-    { "type": "empty" },
-    { "type": "ping", "params": { "hostname": "aserver.com" } },
-    { "type": "port", "params": { "hostname": "bserver.com", "port": 22 } },
-    { "type": "group", "label": "...", "tiles": [
-      { "type": "ping", "params": { "hostname": "aserver.com" } },
-      { "type": "port", "params": { "hostname": "bserver.com", "port": 22 } }
+    { "type": "EMPTY" },
+    { "type": "PING", "params": { "hostname": "aserver.com" } },
+    { "type": "PORT", "params": { "hostname": "bserver.com", "port": 22 } },
+    { "type": "GROUP", "label": "...", "tiles": [
+      { "type": "PING", "params": { "hostname": "aserver.com" } },
+      { "type": "PORT", "params": { "hostname": "bserver.com", "port": 22 } }
     ]},
-		{ "type": "jenkins-build", "params": { "job": "test" } },
-		{ "type": "jenkins-build", "configVariant": "variant1", "params": { "job": "test" } }
+		{ "type": "JENKINS-BUILD", "params": { "job": "test" } },
+		{ "type": "JENKINS-BUILD", "configVariant": "variant1", "params": { "job": "test" } }
   ]
 }
 `
@@ -36,15 +36,13 @@ func TestUsecase_Hydrate(t *testing.T) {
 	err = usecase.Hydrate(config, "http://localhost:8080")
 	assert.NoError(t, err)
 
-	assert.Equal(t, "http://localhost:8080/ping?hostname=aserver.com", config.Tiles[1][UrlKey])
-	assert.Equal(t, "http://localhost:8080/port?hostname=bserver.com&port=22", config.Tiles[2][UrlKey])
+	assert.Equal(t, "http://localhost:8080/ping?hostname=aserver.com", config.Tiles[1].Url)
+	assert.Equal(t, "http://localhost:8080/port?hostname=bserver.com&port=22", config.Tiles[2].Url)
 
-	group := config.Tiles[3][TilesKey].([]interface{})
-	gtile1 := group[0].(map[string]interface{})
-	assert.Equal(t, "http://localhost:8080/ping?hostname=aserver.com", gtile1[UrlKey])
-	gtile2 := group[1].(map[string]interface{})
-	assert.Equal(t, "http://localhost:8080/port?hostname=bserver.com&port=22", gtile2[UrlKey])
+	group := config.Tiles[3].Tiles
+	assert.Equal(t, "http://localhost:8080/ping?hostname=aserver.com", group[0].Url)
+	assert.Equal(t, "http://localhost:8080/port?hostname=bserver.com&port=22", group[1].Url)
 
-	assert.Equal(t, "http://localhost:8080/jenkins/default?job=test", config.Tiles[4][UrlKey])
-	assert.Equal(t, "http://localhost:8080/jenkins/variant1?job=test", config.Tiles[5][UrlKey])
+	assert.Equal(t, "http://localhost:8080/jenkins/default?job=test", config.Tiles[4].Url)
+	assert.Equal(t, "http://localhost:8080/jenkins/variant1?job=test", config.Tiles[5].Url)
 }

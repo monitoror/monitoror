@@ -3,15 +3,13 @@ package usecase
 import (
 	"encoding/json"
 	"fmt"
-	"math"
 	"reflect"
 	"strings"
 
-	. "github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/config"
 
 	. "github.com/monitoror/monitoror/pkg/monitoror/validator"
 
-	"github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/config/models"
 )
 
@@ -31,7 +29,7 @@ func (cu *configUsecase) Verify(config *models.Config) error {
 	} else {
 		// Iterating through every tiles config
 		for _, tile := range config.Tiles {
-			cu.verifyTile(tile, false, err)
+			cu.verifyTile(&tile, false, err)
 		}
 	}
 
@@ -41,95 +39,68 @@ func (cu *configUsecase) Verify(config *models.Config) error {
 	return nil
 }
 
-func (cu *configUsecase) verifyTile(tile map[string]interface{}, group bool, err *models.ConfigError) {
-	// Check if tile keys are authorized
-	for key := range tile {
-		if exists := AuthorizedTileKey[key]; !exists {
-			err.Add(fmt.Sprintf(`Unknown key "%s" in tile definition. Must be %s.`, key, keys(AuthorizedTileKey)))
-			return
-		}
+func (cu *configUsecase) verifyTile(tile *models.Tile, group bool, err *models.ConfigError) {
+	if tile.ColumnSpan != nil && *tile.ColumnSpan <= 0 {
+		err.Add(`Invalid "columnSpan" field. Must be a positive integer.`)
+		return
 	}
 
-	if columnSpan, ok := tile[ColumnSpanKey]; ok {
-		castedColumnSpan, ok := columnSpan.(float64)
-		if !ok || castedColumnSpan <= 0 ||
-			castedColumnSpan != math.Trunc(castedColumnSpan) {
-			err.Add(`Invalid "columnSpan" field. Must be a positive integer.`)
-			return
-		}
+	if tile.RowSpan != nil && *tile.RowSpan <= 0 {
+		err.Add(`Invalid "rowSpan" field. Must be a positive integer.`)
+		return
 	}
-
-	if rowSpan, ok := tile[RowSpanKey]; ok {
-		castedRowSpan, ok := rowSpan.(float64)
-		if !ok || castedRowSpan <= 0 ||
-			castedRowSpan != math.Trunc(castedRowSpan) {
-			err.Add(`Invalid "rowSpan" field. Must be a positive integer.`)
-			return
-		}
-	}
-
-	tileType := tiles.TileType(strings.ToUpper(tile[TypeKey].(string)))
 
 	// Empty tile, skip
-	if tileType == EmptyTileType {
+	if tile.Type == EmptyTileType {
 		if group {
-			err.Add(`Unauthorized "empty" type in group tile.`)
+			err.Add(fmt.Sprintf(`Unauthorized "%s" type in %s tile.`, EmptyTileType, GroupTileType))
 		}
 		return
 	}
 
 	// Group tile, parse and call verifyTile for each grouped tile
-	if tileType == GroupTileType {
+	if tile.Type == GroupTileType {
 		if group {
-			err.Add(`Unauthorized "group" type in group tile.`)
+			err.Add(fmt.Sprintf(`Unauthorized "%s" type in %s tile.`, GroupTileType, GroupTileType))
 			return
 		}
 
-		if _, exists := tile[ParamsKey]; exists {
-			err.Add(fmt.Sprintf(`Unauthorized "%s" key in %s tile definition.`, ParamsKey, tile[TypeKey]))
+		if tile.Params != nil {
+			err.Add(fmt.Sprintf(`Unauthorized "params" key in %s tile definition.`, tile.Type))
 			return
 		}
 
-		groupTiles, ok := tile[TilesKey].([]interface{})
-		if !ok {
-			err.Add(fmt.Sprintf(`Incorrect "%s" key in %s tile definition.`, TilesKey, tile[TypeKey]))
+		if tile.Tiles == nil || len(tile.Tiles) == 0 {
+			err.Add(fmt.Sprintf(`Missing or empty "tiles" key in %s tile definition.`, tile.Type))
 			return
 		}
 
-		for _, gt := range groupTiles {
-			groupTile, ok := gt.(map[string]interface{})
-			if !ok {
-				err.Add(fmt.Sprintf(`Incorrect array element "%s" in group definition.`, gt))
-				continue
-			}
-
-			cu.verifyTile(groupTile, true, err)
+		for _, groupTile := range tile.Tiles {
+			cu.verifyTile(&groupTile, true, err)
 		}
 
 		return
 	}
 
-	if _, exists := tile[ParamsKey]; !exists {
-		err.Add(fmt.Sprintf(`Missing "%s" key in %s tile definition.`, ParamsKey, tile[TypeKey]))
+	if _, exists := cu.tileConfigs[tile.Type]; !exists {
+		err.Add(fmt.Sprintf(`Unknown "%s" type in tile definition. Must be %s`, tile.Type, keys(cu.tileConfigs)))
 		return
 	}
 
-	if _, exists := cu.tileConfigs[tileType]; !exists {
-		err.Add(fmt.Sprintf(`Unknown "%s" type in tile definition. Must be %s`, tile[TypeKey], keys(cu.tileConfigs)))
+	if tile.Params == nil {
+		err.Add(fmt.Sprintf(`Missing "params" key in %s tile definition.`, tile.Type))
 		return
 	}
 
-	var variant string
-	if configVariant, ok := tile[ConfigVariantKey]; ok {
-		variant = configVariant.(string)
-	} else {
-		variant = DefaultVariant
+	// Set ConfigVariant to DefaultVariant if empty
+	if tile.ConfigVariant == "" {
+		tile.ConfigVariant = config.DefaultVariant
 	}
 
 	var tileConfig *TileConfig
 	var exists bool
-	if tileConfig, exists = cu.tileConfigs[tileType][variant]; !exists {
-		err.Add(fmt.Sprintf(`Unknown "%s" variant for %s type in tile definition. Must be %s`, tile[ConfigVariantKey], tile[TypeKey], keys(cu.tileConfigs[tileType])))
+	if tileConfig, exists = cu.tileConfigs[tile.Type][tile.ConfigVariant]; !exists {
+		err.Add(fmt.Sprintf(`Unknown "%s" variant for %s type in tile definition. Must be %s`, tile.ConfigVariant, tile.Type, keys(cu.tileConfigs[tile.Type])))
 		return
 	}
 
@@ -138,11 +109,11 @@ func (cu *configUsecase) verifyTile(tile map[string]interface{}, group bool, err
 	rInstance := reflect.New(rType.Elem()).Interface()
 
 	// Marshal / Unmarshal the map[string]interface{} struct in new instance of Validator
-	bParams, _ := json.Marshal(tile[ParamsKey])
+	bParams, _ := json.Marshal(tile.Params)
 	unmarshalErr := json.Unmarshal(bParams, &rInstance)
 
 	if unmarshalErr != nil || !rInstance.(Validator).IsValid() {
-		err.Add(fmt.Sprintf(`Invalid params definition for "%s": "%s".`, tile[TypeKey], string(bParams)))
+		err.Add(fmt.Sprintf(`Invalid params definition for "%s": "%s".`, tile.Type, string(bParams)))
 		return
 	}
 

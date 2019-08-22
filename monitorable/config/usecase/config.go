@@ -16,38 +16,17 @@ const (
 	Version2 = 2
 )
 
+const (
+	// Custom Tile Type
+	EmptyTileType   tiles.TileType = "EMPTY"
+	GroupTileType   tiles.TileType = "GROUP"
+	DynamicTileType tiles.TileType = "DYNAMIC"
+)
+
 var SupportedVersions = map[int]bool{
 	Version1: true,
 	Version2: true,
 }
-
-// Tile keys
-const (
-	TypeKey          = "type"
-	ConfigVariantKey = "configVariant"
-	LabelKey         = "label"
-	ColumnSpanKey    = "columnSpan"
-	RowSpanKey       = "rowSpan"
-	ParamsKey        = "params"
-	TilesKey         = "tiles"
-	UrlKey           = "url" // Injected by hydrate function
-)
-
-var AuthorizedTileKey = map[string]bool{
-	TypeKey:          true,
-	ConfigVariantKey: true,
-	LabelKey:         true,
-	ColumnSpanKey:    true,
-	RowSpanKey:       true,
-	ParamsKey:        true,
-	TilesKey:         true,
-}
-
-const (
-	// Custom Tile Type
-	EmptyTileType tiles.TileType = "EMPTY"
-	GroupTileType tiles.TileType = "GROUP"
-)
 
 type (
 	configUsecase struct {
