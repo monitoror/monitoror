@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-dirs=("pkg/gotravis" "pkg/gojenkins")
+dirs=("pkg/gotravis" "pkg/gojenkins" "pkg/monitoror/validator" "pkg/monitoror/builder")
 
 # Generate mocks of interfaces find inside directory listed on dirs
 for dir in "${dirs[@]}"; do

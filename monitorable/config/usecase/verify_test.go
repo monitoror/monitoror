@@ -25,7 +25,7 @@ func initTile(t *testing.T, input string) (tiles *models.Tile) {
 func TestUsecase_Verify_Success(t *testing.T) {
 	input := `
 {
-	"version" : 2,
+	"version" : 3,
   "columns": 4,
   "tiles": [
 		{ "type": "EMPTY" }
@@ -242,7 +242,7 @@ func TestUsecase_VerifyTile_Failed_InvalidRowSpan(t *testing.T) {
 }
 
 func TestUsecase_VerifyTile_Failed_WrongVariant(t *testing.T) {
-	input := `{ "type": "JENKINS-BUILD", "configVariant": "test", "params": { "host": "server.com" } }`
+	input := `{ "type": "JENKINS-BUILD", "configVariant": "test", "params": { "job": "job1" } }`
 	configError := &models.ConfigError{}
 
 	tile := initTile(t, input)
@@ -252,4 +252,29 @@ func TestUsecase_VerifyTile_Failed_WrongVariant(t *testing.T) {
 
 	assert.Equal(t, 1, configError.Count())
 	assert.Contains(t, configError.Error(), `Unknown "test" variant for JENKINS-BUILD type in tile definition. Must be`)
+}
+
+func TestUsecase_VerifyTile_WithDynamicTile(t *testing.T) {
+	input := `{ "type": "JENKINS-MULTIBRANCH", "configVariant": "default", "params": { "job": "job1" } }`
+	configError := &models.ConfigError{}
+
+	tile := initTile(t, input)
+	useCase := initConfigUsecase()
+
+	useCase.verifyTile(tile, false, configError)
+
+	assert.Equal(t, 0, configError.Count())
+}
+
+func TestUsecase_VerifyTile_WithDynamicTile_WithWrongVariant(t *testing.T) {
+	input := `{ "type": "JENKINS-MULTIBRANCH", "configVariant": "test", "params": { "job": "job1" } }`
+	configError := &models.ConfigError{}
+
+	tile := initTile(t, input)
+	useCase := initConfigUsecase()
+
+	useCase.verifyTile(tile, false, configError)
+
+	assert.Equal(t, 1, configError.Count())
+	assert.Contains(t, configError.Error(), `Unknown "test" variant for JENKINS-MULTIBRANCH dynamic type in tile definition. Must be`)
 }

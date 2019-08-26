@@ -97,15 +97,30 @@ func (cu *configUsecase) verifyTile(tile *models.Tile, group bool, err *models.C
 		tile.ConfigVariant = config.DefaultVariant
 	}
 
-	var tileConfig *TileConfig
-	var exists bool
-	if tileConfig, exists = cu.tileConfigs[tile.Type][tile.ConfigVariant]; !exists {
-		err.Add(fmt.Sprintf(`Unknown "%s" variant for %s type in tile definition. Must be %s`, tile.ConfigVariant, tile.Type, keys(cu.tileConfigs[tile.Type])))
-		return
+	// Get the validator for current tile
+	// - for non dynamic tile, the validator is register in tileConfigs
+	// - for dynamic tile, the validator is register in dynamicTileConfigs
+	var validator Validator
+	if _, exists := cu.dynamicTileConfigs[tile.Type]; !exists {
+		if tileConfig, exists := cu.tileConfigs[tile.Type][tile.ConfigVariant]; !exists {
+			err.Add(fmt.Sprintf(`Unknown "%s" variant for %s type in tile definition. Must be %s`,
+				tile.ConfigVariant, tile.Type, keys(cu.tileConfigs[tile.Type])))
+			return
+		} else {
+			validator = tileConfig.Validator
+		}
+	} else {
+		if dynamicTileConfig, exists := cu.dynamicTileConfigs[tile.Type][tile.ConfigVariant]; !exists {
+			err.Add(fmt.Sprintf(`Unknown "%s" variant for %s dynamic type in tile definition. Must be %s`,
+				tile.ConfigVariant, tile.Type, keys(cu.dynamicTileConfigs[tile.Type])))
+			return
+		} else {
+			validator = dynamicTileConfig.Validator
+		}
 	}
 
 	// Create new validator by reflexion
-	rType := reflect.TypeOf(tileConfig.Validator)
+	rType := reflect.TypeOf(validator)
 	rInstance := reflect.New(rType.Elem()).Interface()
 
 	// Marshal / Unmarshal the map[string]interface{} struct in new instance of Validator
@@ -126,7 +141,7 @@ func keys(m interface{}) string {
 	strkeys := make([]string, len(keys))
 
 	for i := 0; i < len(keys); i++ {
-		strkeys[i] = strings.ToLower(fmt.Sprintf(`%v`, keys[i]))
+		strkeys[i] = fmt.Sprintf(`%v`, keys[i])
 	}
 
 	return strings.Join(strkeys, ",")
