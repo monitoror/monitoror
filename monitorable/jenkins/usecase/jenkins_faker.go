@@ -7,6 +7,8 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/monitoror/monitoror/pkg/monitoror/builder"
+
 	"github.com/monitoror/monitoror/monitorable/jenkins/models"
 
 	. "github.com/monitoror/monitoror/models/tiles"
@@ -36,10 +38,10 @@ func NewJenkinsUsecase() jenkins.Usecase {
 
 func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *BuildTile, err error) {
 	tile = NewBuildTile(jenkins.JenkinsBuildTileType)
-	if params.Parent == "" {
+	if params.Branch == "" {
 		tile.Label = params.Job
 	} else {
-		tile.Label = fmt.Sprintf("%s : #%s", params.Parent, params.Job)
+		tile.Label = fmt.Sprintf("%s : #%s", params.Job, params.Branch)
 	}
 
 	// Init random generator
@@ -111,6 +113,10 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *BuildTile, er
 	}
 
 	return
+}
+
+func (tu *jenkinsUsecase) ListDynamicTile(params interface{}) ([]builder.Result, error) {
+	panic("unimplemented")
 }
 
 func randomStatus(status []TileStatus) TileStatus {

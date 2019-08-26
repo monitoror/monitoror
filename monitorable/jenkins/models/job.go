@@ -8,5 +8,7 @@ type (
 		Buildable bool
 		InQueue   bool
 		QueuedAt  *time.Time
+
+		Branches []string
 	}
 )

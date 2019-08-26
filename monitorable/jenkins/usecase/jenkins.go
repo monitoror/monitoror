@@ -5,18 +5,21 @@ package usecase
 import (
 	"fmt"
 	"net/url"
+	"regexp"
 	"strings"
 	"time"
 
-	. "github.com/AlekSi/pointer"
+	"github.com/monitoror/monitoror/config"
 
-	"github.com/monitoror/monitoror/pkg/monitoror/cache"
+	. "github.com/AlekSi/pointer"
+	gocache "github.com/robfig/go-cache"
 
 	"github.com/monitoror/monitoror/models/errors"
-
 	. "github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
 	"github.com/monitoror/monitoror/monitorable/jenkins/models"
+	"github.com/monitoror/monitoror/pkg/monitoror/builder"
+	"github.com/monitoror/monitoror/pkg/monitoror/cache"
 )
 
 type (
@@ -25,35 +28,45 @@ type (
 
 		// builds cache
 		buildsCache *cache.BuildCache
+
+		// jobs cache
+		jobsCache *gocache.Cache
 	}
 )
 
-const cacheSize = 5
+const buildCacheSize = 5
 
-func NewJenkinsUsecase(repository jenkins.Repository) jenkins.Usecase {
-	return &jenkinsUsecase{repository, cache.NewBuildCache(cacheSize)}
+func NewJenkinsUsecase(repository jenkins.Repository, downstreamCache config.Cache) jenkins.Usecase {
+	return &jenkinsUsecase{
+		repository,
+		cache.NewBuildCache(buildCacheSize),
+		gocache.New(
+			time.Millisecond*time.Duration(downstreamCache.Expire),
+			time.Millisecond*time.Duration(downstreamCache.CleanupInterval),
+		),
+	}
 }
 
 func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *BuildTile, err error) {
 	tile = NewBuildTile(jenkins.JenkinsBuildTileType)
 
 	jobLabel, _ := url.QueryUnescape(params.Job)
-	parentLabel, _ := url.QueryUnescape(params.Parent)
-	if params.Parent == "" {
+	branchLabel, _ := url.QueryUnescape(params.Branch)
+	if params.Branch == "" {
 		tile.Label = jobLabel
 	} else {
-		tile.Label = fmt.Sprintf("%s : #%s", parentLabel, jobLabel)
+		tile.Label = fmt.Sprintf("%s : #%s", jobLabel, branchLabel)
 	}
 
-	job, err := tu.repository.GetJob(params.Job, params.Parent)
+	job, err := tu.repository.GetJob(params.Job, params.Branch)
 	if err != nil {
-		// TODO : Replace that by errors.Is when go 1.13 will be released
+		// TODO : Replace that by errors.Is/As when go 1.13 will be released
 		if strings.Contains(err.Error(), "no such host") ||
 			strings.Contains(err.Error(), "dial tcp: lookup") ||
 			strings.Contains(err.Error(), "request canceled") {
-			err = errors.NewTimeoutError(tile.Tile)
+			err = errors.NewTimeoutError(nil)
 		} else {
-			err = errors.NewSystemError("unable to found job", nil)
+			err = errors.NewSystemError("unable to found job", err)
 		}
 		return nil, err
 	}
@@ -82,6 +95,7 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *BuildTile, er
 	// Get Last Build
 	build, err := tu.repository.GetLastBuildStatus(job)
 	if err != nil || build == nil {
+		// TODO : Replace that by errors.Is/As when go 1.13 will be released
 		if err != nil && (strings.Contains(err.Error(), "no such host") ||
 			strings.Contains(err.Error(), "dial tcp: lookup") ||
 			strings.Contains(err.Error(), "request canceled")) {
@@ -127,6 +141,56 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *BuildTile, er
 	// Cache Duration when success / failed / warning
 	if tile.Status == SuccessStatus || tile.Status == FailedStatus || tile.Status == WarningStatus {
 		tu.buildsCache.Add(tile.Label, build.Number, tile.Status, build.Duration)
+	}
+
+	return
+}
+
+func (tu *jenkinsUsecase) ListDynamicTile(params interface{}) (results []builder.Result, err error) {
+	mbParams := params.(*models.MultiBranchParams)
+
+	job, err := tu.repository.GetJob(mbParams.Job, "")
+	if err != nil {
+		// TODO : Replace that by errors.Is/As when go 1.13 will be released
+		if strings.Contains(err.Error(), "no such host") ||
+			strings.Contains(err.Error(), "dial tcp: lookup") ||
+			strings.Contains(err.Error(), "request canceled") {
+
+			// Get previous value in cache
+			j, exist := tu.jobsCache.Get(mbParams.Job)
+			if !exist {
+				err = errors.NewTimeoutError(nil)
+				return
+			}
+			job = j.(*models.Job)
+		} else {
+			err = errors.NewSystemError("unable to found job", err)
+			return
+		}
+	} else {
+		tu.jobsCache.Set(mbParams.Job, job, 0)
+	}
+
+	regex, err := regexp.Compile(mbParams.Filter)
+	if err != nil {
+		return
+	}
+
+	results = []builder.Result{}
+	for _, branch := range job.Branches {
+		branchToFilter, _ := url.QueryUnescape(branch)
+		if !regex.MatchString(branchToFilter) {
+			continue
+		}
+
+		p := make(map[string]interface{})
+		p["job"] = mbParams.Job
+		p["branch"] = branch
+
+		results = append(results, builder.Result{
+			TileType: jenkins.JenkinsBuildTileType,
+			Params:   p,
+		})
 	}
 
 	return

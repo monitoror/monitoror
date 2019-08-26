@@ -103,7 +103,7 @@ func (s *Server) registerJenkins(configHelper config.Helper) {
 		}
 
 		repository := _jenkinsRepository.NewJenkinsRepository(jenkinsConf)
-		usecase := _jenkinsUsecase.NewJenkinsUsecase(repository)
+		usecase := _jenkinsUsecase.NewJenkinsUsecase(repository, s.config.DownstreamCache)
 		delivery := _jenkinsDelivery.NewHttpJenkinsDelivery(usecase)
 
 		// Register route to echo
@@ -113,5 +113,7 @@ func (s *Server) registerJenkins(configHelper config.Helper) {
 		// Register data for config hydration
 		configHelper.RegisterTileWithConfigVariant(jenkins.JenkinsBuildTileType,
 			variant, &_jenkinsModels.BuildParams{}, route.Path)
+		configHelper.RegisterDynamicTileWithConfigVariant(jenkins.JenkinsMultiBranchTileType,
+			variant, &_jenkinsModels.MultiBranchParams{}, usecase)
 	}
 }

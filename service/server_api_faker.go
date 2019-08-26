@@ -45,7 +45,7 @@ func (s *Server) registerPing(configHelper config.Helper) {
 	route := s.v1.GET("/ping", delivery.GetPing)
 
 	// Register param and path to config usecase
-	configHelper.RegisterTile(ping.PingTileType, route.Path, &_pingModels.PingParams{})
+	configHelper.RegisterTile(ping.PingTileType, &_pingModels.PingParams{}, route.Path)
 }
 
 func (s *Server) registerPort(configHelper config.Helper) {
@@ -58,7 +58,7 @@ func (s *Server) registerPort(configHelper config.Helper) {
 	route := s.v1.GET("/port", delivery.GetPort)
 
 	// Register param and path to config usecase
-	configHelper.RegisterTile(port.PortTileType, route.Path, &_portModels.PortParams{})
+	configHelper.RegisterTile(port.PortTileType, &_portModels.PortParams{}, route.Path)
 }
 
 func (s *Server) registerTravisCI(configHelper config.Helper) {
@@ -72,7 +72,7 @@ func (s *Server) registerTravisCI(configHelper config.Helper) {
 	route := travisCIGroup.GET("/build", delivery.GetBuild)
 
 	// Register param and path to config usecase
-	configHelper.RegisterTile(travisci.TravisCIBuildTileType, route.Path, &_travisciModels.BuildParams{})
+	configHelper.RegisterTile(travisci.TravisCIBuildTileType, &_travisciModels.BuildParams{}, route.Path)
 }
 
 func (s *Server) registerJenkins(configHelper config.Helper) {
@@ -86,5 +86,5 @@ func (s *Server) registerJenkins(configHelper config.Helper) {
 	route := jenkinsGroup.GET("/build", delivery.GetBuild)
 
 	// Register param and path to config usecase
-	configHelper.RegisterTile(jenkins.JenkinsBuildTileType, route.Path, &_jenkinsModels.BuildParams{})
+	configHelper.RegisterTile(jenkins.JenkinsBuildTileType, &_jenkinsModels.BuildParams{}, route.Path)
 }

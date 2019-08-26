@@ -7,7 +7,7 @@ import (
 // Repository represent the jenkins's repository contract
 type (
 	Repository interface {
-		GetJob(jobName string, jobParent string) (*models.Job, error)
+		GetJob(jobName string, branch string) (*models.Job, error)
 		GetLastBuildStatus(job *models.Job) (*models.Build, error)
 	}
 )
