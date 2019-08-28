@@ -33,13 +33,16 @@ func (h *httpConfigDelivery) GetConfig(c echo.Context) error {
 		return err
 	}
 
-	if err = h.configUsecase.Verify(config); err != nil {
-		return err
+	// Verify config and if there is no errors, hydrate config
+	h.configUsecase.Verify(config)
+	if len(config.Errors) == 0 {
+		host := c.Scheme() + "://" + c.Request().Host
+		h.configUsecase.Hydrate(config, host)
 	}
 
-	host := c.Scheme() + "://" + c.Request().Host
-	if err = h.configUsecase.Hydrate(config, host); err != nil {
-		return err
+	// Remove tiles if Errors is not empty
+	if len(config.Errors) > 0 {
+		config.Tiles = nil
 	}
 
 	// By default, Marshall function escape <, > and & according https://golang.org/src/encoding/json/encode.go?s=6456:6499#L48

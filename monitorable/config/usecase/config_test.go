@@ -35,14 +35,18 @@ func initConfigUsecase() *configUsecase {
 	}}, nil)
 
 	mockBuilder2 := new(mocks2.DynamicTileBuilder)
-	mockBuilder2.On("ListDynamicTile", Anything).Return(nil, errors.New("boom"))
+	mockBuilder2.On("ListDynamicTile", Anything).Return(nil, errors.New("unable to found job"))
+	mockBuilder3 := new(mocks2.DynamicTileBuilder)
+	mockBuilder3.On("ListDynamicTile", Anything).Return(nil, errors.New("timeout/host unreachable"))
 
 	usecase.RegisterTile(ping.PingTileType, &_pingModels.PingParams{}, "/ping")
 	usecase.RegisterTile(port.PortTileType, &_portModels.PortParams{}, "/port")
 	usecase.RegisterTile(jenkins.JenkinsBuildTileType, &_jenkinsModels.BuildParams{}, "/jenkins/default")
 	usecase.RegisterTileWithConfigVariant(jenkins.JenkinsBuildTileType, "variant1", &_jenkinsModels.BuildParams{}, "/jenkins/variant1")
+	usecase.RegisterTileWithConfigVariant(jenkins.JenkinsBuildTileType, "variant2", &_jenkinsModels.BuildParams{}, "/jenkins/variant2")
 	usecase.RegisterDynamicTile(jenkins.JenkinsMultiBranchTileType, &_jenkinsModels.MultiBranchParams{}, mockBuilder)
 	usecase.RegisterDynamicTileWithConfigVariant(jenkins.JenkinsMultiBranchTileType, "variant1", &_jenkinsModels.MultiBranchParams{}, mockBuilder2)
+	usecase.RegisterDynamicTileWithConfigVariant(jenkins.JenkinsMultiBranchTileType, "variant2", &_jenkinsModels.MultiBranchParams{}, mockBuilder3)
 
 	return usecase
 }

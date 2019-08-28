@@ -34,8 +34,9 @@ func TestUsecase_Hydrate(t *testing.T) {
 	config, err := repository.GetConfig(reader)
 	assert.NoError(t, err)
 
-	err = usecase.Hydrate(config, "http://localhost:8080")
-	assert.NoError(t, err)
+	usecase.Hydrate(config, "http://localhost:8080")
+	assert.Len(t, config.Errors, 0)
+	assert.Len(t, config.Warnings, 0)
 
 	assert.Equal(t, "http://localhost:8080/ping?hostname=aserver.com", config.Tiles[1].Url)
 	assert.Equal(t, "http://localhost:8080/port?hostname=bserver.com&port=22", config.Tiles[2].Url)
@@ -70,8 +71,9 @@ func TestUsecase_Hydrate_WithDynamic(t *testing.T) {
 	config, err := repository.GetConfig(reader)
 	assert.NoError(t, err)
 
-	err = usecase.Hydrate(config, "http://localhost:8080")
-	assert.NoError(t, err)
+	usecase.Hydrate(config, "http://localhost:8080")
+	assert.Len(t, config.Errors, 0)
+	assert.Len(t, config.Warnings, 0)
 
 	assert.Equal(t, 3, len(config.Tiles))
 	assert.Equal(t, jenkins.JenkinsBuildTileType, config.Tiles[0].Type)
@@ -87,13 +89,13 @@ func TestUsecase_Hydrate_WithDynamic_WithError(t *testing.T) {
 {
   "columns": 4,
   "tiles": [
-    { "type": "JENKINS-MULTIBRANCH"},
+    { "type": "JENKINS-MULTIBRANCH", "params": {"job": "test"}},
     { "type": "GROUP", "label": "...", "tiles": [
       { "type": "PING", "params": { "hostname": "aserver.com" } },
-			{ "type": "JENKINS-MULTIBRANCH" }
+			{ "type": "JENKINS-MULTIBRANCH", "params": {"job": "test"}}
     ]},
     { "type": "GROUP", "label": "...", "tiles": [
-    	{ "type": "JENKINS-MULTIBRANCH", "configVariant": "variant1"}
+    	{ "type": "JENKINS-MULTIBRANCH", "configVariant": "variant1", "params": {"job": "test"}}
     ]}
   ]
 }
@@ -104,7 +106,36 @@ func TestUsecase_Hydrate_WithDynamic_WithError(t *testing.T) {
 	config, err := repository.GetConfig(reader)
 	assert.NoError(t, err)
 
-	err = usecase.Hydrate(config, "http://localhost:8080")
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), `Error while listing JENKINS-MULTIBRANCH dynamic tiles.`)
+	usecase.Hydrate(config, "http://localhost:8080")
+	assert.Len(t, config.Errors, 1)
+	assert.Len(t, config.Warnings, 0)
+	assert.Contains(t, config.Errors, `Error while listing JENKINS-MULTIBRANCH dynamic tiles (params: {"job":"test"}). unable to found job`)
+}
+
+func TestUsecase_Hydrate_WithDynamic_WithWarning(t *testing.T) {
+	input := `
+{
+  "columns": 4,
+  "tiles": [
+    { "type": "JENKINS-MULTIBRANCH", "params": {"job": "test"}},
+    { "type": "GROUP", "label": "...", "tiles": [
+      { "type": "PING", "params": { "hostname": "aserver.com" } },
+			{ "type": "JENKINS-MULTIBRANCH", "params": {"job": "test"}}
+    ]},
+    { "type": "GROUP", "label": "...", "tiles": [
+    	{ "type": "JENKINS-MULTIBRANCH", "configVariant": "variant2", "params": {"job": "test"}}
+    ]}
+  ]
+}
+`
+	usecase := initConfigUsecase()
+
+	reader := ioutil.NopCloser(strings.NewReader(input))
+	config, err := repository.GetConfig(reader)
+	assert.NoError(t, err)
+
+	usecase.Hydrate(config, "http://localhost:8080")
+	assert.Len(t, config.Errors, 0)
+	assert.Len(t, config.Warnings, 1)
+	assert.Contains(t, config.Warnings, `Warning while listing JENKINS-MULTIBRANCH dynamic tiles (params: {"job":"test"}). timeout/host unreachable`)
 }

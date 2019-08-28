@@ -37,8 +37,8 @@ func TestDelivery_ConfigHandler_Success(t *testing.T) {
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("GetConfig", Anything).Return(config, nil)
-	mockUsecase.On("Verify", Anything).Return(nil)
-	mockUsecase.On("Hydrate", Anything, Anything).Return(nil)
+	mockUsecase.On("Verify", Anything)
+	mockUsecase.On("Hydrate", Anything, Anything)
 	handler := NewHttpConfigDelivery(mockUsecase)
 
 	// Expected
@@ -88,16 +88,28 @@ func TestDelivery_ConfigHandler_ErrorConfig(t *testing.T) {
 
 func TestDelivery_ConfigHandler_ErrorVerify(t *testing.T) {
 	// Init
-	ctx, _ := initEcho()
+	ctx, res := initEcho()
 	ctx.QueryParams().Set("url", "test.com")
 
+	conf := &models.Config{
+		Columns: 2,
+		Errors:  []string{},
+	}
+	conf.AddErrors("boom")
+
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("GetConfig", Anything).Return(nil, nil)
-	mockUsecase.On("Verify", Anything).Return(errors.New("boom"))
+	mockUsecase.On("GetConfig", Anything).Return(conf, nil)
+	mockUsecase.On("Verify", Anything)
 	handler := NewHttpConfigDelivery(mockUsecase)
 
+	// Expected
+	json, err := json.Marshal(conf)
+	assert.NoError(t, err, "unable to marshal config")
+
 	// Test
-	if assert.Error(t, handler.GetConfig(ctx)) {
+	if assert.NoError(t, handler.GetConfig(ctx)) {
+		assert.Equal(t, http.StatusOK, res.Code)
+		assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
 		mockUsecase.AssertNumberOfCalls(t, "GetConfig", 1)
 		mockUsecase.AssertNumberOfCalls(t, "Verify", 1)
 		mockUsecase.AssertExpectations(t)
@@ -106,17 +118,29 @@ func TestDelivery_ConfigHandler_ErrorVerify(t *testing.T) {
 
 func TestDelivery_ConfigHandler_ErrorHydrate(t *testing.T) {
 	// Init
-	ctx, _ := initEcho()
+	ctx, res := initEcho()
 	ctx.QueryParams().Set("url", "test.com")
 
+	conf := &models.Config{
+		Columns: 2,
+		Errors:  []string{},
+	}
+	conf.AddWarnings("boom")
+
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("GetConfig", Anything).Return(nil, nil)
-	mockUsecase.On("Verify", Anything).Return(nil)
-	mockUsecase.On("Hydrate", Anything, Anything).Return(errors.New("boom"))
+	mockUsecase.On("GetConfig", Anything).Return(conf, nil)
+	mockUsecase.On("Verify", Anything)
+	mockUsecase.On("Hydrate", Anything, Anything)
 	handler := NewHttpConfigDelivery(mockUsecase)
 
+	// Expected
+	json, err := json.Marshal(conf)
+	assert.NoError(t, err, "unable to marshal config")
+
 	// Test
-	if assert.Error(t, handler.GetConfig(ctx)) {
+	if assert.NoError(t, handler.GetConfig(ctx)) {
+		assert.Equal(t, http.StatusOK, res.Code)
+		assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
 		mockUsecase.AssertNumberOfCalls(t, "GetConfig", 1)
 		mockUsecase.AssertNumberOfCalls(t, "Verify", 1)
 		mockUsecase.AssertNumberOfCalls(t, "Hydrate", 1)

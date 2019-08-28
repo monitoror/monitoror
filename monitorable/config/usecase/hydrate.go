@@ -5,24 +5,18 @@ import (
 	"fmt"
 	"net/url"
 	"reflect"
+	"strings"
 
 	"github.com/monitoror/monitoror/config"
 
 	"github.com/monitoror/monitoror/monitorable/config/models"
 )
 
-func (cu *configUsecase) Hydrate(config *models.Config, host string) error {
-	err := models.NewConfigError()
-
-	cu.hydrateTiles(&config.Tiles, host, err)
-
-	if err.Count() > 0 {
-		return err
-	}
-	return nil
+func (cu *configUsecase) Hydrate(conf *models.Config, host string) {
+	cu.hydrateTiles(conf, &conf.Tiles, host)
 }
 
-func (cu *configUsecase) hydrateTiles(tiles *[]models.Tile, host string, err *models.ConfigError) {
+func (cu *configUsecase) hydrateTiles(conf *models.Config, tiles *[]models.Tile, host string) {
 	for i := 0; i < len(*tiles); i++ {
 		tile := &(*tiles)[i]
 		if tile.Type != EmptyTileType && tile.Type != GroupTileType {
@@ -33,10 +27,11 @@ func (cu *configUsecase) hydrateTiles(tiles *[]models.Tile, host string, err *mo
 		}
 
 		if _, exists := cu.dynamicTileConfigs[tile.Type]; !exists {
-			cu.hydrateTile(tile, host, err)
+			cu.hydrateTile(conf, tile, host)
 		} else {
-			dynamicTiles := cu.hydrateDynamicTile(tile, err)
+			dynamicTiles := cu.hydrateDynamicTile(conf, tile)
 
+			// Remove DynamicTile config and add real dynamic tiles in array
 			temp := append((*tiles)[:i], dynamicTiles...)
 			*tiles = append(temp, (*tiles)[i+1:]...)
 
@@ -45,14 +40,14 @@ func (cu *configUsecase) hydrateTiles(tiles *[]models.Tile, host string, err *mo
 	}
 }
 
-func (cu *configUsecase) hydrateTile(tile *models.Tile, host string, err *models.ConfigError) {
+func (cu *configUsecase) hydrateTile(conf *models.Config, tile *models.Tile, host string) {
 	// Empty tile, skip
 	if tile.Type == EmptyTileType {
 		return
 	}
 
 	if tile.Type == GroupTileType {
-		cu.hydrateTiles(&tile.Tiles, host, err)
+		cu.hydrateTiles(conf, &tile.Tiles, host)
 		return
 	}
 
@@ -70,11 +65,11 @@ func (cu *configUsecase) hydrateTile(tile *models.Tile, host string, err *models
 	tile.ConfigVariant = ""
 }
 
-func (cu *configUsecase) hydrateDynamicTile(tile *models.Tile, err *models.ConfigError) (tiles []models.Tile) {
-	config := cu.dynamicTileConfigs[tile.Type][tile.ConfigVariant]
+func (cu *configUsecase) hydrateDynamicTile(conf *models.Config, tile *models.Tile) (tiles []models.Tile) {
+	dynamicTileConfig := cu.dynamicTileConfigs[tile.Type][tile.ConfigVariant]
 
 	// Create new validator by reflexion
-	rType := reflect.TypeOf(config.Validator)
+	rType := reflect.TypeOf(dynamicTileConfig.Validator)
 	rInstance := reflect.New(rType.Elem()).Interface()
 
 	// Marshal / Unmarshal the map[string]interface{} struct in new instance of Validator
@@ -82,9 +77,15 @@ func (cu *configUsecase) hydrateDynamicTile(tile *models.Tile, err *models.Confi
 	_ = json.Unmarshal(bParams, &rInstance)
 
 	// Call builder and add inherited value from Dynamic tile
-	results, e := config.Builder.ListDynamicTile(rInstance)
-	if e != nil {
-		err.Add(fmt.Sprintf(`Error while listing %s dynamic tiles. %v`, tile.Type, e))
+	results, err := dynamicTileConfig.Builder.ListDynamicTile(rInstance)
+	if err != nil {
+		// TODO : Replace that by errors.Is/As when go 1.13 will be released
+		params, _ := json.Marshal(tile.Params)
+		if strings.Contains(err.Error(), "unable to found job") {
+			conf.AddErrors(fmt.Sprintf(`Error while listing %s dynamic tiles (params: %s). %v`, tile.Type, string(params), err))
+		} else {
+			conf.AddWarnings(fmt.Sprintf(`Warning while listing %s dynamic tiles (params: %s). %v`, tile.Type, string(params), err))
+		}
 		return
 	}
 

@@ -40,17 +40,8 @@ func (_m *Usecase) GetConfig(params *models.ConfigParams) (*models.Config, error
 }
 
 // Hydrate provides a mock function with given fields: _a0, host
-func (_m *Usecase) Hydrate(_a0 *models.Config, host string) error {
-	ret := _m.Called(_a0, host)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.Config, string) error); ok {
-		r0 = rf(_a0, host)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
+func (_m *Usecase) Hydrate(_a0 *models.Config, host string) {
+	_m.Called(_a0, host)
 }
 
 // RegisterDynamicTile provides a mock function with given fields: tileType, _a1, _a2
@@ -74,15 +65,6 @@ func (_m *Usecase) RegisterTileWithConfigVariant(tileType tiles.TileType, varian
 }
 
 // Verify provides a mock function with given fields: _a0
-func (_m *Usecase) Verify(_a0 *models.Config) error {
-	ret := _m.Called(_a0)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(*models.Config) error); ok {
-		r0 = rf(_a0)
-	} else {
-		r0 = ret.Error(0)
-	}
-
-	return r0
+func (_m *Usecase) Verify(_a0 *models.Config) {
+	_m.Called(_a0)
 }

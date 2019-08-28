@@ -6,9 +6,11 @@ import (
 
 type (
 	Config struct {
-		Version int    `json:"version"`
-		Columns int    `json:"columns"`
-		Tiles   []Tile `json:"tiles"`
+		Version  int      `json:"version"`
+		Columns  int      `json:"columns"`
+		Tiles    []Tile   `json:"tiles,omitempty"`
+		Errors   []string `json:"errors,omitempty"`
+		Warnings []string `json:"warnings,omitempty"`
 	}
 
 	Tile struct {
@@ -26,3 +28,11 @@ type (
 		ConfigVariant string `json:"configVariant,omitempty"`
 	}
 )
+
+func (c *Config) AddErrors(reasons ...string) {
+	c.Errors = append(c.Errors, reasons...)
+}
+
+func (c *Config) AddWarnings(reasons ...string) {
+	c.Warnings = append(c.Warnings, reasons...)
+}
