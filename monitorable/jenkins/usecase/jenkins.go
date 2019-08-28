@@ -171,7 +171,12 @@ func (tu *jenkinsUsecase) ListDynamicTile(params interface{}) (results []builder
 		tu.jobsCache.Set(mbParams.Job, job, 0)
 	}
 
-	regex, err := regexp.Compile(mbParams.Filter)
+	matcher, err := regexp.Compile(mbParams.Match)
+	if err != nil {
+		return
+	}
+
+	unmatcher, err := regexp.Compile(mbParams.Unmatch)
 	if err != nil {
 		return
 	}
@@ -179,7 +184,8 @@ func (tu *jenkinsUsecase) ListDynamicTile(params interface{}) (results []builder
 	results = []builder.Result{}
 	for _, branch := range job.Branches {
 		branchToFilter, _ := url.QueryUnescape(branch)
-		if !regex.MatchString(branchToFilter) {
+		if !matcher.MatchString(branchToFilter) ||
+			(mbParams.Unmatch != "" && unmatcher.MatchString(branchToFilter)) {
 			continue
 		}
 

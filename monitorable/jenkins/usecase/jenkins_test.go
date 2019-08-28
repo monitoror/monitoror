@@ -361,7 +361,7 @@ func TestListDynamicTile_Success(t *testing.T) {
 		assert.Equal(t, "feat%2Ftest-deploy", tiles[2].Params["branch"])
 	}
 
-	tiles, err = tu.ListDynamicTile(&models.MultiBranchParams{Job: job, Filter: "feat/*"})
+	tiles, err = tu.ListDynamicTile(&models.MultiBranchParams{Job: job, Match: "feat/*"})
 	if assert.NoError(t, err) {
 		assert.Len(t, tiles, 1)
 		assert.Equal(t, jenkins.JenkinsBuildTileType, tiles[0].TileType)
@@ -440,11 +440,15 @@ func TestListDynamicTile_ErrorWithRegex(t *testing.T) {
 
 	tu := NewJenkinsUsecase(mockRepository, config.Cache{})
 
-	_, err := tu.ListDynamicTile(&models.MultiBranchParams{Job: "test", Filter: "("})
+	_, err := tu.ListDynamicTile(&models.MultiBranchParams{Job: "test", Match: "("})
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "error parsing regexp")
 
-	mockRepository.AssertNumberOfCalls(t, "GetJob", 1)
+	_, err = tu.ListDynamicTile(&models.MultiBranchParams{Job: "test", Unmatch: "("})
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "error parsing regexp")
+
+	mockRepository.AssertNumberOfCalls(t, "GetJob", 2)
 	mockRepository.AssertExpectations(t)
 }
 
