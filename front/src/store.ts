@@ -19,14 +19,14 @@ export enum TileCategory {
 }
 
 export enum TileType {
-  Ping = 'ping',
-  Port = 'port',
-  GitLab = 'gitlab-build',
-  Travis = 'travisci-build',
-  Jenkins = 'jenkins-build',
+  Ping = 'PING',
+  Port = 'PORT',
+  GitLab = 'GITLAB-BUILD',
+  Travis = 'TRAVISCI-BUILD',
+  Jenkins = 'JENKINS-BUILD',
 
-  Empty = 'empty',
-  Group = 'group',
+  Empty = 'EMPTY',
+  Group = 'GROUP',
 }
 
 export enum TileStatus {

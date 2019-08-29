@@ -11,7 +11,7 @@ import (
 type (
 	BuildParams struct {
 		Job    string `json:"job" query:"job"`
-		Parent string `json:"parent" query:"parent"`
+		Branch string `json:"branch" query:"branch"`
 
 		AuthorName      string `json:"authorName" query:"authorName"`
 		AuthorAvatarUrl string `json:"authorAvatarUrl" query:"authorAvatarUrl"`

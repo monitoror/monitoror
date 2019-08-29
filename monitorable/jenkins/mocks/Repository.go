@@ -12,13 +12,13 @@ type Repository struct {
 	mock.Mock
 }
 
-// GetJob provides a mock function with given fields: jobName, jobParent
-func (_m *Repository) GetJob(jobName string, jobParent string) (*models.Job, error) {
-	ret := _m.Called(jobName, jobParent)
+// GetJob provides a mock function with given fields: jobName, branch
+func (_m *Repository) GetJob(jobName string, branch string) (*models.Job, error) {
+	ret := _m.Called(jobName, branch)
 
 	var r0 *models.Job
 	if rf, ok := ret.Get(0).(func(string, string) *models.Job); ok {
-		r0 = rf(jobName, jobParent)
+		r0 = rf(jobName, branch)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Job)
@@ -27,7 +27,7 @@ func (_m *Repository) GetJob(jobName string, jobParent string) (*models.Job, err
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string, string) error); ok {
-		r1 = rf(jobName, jobParent)
+		r1 = rf(jobName, branch)
 	} else {
 		r1 = ret.Error(1)
 	}

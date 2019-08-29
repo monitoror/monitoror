@@ -52,8 +52,8 @@ func (s *Server) registerPing(configHelper config.Helper) {
 	// Register route to echo
 	route := s.v1.GET("/ping", s.cm.UpstreamCacheHandler(delivery.GetPing))
 
-	// Register param and path to config usecase
-	configHelper.RegisterTile(ping.PingTileType, route.Path, &_pingModels.PingParams{})
+	// Register data for config hydration
+	configHelper.RegisterTile(ping.PingTileType, &_pingModels.PingParams{}, route.Path)
 }
 
 func (s *Server) registerPort(configHelper config.Helper) {
@@ -66,16 +66,17 @@ func (s *Server) registerPort(configHelper config.Helper) {
 	// Register route to echo
 	route := s.v1.GET("/port", s.cm.UpstreamCacheHandler(delivery.GetPort))
 
-	// Register param and path to config usecase
-	configHelper.RegisterTile(port.PortTileType, route.Path, &_portModels.PortParams{})
+	// Register data for config hydration
+	configHelper.RegisterTile(port.PortTileType, &_portModels.PortParams{}, route.Path)
 }
 
+//noinspection ALL
 func (s *Server) registerTravisCI(configHelper config.Helper) {
-	for label, travisCIConf := range s.config.Monitorable.TravisCI {
+	for variant, travisCIConf := range s.config.Monitorable.TravisCI {
 		// Associate github config
-		githubConf := s.config.Monitorable.Github[label]
+		githubConf := s.config.Monitorable.Github[variant]
 
-		defer logStatusWithConfigVariant(travisci.TravisCIBuildTileType, label, travisCIConf.IsValid())
+		defer logStatusWithConfigVariant("TRAVISCI", variant, travisCIConf.IsValid())
 		if !travisCIConf.IsValid() {
 			continue
 		}
@@ -85,30 +86,34 @@ func (s *Server) registerTravisCI(configHelper config.Helper) {
 		delivery := _travisciDelivery.NewHttpTravisCIDelivery(usecase)
 
 		// Register route to echo
-		travisCIGroup := s.v1.Group(fmt.Sprintf("/travisci/%s", label))
+		travisCIGroup := s.v1.Group(fmt.Sprintf("/travisci/%s", variant))
 		route := travisCIGroup.GET("/build", s.cm.UpstreamCacheHandler(delivery.GetBuild))
 
-		// Register param and path to config usecase
-		configHelper.RegisterTileWithConfigVariant(travisci.TravisCIBuildTileType, label, route.Path, &_travisciModels.BuildParams{})
+		// Register data for config hydration
+		configHelper.RegisterTileWithConfigVariant(travisci.TravisCIBuildTileType, variant, &_travisciModels.BuildParams{}, route.Path)
 	}
 }
 
+//noinspection ALL
 func (s *Server) registerJenkins(configHelper config.Helper) {
-	for label, jenkinsConf := range s.config.Monitorable.Jenkins {
-		defer logStatusWithConfigVariant(jenkins.JenkinsBuildTileType, label, jenkinsConf.IsValid())
+	for variant, jenkinsConf := range s.config.Monitorable.Jenkins {
+		defer logStatusWithConfigVariant("JENKINS", variant, jenkinsConf.IsValid())
 		if !jenkinsConf.IsValid() {
 			continue
 		}
 
 		repository := _jenkinsRepository.NewJenkinsRepository(jenkinsConf)
-		usecase := _jenkinsUsecase.NewJenkinsUsecase(repository)
+		usecase := _jenkinsUsecase.NewJenkinsUsecase(repository, s.config.DownstreamCache)
 		delivery := _jenkinsDelivery.NewHttpJenkinsDelivery(usecase)
 
 		// Register route to echo
-		jenkinsGroup := s.v1.Group(fmt.Sprintf("/jenkins/%s", label))
+		jenkinsGroup := s.v1.Group(fmt.Sprintf("/jenkins/%s", variant))
 		route := jenkinsGroup.GET("/build", s.cm.UpstreamCacheHandler(delivery.GetBuild))
 
-		// Register param and path to config usecase
-		configHelper.RegisterTileWithConfigVariant(jenkins.JenkinsBuildTileType, label, route.Path, &_jenkinsModels.BuildParams{})
+		// Register data for config hydration
+		configHelper.RegisterTileWithConfigVariant(jenkins.JenkinsBuildTileType,
+			variant, &_jenkinsModels.BuildParams{}, route.Path)
+		configHelper.RegisterDynamicTileWithConfigVariant(jenkins.JenkinsMultiBranchTileType,
+			variant, &_jenkinsModels.MultiBranchParams{}, usecase)
 	}
 }

@@ -2,7 +2,6 @@ package repository
 
 import (
 	"errors"
-	"strings"
 	"testing"
 
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/gravatar"
@@ -46,7 +45,7 @@ func TestRepository_GetJob_Error(t *testing.T) {
 	if repository != nil {
 		_, err := repository.GetJob("master", "test")
 		assert.Error(t, err)
-		assert.True(t, strings.Contains(err.Error(), "unable to get job. jenkins error"))
+		assert.Contains(t, err.Error(), "jenkins error")
 		mocksJenkins.AssertNumberOfCalls(t, "GetJob", 1)
 		mocksJenkins.AssertExpectations(t)
 	}
@@ -71,11 +70,12 @@ func TestRepository_GetJob_Success(t *testing.T) {
 		Buildable: true,
 		InQueue:   false,
 		QueuedAt:  nil,
+		Branches:  []string{},
 	}
 
 	repository := initRepository(t, mocksJenkins)
 	if repository != nil {
-		job, err := repository.GetJob("master", "test")
+		job, err := repository.GetJob("test", "master")
 		assert.NoError(t, err)
 		assert.Equal(t, expectedJob, job)
 		mocksJenkins.AssertNumberOfCalls(t, "GetJob", 1)
@@ -103,11 +103,43 @@ func TestRepository_GetJob_SuccessWithQueue(t *testing.T) {
 		Buildable: true,
 		InQueue:   true,
 		QueuedAt:  &date,
+		Branches:  []string{},
 	}
 
 	repository := initRepository(t, mocksJenkins)
 	if repository != nil {
-		job, err := repository.GetJob("master", "test")
+		job, err := repository.GetJob("test", "master")
+		assert.NoError(t, err)
+		assert.Equal(t, expectedJob, job)
+		mocksJenkins.AssertNumberOfCalls(t, "GetJob", 1)
+		mocksJenkins.AssertExpectations(t)
+	}
+}
+
+func TestRepository_GetJob_SuccessWithBranch(t *testing.T) {
+	jenkinsJob := gojenkins.Job{
+		Jobs: []gojenkins.SubJobDescription{{
+			Name:  "master",
+			Url:   "http://jenkins.test.com/job/test/job/master",
+			Color: "blue",
+		}},
+	}
+
+	mocksJenkins := new(mocks.Jenkins)
+	mocksJenkins.On("GetJob", AnythingOfType("string")).
+		Return(jenkinsJob, nil)
+
+	// Expected
+	expectedJob := &models.Job{
+		ID:        "test/job/master",
+		Buildable: false,
+		InQueue:   false,
+		Branches:  []string{"master"},
+	}
+
+	repository := initRepository(t, mocksJenkins)
+	if repository != nil {
+		job, err := repository.GetJob("test", "master")
 		assert.NoError(t, err)
 		assert.Equal(t, expectedJob, job)
 		mocksJenkins.AssertNumberOfCalls(t, "GetJob", 1)

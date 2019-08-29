@@ -46,15 +46,15 @@ func NewJenkinsRepository(config *config.Jenkins) jenkins.Repository {
 	}
 }
 
-func (r *jenkinsRepository) GetJob(jobName string, jobParent string) (job *models.Job, err error) {
+func (r *jenkinsRepository) GetJob(jobName string, branch string) (job *models.Job, err error) {
 	jobId := jobName
-	if jobParent != "" {
-		jobId = fmt.Sprintf("%s/job/%s", jobParent, jobName)
+	if branch != "" {
+		jobId = fmt.Sprintf("%s/job/%s", jobName, branch)
 	}
 
 	jenkinsJob, err := r.jenkinsApi.GetJob(jobId)
 	if err != nil {
-		return nil, fmt.Errorf("unable to get job. %v", err)
+		return nil, err
 	}
 
 	job = &models.Job{}
@@ -66,6 +66,13 @@ func (r *jenkinsRepository) GetJob(jobName string, jobParent string) (job *model
 	if job.InQueue {
 		date := parseDate(jenkinsJob.QueueItem.InQueueSince)
 		job.QueuedAt = &date
+	}
+
+	job.Branches = []string{}
+	for _, jenkinsSubJob := range jenkinsJob.Jobs {
+		if jenkinsSubJob.Color != "disabled" { // Filter old merged branch
+			job.Branches = append(job.Branches, jenkinsSubJob.Name)
+		}
 	}
 
 	return

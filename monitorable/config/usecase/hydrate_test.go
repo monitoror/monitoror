@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/monitoror/monitoror/monitorable/config/repository"
+	"github.com/monitoror/monitoror/monitorable/jenkins"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -15,15 +16,15 @@ func TestUsecase_Hydrate(t *testing.T) {
 {
   "columns": 4,
   "tiles": [
-    { "type": "empty" },
-    { "type": "ping", "params": { "hostname": "aserver.com" } },
-    { "type": "port", "params": { "hostname": "bserver.com", "port": 22 } },
-    { "type": "group", "label": "...", "tiles": [
-      { "type": "ping", "params": { "hostname": "aserver.com" } },
-      { "type": "port", "params": { "hostname": "bserver.com", "port": 22 } }
+    { "type": "EMPTY" },
+    { "type": "PING", "params": { "hostname": "aserver.com" } },
+    { "type": "PORT", "params": { "hostname": "bserver.com", "port": 22 } },
+    { "type": "GROUP", "label": "...", "tiles": [
+      { "type": "PING", "params": { "hostname": "aserver.com" } },
+      { "type": "PORT", "params": { "hostname": "bserver.com", "port": 22 } }
     ]},
-		{ "type": "jenkins-build", "params": { "job": "test" } },
-		{ "type": "jenkins-build", "configVariant": "variant1", "params": { "job": "test" } }
+		{ "type": "JENKINS-BUILD", "params": { "job": "test" } },
+		{ "type": "JENKINS-BUILD", "configVariant": "variant1", "params": { "job": "test" } }
   ]
 }
 `
@@ -33,18 +34,108 @@ func TestUsecase_Hydrate(t *testing.T) {
 	config, err := repository.GetConfig(reader)
 	assert.NoError(t, err)
 
-	err = usecase.Hydrate(config, "http://localhost:8080")
+	usecase.Hydrate(config, "http://localhost:8080")
+	assert.Len(t, config.Errors, 0)
+	assert.Len(t, config.Warnings, 0)
+
+	assert.Equal(t, "http://localhost:8080/ping?hostname=aserver.com", config.Tiles[1].Url)
+	assert.Equal(t, "http://localhost:8080/port?hostname=bserver.com&port=22", config.Tiles[2].Url)
+
+	group := config.Tiles[3].Tiles
+	assert.Equal(t, "http://localhost:8080/ping?hostname=aserver.com", group[0].Url)
+	assert.Equal(t, "http://localhost:8080/port?hostname=bserver.com&port=22", group[1].Url)
+
+	assert.Equal(t, "http://localhost:8080/jenkins/default?job=test", config.Tiles[4].Url)
+	assert.Equal(t, "http://localhost:8080/jenkins/variant1?job=test", config.Tiles[5].Url)
+}
+
+func TestUsecase_Hydrate_WithDynamic(t *testing.T) {
+	input := `
+{
+  "columns": 4,
+  "tiles": [
+    { "type": "JENKINS-MULTIBRANCH" },
+    { "type": "GROUP", "label": "...", "tiles": [
+      { "type": "PING", "params": { "hostname": "aserver.com" } },
+			{ "type": "JENKINS-MULTIBRANCH" }
+    ]},
+    { "type": "GROUP", "label": "...", "tiles": [
+    	{ "type": "JENKINS-MULTIBRANCH"}
+    ]}
+  ]
+}
+`
+	usecase := initConfigUsecase()
+
+	reader := ioutil.NopCloser(strings.NewReader(input))
+	config, err := repository.GetConfig(reader)
 	assert.NoError(t, err)
 
-	assert.Equal(t, "http://localhost:8080/ping?hostname=aserver.com", config.Tiles[1][UrlKey])
-	assert.Equal(t, "http://localhost:8080/port?hostname=bserver.com&port=22", config.Tiles[2][UrlKey])
+	usecase.Hydrate(config, "http://localhost:8080")
+	assert.Len(t, config.Errors, 0)
+	assert.Len(t, config.Warnings, 0)
 
-	group := config.Tiles[3][TilesKey].([]interface{})
-	gtile1 := group[0].(map[string]interface{})
-	assert.Equal(t, "http://localhost:8080/ping?hostname=aserver.com", gtile1[UrlKey])
-	gtile2 := group[1].(map[string]interface{})
-	assert.Equal(t, "http://localhost:8080/port?hostname=bserver.com&port=22", gtile2[UrlKey])
+	assert.Equal(t, 3, len(config.Tiles))
+	assert.Equal(t, jenkins.JenkinsBuildTileType, config.Tiles[0].Type)
+	assert.Equal(t, "http://localhost:8080/jenkins/default?job=test", config.Tiles[0].Url)
+	assert.Equal(t, jenkins.JenkinsBuildTileType, config.Tiles[1].Tiles[1].Type)
+	assert.Equal(t, "http://localhost:8080/jenkins/default?job=test", config.Tiles[1].Tiles[1].Url)
+	assert.Equal(t, jenkins.JenkinsBuildTileType, config.Tiles[2].Tiles[0].Type)
+	assert.Equal(t, "http://localhost:8080/jenkins/default?job=test", config.Tiles[2].Tiles[0].Url)
+}
 
-	assert.Equal(t, "http://localhost:8080/jenkins/default?job=test", config.Tiles[4][UrlKey])
-	assert.Equal(t, "http://localhost:8080/jenkins/variant1?job=test", config.Tiles[5][UrlKey])
+func TestUsecase_Hydrate_WithDynamic_WithError(t *testing.T) {
+	input := `
+{
+  "columns": 4,
+  "tiles": [
+    { "type": "JENKINS-MULTIBRANCH", "params": {"job": "test"}},
+    { "type": "GROUP", "label": "...", "tiles": [
+      { "type": "PING", "params": { "hostname": "aserver.com" } },
+			{ "type": "JENKINS-MULTIBRANCH", "params": {"job": "test"}}
+    ]},
+    { "type": "GROUP", "label": "...", "tiles": [
+    	{ "type": "JENKINS-MULTIBRANCH", "configVariant": "variant1", "params": {"job": "test"}}
+    ]}
+  ]
+}
+`
+	usecase := initConfigUsecase()
+
+	reader := ioutil.NopCloser(strings.NewReader(input))
+	config, err := repository.GetConfig(reader)
+	assert.NoError(t, err)
+
+	usecase.Hydrate(config, "http://localhost:8080")
+	assert.Len(t, config.Errors, 1)
+	assert.Len(t, config.Warnings, 0)
+	assert.Contains(t, config.Errors, `Error while listing JENKINS-MULTIBRANCH dynamic tiles (params: {"job":"test"}). unable to found job`)
+}
+
+func TestUsecase_Hydrate_WithDynamic_WithWarning(t *testing.T) {
+	input := `
+{
+  "columns": 4,
+  "tiles": [
+    { "type": "JENKINS-MULTIBRANCH", "params": {"job": "test"}},
+    { "type": "GROUP", "label": "...", "tiles": [
+      { "type": "PING", "params": { "hostname": "aserver.com" } },
+			{ "type": "JENKINS-MULTIBRANCH", "params": {"job": "test"}}
+    ]},
+    { "type": "GROUP", "label": "...", "tiles": [
+    	{ "type": "JENKINS-MULTIBRANCH", "configVariant": "variant2", "params": {"job": "test"}}
+    ]}
+  ]
+}
+`
+	usecase := initConfigUsecase()
+
+	reader := ioutil.NopCloser(strings.NewReader(input))
+	config, err := repository.GetConfig(reader)
+	assert.NoError(t, err)
+
+	usecase.Hydrate(config, "http://localhost:8080")
+	assert.Len(t, config.Errors, 0)
+	assert.Len(t, config.Warnings, 1)
+	assert.Contains(t, config.Warnings, `Warning while listing JENKINS-MULTIBRANCH dynamic tiles (params: {"job":"test"}). timeout/host unreachable`)
 }

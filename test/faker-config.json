@@ -1,35 +1,35 @@
 {
   "columns": 4,
   "tiles": [
-    { "type": "ping", "columnSpan": 2, "label": "test1" ,"params": { "hostname": "test.com", "status": "SUCCESS" } },
-    { "type": "ping", "label": "test2" ,"params": { "hostname": "test.com", "status": "FAILURE" } },
-    { "type": "port", "params": { "hostname": "bserver.com", "port": 22, "status": "SUCCESS" } },
-    { "type": "port", "params": { "hostname": "bserver.com", "port": 22, "status": "FAILURE" } },
-    { "type": "group", "label": "Group SUCCESS", "tiles": [
-      { "type": "ping", "params": { "hostname": "test.com", "status": "SUCCESS" } },
-      { "type": "port", "params": { "hostname": "bserver.com", "port": 22, "status": "SUCCESS" } }
+    { "type": "PING", "columnSpan": 2, "label": "test1" ,"params": { "hostname": "test.com", "status": "SUCCESS" } },
+    { "type": "PING", "label": "test2" ,"params": { "hostname": "test.com", "status": "FAILURE" } },
+    { "type": "PORT", "params": { "hostname": "bserver.com", "port": 22, "status": "SUCCESS" } },
+    { "type": "PORT", "params": { "hostname": "bserver.com", "port": 22, "status": "FAILURE" } },
+    { "type": "GROUP", "label": "Group SUCCESS", "tiles": [
+      { "type": "PING", "params": { "hostname": "test.com", "status": "SUCCESS" } },
+      { "type": "PORT", "params": { "hostname": "bserver.com", "port": 22, "status": "SUCCESS" } }
     ]},
-    { "type": "group", "label": "Group FAILURE", "rowSpan": 3, "tiles": [
-      { "type": "ping", "params": { "hostname": "test.com", "status": "FAILURE" } },
-      { "type": "port", "params": { "hostname": "bserver.com", "port": 22, "status": "FAILURE" } },
-      { "type": "port", "params": { "hostname": "bserver.com", "port": 25, "status": "FAILURE" } },
-      { "type": "port", "params": { "hostname": "bserver.com", "port": 80, "status": "FAILURE" } },
-      { "type": "port", "params": { "hostname": "bserver.com", "port": 443, "status": "FAILURE" } }
+    { "type": "GROUP", "label": "Group FAILURE", "rowSpan": 3, "tiles": [
+      { "type": "PING", "params": { "hostname": "test.com", "status": "FAILURE" } },
+      { "type": "PORT", "params": { "hostname": "bserver.com", "port": 22, "status": "FAILURE" } },
+      { "type": "PORT", "params": { "hostname": "bserver.com", "port": 25, "status": "FAILURE" } },
+      { "type": "PORT", "params": { "hostname": "bserver.com", "port": 80, "status": "FAILURE" } },
+      { "type": "PORT", "params": { "hostname": "bserver.com", "port": 443, "status": "FAILURE" } }
     ]},
-    { "type": "group", "label": "Partially failed group", "tiles": [
-      { "type": "travisci-build", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "previousStatus": "SUCCESS" } },
-      { "type": "ping", "params": { "hostname": "test.com", "status": "SUCCESS" } },
-      { "type": "port", "params": { "hostname": "bserver.com", "port": 22, "status": "FAILURE" } }
+    { "type": "GROUP", "label": "Partially failed group", "tiles": [
+      { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "previousStatus": "SUCCESS" } },
+      { "type": "PING", "params": { "hostname": "test.com", "status": "SUCCESS" } },
+      { "type": "PORT", "params": { "hostname": "bserver.com", "port": 22, "status": "FAILURE" } }
     ]},
-    { "type": "empty" },
-    { "type": "travisci-build", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "SUCCESS" } },
-    { "type": "travisci-build", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "FAILURE" } },
-    { "type": "jenkins-build", "params": { "job":  "monitoror", "status": "WARNING" } },
-    { "type": "travisci-build", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "QUEUED", "previousStatus": "SUCCESS" } },
-    { "type": "travisci-build", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "QUEUED", "previousStatus": "FAILURE" } },
-    { "type": "travisci-build", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "previousStatus": "SUCCESS" } },
-    { "type": "travisci-build", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "previousStatus": "FAILURE" } },
-    { "type": "travisci-build", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "estimatedDuration": 200 } },
-    { "type": "travisci-build", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "WARNING" } }
+    { "type": "EMPTY" },
+    { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "SUCCESS" } },
+    { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "FAILURE" } },
+    { "type": "JENKINS-BUILD", "params": { "job":  "monitoror", "status": "WARNING" } },
+    { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "QUEUED", "previousStatus": "SUCCESS" } },
+    { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "QUEUED", "previousStatus": "FAILURE" } },
+    { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "previousStatus": "SUCCESS" } },
+    { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "previousStatus": "FAILURE" } },
+    { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "estimatedDuration": 200 } },
+    { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "WARNING" } }
   ]
 }

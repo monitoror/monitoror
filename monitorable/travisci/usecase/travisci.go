@@ -41,7 +41,7 @@ func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *BuildTile, e
 	// Request
 	build, err := tu.repository.GetLastBuildStatus(params.Group, params.Repository, params.Branch)
 	if err != nil {
-		// TODO : Replace that by errors.Is when go 1.13 will be released
+		// TODO : Replace that by errors.Is/As when go 1.13 will be released
 		if err == context.DeadlineExceeded ||
 			strings.Contains(err.Error(), "no such host") ||
 			strings.Contains(err.Error(), "dial tcp: lookup") {

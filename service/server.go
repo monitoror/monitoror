@@ -145,7 +145,7 @@ func logStatus(name interface{}, enabled bool) {
 func logStatusWithConfigVariant(name interface{}, variant string, enabled bool) {
 	var nameWithVariant string
 	if variant != config.DefaultVariant && variant != "" {
-		nameWithVariant = fmt.Sprintf("%v (%s)", name, variant)
+		nameWithVariant = fmt.Sprintf("%v (variant: %s)", name, variant)
 	} else {
 		nameWithVariant = fmt.Sprintf("%v", name)
 	}

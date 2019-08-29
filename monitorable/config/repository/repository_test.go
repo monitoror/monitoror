@@ -20,7 +20,7 @@ func TestRepository_GetConfig_Success(t *testing.T) {
   "tiles": [
     { "type": "EMPTY" },
     { "type": "PING", "label": "...", "params": { "hostname": "server.com"}},
-    { "type": "GROUP", "label": "...", "params": [
+    { "type": "GROUP", "label": "...", "tiles": [
       { "type": "PING", "params": { "hostname": "aserver.com" }},
       { "type": "PORT", "params": { "hostname": "bserver.com", "port": 22 }}
     ]}
