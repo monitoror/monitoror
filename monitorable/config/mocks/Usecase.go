@@ -16,6 +16,11 @@ type Usecase struct {
 	mock.Mock
 }
 
+// Hydrate provides a mock function with given fields: _a0, host
+func (_m *Usecase) Hydrate(_a0 *models.Config, host string) {
+	_m.Called(_a0, host)
+}
+
 // GetConfig provides a mock function with given fields: params
 func (_m *Usecase) GetConfig(params *models.ConfigParams) (*models.Config, error) {
 	ret := _m.Called(params)
@@ -37,11 +42,6 @@ func (_m *Usecase) GetConfig(params *models.ConfigParams) (*models.Config, error
 	}
 
 	return r0, r1
-}
-
-// Hydrate provides a mock function with given fields: _a0, host
-func (_m *Usecase) Hydrate(_a0 *models.Config, host string) {
-	_m.Called(_a0, host)
 }
 
 // RegisterDynamicTile provides a mock function with given fields: tileType, _a1, _a2

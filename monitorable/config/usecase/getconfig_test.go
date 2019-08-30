@@ -51,7 +51,7 @@ func initConfigUsecase() *configUsecase {
 	return usecase
 }
 
-func TestUsecase_Config_WithUrl_Success(t *testing.T) {
+func TestUsecase_Load_WithUrl_Success(t *testing.T) {
 	mockRepo := new(mocks.Repository)
 	mockRepo.On("GetConfigFromUrl", AnythingOfType("string")).Return(&models.Config{}, nil)
 
@@ -64,7 +64,7 @@ func TestUsecase_Config_WithUrl_Success(t *testing.T) {
 	}
 }
 
-func TestUsecase_Config_WithPath_Success(t *testing.T) {
+func TestUsecase_Load_WithPath_Success(t *testing.T) {
 	mockRepo := new(mocks.Repository)
 	mockRepo.On("GetConfigFromPath", AnythingOfType("string")).Return(&models.Config{}, nil)
 
@@ -77,7 +77,7 @@ func TestUsecase_Config_WithPath_Success(t *testing.T) {
 	}
 }
 
-func TestUsecase_Config_Failed(t *testing.T) {
+func TestUsecase_Load_Failed(t *testing.T) {
 	mockRepo := new(mocks.Repository)
 	mockRepo.On("GetConfigFromPath", AnythingOfType("string")).Return(nil, errors.New("boom"))
 
@@ -90,23 +90,7 @@ func TestUsecase_Config_Failed(t *testing.T) {
 	}
 }
 
-func TestUsecase_Config_Version(t *testing.T) {
-	mockRepo := new(mocks.Repository)
-	mockRepo.On("GetConfigFromPath", AnythingOfType("string")).Return(&models.Config{}, nil)
-	usecase := NewConfigUsecase(mockRepo)
-
-	config, _ := usecase.GetConfig(&models.ConfigParams{Path: "test"})
-	assert.Equal(t, CurrentVersion, config.Version)
-
-	mockRepo = new(mocks.Repository)
-	mockRepo.On("GetConfigFromPath", AnythingOfType("string")).Return(&models.Config{Version: 2}, nil)
-	usecase = NewConfigUsecase(mockRepo)
-
-	config, _ = usecase.GetConfig(&models.ConfigParams{Path: "test"})
-	assert.Equal(t, 2, config.Version)
-}
-
-func TestUsecase_Config_(t *testing.T) {
+func TestUsecase_Load_Version(t *testing.T) {
 	mockRepo := new(mocks.Repository)
 	mockRepo.On("GetConfigFromPath", AnythingOfType("string")).Return(&models.Config{}, nil)
 	usecase := NewConfigUsecase(mockRepo)

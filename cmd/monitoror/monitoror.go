@@ -18,14 +18,14 @@ func main() {
 	log.SetHeader("[${level}]")
 	log.SetLevel(log.INFO)
 
-	// Load .env file
+	// GetConfig .env file
 	dir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
 
 	_ = godotenv.Load(".env.local")
 	_ = godotenv.Load(".env")
 	_ = godotenv.Load(filepath.Join(dir, ".env"))
 
-	// Load GetConfig from File/Env
+	// GetConfig GetConfig from File/Env
 	conf := config.InitConfig()
 
 	// Banner

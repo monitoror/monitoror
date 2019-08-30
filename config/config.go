@@ -69,7 +69,7 @@ type (
 	}
 )
 
-// Load configuration from configuration file / env / default value
+// GetConfig configuration from configuration file / env / default value
 func InitConfig() *Config {
 	var config Config
 

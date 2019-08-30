@@ -4,7 +4,6 @@ import (
 	. "github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/config"
-	"github.com/monitoror/monitoror/monitorable/config/models"
 	. "github.com/monitoror/monitoror/pkg/monitoror/builder"
 	. "github.com/monitoror/monitoror/pkg/monitoror/validator"
 )
@@ -30,7 +29,8 @@ var SupportedVersions = map[int]bool{
 
 type (
 	configUsecase struct {
-		repository         config.Repository
+		repository config.Repository
+
 		tileConfigs        map[tiles.TileType]map[string]*TileConfig
 		dynamicTileConfigs map[tiles.TileType]map[string]*DynamicTileConfig
 	}
@@ -99,24 +99,4 @@ func (cu *configUsecase) RegisterDynamicTileWithConfigVariant(tileType tiles.Til
 		Validator: validator,
 		Builder:   builder,
 	}
-}
-
-// GetConfig load and parse GetConfig
-func (cu *configUsecase) GetConfig(params *models.ConfigParams) (config *models.Config, err error) {
-	if params.Url != "" {
-		config, err = cu.repository.GetConfigFromUrl(params.Url)
-	} else if params.Path != "" {
-		config, err = cu.repository.GetConfigFromPath(params.Path)
-	}
-
-	if err != nil {
-		return
-	}
-
-	// Set config to CurrentVersion if config isn't set
-	if config.Version == 0 {
-		config.Version = CurrentVersion
-	}
-
-	return
 }

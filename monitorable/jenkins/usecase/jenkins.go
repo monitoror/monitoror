@@ -10,16 +10,15 @@ import (
 	"time"
 
 	"github.com/monitoror/monitoror/config"
-
-	. "github.com/AlekSi/pointer"
-	gocache "github.com/robfig/go-cache"
-
 	"github.com/monitoror/monitoror/models/errors"
 	. "github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
 	"github.com/monitoror/monitoror/monitorable/jenkins/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/builder"
 	"github.com/monitoror/monitoror/pkg/monitoror/cache"
+
+	. "github.com/AlekSi/pointer"
+	gocache "github.com/robfig/go-cache"
 )
 
 type (

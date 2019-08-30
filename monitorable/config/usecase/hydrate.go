@@ -18,7 +18,7 @@ func (cu *configUsecase) Hydrate(conf *models.Config, host string) {
 
 func (cu *configUsecase) hydrateTiles(conf *models.Config, tiles *[]models.Tile, host string) {
 	for i := 0; i < len(*tiles); i++ {
-		tile := &(*tiles)[i]
+		tile := &((*tiles)[i])
 		if tile.Type != EmptyTileType && tile.Type != GroupTileType {
 			// Set ConfigVariant to DefaultVariant if empty
 			if tile.ConfigVariant == "" {

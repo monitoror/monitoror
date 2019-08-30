@@ -177,20 +177,20 @@ func TestUsecase_VerifyTile_Failed_GroupInGroup(t *testing.T) {
 	assert.Contains(t, conf.Errors[0], `Unauthorized "GROUP" type in GROUP tile.`)
 }
 
-func TestUsecase_VerifyTile_Failed_GroupWithWrongTiles(t *testing.T) {
-	input := `
-      { "type": "GROUP", "label": "..."}
-`
-	conf := &models.Config{}
-
-	tile := initTile(t, input)
-	useCase := initConfigUsecase()
-
-	useCase.verifyTile(conf, tile, false)
-
-	assert.Len(t, conf.Errors, 1)
-	assert.Contains(t, conf.Errors[0], `Missing or empty "tiles" key in GROUP tile definition.`)
-}
+//func TestUsecase_VerifyTile_Failed_GroupWithWrongTiles(t *testing.T) {
+//	input := `
+//      { "type": "GROUP", "label": "..."}
+//`
+//	conf := &models.Config{}
+//
+//	tile := initTile(t, input)
+//	useCase := initConfigUsecase()
+//
+//	useCase.verifyTile(conf, tile, false)
+//
+//	assert.Len(t, conf.Errors, 1)
+//	assert.Contains(t, conf.Errors[0], `Missing or empty "tiles" key in GROUP tile definition.`)
+//}
 
 func TestUsecase_VerifyTile_Failed_WrongTileType(t *testing.T) {
 	input := `{ "type": "PONG", "params": { "hostname": "server.com" } }`
