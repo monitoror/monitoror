@@ -42,7 +42,7 @@
 </template>
 
 <script lang="ts">
-  import distanceInWordsToNow from 'date-fns/distance_in_words_to_now'
+  import {formatDistanceToNow, parseISO} from 'date-fns'
   import Vue from 'vue'
   import {Component, Prop} from 'vue-property-decorator'
 
@@ -303,7 +303,7 @@
         return
       }
 
-      return distanceInWordsToNow(this.finishedAt) + ' ago'
+      return formatDistanceToNow(new Date(this.finishedAt)) + ' ago'
     }
 
     get author(): TileAuthor | undefined {
