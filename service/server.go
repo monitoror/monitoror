@@ -127,6 +127,9 @@ func (s *Server) initApis() {
 	// ------------- PORT ------------- //
 	s.registerPort(configHelper)
 
+	// ------------- HTTP ------------- //
+	s.registerHttp(configHelper)
+
 	// ------------- TRAVIS-CI ------------- //
 	s.registerTravisCI(configHelper)
 

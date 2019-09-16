@@ -9,7 +9,11 @@ import (
 	_configDelivery "github.com/monitoror/monitoror/monitorable/config/delivery/http"
 	_configRepository "github.com/monitoror/monitoror/monitorable/config/repository"
 	_configUsecase "github.com/monitoror/monitoror/monitorable/config/usecase"
-
+	"github.com/monitoror/monitoror/monitorable/http"
+	_httpDelivery "github.com/monitoror/monitoror/monitorable/http/delivery/http"
+	_httpModels "github.com/monitoror/monitoror/monitorable/http/models"
+	_httpRepository "github.com/monitoror/monitoror/monitorable/http/repository"
+	_httpUsecase "github.com/monitoror/monitoror/monitorable/http/usecase"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
 	_jenkinsDelivery "github.com/monitoror/monitoror/monitorable/jenkins/delivery/http"
 	_jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
@@ -70,7 +74,27 @@ func (s *Server) registerPort(configHelper config.Helper) {
 	configHelper.RegisterTile(port.PortTileType, &_portModels.PortParams{}, route.Path)
 }
 
-//noinspection ALL
+func (s *Server) registerHttp(configHelper config.Helper) {
+	defer logStatus("HTTP", true)
+
+	repository := _httpRepository.NewHttpRepository(&s.config.Monitorable.Http)
+	usecase := _httpUsecase.NewHttpUsecase(repository)
+	delivery := _httpDelivery.NewHttpHttpDelivery(usecase)
+
+	// Register route to echo
+	httpGroup := s.v1.Group("/http")
+	routeAny := httpGroup.GET("/any", s.cm.UpstreamCacheHandler(delivery.GetHttpAny))
+	routeRaw := httpGroup.GET("/raw", s.cm.UpstreamCacheHandler(delivery.GetHttpRaw))
+	routeJson := httpGroup.GET("/json", s.cm.UpstreamCacheHandler(delivery.GetHttpJson))
+	routeYaml := httpGroup.GET("/yaml", s.cm.UpstreamCacheHandler(delivery.GetHttpYaml))
+
+	// Register data for config hydration
+	configHelper.RegisterTile(http.HttpAnyTileType, &_httpModels.HttpAnyParams{}, routeAny.Path)
+	configHelper.RegisterTile(http.HttpRawTileType, &_httpModels.HttpRawParams{}, routeRaw.Path)
+	configHelper.RegisterTile(http.HttpJsonTileType, &_httpModels.HttpFormattedDataParams{}, routeJson.Path)
+	configHelper.RegisterTile(http.HttpYamlTileType, &_httpModels.HttpFormattedDataParams{}, routeYaml.Path)
+}
+
 func (s *Server) registerTravisCI(configHelper config.Helper) {
 	for variant, travisCIConf := range s.config.Monitorable.TravisCI {
 		// Associate github config

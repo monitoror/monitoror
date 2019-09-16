@@ -35,9 +35,10 @@ type (
 	Monitorable struct {
 		Ping     Ping                 `json:"ping"`
 		Port     Port                 `json:"port"`
-		Github   map[string]*Github   `json:"github"`
-		TravisCI map[string]*TravisCI `json:"travisCI"`
-		Jenkins  map[string]*Jenkins  `json:"jenkins"`
+		Http     Http                 `json:"http"`
+		Github   map[string]*Github   `json:"github"`   // With variants
+		TravisCI map[string]*TravisCI `json:"travisCI"` // With variants
+		Jenkins  map[string]*Jenkins  `json:"jenkins"`  // With variants
 	}
 
 	Ping struct {
@@ -48,6 +49,11 @@ type (
 
 	Port struct {
 		Timeout int `json:"timeout"` // In Millisecond
+	}
+
+	Http struct {
+		Timeout   int  `json:"timeout"` // In Millisecond
+		SSLVerify bool `json:"sslVerify"`
 	}
 
 	Github struct {
@@ -99,6 +105,11 @@ func InitConfig() *Config {
 
 	// --- Port Configuration ---
 	viper.SetDefault("Monitorable.Port.Timeout", 2000)
+
+	// --- Http Configuration ---
+	viper.SetDefault("Monitorable.Http.Timeout", 2000)
+	viper.SetDefault("Monitorable.Http.SSLVerify", true)
+	viper.SetDefault("Monitorable.Http.Url", "")
 
 	// --- Github Configuration ---
 	for variant := range variants["Github"] {
