@@ -3,10 +3,9 @@ package http
 import (
 	"net/http"
 
-	"github.com/monitoror/monitoror/models/errors"
-	"github.com/monitoror/monitoror/monitorable/ping/models"
-
+	. "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/ping"
+	"github.com/monitoror/monitoror/monitorable/ping/models"
 
 	"github.com/labstack/echo/v4"
 )
@@ -24,7 +23,7 @@ func (h *httpPingDelivery) GetPing(c echo.Context) error {
 	params := &models.PingParams{}
 	err := c.Bind(params)
 	if err != nil || !params.IsValid() {
-		return errors.NewQueryParamsError(err)
+		return QueryParamsError
 	}
 
 	tile, err := h.pingUsecase.Ping(params)

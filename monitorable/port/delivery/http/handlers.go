@@ -3,10 +3,9 @@ package http
 import (
 	"net/http"
 
-	"github.com/monitoror/monitoror/models/errors"
-	"github.com/monitoror/monitoror/monitorable/port/models"
-
+	. "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/port"
+	"github.com/monitoror/monitoror/monitorable/port/models"
 
 	"github.com/labstack/echo/v4"
 )
@@ -24,7 +23,7 @@ func (h *httpPortDelivery) GetPort(c echo.Context) error {
 	params := &models.PortParams{}
 	err := c.Bind(params)
 	if err != nil || !params.IsValid() {
-		return errors.NewQueryParamsError(err)
+		return QueryParamsError
 	}
 
 	tile, err := h.portUsecase.Port(params)

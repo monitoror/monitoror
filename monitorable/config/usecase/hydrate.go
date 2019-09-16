@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/url"
+	"os"
 	"reflect"
-	"strings"
+
+	"github.com/monitoror/monitoror/pkg/monitoror/builder"
 
 	"github.com/monitoror/monitoror/config"
 
@@ -77,16 +79,23 @@ func (cu *configUsecase) hydrateDynamicTile(conf *models.Config, tile *models.Ti
 	_ = json.Unmarshal(bParams, &rInstance)
 
 	// Call builder and add inherited value from Dynamic tile
+	cacheKey := fmt.Sprintf("%s_%s_%s", tile.Type, tile.ConfigVariant, string(bParams))
 	results, err := dynamicTileConfig.Builder.ListDynamicTile(rInstance)
 	if err != nil {
-		// TODO : Replace that by errors.Is/As when go 1.13 will be released
-		params, _ := json.Marshal(tile.Params)
-		if strings.Contains(err.Error(), "unable to found job") {
-			conf.AddErrors(fmt.Sprintf(`Error while listing %s dynamic tiles (params: %s). %v`, tile.Type, string(params), err))
+		if os.IsTimeout(err) {
+			// Get previous value in cache
+			if r, exist := cu.dynamicTileCache.Get(cacheKey); exist {
+				// Cache found, inject result and continue
+				results = r.([]builder.Result)
+			} else {
+				conf.AddWarnings(fmt.Sprintf(`Warning while listing %s dynamic tiles (params: %s). %v`, tile.Type, string(bParams), "timeout/host unreachable"))
+			}
 		} else {
-			conf.AddWarnings(fmt.Sprintf(`Warning while listing %s dynamic tiles (params: %s). %v`, tile.Type, string(params), err))
+			conf.AddErrors(fmt.Sprintf(`Error while listing %s dynamic tiles (params: %s). %v`, tile.Type, string(bParams), err))
 		}
-		return
+	} else {
+		// Add result in cache
+		cu.dynamicTileCache.Set(cacheKey, results, 0)
 	}
 
 	tiles = []models.Tile{}

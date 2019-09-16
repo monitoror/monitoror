@@ -34,7 +34,7 @@ import (
 
 func (s *Server) registerConfig() config.Helper {
 	repository := _configRepository.NewConfigRepository()
-	usecase := _configUsecase.NewConfigUsecase(repository)
+	usecase := _configUsecase.NewConfigUsecase(repository, s.config.DownstreamCache)
 	delivery := _configDelivery.NewHttpConfigDelivery(usecase)
 
 	s.v1.GET("/config", delivery.GetConfig)
@@ -45,7 +45,7 @@ func (s *Server) registerConfig() config.Helper {
 func (s *Server) registerPing(configHelper config.Helper) {
 	defer logStatus(ping.PingTileType, true)
 
-	repository := _pingRepository.NewPingRepository(s.config)
+	repository := _pingRepository.NewPingRepository(&s.config.Monitorable.Ping)
 	usecase := _pingUsecase.NewPingUsecase(repository)
 	delivery := _pingDelivery.NewHttpPingDelivery(usecase)
 
@@ -59,7 +59,7 @@ func (s *Server) registerPing(configHelper config.Helper) {
 func (s *Server) registerPort(configHelper config.Helper) {
 	defer logStatus(port.PortTileType, true)
 
-	repository := _portRepository.NewPortRepository(s.config)
+	repository := _portRepository.NewPortRepository(&s.config.Monitorable.Port)
 	usecase := _portUsecase.NewPortUsecase(repository)
 	delivery := _portDelivery.NewHttpPortDelivery(usecase)
 
@@ -94,7 +94,6 @@ func (s *Server) registerTravisCI(configHelper config.Helper) {
 	}
 }
 
-//noinspection ALL
 func (s *Server) registerJenkins(configHelper config.Helper) {
 	for variant, jenkinsConf := range s.config.Monitorable.Jenkins {
 		defer logStatusWithConfigVariant("JENKINS", variant, jenkinsConf.IsValid())
@@ -103,7 +102,7 @@ func (s *Server) registerJenkins(configHelper config.Helper) {
 		}
 
 		repository := _jenkinsRepository.NewJenkinsRepository(jenkinsConf)
-		usecase := _jenkinsUsecase.NewJenkinsUsecase(repository, s.config.DownstreamCache)
+		usecase := _jenkinsUsecase.NewJenkinsUsecase(repository)
 		delivery := _jenkinsDelivery.NewHttpJenkinsDelivery(usecase)
 
 		// Register route to echo

@@ -3,7 +3,8 @@ package http
 import (
 	"net/http"
 
-	"github.com/monitoror/monitoror/models/errors"
+	. "github.com/monitoror/monitoror/models"
+
 	"github.com/monitoror/monitoror/monitorable/jenkins"
 	"github.com/monitoror/monitoror/monitorable/jenkins/models"
 
@@ -23,7 +24,7 @@ func (h *httpJenkinsDelivery) GetBuild(c echo.Context) error {
 	params := &models.BuildParams{}
 	err := c.Bind(params)
 	if err != nil || !params.IsValid() {
-		return errors.NewQueryParamsError(err)
+		return QueryParamsError
 	}
 
 	tile, err := h.jenkinsUsecase.Build(params)

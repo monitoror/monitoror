@@ -8,7 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	mErrors "github.com/monitoror/monitoror/models/errors"
+	"github.com/monitoror/monitoror/models"
+
 	"github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/travisci"
 	"github.com/monitoror/monitoror/monitorable/travisci/mocks"
@@ -42,7 +43,7 @@ func missingParam(t *testing.T, param string) {
 	// Test
 	err := handler.GetBuild(ctx)
 	assert.Error(t, err)
-	assert.IsType(t, &mErrors.QueryParamsError{}, err)
+	assert.IsType(t, &models.MonitororError{}, err)
 }
 
 func TestDelivery_BuildHandler_Success(t *testing.T) {

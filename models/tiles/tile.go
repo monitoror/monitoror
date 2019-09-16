@@ -6,7 +6,7 @@ type (
 		Category TileCategory `json:"category"`
 		Type     TileType     `json:"type,omitempty"`
 		Status   TileStatus   `json:"status,omitempty"`
-		Label    string       `json:"label"`
+		Label    string       `json:"label,omitempty"`
 		Message  string       `json:"message,omitempty"`
 	}
 

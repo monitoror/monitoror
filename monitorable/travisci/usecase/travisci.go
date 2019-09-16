@@ -3,20 +3,16 @@
 package usecase
 
 import (
-	"context"
 	"fmt"
-	"strings"
 	"time"
 
-	"github.com/monitoror/monitoror/pkg/monitoror/cache"
-
-	. "github.com/AlekSi/pointer"
-
-	"github.com/monitoror/monitoror/models/errors"
-
+	. "github.com/monitoror/monitoror/models"
 	. "github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/travisci"
 	"github.com/monitoror/monitoror/monitorable/travisci/models"
+	"github.com/monitoror/monitoror/pkg/monitoror/cache"
+
+	. "github.com/AlekSi/pointer"
 )
 
 type (
@@ -41,19 +37,11 @@ func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *BuildTile, e
 	// Request
 	build, err := tu.repository.GetLastBuildStatus(params.Group, params.Repository, params.Branch)
 	if err != nil {
-		// TODO : Replace that by errors.Is/As when go 1.13 will be released
-		if err == context.DeadlineExceeded ||
-			strings.Contains(err.Error(), "no such host") ||
-			strings.Contains(err.Error(), "dial tcp: lookup") {
-			err = errors.NewTimeoutError(tile.Tile)
-		} else {
-			err = errors.NewSystemError("unable to get travisci build", nil)
-		}
-		return nil, err
+		return nil, &MonitororError{Err: err, Tile: tile.Tile, Message: "unable to found build"}
 	}
 	if build == nil {
-		err = errors.NewNoBuildError(tile)
-		return nil, err
+		// Warning because request was correct but there is no build
+		return nil, &MonitororError{Tile: tile.Tile, Message: "unable to found build", ErrorStatus: WarningStatus}
 	}
 
 	// Set Status

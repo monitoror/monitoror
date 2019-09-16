@@ -26,8 +26,8 @@ import (
  */
 
 const (
-	DownstreamStoreContextKey = "jsdidierlaurent.monitoror.downstreamStore"
-	CachePrefix               = "jsdidierlaurent.monitoror.cache"
+	DownstreamStoreContextKey = "monitoror.downstreamStore"
+	CachePrefix               = "monitoror.cache"
 
 	DownstreamCacheHeader = "Timeout-Recover"
 )

@@ -12,13 +12,13 @@ import (
 
 type (
 	portRepository struct {
-		config *config.Config
+		config *config.Port
 		dialer pkgNet.Dialer
 	}
 )
 
-func NewPortRepository(conf *config.Config) port.Repository {
-	timeout := time.Millisecond * time.Duration(conf.Monitorable.Port.Timeout)
+func NewPortRepository(conf *config.Port) port.Repository {
+	timeout := time.Millisecond * time.Duration(conf.Timeout)
 	return &portRepository{conf, &net.Dialer{Timeout: timeout}}
 }
 
