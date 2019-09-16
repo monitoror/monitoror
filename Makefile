@@ -4,7 +4,7 @@
 
 DEFAULT: build-cross
 
-MAKEFLAGS = --silent --ignore-errors
+MAKEFLAGS = --silent
 
 # ============= TESTS =============
 .PHONY: test
