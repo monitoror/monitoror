@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/monitoror/monitoror/models/errors"
+	. "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/config"
 	"github.com/monitoror/monitoror/monitorable/config/models"
 
@@ -25,7 +25,7 @@ func (h *httpConfigDelivery) GetConfig(c echo.Context) error {
 	params := &models.ConfigParams{}
 	err := c.Bind(params)
 	if err != nil || !params.IsValid() {
-		return errors.NewQueryParamsError(err)
+		return QueryParamsError
 	}
 
 	config, err := h.configUsecase.GetConfig(params)

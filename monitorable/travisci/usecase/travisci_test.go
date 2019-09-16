@@ -1,75 +1,26 @@
 package usecase
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"testing"
 	"time"
 
-	. "github.com/AlekSi/pointer"
+	. "github.com/monitoror/monitoror/models"
 
-	"github.com/monitoror/monitoror/monitorable/travisci"
-
-	mErrors "github.com/monitoror/monitoror/models/errors"
 	. "github.com/monitoror/monitoror/models/tiles"
+	"github.com/monitoror/monitoror/monitorable/travisci"
 	"github.com/monitoror/monitoror/monitorable/travisci/mocks"
 	"github.com/monitoror/monitoror/monitorable/travisci/models"
+
+	. "github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"
 )
 
 var group, repo, branch = "test", "test", "master"
 
-func TestBuild_Error_NoHost(t *testing.T) {
-	mockRepository := new(mocks.Repository)
-	mockRepository.On("GetLastBuildStatus", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
-		Return(nil, errors.New("no such host"))
-
-	tu := NewTravisCIUsecase(mockRepository)
-
-	tile, err := tu.Build(&models.BuildParams{Group: group, Repository: repo, Branch: branch})
-	if assert.Error(t, err) {
-		assert.Nil(t, tile)
-		assert.IsType(t, &mErrors.TimeoutError{}, err)
-		mockRepository.AssertNumberOfCalls(t, "GetLastBuildStatus", 1)
-		mockRepository.AssertExpectations(t)
-	}
-}
-
-func TestBuild_Error_NoNetwork(t *testing.T) {
-	mockRepository := new(mocks.Repository)
-	mockRepository.On("GetLastBuildStatus", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
-		Return(nil, errors.New("dial tcp: lookup"))
-
-	tu := NewTravisCIUsecase(mockRepository)
-
-	tile, err := tu.Build(&models.BuildParams{Group: group, Repository: repo, Branch: branch})
-	if assert.Error(t, err) {
-		assert.Nil(t, tile)
-		assert.IsType(t, &mErrors.TimeoutError{}, err)
-		mockRepository.AssertNumberOfCalls(t, "GetLastBuildStatus", 1)
-		mockRepository.AssertExpectations(t)
-	}
-}
-
-func TestBuild_Timeout(t *testing.T) {
-	mockRepository := new(mocks.Repository)
-	mockRepository.On("GetLastBuildStatus", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
-		Return(nil, context.DeadlineExceeded)
-
-	tu := NewTravisCIUsecase(mockRepository)
-
-	tile, err := tu.Build(&models.BuildParams{Group: group, Repository: repo, Branch: branch})
-	if assert.Error(t, err) {
-		assert.Nil(t, tile)
-		assert.IsType(t, &mErrors.TimeoutError{}, err)
-		mockRepository.AssertNumberOfCalls(t, "GetLastBuildStatus", 1)
-		mockRepository.AssertExpectations(t)
-	}
-}
-
-func TestBuild_Error_System(t *testing.T) {
+func TestBuild_Error(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetLastBuildStatus", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(nil, errors.New("boom"))
@@ -79,7 +30,8 @@ func TestBuild_Error_System(t *testing.T) {
 	tile, err := tu.Build(&models.BuildParams{Group: group, Repository: repo, Branch: branch})
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
-		assert.IsType(t, &mErrors.SystemError{}, err)
+		assert.IsType(t, &MonitororError{}, err)
+		assert.Equal(t, "unable to found build", err.Error())
 		mockRepository.AssertNumberOfCalls(t, "GetLastBuildStatus", 1)
 		mockRepository.AssertExpectations(t)
 	}
@@ -95,7 +47,8 @@ func TestBuild_Error_NoBuild(t *testing.T) {
 	tile, err := tu.Build(&models.BuildParams{Group: group, Repository: repo, Branch: branch})
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
-		assert.IsType(t, &mErrors.NoBuildError{}, err)
+		assert.IsType(t, &MonitororError{}, err)
+		assert.Equal(t, "unable to found build", err.Error())
 		mockRepository.AssertNumberOfCalls(t, "GetLastBuildStatus", 1)
 		mockRepository.AssertExpectations(t)
 	}

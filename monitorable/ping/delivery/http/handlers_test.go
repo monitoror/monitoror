@@ -8,7 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	mErrors "github.com/monitoror/monitoror/models/errors"
+	"github.com/monitoror/monitoror/models"
+
 	"github.com/monitoror/monitoror/models/tiles"
 	. "github.com/monitoror/monitoror/monitorable/ping"
 	"github.com/monitoror/monitoror/monitorable/ping/mocks"
@@ -66,7 +67,7 @@ func TestDelivery_PingHandler_QueryParamsError(t *testing.T) {
 	// Test
 	err := handler.GetPing(ctx)
 	assert.Error(t, err)
-	assert.IsType(t, &mErrors.QueryParamsError{}, err)
+	assert.IsType(t, &models.MonitororError{}, err)
 }
 
 func TestDelivery_PingHandler_Error(t *testing.T) {

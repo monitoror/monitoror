@@ -6,11 +6,9 @@ import (
 	"fmt"
 	"net/url"
 	"regexp"
-	"strings"
 	"time"
 
-	"github.com/monitoror/monitoror/config"
-	"github.com/monitoror/monitoror/models/errors"
+	. "github.com/monitoror/monitoror/models"
 	. "github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
 	"github.com/monitoror/monitoror/monitorable/jenkins/models"
@@ -18,31 +16,23 @@ import (
 	"github.com/monitoror/monitoror/pkg/monitoror/cache"
 
 	. "github.com/AlekSi/pointer"
-	gocache "github.com/robfig/go-cache"
 )
 
 type (
 	jenkinsUsecase struct {
 		repository jenkins.Repository
 
-		// builds cache
+		// builds cache. used for save small history of build for stats
 		buildsCache *cache.BuildCache
-
-		// jobs cache
-		jobsCache *gocache.Cache
 	}
 )
 
 const buildCacheSize = 5
 
-func NewJenkinsUsecase(repository jenkins.Repository, downstreamCache config.Cache) jenkins.Usecase {
+func NewJenkinsUsecase(repository jenkins.Repository) jenkins.Usecase {
 	return &jenkinsUsecase{
 		repository,
 		cache.NewBuildCache(buildCacheSize),
-		gocache.New(
-			time.Millisecond*time.Duration(downstreamCache.Expire),
-			time.Millisecond*time.Duration(downstreamCache.CleanupInterval),
-		),
 	}
 }
 
@@ -59,15 +49,7 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *BuildTile, er
 
 	job, err := tu.repository.GetJob(params.Job, params.Branch)
 	if err != nil {
-		// TODO : Replace that by errors.Is/As when go 1.13 will be released
-		if strings.Contains(err.Error(), "no such host") ||
-			strings.Contains(err.Error(), "dial tcp: lookup") ||
-			strings.Contains(err.Error(), "request canceled") {
-			err = errors.NewTimeoutError(nil)
-		} else {
-			err = errors.NewSystemError("unable to found job", err)
-		}
-		return nil, err
+		return nil, &MonitororError{Err: err, Tile: tile.Tile, Message: "unable to found job"}
 	}
 
 	// Is Buildable
@@ -94,15 +76,7 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *BuildTile, er
 	// Get Last Build
 	build, err := tu.repository.GetLastBuildStatus(job)
 	if err != nil || build == nil {
-		// TODO : Replace that by errors.Is/As when go 1.13 will be released
-		if err != nil && (strings.Contains(err.Error(), "no such host") ||
-			strings.Contains(err.Error(), "dial tcp: lookup") ||
-			strings.Contains(err.Error(), "request canceled")) {
-			err = errors.NewTimeoutError(tile.Tile)
-		} else {
-			err = errors.NewNoBuildError(tile)
-		}
-		return nil, err
+		return nil, &MonitororError{Err: err, Tile: tile.Tile, Message: "unable to found build", ErrorStatus: WarningStatus}
 	}
 
 	// Set Status
@@ -150,24 +124,7 @@ func (tu *jenkinsUsecase) ListDynamicTile(params interface{}) (results []builder
 
 	job, err := tu.repository.GetJob(mbParams.Job, "")
 	if err != nil {
-		// TODO : Replace that by errors.Is/As when go 1.13 will be released
-		if strings.Contains(err.Error(), "no such host") ||
-			strings.Contains(err.Error(), "dial tcp: lookup") ||
-			strings.Contains(err.Error(), "request canceled") {
-
-			// Get previous value in cache
-			j, exist := tu.jobsCache.Get(mbParams.Job)
-			if !exist {
-				err = errors.NewTimeoutError(nil)
-				return
-			}
-			job = j.(*models.Job)
-		} else {
-			err = errors.NewSystemError("unable to found job", err)
-			return
-		}
-	} else {
-		tu.jobsCache.Set(mbParams.Job, job, 0)
+		return nil, &MonitororError{Err: err, Message: "unable to found job"}
 	}
 
 	matcher, err := regexp.Compile(mbParams.Match)

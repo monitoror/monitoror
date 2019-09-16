@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	mErrors "github.com/monitoror/monitoror/models/errors"
+	. "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/config/mocks"
 	"github.com/monitoror/monitoror/monitorable/config/models"
 
@@ -67,7 +67,7 @@ func TestDelivery_ConfigHandler_QueryParamsError(t *testing.T) {
 	// Test
 	err := handler.GetConfig(ctx)
 	assert.Error(t, err)
-	assert.IsType(t, &mErrors.QueryParamsError{}, err)
+	assert.IsType(t, &MonitororError{}, err)
 }
 
 func TestDelivery_ConfigHandler_ErrorConfig(t *testing.T) {

@@ -13,11 +13,11 @@ import (
 
 type (
 	pingRepository struct {
-		config *config.Config
+		config *config.Ping
 	}
 )
 
-func NewPingRepository(config *config.Config) ping.Repository {
+func NewPingRepository(config *config.Ping) ping.Repository {
 	return &pingRepository{config}
 }
 
@@ -27,9 +27,9 @@ func (r *pingRepository) ExecutePing(hostname string) (*models.Ping, error) {
 		return nil, err
 	}
 
-	pinger.Count = r.config.Monitorable.Ping.Count
-	pinger.Interval = time.Millisecond * time.Duration(r.config.Monitorable.Ping.Interval)
-	pinger.Timeout = time.Millisecond * time.Duration(r.config.Monitorable.Ping.Timeout)
+	pinger.Count = r.config.Count
+	pinger.Interval = time.Millisecond * time.Duration(r.config.Interval)
+	pinger.Timeout = time.Millisecond * time.Duration(r.config.Timeout)
 	pinger.SetPrivileged(true) // NEED ROOT PRIVILEGED
 
 	pinger.Run()

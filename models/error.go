@@ -1,10 +1,67 @@
 package models
 
-import "github.com/labstack/echo/v4"
+import (
+	"errors"
+	"net"
+	"os"
+	"strings"
+
+	"github.com/monitoror/monitoror/models/tiles"
+)
 
 type (
-	MonitororError interface {
-		error
-		Send(ctx echo.Context)
+	MonitororError struct {
+		// Err is the error that occurred during the operation.
+		Err error
+
+		// Message used to override Err message
+		Message string
+
+		// Tile is used in error handler to return errored tile to request
+		Tile *tiles.Tile
+
+		// ErrorStatus is used for override current tile Status when error happen
+		// Default : ErrorStatus
+		ErrorStatus tiles.TileStatus
 	}
 )
+
+var (
+	QueryParamsError = &MonitororError{Message: "invalid configuration, unable to parse/check queryParams"}
+)
+
+func (e *MonitororError) Error() string {
+	if e.Message != "" {
+		return e.Message
+	}
+	return e.Err.Error()
+}
+func (e *MonitororError) Unwrap() error { return e.Err }
+func (e *MonitororError) Timeout() bool {
+	// timeout, host unreachable, deadline exceeded are considered "timeout"
+	// it mean we will found previous status in cache to answer
+
+	// Timeout
+	if os.IsTimeout(e.Err) {
+		return true
+	}
+
+	// Host unreachable
+	err := e.Err
+	for {
+		if x, ok := err.(*net.DNSError); ok && x.IsNotFound {
+			return true
+		}
+
+		if err = errors.Unwrap(err); err == nil {
+			break
+		}
+	}
+
+	// Deadline Exceeded aka context cancellation
+	if strings.Contains(e.Err.Error(), "net/http: request canceled while waiting for connection") {
+		return true
+	}
+
+	return false
+}

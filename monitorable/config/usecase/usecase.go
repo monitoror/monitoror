@@ -1,11 +1,15 @@
 package usecase
 
 import (
+	"time"
+
 	. "github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/config"
 	. "github.com/monitoror/monitoror/pkg/monitoror/builder"
 	. "github.com/monitoror/monitoror/pkg/monitoror/validator"
+
+	gocache "github.com/robfig/go-cache"
 )
 
 // Versions
@@ -33,6 +37,9 @@ type (
 
 		tileConfigs        map[tiles.TileType]map[string]*TileConfig
 		dynamicTileConfigs map[tiles.TileType]map[string]*DynamicTileConfig
+
+		// jobs cache. used in case of timeout
+		dynamicTileCache *gocache.Cache
 	}
 
 	// TileConfig struct is used by GetConfig endpoint to check / hydrate config
@@ -48,7 +55,7 @@ type (
 	}
 )
 
-func NewConfigUsecase(repository config.Repository) config.Usecase {
+func NewConfigUsecase(repository config.Repository, downstreamCache Cache) config.Usecase {
 	tileConfigs := make(map[tiles.TileType]map[string]*TileConfig)
 
 	// Used for authorized type
@@ -56,11 +63,16 @@ func NewConfigUsecase(repository config.Repository) config.Usecase {
 	tileConfigs[GroupTileType] = nil
 
 	dynamicTileConfigs := make(map[tiles.TileType]map[string]*DynamicTileConfig)
+	dynamicTileCache := gocache.New(
+		time.Millisecond*time.Duration(downstreamCache.Expire),
+		time.Millisecond*time.Duration(downstreamCache.CleanupInterval),
+	)
 
 	return &configUsecase{
 		repository:         repository,
 		tileConfigs:        tileConfigs,
 		dynamicTileConfigs: dynamicTileConfigs,
+		dynamicTileCache:   dynamicTileCache,
 	}
 }
 
@@ -92,11 +104,11 @@ func (cu *configUsecase) RegisterDynamicTileWithConfigVariant(tileType tiles.Til
 	value, exists := cu.dynamicTileConfigs[tileType]
 	if !exists {
 		value = make(map[string]*DynamicTileConfig)
-		cu.dynamicTileConfigs[tileType] = value
 	}
 
 	value[variant] = &DynamicTileConfig{
 		Validator: validator,
 		Builder:   builder,
 	}
+	cu.dynamicTileConfigs[tileType] = value
 }

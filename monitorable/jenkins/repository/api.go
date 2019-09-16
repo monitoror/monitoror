@@ -17,8 +17,6 @@ import (
 
 type (
 	jenkinsRepository struct {
-		config *config.Jenkins
-
 		// Interfaces for Jenkins API
 		jenkinsApi pkgJenkins.Jenkins
 	}
@@ -41,7 +39,6 @@ func NewJenkinsRepository(config *config.Jenkins) jenkins.Repository {
 	jenkins.SetHTTPClient(client)
 
 	return &jenkinsRepository{
-		config,
 		jenkins,
 	}
 }

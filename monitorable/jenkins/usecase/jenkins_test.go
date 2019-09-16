@@ -6,147 +6,31 @@ import (
 	"testing"
 	"time"
 
-	"github.com/monitoror/monitoror/config"
-
-	. "github.com/AlekSi/pointer"
-	"github.com/monitoror/monitoror/monitorable/jenkins"
-
+	. "github.com/monitoror/monitoror/models"
 	. "github.com/monitoror/monitoror/models/tiles"
-
-	mErrors "github.com/monitoror/monitoror/models/errors"
+	"github.com/monitoror/monitoror/monitorable/jenkins"
 	"github.com/monitoror/monitoror/monitorable/jenkins/mocks"
 	"github.com/monitoror/monitoror/monitorable/jenkins/models"
 
+	. "github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"
 )
 
 var job, branch = "test", "master"
 
-func TestBuild_Error_NoHost(t *testing.T) {
-	mockRepository := new(mocks.Repository)
-	mockRepository.On("GetJob", AnythingOfType("string"), AnythingOfType("string")).
-		Return(nil, errors.New("no such host"))
-
-	tu := NewJenkinsUsecase(mockRepository, config.Cache{})
-
-	tile, err := tu.Build(&models.BuildParams{Job: job, Branch: branch})
-	if assert.Error(t, err) {
-		assert.Nil(t, tile)
-		assert.IsType(t, &mErrors.TimeoutError{}, err)
-		mockRepository.AssertNumberOfCalls(t, "GetJob", 1)
-		mockRepository.AssertExpectations(t)
-	}
-
-	repositoryJob := &models.Job{
-		Buildable: true,
-	}
-
-	mockRepository = new(mocks.Repository)
-	mockRepository.On("GetJob", AnythingOfType("string"), AnythingOfType("string")).
-		Return(repositoryJob, nil)
-	mockRepository.On("GetLastBuildStatus", Anything).
-		Return(nil, errors.New("no such host"))
-
-	tu = NewJenkinsUsecase(mockRepository, config.Cache{})
-
-	tile, err = tu.Build(&models.BuildParams{Job: job, Branch: branch})
-	if assert.Error(t, err) {
-		assert.Nil(t, tile)
-		assert.IsType(t, &mErrors.TimeoutError{}, err)
-		mockRepository.AssertNumberOfCalls(t, "GetJob", 1)
-		mockRepository.AssertNumberOfCalls(t, "GetLastBuildStatus", 1)
-		mockRepository.AssertExpectations(t)
-	}
-}
-
-func TestBuild_Error_NoNetwork(t *testing.T) {
-	mockRepository := new(mocks.Repository)
-	mockRepository.On("GetJob", AnythingOfType("string"), AnythingOfType("string")).
-		Return(nil, errors.New("dial tcp: lookup"))
-
-	tu := NewJenkinsUsecase(mockRepository, config.Cache{})
-
-	tile, err := tu.Build(&models.BuildParams{Job: job, Branch: branch})
-	if assert.Error(t, err) {
-		assert.Nil(t, tile)
-		assert.IsType(t, &mErrors.TimeoutError{}, err)
-		mockRepository.AssertNumberOfCalls(t, "GetJob", 1)
-		mockRepository.AssertExpectations(t)
-	}
-
-	repositoryJob := &models.Job{
-		Buildable: true,
-	}
-
-	mockRepository = new(mocks.Repository)
-	mockRepository.On("GetJob", AnythingOfType("string"), AnythingOfType("string")).
-		Return(repositoryJob, nil)
-	mockRepository.On("GetLastBuildStatus", Anything).
-		Return(nil, errors.New("dial tcp: lookup"))
-
-	tu = NewJenkinsUsecase(mockRepository, config.Cache{})
-
-	tile, err = tu.Build(&models.BuildParams{Job: job, Branch: branch})
-	if assert.Error(t, err) {
-		assert.Nil(t, tile)
-		assert.IsType(t, &mErrors.TimeoutError{}, err)
-		mockRepository.AssertNumberOfCalls(t, "GetJob", 1)
-		mockRepository.AssertNumberOfCalls(t, "GetLastBuildStatus", 1)
-		mockRepository.AssertExpectations(t)
-	}
-}
-
-func TestBuild_Timeout(t *testing.T) {
-	var errRequestCanceledConn = errors.New("net/http: request canceled while waiting for connection")
-
-	mockRepository := new(mocks.Repository)
-	mockRepository.On("GetJob", AnythingOfType("string"), AnythingOfType("string")).
-		Return(nil, errRequestCanceledConn)
-
-	tu := NewJenkinsUsecase(mockRepository, config.Cache{})
-
-	tile, err := tu.Build(&models.BuildParams{Job: job, Branch: branch})
-	if assert.Error(t, err) {
-		assert.Nil(t, tile)
-		assert.IsType(t, &mErrors.TimeoutError{}, err)
-		mockRepository.AssertNumberOfCalls(t, "GetJob", 1)
-		mockRepository.AssertExpectations(t)
-	}
-
-	repositoryJob := &models.Job{
-		Buildable: true,
-	}
-
-	mockRepository = new(mocks.Repository)
-	mockRepository.On("GetJob", AnythingOfType("string"), AnythingOfType("string")).
-		Return(repositoryJob, nil)
-	mockRepository.On("GetLastBuildStatus", Anything).
-		Return(nil, errRequestCanceledConn)
-
-	tu = NewJenkinsUsecase(mockRepository, config.Cache{})
-
-	tile, err = tu.Build(&models.BuildParams{Job: job, Branch: branch})
-	if assert.Error(t, err) {
-		assert.Nil(t, tile)
-		assert.IsType(t, &mErrors.TimeoutError{}, err)
-		mockRepository.AssertNumberOfCalls(t, "GetJob", 1)
-		mockRepository.AssertNumberOfCalls(t, "GetLastBuildStatus", 1)
-		mockRepository.AssertExpectations(t)
-	}
-}
-
-func TestBuild_Error_System(t *testing.T) {
+func TestBuild_Error(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetJob", AnythingOfType("string"), AnythingOfType("string")).
 		Return(nil, errors.New("boom"))
 
-	tu := NewJenkinsUsecase(mockRepository, config.Cache{})
+	tu := NewJenkinsUsecase(mockRepository)
 
 	tile, err := tu.Build(&models.BuildParams{Job: job, Branch: branch})
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
-		assert.IsType(t, &mErrors.SystemError{}, err)
+		assert.IsType(t, &MonitororError{}, err)
+		assert.Equal(t, "unable to found job", err.Error())
 		mockRepository.AssertNumberOfCalls(t, "GetJob", 1)
 		mockRepository.AssertExpectations(t)
 	}
@@ -161,7 +45,7 @@ func TestBuild_DisabledBuild(t *testing.T) {
 	mockRepository.On("GetJob", AnythingOfType("string"), AnythingOfType("string")).
 		Return(repositoryJob, nil)
 
-	tu := NewJenkinsUsecase(mockRepository, config.Cache{})
+	tu := NewJenkinsUsecase(mockRepository)
 
 	tile, err := tu.Build(&models.BuildParams{Job: job})
 	if assert.NoError(t, err) {
@@ -183,12 +67,13 @@ func TestBuild_Error_NoBuild(t *testing.T) {
 	mockRepository.On("GetLastBuildStatus", Anything).
 		Return(nil, errors.New("boom"))
 
-	tu := NewJenkinsUsecase(mockRepository, config.Cache{})
+	tu := NewJenkinsUsecase(mockRepository)
 
 	tile, err := tu.Build(&models.BuildParams{Job: job, Branch: branch})
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
-		assert.IsType(t, &mErrors.NoBuildError{}, err)
+		assert.IsType(t, &MonitororError{}, err)
+		assert.Equal(t, "unable to found build", err.Error())
 		mockRepository.AssertNumberOfCalls(t, "GetJob", 1)
 		mockRepository.AssertNumberOfCalls(t, "GetLastBuildStatus", 1)
 		mockRepository.AssertExpectations(t)
@@ -207,7 +92,7 @@ func CheckBuild(t *testing.T, result string) {
 	mockRepository.On("GetLastBuildStatus", Anything).
 		Return(repositoryBuild, nil)
 
-	tu := NewJenkinsUsecase(mockRepository, config.Cache{})
+	tu := NewJenkinsUsecase(mockRepository)
 	tUsecase, ok := tu.(*jenkinsUsecase)
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		// Add cache for previousStatus
@@ -261,7 +146,7 @@ func TestBuild_Queued(t *testing.T) {
 	mockRepository.On("GetJob", AnythingOfType("string"), AnythingOfType("string")).
 		Return(repositoryJob, nil)
 
-	tu := NewJenkinsUsecase(mockRepository, config.Cache{})
+	tu := NewJenkinsUsecase(mockRepository)
 	tUsecase, ok := tu.(*jenkinsUsecase)
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		// Add cache for previousStatus
@@ -295,7 +180,7 @@ func TestBuild_Running(t *testing.T) {
 	mockRepository.On("GetLastBuildStatus", Anything).
 		Return(repositoryBuild, nil)
 
-	tu := NewJenkinsUsecase(mockRepository, config.Cache{})
+	tu := NewJenkinsUsecase(mockRepository)
 	tUsecase, ok := tu.(*jenkinsUsecase)
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		// Without cached build
@@ -345,7 +230,7 @@ func TestListDynamicTile_Success(t *testing.T) {
 	mockRepository.On("GetJob", AnythingOfType("string"), AnythingOfType("string")).
 		Return(repositoryJob, nil)
 
-	tu := NewJenkinsUsecase(mockRepository, config.Cache{})
+	tu := NewJenkinsUsecase(mockRepository)
 
 	tiles, err := tu.ListDynamicTile(&models.MultiBranchParams{Job: job})
 	if assert.NoError(t, err) {
@@ -373,57 +258,12 @@ func TestListDynamicTile_Success(t *testing.T) {
 	mockRepository.AssertExpectations(t)
 }
 
-func TestListDynamicTile_Timeout(t *testing.T) {
-	mockRepository := new(mocks.Repository)
-	mockRepository.On("GetJob", AnythingOfType("string"), AnythingOfType("string")).
-		Return(nil, errors.New("request canceled"))
-
-	tu := NewJenkinsUsecase(mockRepository, config.Cache{Expire: 120000, CleanupInterval: 1000})
-
-	_, err := tu.ListDynamicTile(&models.MultiBranchParams{Job: job})
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "timeout/host unreachable")
-
-	mockRepository.AssertNumberOfCalls(t, "GetJob", 1)
-	mockRepository.AssertExpectations(t)
-}
-
-func TestListDynamicTile_Timeout_WithCache(t *testing.T) {
-	repositoryJob := &models.Job{
-		ID:        job,
-		Buildable: false,
-		InQueue:   false,
-		Branches:  []string{branch},
-	}
-
-	mockRepository := new(mocks.Repository)
-	mockRepository.On("GetJob", AnythingOfType("string"), AnythingOfType("string")).
-		Return(nil, errors.New("request canceled"))
-
-	tu := NewJenkinsUsecase(mockRepository, config.Cache{Expire: 120000, CleanupInterval: 1000})
-	tUsecase, ok := tu.(*jenkinsUsecase)
-	if assert.True(t, ok) {
-		tUsecase.jobsCache.Set(job, repositoryJob, 0)
-
-		tiles, err := tu.ListDynamicTile(&models.MultiBranchParams{Job: job})
-		assert.NoError(t, err)
-
-		assert.Len(t, tiles, 1)
-		assert.Equal(t, jenkins.JenkinsBuildTileType, tiles[0].TileType)
-		assert.Equal(t, job, tiles[0].Params["job"])
-		assert.Equal(t, "master", tiles[0].Params["branch"])
-
-		mockRepository.AssertNumberOfCalls(t, "GetJob", 1)
-		mockRepository.AssertExpectations(t)
-	}
-}
-
 func TestListDynamicTile_Error(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetJob", AnythingOfType("string"), AnythingOfType("string")).
 		Return(nil, errors.New("boom"))
 
-	tu := NewJenkinsUsecase(mockRepository, config.Cache{})
+	tu := NewJenkinsUsecase(mockRepository)
 
 	_, err := tu.ListDynamicTile(&models.MultiBranchParams{Job: "test"})
 	assert.Error(t, err)
@@ -438,7 +278,7 @@ func TestListDynamicTile_ErrorWithRegex(t *testing.T) {
 	mockRepository.On("GetJob", AnythingOfType("string"), AnythingOfType("string")).
 		Return(nil, nil)
 
-	tu := NewJenkinsUsecase(mockRepository, config.Cache{})
+	tu := NewJenkinsUsecase(mockRepository)
 
 	_, err := tu.ListDynamicTile(&models.MultiBranchParams{Job: "test", Match: "("})
 	assert.Error(t, err)
