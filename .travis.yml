@@ -10,7 +10,7 @@ alias:
 
 # Language definition, used for every jobs
 language: go
-go: 1.12.x
+go: 1.13.x
 env:
   global:
     - GO111MODULE="on"

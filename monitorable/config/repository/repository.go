@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"io/ioutil"
+	"net/http"
 
 	"github.com/monitoror/monitoror/monitorable/config/models"
 
@@ -12,14 +13,16 @@ import (
 
 type (
 	configRepository struct {
+		httpClient *http.Client
 	}
 )
 
 func NewConfigRepository() config.Repository {
-	return &configRepository{}
+	//TODO : Add possibility to disable SSL check ?
+	return &configRepository{httpClient: http.DefaultClient}
 }
 
-func GetConfig(reader io.Reader) (config *models.Config, err error) {
+func ReadConfig(reader io.Reader) (config *models.Config, err error) {
 	bytes, err := ioutil.ReadAll(reader)
 	if err != nil {
 		return
