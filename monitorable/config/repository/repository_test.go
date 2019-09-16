@@ -12,7 +12,7 @@ func TestNewConfigRepository(t *testing.T) {
 	assert.NotNil(t, NewConfigRepository())
 }
 
-func TestRepository_GetConfig_Success(t *testing.T) {
+func TestRepository_ReadConfig_Success(t *testing.T) {
 	input := `
 {
   "columns": 4,
@@ -27,13 +27,13 @@ func TestRepository_GetConfig_Success(t *testing.T) {
   ]
 }
 `
-	config, err := GetConfig(strings.NewReader(input))
+	config, err := ReadConfig(strings.NewReader(input))
 
 	assert.NoError(t, err)
 	assert.Equal(t, 4, config.Columns)
 }
 
-func TestRepository_GetConfig_Error_WrongJson(t *testing.T) {
+func TestRepository_ReadConfig_Error_WrongJson(t *testing.T) {
 	input := `
 {
   "columns": 4,
@@ -45,13 +45,13 @@ func TestRepository_GetConfig_Error_WrongJson(t *testing.T) {
   ]
 }
 `
-	_, err := GetConfig(strings.NewReader(input))
+	_, err := ReadConfig(strings.NewReader(input))
 
 	assert.Error(t, err)
 	assert.EqualError(t, err, "invalid character 'x' looking for beginning of value")
 }
 
-func TestRepository_GetConfig_Error_WrongJson2(t *testing.T) {
+func TestRepository_ReadConfig_Error_WrongJson2(t *testing.T) {
 	input := `
 {
   "columns": "4",
@@ -62,14 +62,14 @@ func TestRepository_GetConfig_Error_WrongJson2(t *testing.T) {
   ]
 }
 `
-	_, err := GetConfig(strings.NewReader(input))
+	_, err := ReadConfig(strings.NewReader(input))
 
 	assert.Error(t, err)
 	assert.EqualError(t, err, "json: cannot unmarshal string into Go struct field Config.columns of type int")
 }
 
-func TestRepository_GetConfig_Error_WrongReader(t *testing.T) {
-	_, err := GetConfig(iotest.TimeoutReader(strings.NewReader("blabla")))
+func TestRepository_ReadConfig_Error_WrongReader(t *testing.T) {
+	_, err := ReadConfig(iotest.TimeoutReader(strings.NewReader("blabla")))
 
 	assert.Error(t, err)
 	assert.EqualError(t, err, "timeout")

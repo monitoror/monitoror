@@ -13,6 +13,6 @@ func (cr *configRepository) GetConfigFromPath(path string) (config *models.Confi
 	}
 	defer file.Close()
 
-	config, err = GetConfig(file)
+	config, err = ReadConfig(file)
 	return
 }
