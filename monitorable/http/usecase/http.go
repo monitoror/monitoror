@@ -3,15 +3,12 @@
 package usecase
 
 import (
-	"encoding/json"
 	"fmt"
 	"regexp"
 	"strconv"
 	"strings"
 
 	. "github.com/monitoror/monitoror/models"
-
-	"github.com/ghodss/yaml"
 
 	. "github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/http"
@@ -35,20 +32,20 @@ func NewHttpUsecase(repository http.Repository) http.Usecase {
 
 // HttpAny only check status code
 func (hu *httpUsecase) HttpAny(params *models.HttpAnyParams) (tile *HealthTile, err error) {
-	return hu.httpAll(http.HttpAnyTileType, params.Url, params, nil)
+	return hu.httpAll(http.HttpAnyTileType, params.Url, params)
 }
 
 // HttpRaw check status code and content
 func (hu *httpUsecase) HttpRaw(params *models.HttpRawParams) (tile *HealthTile, err error) {
-	return hu.httpAll(http.HttpRawTileType, params.Url, params, nil)
+	return hu.httpAll(http.HttpRawTileType, params.Url, params)
 }
 
-func (hu *httpUsecase) HttpJson(params *models.HttpFormattedDataParams) (tile *HealthTile, err error) {
-	return hu.httpAll(http.HttpJsonTileType, params.Url, params, json.Unmarshal)
+func (hu *httpUsecase) HttpJson(params *models.HttpJsonParams) (tile *HealthTile, err error) {
+	return hu.httpAll(http.HttpJsonTileType, params.Url, params)
 }
 
-func (hu *httpUsecase) HttpYaml(params *models.HttpFormattedDataParams) (tile *HealthTile, err error) {
-	return hu.httpAll(http.HttpYamlTileType, params.Url, params, yaml.Unmarshal)
+func (hu *httpUsecase) HttpYaml(params *models.HttpYamlParams) (tile *HealthTile, err error) {
+	return hu.httpAll(http.HttpYamlTileType, params.Url, params)
 }
 
 // httpAll handle all http usecase by checking if params match interfaces listed in models.params
@@ -56,7 +53,6 @@ func (hu *httpUsecase) httpAll(
 	tileType TileType,
 	url string,
 	params interface{},
-	unmarshal func(in []byte, out interface{}) (err error),
 ) (tile *HealthTile, err error) {
 	tile = NewHealthTile(tileType)
 	tile.Label = url
@@ -69,7 +65,7 @@ func (hu *httpUsecase) httpAll(
 	}
 
 	// Check Status Code
-	if statusCodeRangeProvider, ok := params.(models.StatusCodeRangeProvider); ok {
+	if statusCodeRangeProvider, ok := params.(models.StatusCodesProvider); ok {
 		if !checkStatusCode(statusCodeRangeProvider, response.StatusCode) {
 			tile.Status = FailedStatus
 			tile.Message = fmt.Sprintf("status code %d", response.StatusCode)
@@ -81,9 +77,9 @@ func (hu *httpUsecase) httpAll(
 	var content string
 	var match bool
 
-	if keyProvider, ok := params.(models.KeyProvider); ok {
+	if formatedDataProvider, ok := params.(models.FormatedDataProvider); ok {
 		var jsonData interface{}
-		err := unmarshal(response.Body, &jsonData)
+		err := formatedDataProvider.GetUnmarshaller()(response.Body, &jsonData)
 		if err != nil {
 			tile.Status = FailedStatus
 			tile.Message = fmt.Sprintf("unable to unmarshal content")
@@ -91,9 +87,9 @@ func (hu *httpUsecase) httpAll(
 		}
 
 		// Lookup a key
-		if match, content = lookupKey(keyProvider, jsonData); !match {
+		if match, content = lookupKey(formatedDataProvider, jsonData); !match {
 			tile.Status = FailedStatus
-			tile.Message = fmt.Sprintf(`unable to lookup for key "%s"`, keyProvider.GetKey())
+			tile.Message = fmt.Sprintf(`unable to lookup for key "%s"`, formatedDataProvider.GetKey())
 			return tile, nil
 		}
 		tile.Message = content
@@ -116,14 +112,14 @@ func (hu *httpUsecase) httpAll(
 
 // checkStatusCode check if status code is between min / max
 // if min/max are empty, use default value
-func checkStatusCode(params models.StatusCodeRangeProvider, code int) bool {
-	min, max := params.GetStatusCodeRange()
+func checkStatusCode(params models.StatusCodesProvider, code int) bool {
+	min, max := params.GetStatusCodes()
 	return min <= code && code <= max
 }
 
 // matchRegex check if string match regex, if the regex match, try to extract first group
 func matchRegex(params models.RegexProvider, str string) (bool, string) {
-	regex := params.GetRegex()
+	regex := params.GetRegexp()
 	if regex == nil {
 		return true, str
 	}
@@ -142,7 +138,7 @@ func matchRegex(params models.RegexProvider, str string) (bool, string) {
 
 // extractValue extract value from interface{} (json/yaml/...)
 // the key is in doted format like this ".bloc1."bloc.2".[2].value"
-func lookupKey(params models.KeyProvider, data interface{}) (bool, string) {
+func lookupKey(params models.FormatedDataProvider, data interface{}) (bool, string) {
 	// split key
 	matchedString := KeySplitterRegex.FindAllStringSubmatch(params.GetKey(), -1)
 

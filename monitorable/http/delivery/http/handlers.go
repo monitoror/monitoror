@@ -53,7 +53,7 @@ func (h *httpHttpDelivery) GetHttpRaw(c echo.Context) error {
 
 func (h *httpHttpDelivery) GetHttpJson(c echo.Context) error {
 	// Bind / Check Params
-	params := &models.HttpFormattedDataParams{}
+	params := &models.HttpJsonParams{}
 	err := c.Bind(params)
 	if err != nil || !params.IsValid() {
 		return QueryParamsError
@@ -69,7 +69,7 @@ func (h *httpHttpDelivery) GetHttpJson(c echo.Context) error {
 
 func (h *httpHttpDelivery) GetHttpYaml(c echo.Context) error {
 	// Bind / Check Params
-	params := &models.HttpFormattedDataParams{}
+	params := &models.HttpYamlParams{}
 	err := c.Bind(params)
 	if err != nil || !params.IsValid() {
 		return QueryParamsError

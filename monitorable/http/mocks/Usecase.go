@@ -37,11 +37,11 @@ func (_m *Usecase) HttpAny(params *models.HttpAnyParams) (*tiles.HealthTile, err
 }
 
 // HttpJson provides a mock function with given fields: params
-func (_m *Usecase) HttpJson(params *models.HttpFormattedDataParams) (*tiles.HealthTile, error) {
+func (_m *Usecase) HttpJson(params *models.HttpJsonParams) (*tiles.HealthTile, error) {
 	ret := _m.Called(params)
 
 	var r0 *tiles.HealthTile
-	if rf, ok := ret.Get(0).(func(*models.HttpFormattedDataParams) *tiles.HealthTile); ok {
+	if rf, ok := ret.Get(0).(func(*models.HttpJsonParams) *tiles.HealthTile); ok {
 		r0 = rf(params)
 	} else {
 		if ret.Get(0) != nil {
@@ -50,7 +50,7 @@ func (_m *Usecase) HttpJson(params *models.HttpFormattedDataParams) (*tiles.Heal
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*models.HttpFormattedDataParams) error); ok {
+	if rf, ok := ret.Get(1).(func(*models.HttpJsonParams) error); ok {
 		r1 = rf(params)
 	} else {
 		r1 = ret.Error(1)
@@ -83,11 +83,11 @@ func (_m *Usecase) HttpRaw(params *models.HttpRawParams) (*tiles.HealthTile, err
 }
 
 // HttpYaml provides a mock function with given fields: params
-func (_m *Usecase) HttpYaml(params *models.HttpFormattedDataParams) (*tiles.HealthTile, error) {
+func (_m *Usecase) HttpYaml(params *models.HttpYamlParams) (*tiles.HealthTile, error) {
 	ret := _m.Called(params)
 
 	var r0 *tiles.HealthTile
-	if rf, ok := ret.Get(0).(func(*models.HttpFormattedDataParams) *tiles.HealthTile); ok {
+	if rf, ok := ret.Get(0).(func(*models.HttpYamlParams) *tiles.HealthTile); ok {
 		r0 = rf(params)
 	} else {
 		if ret.Get(0) != nil {
@@ -96,7 +96,7 @@ func (_m *Usecase) HttpYaml(params *models.HttpFormattedDataParams) (*tiles.Heal
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*models.HttpFormattedDataParams) error); ok {
+	if rf, ok := ret.Get(1).(func(*models.HttpYamlParams) error); ok {
 		r1 = rf(params)
 	} else {
 		r1 = ret.Error(1)
