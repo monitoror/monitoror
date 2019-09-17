@@ -30,6 +30,10 @@
     { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "previousStatus": "SUCCESS" } },
     { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "previousStatus": "FAILURE" } },
     { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "estimatedDuration": 200 } },
-    { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "WARNING" } }
+    { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "WARNING" } },
+    { "type": "HTTP-ANY", "params": { "url": "http://monitoror.test" } },
+    { "type": "HTTP-ANY", "params": { "url": "http://monitoror.test", "status": "SUCCESS"} },
+    { "type": "HTTP-ANY", "params": { "url": "http://monitoror.test", "status": "FAILURE", "message": "status code 404"} },
+    { "type": "HTTP-JSON", "params": { "url": "http://monitoror.test", "key": ".key", "status": "SUCCESS", "message": "1337 bugs"} }
   ]
 }

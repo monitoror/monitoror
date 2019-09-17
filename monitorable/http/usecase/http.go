@@ -30,12 +30,10 @@ func NewHttpUsecase(repository http.Repository) http.Usecase {
 	return &httpUsecase{repository}
 }
 
-// HttpAny only check status code
 func (hu *httpUsecase) HttpAny(params *models.HttpAnyParams) (tile *HealthTile, err error) {
 	return hu.httpAll(http.HttpAnyTileType, params.Url, params)
 }
 
-// HttpRaw check status code and content
 func (hu *httpUsecase) HttpRaw(params *models.HttpRawParams) (tile *HealthTile, err error) {
 	return hu.httpAll(http.HttpRawTileType, params.Url, params)
 }
@@ -49,11 +47,7 @@ func (hu *httpUsecase) HttpYaml(params *models.HttpYamlParams) (tile *HealthTile
 }
 
 // httpAll handle all http usecase by checking if params match interfaces listed in models.params
-func (hu *httpUsecase) httpAll(
-	tileType TileType,
-	url string,
-	params interface{},
-) (tile *HealthTile, err error) {
+func (hu *httpUsecase) httpAll(tileType TileType, url string, params interface{}) (tile *HealthTile, err error) {
 	tile = NewHealthTile(tileType)
 	tile.Label = url
 	tile.Status = SuccessStatus

@@ -1,10 +1,12 @@
-//+build !faker
+//+build faker
 
 package models
 
 import (
 	"encoding/json"
 	"regexp"
+
+	"github.com/monitoror/monitoror/models/tiles"
 )
 
 type (
@@ -14,6 +16,9 @@ type (
 		Regex         string `json:"regex" query:"regex"`
 		StatusCodeMin *int   `json:"statusCodeMin" query:"statusCodeMin"`
 		StatusCodeMax *int   `json:"statusCodeMax" query:"statusCodeMax"`
+
+		Status  tiles.TileStatus `json:"status" query:"status"`
+		Message string           `json:"message" query:"message"`
 	}
 )
 
@@ -40,3 +45,6 @@ func (p *HttpJsonParams) GetKey() string { return p.Key }
 func (p *HttpJsonParams) GetUnmarshaller() func(data []byte, v interface{}) error {
 	return json.Unmarshal
 }
+
+func (p *HttpJsonParams) GetStatus() tiles.TileStatus { return p.Status }
+func (p *HttpJsonParams) GetMessage() string          { return p.Message }

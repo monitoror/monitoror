@@ -1,10 +1,11 @@
-//+build !faker
+//+build faker
 
 package models
 
 import (
 	"regexp"
 
+	"github.com/monitoror/monitoror/models/tiles"
 	"gopkg.in/yaml.v2"
 )
 
@@ -15,6 +16,9 @@ type (
 		Regex         string `json:"regex" query:"regex"`
 		StatusCodeMin *int   `json:"statusCodeMin" query:"statusCodeMin"`
 		StatusCodeMax *int   `json:"statusCodeMax" query:"statusCodeMax"`
+
+		Status  tiles.TileStatus `json:"status" query:"status"`
+		Message string           `json:"message" query:"message"`
 	}
 )
 
@@ -41,3 +45,6 @@ func (p *HttpYamlParams) GetKey() string { return p.Key }
 func (p *HttpYamlParams) GetUnmarshaller() func(data []byte, v interface{}) error {
 	return yaml.Unmarshal
 }
+
+func (p *HttpYamlParams) GetStatus() tiles.TileStatus { return p.Status }
+func (p *HttpYamlParams) GetMessage() string          { return p.Message }
