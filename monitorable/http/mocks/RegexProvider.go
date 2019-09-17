@@ -14,7 +14,21 @@ type RegexProvider struct {
 }
 
 // GetRegex provides a mock function with given fields:
-func (_m *RegexProvider) GetRegex() *regexp.Regexp {
+func (_m *RegexProvider) GetRegex() string {
+	ret := _m.Called()
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func() string); ok {
+		r0 = rf()
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
+// GetRegexp provides a mock function with given fields:
+func (_m *RegexProvider) GetRegexp() *regexp.Regexp {
 	ret := _m.Called()
 
 	var r0 *regexp.Regexp

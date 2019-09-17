@@ -91,8 +91,8 @@ func (s *Server) registerHttp(configHelper config.Helper) {
 	// Register data for config hydration
 	configHelper.RegisterTile(http.HttpAnyTileType, &_httpModels.HttpAnyParams{}, routeAny.Path)
 	configHelper.RegisterTile(http.HttpRawTileType, &_httpModels.HttpRawParams{}, routeRaw.Path)
-	configHelper.RegisterTile(http.HttpJsonTileType, &_httpModels.HttpFormattedDataParams{}, routeJson.Path)
-	configHelper.RegisterTile(http.HttpYamlTileType, &_httpModels.HttpFormattedDataParams{}, routeYaml.Path)
+	configHelper.RegisterTile(http.HttpJsonTileType, &_httpModels.HttpJsonParams{}, routeJson.Path)
+	configHelper.RegisterTile(http.HttpYamlTileType, &_httpModels.HttpYamlParams{}, routeYaml.Path)
 }
 
 func (s *Server) registerTravisCI(configHelper config.Helper) {

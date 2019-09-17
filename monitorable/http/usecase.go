@@ -18,7 +18,7 @@ type (
 	Usecase interface {
 		HttpAny(params *models.HttpAnyParams) (*HealthTile, error)
 		HttpRaw(params *models.HttpRawParams) (*HealthTile, error)
-		HttpJson(params *models.HttpFormattedDataParams) (*HealthTile, error)
-		HttpYaml(params *models.HttpFormattedDataParams) (*HealthTile, error)
+		HttpJson(params *models.HttpJsonParams) (*HealthTile, error)
+		HttpYaml(params *models.HttpYamlParams) (*HealthTile, error)
 	}
 )

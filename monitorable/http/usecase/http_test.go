@@ -5,6 +5,9 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/monitoror/monitoror/monitorable/http"
+	"gopkg.in/yaml.v2"
+
 	"github.com/monitoror/monitoror/models/tiles"
 
 	. "github.com/stretchr/testify/mock"
@@ -15,8 +18,107 @@ import (
 	"github.com/monitoror/monitoror/monitorable/http/models"
 
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/yaml.v2"
 )
+
+func TestHttpAny_WithError(t *testing.T) {
+	mockRepository := new(mocks.Repository)
+	mockRepository.On("Get", AnythingOfType("string")).Return(nil, context.DeadlineExceeded)
+	tu := NewHttpUsecase(mockRepository)
+
+	tile, err := tu.HttpAny(&models.HttpAnyParams{Url: "toto"})
+	if assert.Error(t, err) {
+		assert.Nil(t, tile)
+		mockRepository.AssertNumberOfCalls(t, "Get", 1)
+		mockRepository.AssertExpectations(t)
+	}
+}
+
+func TestHtmlAll_WithoutErrors(t *testing.T) {
+	for _, testcase := range []struct {
+		body            string
+		usecaseFunc     func(usecase http.Usecase) (*tiles.HealthTile, error)
+		expectedStatus  tiles.TileStatus
+		expectedLabel   string
+		expectedMessage string
+	}{
+		{
+			// Http Any
+			usecaseFunc: func(usecase http.Usecase) (tile *tiles.HealthTile, e error) {
+				return usecase.HttpAny(&models.HttpAnyParams{Url: "toto"})
+			},
+			expectedStatus: tiles.SuccessStatus, expectedLabel: "toto",
+		},
+		{
+			// Http Any with wrong status
+			usecaseFunc: func(usecase http.Usecase) (tile *tiles.HealthTile, e error) {
+				return usecase.HttpAny(&models.HttpAnyParams{Url: "toto", StatusCodeMin: pointer.ToInt(400), StatusCodeMax: pointer.ToInt(499)})
+			},
+			expectedStatus: tiles.FailedStatus, expectedLabel: "toto", expectedMessage: "status code 200",
+		},
+		{
+			// Http Raw with matched regex
+			body: "errors: 28",
+			usecaseFunc: func(usecase http.Usecase) (tile *tiles.HealthTile, e error) {
+				return usecase.HttpRaw(&models.HttpRawParams{Url: "toto", Regex: `errors: (\d*)`})
+			},
+			expectedStatus: tiles.SuccessStatus, expectedLabel: "toto", expectedMessage: "28",
+		},
+		{
+			// Http Raw without matched regex
+			body: "api call: 20",
+			usecaseFunc: func(usecase http.Usecase) (tile *tiles.HealthTile, e error) {
+				return usecase.HttpRaw(&models.HttpRawParams{Url: "toto", Regex: `errors: (\d*)`})
+			},
+			expectedStatus: tiles.FailedStatus, expectedLabel: "toto", expectedMessage: `pattern not found "errors: (\d*)"`,
+		},
+		{
+			// Http Json
+			body: `{"key": "value"}`,
+			usecaseFunc: func(usecase http.Usecase) (tile *tiles.HealthTile, e error) {
+				return usecase.HttpJson(&models.HttpJsonParams{Url: "toto", Key: ".key"})
+			},
+			expectedStatus: tiles.SuccessStatus, expectedLabel: "toto", expectedMessage: "value",
+		},
+		{
+			// Http Json missing key
+			body: `{"key": "value"}`,
+			usecaseFunc: func(usecase http.Usecase) (tile *tiles.HealthTile, e error) {
+				return usecase.HttpJson(&models.HttpJsonParams{Url: "toto", Key: ".key2"})
+			},
+			expectedStatus: tiles.FailedStatus, expectedLabel: "toto", expectedMessage: `unable to lookup for key ".key2"`,
+		},
+		{
+			// Http Json unable to unmarshal
+			body: `{"key": "value`,
+			usecaseFunc: func(usecase http.Usecase) (tile *tiles.HealthTile, e error) {
+				return usecase.HttpYaml(&models.HttpYamlParams{Url: "toto", Key: ".key"})
+			},
+			expectedStatus: tiles.FailedStatus, expectedLabel: "toto", expectedMessage: `unable to unmarshal content`,
+		},
+		{
+			// Http Yaml
+			body: "key: value",
+			usecaseFunc: func(usecase http.Usecase) (tile *tiles.HealthTile, e error) {
+				return usecase.HttpYaml(&models.HttpYamlParams{Url: "toto", Key: ".key"})
+			},
+			expectedStatus: tiles.SuccessStatus, expectedLabel: "toto", expectedMessage: "value",
+		},
+	} {
+		mockRepository := new(mocks.Repository)
+		mockRepository.On("Get", AnythingOfType("string")).
+			Return(&models.Response{StatusCode: 200, Body: []byte(testcase.body)}, nil)
+		tu := NewHttpUsecase(mockRepository)
+
+		tile, err := testcase.usecaseFunc(tu)
+		if assert.NoError(t, err) {
+			assert.Equal(t, testcase.expectedStatus, tile.Status)
+			assert.Equal(t, testcase.expectedLabel, tile.Label)
+			assert.Equal(t, testcase.expectedMessage, tile.Message)
+			mockRepository.AssertNumberOfCalls(t, "Get", 1)
+			mockRepository.AssertExpectations(t)
+		}
+	}
+}
 
 func TestHttpUsecase_CheckStatusCode(t *testing.T) {
 	httpAny := &models.HttpAnyParams{}
@@ -63,28 +165,8 @@ func TestHttpUsecase_LookupKey_Json(t *testing.T) {
 	}
 }
 `
-	httpJson := &models.HttpFormattedDataParams{}
+	httpJson := &models.HttpJsonParams{}
 	httpJson.Key = `.bloc1."bloc.2".[0].value`
-
-	var data interface{}
-	err := json.Unmarshal([]byte(input), &data)
-	if assert.NoError(t, err) {
-		found, value := lookupKey(httpJson, data)
-		assert.True(t, found)
-		assert.Equal(t, "YEAH !!", value)
-	}
-}
-
-func TestHttpUsecase_LookupKey_Json_Array(t *testing.T) {
-	input := `
-[
-	{ "value": "YEAH !!" },
-	{ "value": "NOOO !!" },
-	{ "value": "NOOO !!" }
-]
-`
-	httpJson := &models.HttpFormattedDataParams{}
-	httpJson.Key = `.[0].value`
 
 	var data interface{}
 	err := json.Unmarshal([]byte(input), &data)
@@ -104,7 +186,7 @@ bloc1:
     - name: test2
       value: "NOOO !!"
 `
-	httpYaml := &models.HttpFormattedDataParams{}
+	httpYaml := &models.HttpYamlParams{}
 	httpYaml.Key = `.bloc1."bloc.2".[0].value`
 
 	var data interface{}
@@ -125,7 +207,7 @@ bloc1:
     - name: test2
       value: "NOOO !!"
 `
-	httpYaml := &models.HttpFormattedDataParams{}
+	httpYaml := &models.HttpYamlParams{}
 	httpYaml.Key = `.bloc1."bloc.2".[0].value2`
 
 	var data interface{}
@@ -133,148 +215,5 @@ bloc1:
 	if assert.NoError(t, err) {
 		found, _ := lookupKey(httpYaml, data)
 		assert.False(t, found)
-	}
-}
-
-func TestHttpAny_Success(t *testing.T) {
-	mockRepository := new(mocks.Repository)
-	mockRepository.On("Get", AnythingOfType("string")).Return(&models.Response{StatusCode: 200}, nil)
-	tu := NewHttpUsecase(mockRepository)
-
-	tile, err := tu.HttpAny(&models.HttpAnyParams{Url: "toto"})
-	if assert.NoError(t, err) {
-		assert.Equal(t, tiles.SuccessStatus, tile.Status)
-		assert.Equal(t, "toto", tile.Label)
-		mockRepository.AssertNumberOfCalls(t, "Get", 1)
-		mockRepository.AssertExpectations(t)
-	}
-}
-
-func TestHttpAny_Failure(t *testing.T) {
-	mockRepository := new(mocks.Repository)
-	mockRepository.On("Get", AnythingOfType("string")).Return(&models.Response{StatusCode: 404}, nil)
-	tu := NewHttpUsecase(mockRepository)
-
-	tile, err := tu.HttpAny(&models.HttpAnyParams{Url: "toto"})
-	if assert.NoError(t, err) {
-		assert.Equal(t, tiles.FailedStatus, tile.Status)
-		assert.Equal(t, "toto", tile.Label)
-		mockRepository.AssertNumberOfCalls(t, "Get", 1)
-		mockRepository.AssertExpectations(t)
-	}
-}
-
-func TestHttpAny_Error(t *testing.T) {
-	mockRepository := new(mocks.Repository)
-	mockRepository.On("Get", AnythingOfType("string")).Return(nil, context.DeadlineExceeded)
-	tu := NewHttpUsecase(mockRepository)
-
-	tile, err := tu.HttpAny(&models.HttpAnyParams{Url: "toto"})
-	if assert.Error(t, err) {
-		assert.Nil(t, tile)
-		mockRepository.AssertNumberOfCalls(t, "Get", 1)
-		mockRepository.AssertExpectations(t)
-	}
-}
-
-func TestHttpRaw_Success(t *testing.T) {
-	body := `api errors = 123`
-
-	mockRepository := new(mocks.Repository)
-	mockRepository.On("Get", AnythingOfType("string")).Return(&models.Response{StatusCode: 200, Body: []byte(body)}, nil)
-	tu := NewHttpUsecase(mockRepository)
-
-	tile, err := tu.HttpRaw(&models.HttpRawParams{Url: "toto", Regex: `api errors = (\d*)`})
-	if assert.NoError(t, err) {
-		assert.Equal(t, tiles.SuccessStatus, tile.Status)
-		assert.Equal(t, "toto", tile.Label)
-		assert.Equal(t, "123", tile.Message)
-		mockRepository.AssertNumberOfCalls(t, "Get", 1)
-		mockRepository.AssertExpectations(t)
-	}
-}
-
-func TestHttpRaw_Failure_PatternNotFound(t *testing.T) {
-	body := `api errors = 123`
-
-	mockRepository := new(mocks.Repository)
-	mockRepository.On("Get", AnythingOfType("string")).Return(&models.Response{StatusCode: 200, Body: []byte(body)}, nil)
-	tu := NewHttpUsecase(mockRepository)
-
-	tile, err := tu.HttpRaw(&models.HttpRawParams{Url: "toto", Regex: `api warning = (\d*)`})
-	if assert.NoError(t, err) {
-		assert.Equal(t, tiles.FailedStatus, tile.Status)
-		assert.Equal(t, "toto", tile.Label)
-		assert.Equal(t, `pattern not found "api warning = (\d*)"`, tile.Message)
-		mockRepository.AssertNumberOfCalls(t, "Get", 1)
-		mockRepository.AssertExpectations(t)
-	}
-}
-
-func TestHttpJson_Success(t *testing.T) {
-	body := `{"key": "value"}`
-
-	mockRepository := new(mocks.Repository)
-	mockRepository.On("Get", AnythingOfType("string")).Return(&models.Response{StatusCode: 200, Body: []byte(body)}, nil)
-	tu := NewHttpUsecase(mockRepository)
-
-	tile, err := tu.HttpJson(&models.HttpFormattedDataParams{Url: "toto", Key: `.key`})
-	if assert.NoError(t, err) {
-		assert.Equal(t, tiles.SuccessStatus, tile.Status)
-		assert.Equal(t, "toto", tile.Label)
-		assert.Equal(t, "value", tile.Message)
-		mockRepository.AssertNumberOfCalls(t, "Get", 1)
-		mockRepository.AssertExpectations(t)
-	}
-}
-
-func TestHttpJson_Failure_Unmarshal(t *testing.T) {
-	body := `{"key": "value`
-
-	mockRepository := new(mocks.Repository)
-	mockRepository.On("Get", AnythingOfType("string")).Return(&models.Response{StatusCode: 200, Body: []byte(body)}, nil)
-	tu := NewHttpUsecase(mockRepository)
-
-	tile, err := tu.HttpJson(&models.HttpFormattedDataParams{Url: "toto", Key: `.key`})
-	if assert.NoError(t, err) {
-		assert.Equal(t, tiles.FailedStatus, tile.Status)
-		assert.Equal(t, "toto", tile.Label)
-		assert.Equal(t, "unable to unmarshal content", tile.Message)
-		mockRepository.AssertNumberOfCalls(t, "Get", 1)
-		mockRepository.AssertExpectations(t)
-	}
-}
-
-func TestHttpJson_Failure_MissingKey(t *testing.T) {
-	body := `{"key": "value"}`
-
-	mockRepository := new(mocks.Repository)
-	mockRepository.On("Get", AnythingOfType("string")).Return(&models.Response{StatusCode: 200, Body: []byte(body)}, nil)
-	tu := NewHttpUsecase(mockRepository)
-
-	tile, err := tu.HttpJson(&models.HttpFormattedDataParams{Url: "toto", Key: `.missingKey`})
-	if assert.NoError(t, err) {
-		assert.Equal(t, tiles.FailedStatus, tile.Status)
-		assert.Equal(t, "toto", tile.Label)
-		assert.Equal(t, `unable to lookup for key ".missingKey"`, tile.Message)
-		mockRepository.AssertNumberOfCalls(t, "Get", 1)
-		mockRepository.AssertExpectations(t)
-	}
-}
-
-func TestHttpYaml_Success(t *testing.T) {
-	body := `key: value`
-
-	mockRepository := new(mocks.Repository)
-	mockRepository.On("Get", AnythingOfType("string")).Return(&models.Response{StatusCode: 200, Body: []byte(body)}, nil)
-	tu := NewHttpUsecase(mockRepository)
-
-	tile, err := tu.HttpYaml(&models.HttpFormattedDataParams{Url: "toto", Key: `.key`})
-	if assert.NoError(t, err) {
-		assert.Equal(t, tiles.SuccessStatus, tile.Status)
-		assert.Equal(t, "toto", tile.Label)
-		assert.Equal(t, "value", tile.Message)
-		mockRepository.AssertNumberOfCalls(t, "Get", 1)
-		mockRepository.AssertExpectations(t)
 	}
 }

@@ -31,20 +31,6 @@ func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 	return
 }
 
-func missingParam(t *testing.T, param string) {
-	// Init
-	ctx, _ := initEcho()
-	ctx.QueryParams().Del(param)
-
-	mockUsecase := new(mocks.Usecase)
-	handler := NewHttpJenkinsDelivery(mockUsecase)
-
-	// Test
-	err := handler.GetBuild(ctx)
-	assert.Error(t, err)
-	assert.IsType(t, &models.MonitororError{}, err)
-}
-
 func TestDelivery_BuildHandler_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
@@ -71,7 +57,17 @@ func TestDelivery_BuildHandler_Success(t *testing.T) {
 }
 
 func TestDelivery_BuildHandler_QueryParamsError_MissingGroup(t *testing.T) {
-	missingParam(t, "job")
+	// Init
+	ctx, _ := initEcho()
+	ctx.QueryParams().Del("job")
+
+	mockUsecase := new(mocks.Usecase)
+	handler := NewHttpJenkinsDelivery(mockUsecase)
+
+	// Test
+	err := handler.GetBuild(ctx)
+	assert.Error(t, err)
+	assert.IsType(t, &models.MonitororError{}, err)
 }
 
 func TestDelivery_BuildHandler_Error(t *testing.T) {
