@@ -1,3 +1,4 @@
+import throttle from 'lodash-es/throttle'
 import {Md5 as md5} from 'ts-md5/dist/md5'
 import Vue from 'vue'
 import Vuex, {StoreOptions} from 'vuex'
@@ -179,6 +180,37 @@ const store: StoreOptions<RootState> = {
             commit('setTileState', {tileStateKey: tile.stateKey, tileState})
           }) as Promise<void>
       }
+      function refreshGroup(groupTile: TileConfig) {
+        if (!groupTile.tiles) {
+          return
+        }
+
+        const groupSubTilesState = groupTile.tiles
+          .map((subTile) => subTile.stateKey)
+          .map((subTileStateKey) => state.tilesState[subTileStateKey])
+
+        const groupStatus = groupSubTilesState.reduce((worstSubTileStatus, subTileState) => {
+          const subTileStatus = subTileState !== undefined ? getPreviousOrStatus(subTileState) : TileStatus.Unknown
+
+          return mostImportantStatus(worstSubTileStatus, subTileStatus)
+        }, TileStatus.Unknown)
+
+        const groupSucceededSubTiles = groupSubTilesState.filter((subTileState) => {
+          const subTileStatus = subTileState !== undefined ? getPreviousOrStatus(subTileState) : TileStatus.Unknown
+
+          return subTileStatus === TileStatus.Success
+        })
+
+        const groupMessage = `${groupSucceededSubTiles.length} / ${groupTile.tiles.length}`
+
+        const groupState = {
+          category: TileCategory.Group,
+          status: groupStatus,
+          message: groupMessage,
+        }
+
+        commit('setTileState', {tileStateKey: groupTile.stateKey, tileState: groupState})
+      }
 
       function getPreviousOrStatus(subTileState: TileState): TileStatus {
         let subTileStatus = subTileState.status
@@ -217,36 +249,11 @@ const store: StoreOptions<RootState> = {
           await timeout(Math.random() * 10000)
         }
 
-        Promise.all(tile.tiles.map(refreshTile)).then(() => {
-          if (!tile.tiles) {
-            return
-          }
-
-          const groupSubTilesState = tile.tiles
-            .map((subTile) => subTile.stateKey)
-            .map((subTileStateKey) => state.tilesState[subTileStateKey])
-
-          const groupStatus = groupSubTilesState.reduce((worstSubTileStatus, subTileState) => {
-            const subTileStatus = getPreviousOrStatus(subTileState)
-
-            return mostImportantStatus(worstSubTileStatus, subTileStatus)
-          }, TileStatus.Unknown)
-
-          const groupSucceededSubTiles = groupSubTilesState.filter((subTileState) => {
-            const subTileStatus = getPreviousOrStatus(subTileState)
-
-            return subTileStatus === TileStatus.Success
+        const throttledRefreshGroup = throttle(refreshGroup, 150)
+        tile.tiles.map(async (subTile) => {
+          await refreshTile(subTile).then(() => {
+            throttledRefreshGroup(tile)
           })
-
-          const groupMessage = `${groupSucceededSubTiles.length} / ${tile.tiles.length}`
-
-          const groupState = {
-            category: TileCategory.Group,
-            status: groupStatus,
-            message: groupMessage,
-          }
-
-          commit('setTileState', {tileStateKey: tile.stateKey, tileState: groupState})
         })
       })
     },
