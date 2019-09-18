@@ -13,6 +13,7 @@
     "@babel/core": "^7.6.0",
     "core-js": "^3.2.1",
     "date-fns": "^2.2.1",
+    "lodash-es": "^4.17.15",
     "ts-md5": "^1.2.6",
     "vue": "^2.6.10",
     "vue-class-component": "^7.1.0",
@@ -22,6 +23,7 @@
   },
   "devDependencies": {
     "@types/jest": "^24.0.18",
+    "@types/lodash-es": "^4.17.3",
     "@vue/cli-plugin-babel": "^3.11.0",
     "@vue/cli-plugin-eslint": "^3.11.0",
     "@vue/cli-plugin-typescript": "^3.11.0",
