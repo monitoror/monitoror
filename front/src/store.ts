@@ -20,8 +20,13 @@ export enum TileCategory {
 }
 
 export enum TileType {
+  HttpAny = 'HTTP-ANY',
+  HttpRaw = 'HTTP-RAW',
+  HttpJson = 'HTTP-JSON',
+  HttpYaml = 'HTTP-YAML',
   Ping = 'PING',
   Port = 'PORT',
+  Pingdom = 'PINGDOM',
   GitLab = 'GITLAB-BUILD',
   Travis = 'TRAVISCI-BUILD',
   Jenkins = 'JENKINS-BUILD',
