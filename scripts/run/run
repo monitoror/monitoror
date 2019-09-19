@@ -3,12 +3,11 @@
 set -eu -o pipefail
 
 source ./scripts/.variables
-
 export LDFLAGS="\
     -w \
     -X \"github.com/monitoror/monitoror/cli/version.GitCommit=${GITCOMMIT}\" \
     -X \"github.com/monitoror/monitoror/cli/version.BuildTime=${BUILDTIME}\" \
-    -X \"github.com/monitoror/monitoror/cli/version.Version=${VERSION}\" \
+    -X \"github.com/monitoror/monitoror/cli/version.Version=dev\" \
     ${LDFLAGS:-} \
 "
 

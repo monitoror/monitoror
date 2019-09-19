@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset -o pipefail
+
+
+#######################################################################################
+# This script is used by "make version" command for creating new version of monitoror #
+#######################################################################################
+
+
+VERSION_REGEX="^(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)\\.(0|[1-9][0-9]*)$"
+VERSION_FILE=./VERSION
+
+function error {
+  echo -e "$1" >&2
+  exit 1
+}
+
+if [[ -n $(git status | grep 'Changes to be committed') ]]; then
+  echo "Your staging area is not empty. "git reset" will be executed"
+  read -p 'Continue ? (y|n): ' input
+  if [ $input == "y" ]; then
+    git reset && echo ""
+  else
+    exit 0
+  fi
+fi
+
+version=$(cat "$VERSION_FILE" 2>/dev/null)
+echo "Current Version $version"
+read -p 'Command (major|minor|patch): ' input
+
+case $input in
+  major|minor|patch) command=$input;;
+  *) error "invalid command $input";;
+esac
+
+if [[ "$version" =~ $VERSION_REGEX ]]; then
+  major=${BASH_REMATCH[1]}
+  minor=${BASH_REMATCH[2]}
+  patch=${BASH_REMATCH[3]}
+
+  case "$command" in
+    major) new="$((major + 1)).0.0";;
+    minor) new="${major}.$((minor + 1)).0";;
+    patch) new="${major}.${minor}.$((patch + 1))";;
+    *) error "invalid command $command" ;;
+  esac
+else
+  error "version $version does not match the version scheme 'major.minor.patch'."
+fi
+
+# Update VERSION file
+echo "Version $version -> $new"
+echo $new > "$VERSION_FILE"
+
+# Commit !
+git add "$VERSION_FILE"
+git commit -m "chore: bump version to $new"
+
+
+
+
+

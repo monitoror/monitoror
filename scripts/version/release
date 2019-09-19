@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -o errexit -o nounset -o pipefail
+
+
+########################################################################################
+# This script is used by "make release" command for releasing new version of monitoror #
+########################################################################################
+
+
+VERSION_FILE=./VERSION
+
+if [[ -n $(git status -s) ]]; then
+  echo "You have changed files. Plz clean up your git directory."
+  exit 1
+fi
+
+git checkout master
+git pull --rebase origin master
+
+if [[ -n $(git status | grep "nothing to commit, working directory clean") ]]; then
+  echo "You have unpushed commit(s). Plz sync your master branch to origin"
+  exit 1
+fi
+
+version=$(cat "$VERSION_FILE" 2>/dev/null)
+git tag "$version"
