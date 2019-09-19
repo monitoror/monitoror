@@ -1,3 +1,8 @@
-⚠ This is a development version ⚠
+Changes since v0.1.0-beta
 
-It lacks too much functionality to be usable.
+* Adding HTTP tiles
+* Improve group refreshment
+
+Breaking change
+
+* Config version changes from 2 to 3
