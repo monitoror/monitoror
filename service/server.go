@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/labstack/gommon/log"
 
@@ -24,6 +25,7 @@ type (
 
 		// GetConfig
 		config *config.Config
+		store  cache.Store
 
 		// Middleware
 		cm *middlewares.CacheMiddleware
@@ -75,7 +77,11 @@ func (s *Server) initMiddleware() {
 	}
 
 	// Cache
-	s.cm = middlewares.NewCacheMiddleware(s.config) // Used as Handler wrapper in routes
+	s.store = cache.NewGoCacheStore(time.Minute*5, time.Second) // Default value, always override
+	s.cm = middlewares.NewCacheMiddleware(s.store,
+		time.Millisecond*time.Duration(s.config.DownstreamCacheExpiration),
+		time.Millisecond*time.Duration(s.config.UpstreamCacheExpiration),
+	) // Used as Handler wrapper in routes
 	s.Use(s.cm.DownstreamStoreMiddleware())
 
 	// CORS

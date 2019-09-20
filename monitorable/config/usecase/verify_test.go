@@ -6,7 +6,6 @@ import (
 	"strings"
 	"testing"
 
-	. "github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/monitorable/config/models"
 	"github.com/monitoror/monitoror/monitorable/config/repository"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
@@ -41,7 +40,7 @@ func TestUsecase_Verify_Success(t *testing.T) {
 	config, err := repository.ReadConfig(reader)
 
 	if assert.NoError(t, err) {
-		usecase := initConfigUsecase(nil, Cache{})
+		usecase := initConfigUsecase(nil, nil)
 		usecase.Verify(config)
 		assert.Len(t, config.Errors, 0)
 	}
@@ -55,7 +54,7 @@ func TestUsecase_Verify_UnknownVersion(t *testing.T) {
 	config, err := repository.ReadConfig(reader)
 
 	if assert.NoError(t, err) {
-		usecase := initConfigUsecase(nil, Cache{})
+		usecase := initConfigUsecase(nil, nil)
 		usecase.Verify(config)
 		if assert.Len(t, config.Errors, 1) {
 			assert.Contains(t, config.Errors[0], `Unsupported "version" field. Must be`)
@@ -71,7 +70,7 @@ func TestUsecase_Verify_Failed(t *testing.T) {
 	config, err := repository.ReadConfig(reader)
 
 	if assert.NoError(t, err) {
-		usecase := initConfigUsecase(nil, Cache{})
+		usecase := initConfigUsecase(nil, nil)
 		usecase.Verify(config)
 		if assert.Len(t, config.Errors, 2) {
 			assert.Contains(t, config.Errors, `Missing or invalid "columns" field. Must be a positive integer.`)
@@ -85,7 +84,7 @@ func TestUsecase_VerifyTile_Success(t *testing.T) {
 	conf := &models.Config{}
 
 	tile := initTile(t, input)
-	usecase := initConfigUsecase(nil, Cache{})
+	usecase := initConfigUsecase(nil, nil)
 	usecase.verifyTile(conf, tile, false)
 
 	assert.Len(t, conf.Errors, 0)
@@ -96,7 +95,7 @@ func TestUsecase_VerifyTile_Success_Empty(t *testing.T) {
 	conf := &models.Config{}
 
 	tile := initTile(t, input)
-	usecase := initConfigUsecase(nil, Cache{})
+	usecase := initConfigUsecase(nil, nil)
 	usecase.verifyTile(conf, tile, false)
 
 	assert.Len(t, conf.Errors, 0)
@@ -107,7 +106,7 @@ func TestUsecase_VerifyTile_Failed_ParamsInGroup(t *testing.T) {
 	conf := &models.Config{}
 
 	tile := initTile(t, input)
-	usecase := initConfigUsecase(nil, Cache{})
+	usecase := initConfigUsecase(nil, nil)
 	usecase.verifyTile(conf, tile, false)
 
 	assert.Len(t, conf.Errors, 1)
@@ -123,7 +122,7 @@ func TestUsecase_VerifyTile_Failed_EmptyInGroup(t *testing.T) {
 	conf := &models.Config{}
 
 	tile := initTile(t, input)
-	usecase := initConfigUsecase(nil, Cache{})
+	usecase := initConfigUsecase(nil, nil)
 	usecase.verifyTile(conf, tile, false)
 
 	assert.Len(t, conf.Errors, 1)
@@ -135,7 +134,7 @@ func TestUsecase_VerifyTile_Failed_MissingParamsKey(t *testing.T) {
 	conf := &models.Config{}
 
 	tile := initTile(t, input)
-	usecase := initConfigUsecase(nil, Cache{})
+	usecase := initConfigUsecase(nil, nil)
 	usecase.verifyTile(conf, tile, false)
 
 	assert.Len(t, conf.Errors, 1)
@@ -152,7 +151,7 @@ func TestUsecase_VerifyTile_Success_Group(t *testing.T) {
 	conf := &models.Config{}
 
 	tile := initTile(t, input)
-	usecase := initConfigUsecase(nil, Cache{})
+	usecase := initConfigUsecase(nil, nil)
 	usecase.verifyTile(conf, tile, false)
 
 	assert.Len(t, conf.Errors, 0)
@@ -167,7 +166,7 @@ func TestUsecase_VerifyTile_Failed_GroupInGroup(t *testing.T) {
 	conf := &models.Config{}
 
 	tile := initTile(t, input)
-	usecase := initConfigUsecase(nil, Cache{})
+	usecase := initConfigUsecase(nil, nil)
 	usecase.verifyTile(conf, tile, false)
 
 	assert.Len(t, conf.Errors, 1)
@@ -181,7 +180,7 @@ func TestUsecase_VerifyTile_Failed_GroupInGroup(t *testing.T) {
 //	conf := &models.Config{}
 //
 //	tile := initTile(t, input)
-//  usecase := initConfigUsecase(nil, Cache{})
+//  usecase := initConfigUsecase(nil, nil)
 //	usecase.verifyTile(conf, tile, false)
 //
 //	assert.Len(t, conf.Errors, 1)
@@ -194,7 +193,7 @@ func TestUsecase_VerifyTile_Failed_WrongTileType(t *testing.T) {
 	conf := &models.Config{}
 
 	tile := initTile(t, input)
-	usecase := initConfigUsecase(nil, Cache{})
+	usecase := initConfigUsecase(nil, nil)
 	usecase.verifyTile(conf, tile, false)
 
 	assert.Len(t, conf.Errors, 1)
@@ -207,7 +206,7 @@ func TestUsecase_VerifyTile_Failed_InvalidParams(t *testing.T) {
 	conf := &models.Config{}
 
 	tile := initTile(t, input)
-	usecase := initConfigUsecase(nil, Cache{})
+	usecase := initConfigUsecase(nil, nil)
 	usecase.verifyTile(conf, tile, false)
 
 	assert.Len(t, conf.Errors, 1)
@@ -220,7 +219,7 @@ func TestUsecase_VerifyTile_Failed_InvalidColumnSpan(t *testing.T) {
 	conf := &models.Config{}
 
 	tile := initTile(t, input)
-	usecase := initConfigUsecase(nil, Cache{})
+	usecase := initConfigUsecase(nil, nil)
 	usecase.verifyTile(conf, tile, false)
 
 	assert.Len(t, conf.Errors, 1)
@@ -233,7 +232,7 @@ func TestUsecase_VerifyTile_Failed_InvalidRowSpan(t *testing.T) {
 	conf := &models.Config{}
 
 	tile := initTile(t, input)
-	usecase := initConfigUsecase(nil, Cache{})
+	usecase := initConfigUsecase(nil, nil)
 	usecase.verifyTile(conf, tile, false)
 
 	assert.Len(t, conf.Errors, 1)
@@ -245,7 +244,7 @@ func TestUsecase_VerifyTile_Failed_WrongVariant(t *testing.T) {
 	conf := &models.Config{}
 
 	tile := initTile(t, input)
-	usecase := initConfigUsecase(nil, Cache{})
+	usecase := initConfigUsecase(nil, nil)
 	usecase.verifyTile(conf, tile, false)
 
 	assert.Len(t, conf.Errors, 1)
@@ -263,7 +262,7 @@ func TestUsecase_VerifyTile_WithDynamicTile(t *testing.T) {
 	mockBuilder := new(DynamicTileBuilder)
 	mockBuilder.On("ListDynamicTile", Anything).Return([]builder.Result{{TileType: jenkins.JenkinsBuildTileType, Params: params}}, nil)
 
-	usecase := initConfigUsecase(nil, Cache{})
+	usecase := initConfigUsecase(nil, nil)
 	usecase.RegisterDynamicTile(jenkins.JenkinsMultiBranchTileType, &_jenkinsModels.MultiBranchParams{}, mockBuilder)
 	usecase.verifyTile(conf, tile, false)
 
@@ -281,7 +280,7 @@ func TestUsecase_VerifyTile_WithDynamicTile_WithWrongVariant(t *testing.T) {
 	mockBuilder := new(DynamicTileBuilder)
 	mockBuilder.On("ListDynamicTile", Anything).Return([]builder.Result{{TileType: jenkins.JenkinsBuildTileType, Params: params}}, nil)
 
-	usecase := initConfigUsecase(nil, Cache{})
+	usecase := initConfigUsecase(nil, nil)
 	usecase.RegisterDynamicTile(jenkins.JenkinsMultiBranchTileType, &_jenkinsModels.MultiBranchParams{}, mockBuilder)
 	usecase.verifyTile(conf, tile, false)
 

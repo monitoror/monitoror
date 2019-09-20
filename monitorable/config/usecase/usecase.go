@@ -3,13 +3,13 @@ package usecase
 import (
 	"time"
 
+	"github.com/jsdidierlaurent/echo-middleware/cache"
+
 	. "github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/config"
 	. "github.com/monitoror/monitoror/pkg/monitoror/builder"
 	. "github.com/monitoror/monitoror/pkg/monitoror/validator"
-
-	gocache "github.com/robfig/go-cache"
 )
 
 // Versions
@@ -25,6 +25,9 @@ const (
 	// Custom Tile Type
 	EmptyTileType tiles.TileType = "EMPTY"
 	GroupTileType tiles.TileType = "GROUP"
+
+	// Store key prefix
+	DynamicTileStoreKeyPrefix = "monitoror.config.dynamicTile.store"
 )
 
 var SupportedVersions = map[int]bool{
@@ -39,7 +42,8 @@ type (
 		dynamicTileConfigs map[tiles.TileType]map[string]*DynamicTileConfig
 
 		// jobs cache. used in case of timeout
-		dynamicTileCache *gocache.Cache
+		dynamicTileStore          cache.Store
+		downstreamStoreExpiration time.Duration
 	}
 
 	// TileConfig struct is used by GetConfig endpoint to check / hydrate config
@@ -55,7 +59,7 @@ type (
 	}
 )
 
-func NewConfigUsecase(repository config.Repository, downstreamCache Cache) config.Usecase {
+func NewConfigUsecase(repository config.Repository, store cache.Store, downstreamStoreExpiration int) config.Usecase {
 	tileConfigs := make(map[tiles.TileType]map[string]*TileConfig)
 
 	// Used for authorized type
@@ -63,16 +67,13 @@ func NewConfigUsecase(repository config.Repository, downstreamCache Cache) confi
 	tileConfigs[GroupTileType] = nil
 
 	dynamicTileConfigs := make(map[tiles.TileType]map[string]*DynamicTileConfig)
-	dynamicTileCache := gocache.New(
-		time.Millisecond*time.Duration(downstreamCache.Expire),
-		time.Millisecond*time.Duration(downstreamCache.CleanupInterval),
-	)
 
 	return &configUsecase{
-		repository:         repository,
-		tileConfigs:        tileConfigs,
-		dynamicTileConfigs: dynamicTileConfigs,
-		dynamicTileCache:   dynamicTileCache,
+		repository:                repository,
+		tileConfigs:               tileConfigs,
+		dynamicTileConfigs:        dynamicTileConfigs,
+		dynamicTileStore:          store,
+		downstreamStoreExpiration: time.Millisecond * time.Duration(downstreamStoreExpiration),
 	}
 }
 

@@ -7,8 +7,10 @@ import (
 	"io/ioutil"
 	"strings"
 	"testing"
+	"time"
 
-	. "github.com/monitoror/monitoror/config"
+	"github.com/jsdidierlaurent/echo-middleware/cache"
+
 	"github.com/monitoror/monitoror/monitorable/config/repository"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
 	_jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
@@ -38,7 +40,8 @@ func TestUsecase_Hydrate(t *testing.T) {
 }
 `
 
-	usecase := initConfigUsecase(nil, Cache{Expire: 1000, CleanupInterval: 1000})
+	store := cache.NewGoCacheStore(time.Second, time.Second)
+	usecase := initConfigUsecase(nil, store)
 	usecase.RegisterTileWithConfigVariant(jenkins.JenkinsBuildTileType, "variant1", &_jenkinsModels.BuildParams{}, "/jenkins/variant1")
 
 	reader := ioutil.NopCloser(strings.NewReader(input))
@@ -81,7 +84,8 @@ func TestUsecase_Hydrate_WithDynamic(t *testing.T) {
 	mockBuilder := new(DynamicTileBuilder)
 	mockBuilder.On("ListDynamicTile", Anything).Return([]builder.Result{{TileType: jenkins.JenkinsBuildTileType, Params: params}}, nil)
 
-	usecase := initConfigUsecase(nil, Cache{Expire: 1000, CleanupInterval: 1000})
+	store := cache.NewGoCacheStore(time.Second, time.Second)
+	usecase := initConfigUsecase(nil, store)
 	usecase.RegisterDynamicTile(jenkins.JenkinsMultiBranchTileType, &_jenkinsModels.MultiBranchParams{}, mockBuilder)
 
 	reader := ioutil.NopCloser(strings.NewReader(input))
@@ -126,7 +130,8 @@ func TestUsecase_Hydrate_WithDynamic_WithError(t *testing.T) {
 	mockBuilder2 := new(mocks2.DynamicTileBuilder)
 	mockBuilder2.On("ListDynamicTile", Anything).Return(nil, errors.New("unable to found job"))
 
-	usecase := initConfigUsecase(nil, Cache{Expire: 1000, CleanupInterval: 1000})
+	store := cache.NewGoCacheStore(time.Second, time.Second)
+	usecase := initConfigUsecase(nil, store)
 	usecase.RegisterTileWithConfigVariant(jenkins.JenkinsBuildTileType, "variant1", &_jenkinsModels.BuildParams{}, "/jenkins/variant1")
 	usecase.RegisterDynamicTile(jenkins.JenkinsMultiBranchTileType, &_jenkinsModels.MultiBranchParams{}, mockBuilder)
 	usecase.RegisterDynamicTileWithConfigVariant(jenkins.JenkinsMultiBranchTileType, "variant1", &_jenkinsModels.MultiBranchParams{}, mockBuilder2)
@@ -168,7 +173,8 @@ func TestUsecase_Hydrate_WithDynamic_WithWarning(t *testing.T) {
 	mockBuilder2 := new(mocks2.DynamicTileBuilder)
 	mockBuilder2.On("ListDynamicTile", Anything).Return(nil, context.DeadlineExceeded)
 
-	usecase := initConfigUsecase(nil, Cache{Expire: 1000, CleanupInterval: 1000})
+	store := cache.NewGoCacheStore(time.Second, time.Second)
+	usecase := initConfigUsecase(nil, store)
 	usecase.RegisterTileWithConfigVariant(jenkins.JenkinsBuildTileType, "variant1", &_jenkinsModels.BuildParams{}, "/jenkins/variant1")
 	usecase.RegisterDynamicTile(jenkins.JenkinsMultiBranchTileType, &_jenkinsModels.MultiBranchParams{}, mockBuilder)
 	usecase.RegisterDynamicTileWithConfigVariant(jenkins.JenkinsMultiBranchTileType, "variant1", &_jenkinsModels.MultiBranchParams{}, mockBuilder2)
@@ -196,13 +202,14 @@ func TestUsecase_Hydrate_WithDynamic_WithTimeoutCache(t *testing.T) {
 	]
 }
 `
-	usecase := initConfigUsecase(nil, Cache{Expire: 1000, CleanupInterval: 1000})
+	store := cache.NewGoCacheStore(time.Second, time.Second)
+	usecase := initConfigUsecase(nil, store)
 
 	params := make(map[string]interface{})
 	params["job"] = "test"
 	cachedResult := []builder.Result{{TileType: jenkins.JenkinsBuildTileType, Params: params}}
-	cacheKey := fmt.Sprintf("%s_%s_%s", "JENKINS-MULTIBRANCH", "default", `{"job":"test"}`)
-	_ = usecase.dynamicTileCache.Add(cacheKey, cachedResult, 0)
+	cacheKey := fmt.Sprintf("%s:%s_%s_%s", DynamicTileStoreKeyPrefix, "JENKINS-MULTIBRANCH", "default", `{"job":"test"}`)
+	_ = usecase.dynamicTileStore.Add(cacheKey, cachedResult, 0)
 
 	mockBuilder := new(DynamicTileBuilder)
 	mockBuilder.On("ListDynamicTile", Anything).Return(nil, context.DeadlineExceeded)

@@ -18,18 +18,13 @@ type (
 		Env  string `json:"env"`  // Default: production
 
 		// --- Cache Configuration ---
-		// UpstreamCache is used to respond before executing the request. Avoid overloading services.
-		UpstreamCache Cache `json:"upstreamCache"`
-		// DownstreamCache is used to respond after executing the request in case of timeout error.
-		DownstreamCache Cache `json:"downstreamCache"`
+		// UpstreamCacheExpiration is used to respond before executing the request. Avoid overloading services.
+		UpstreamCacheExpiration int `json:"upstreamCacheExpiration"`
+		// DownstreamCacheExpiration is used to respond after executing the request in case of timeout error.
+		DownstreamCacheExpiration int `json:"downstreamCacheExpiration"`
 
 		// Monitorable Config
 		Monitorable Monitorable `json:"monitorable"`
-	}
-
-	Cache struct {
-		Expire          int `json:"expire"`          // In Millisecond
-		CleanupInterval int `json:"cleanupInterval"` // In Millisecond
 	}
 
 	Monitorable struct {
@@ -93,10 +88,8 @@ func InitConfig() *Config {
 	viper.SetDefault("Env", "production")
 
 	// --- Cache Configuration ---
-	viper.SetDefault("UpstreamCache.Expire", 10000)
-	viper.SetDefault("UpstreamCache.CleanupInterval", 1000)
-	viper.SetDefault("DownstreamCache.Expire", 120000)
-	viper.SetDefault("DownstreamCache.CleanupInterval", 10000)
+	viper.SetDefault("UpstreamCacheExpiration", 10000)
+	viper.SetDefault("DownstreamCacheExpiration", 120000)
 
 	// --- Ping Configuration ---
 	viper.SetDefault("Monitorable.Ping.Count", 2)
