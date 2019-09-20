@@ -31,7 +31,7 @@ import (
 
 func (s *Server) registerConfig() config.Helper {
 	repository := _configRepository.NewConfigRepository()
-	usecase := _configUsecase.NewConfigUsecase(repository, s.config.DownstreamCache)
+	usecase := _configUsecase.NewConfigUsecase(repository, s.store, s.config.DownstreamCacheExpiration)
 	delivery := _configDelivery.NewHttpConfigDelivery(usecase)
 
 	s.v1.GET("/config", delivery.GetConfig)

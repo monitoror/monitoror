@@ -4,8 +4,6 @@ import (
 	"testing"
 	"time"
 
-	"github.com/monitoror/monitoror/config"
-
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/jsdidierlaurent/echo-middleware/cache/mocks"
 	"github.com/labstack/echo/v4"
@@ -14,48 +12,34 @@ import (
 )
 
 func TestNewCacheMiddleware(t *testing.T) {
-	conf := &config.Config{
-		UpstreamCache: config.Cache{
-			Expire:          999,
-			CleanupInterval: 999,
-		},
-		DownstreamCache: config.Cache{
-			Expire:          999,
-			CleanupInterval: 999,
-		},
-	}
-
-	middleware := NewCacheMiddleware(conf)
+	store := cache.NewGoCacheStore(time.Second, time.Second)
+	middleware := NewCacheMiddleware(store, time.Second, time.Second)
 
 	if assert.NotNil(t, middleware) {
-		_, ok := middleware.store.UpstreamStore.(*cache.GoCacheStore)
-		assert.True(t, ok)
-		_, ok = middleware.store.DownstreamStore.(*cache.GoCacheStore)
-		assert.True(t, ok)
-		assert.NotNil(t, middleware.store.DownstreamStore)
+		assert.NotNil(t, middleware.store)
 	}
 }
 
 func TestUpstreamCacheHandler(t *testing.T) {
-	middleware := &CacheMiddleware{store: responsesStore{}}
-	handle := middleware.UpstreamCacheHandler(echo.HandlerFunc(func(c echo.Context) error {
+	middleware := &CacheMiddleware{store: &upstreamStore{}}
+	handle := middleware.UpstreamCacheHandler(func(c echo.Context) error {
 		return nil
-	}))
+	})
 
 	assert.NotNil(t, handle)
 }
 
 func TestUpstreamCacheHandlerWithExpiration(t *testing.T) {
-	middleware := &CacheMiddleware{store: responsesStore{}}
-	handle := middleware.UpstreamCacheHandlerWithExpiration(time.Hour, echo.HandlerFunc(func(c echo.Context) error {
+	middleware := &CacheMiddleware{store: &upstreamStore{}}
+	handle := middleware.UpstreamCacheHandlerWithExpiration(time.Hour, func(c echo.Context) error {
 		return nil
-	}))
+	})
 
 	assert.NotNil(t, handle)
 }
 
 func TestDownstreamStoreMiddleware(t *testing.T) {
-	middleware := &CacheMiddleware{store: responsesStore{}}
+	middleware := &CacheMiddleware{store: &upstreamStore{}}
 	handle := middleware.DownstreamStoreMiddleware()
 
 	assert.NotNil(t, handle)
@@ -66,9 +50,8 @@ func TestStore(t *testing.T) {
 	mockStore.On("Get", AnythingOfType("string"), Anything).Return(nil)
 	mockStore.On("Set", AnythingOfType("string"), Anything, AnythingOfType("time.Duration")).Return(nil)
 
-	store := responsesStore{
-		DownstreamStore: mockStore,
-		UpstreamStore:   mockStore,
+	store := &upstreamStore{
+		store: mockStore,
 	}
 
 	// Test GET

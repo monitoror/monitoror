@@ -1,5 +1,3 @@
-//+build !faker
-
 package models
 
 import "regexp"

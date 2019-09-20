@@ -95,7 +95,7 @@ func cacheMiddleware(ctx echo.Context) bool {
 
 	// Looking for Data in DownstreamStore
 	var cachedResponse cache.ResponseCache
-	if err := store.Get(cache.GetKey(middlewares.CachePrefix, ctx.Request()), &cachedResponse); err != nil {
+	if err := store.Get(cache.GetKey(DownstreamStoreKeyPrefix, ctx.Request()), &cachedResponse); err != nil {
 		return false
 	} else {
 		// Cache found, return cached Data

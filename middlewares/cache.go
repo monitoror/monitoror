@@ -1,9 +1,10 @@
 package middlewares
 
 import (
+	"fmt"
 	"time"
 
-	"github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/models"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/labstack/echo/v4"
@@ -27,37 +28,26 @@ import (
 
 const (
 	DownstreamStoreContextKey = "monitoror.downstreamStore"
-	CachePrefix               = "monitoror.cache"
-
-	DownstreamCacheHeader = "Timeout-Recover"
+	DownstreamCacheHeader     = "Timeout-Recover"
 )
 
 type (
 	CacheMiddleware struct {
-		store responsesStore
+		store                       cache.Store
+		downstreamDefaultExpiration time.Duration
+		upstreamDefaultExpiration   time.Duration
 	}
 
-	// responsesStore implements cache.Store to provide it to CacheMiddleware
-	responsesStore struct {
-		UpstreamStore   cache.Store
-		DownstreamStore cache.Store
+	// Wrapper for setting value in store with 2 keys for timeout
+	upstreamStore struct {
+		store                       cache.Store
+		downstreamDefaultExpiration time.Duration
 	}
 )
 
 // NewCacheMiddleware used config to instantiate CacheMiddleware
-func NewCacheMiddleware(config *config.Config) *CacheMiddleware {
-	store := responsesStore{
-		UpstreamStore: cache.NewGoCacheStore(
-			time.Millisecond*time.Duration(config.UpstreamCache.Expire),
-			time.Millisecond*time.Duration(config.UpstreamCache.CleanupInterval),
-		),
-		DownstreamStore: cache.NewGoCacheStore(
-			time.Millisecond*time.Duration(config.DownstreamCache.Expire),
-			time.Millisecond*time.Duration(config.DownstreamCache.CleanupInterval),
-		),
-	}
-
-	return &CacheMiddleware{store: store}
+func NewCacheMiddleware(store cache.Store, downstreamDefaultExpiration, upstreamDefaultExpiration time.Duration) *CacheMiddleware {
+	return &CacheMiddleware{store, downstreamDefaultExpiration, upstreamDefaultExpiration}
 }
 
 //==============================================================================
@@ -67,16 +57,17 @@ func NewCacheMiddleware(config *config.Config) *CacheMiddleware {
 // UpstreamCache return the cached response if he finds it in the store. (Decorator Handlers)
 func (cm *CacheMiddleware) UpstreamCacheHandler(handle echo.HandlerFunc) echo.HandlerFunc {
 	return cache.CacheHandlerWithConfig(cache.CacheMiddlewareConfig{
-		Store:     &cm.store,
-		KeyPrefix: CachePrefix,
+		Store:     &upstreamStore{cm.store, cm.downstreamDefaultExpiration},
+		KeyPrefix: "%s", // hack for use Sprintf inside set methode
+		Expire:    cm.upstreamDefaultExpiration,
 	}, handle)
 }
 
 //UpstreamCacheWithExpiration return the cached response if he finds it in the store. (Decorator Handlers)
 func (cm *CacheMiddleware) UpstreamCacheHandlerWithExpiration(expire time.Duration, handle echo.HandlerFunc) echo.HandlerFunc {
 	return cache.CacheHandlerWithConfig(cache.CacheMiddlewareConfig{
-		Store:     &cm.store,
-		KeyPrefix: CachePrefix,
+		Store:     &upstreamStore{cm.store, cm.downstreamDefaultExpiration},
+		KeyPrefix: "%s", // hack for use Sprintf inside set methode
 		Expire:    expire,
 	}, handle)
 }
@@ -88,7 +79,7 @@ func (cm *CacheMiddleware) UpstreamCacheHandlerWithExpiration(expire time.Durati
 // DownstreamStoreMiddleware Provide Downstream Store to all route. Used when route return timeout error
 func (cm *CacheMiddleware) DownstreamStoreMiddleware() echo.MiddlewareFunc {
 	config := cache.StoreMiddlewareConfig{
-		Store:      cm.store.DownstreamStore,
+		Store:      cm.store,
 		ContextKey: DownstreamStoreContextKey,
 	}
 	return cache.StoreMiddlewareWithConfig(config)
@@ -97,36 +88,36 @@ func (cm *CacheMiddleware) DownstreamStoreMiddleware() echo.MiddlewareFunc {
 //==============================================================================
 // ResponsesStore methods (implementation of cache.Store)
 //==============================================================================
-func (c *responsesStore) Get(key string, value interface{}) error {
-	return c.UpstreamStore.Get(key, value)
+func (c *upstreamStore) Get(key string, value interface{}) error {
+	return c.store.Get(fmt.Sprintf(key, models.UpstreamStoreKeyPrefix), value)
 }
 
-func (c *responsesStore) Set(key string, val interface{}, expires time.Duration) (err error) {
-	err = c.UpstreamStore.Set(key, val, expires)
-	_ = c.DownstreamStore.Set(key, val, cache.DEFAULT)
+func (c *upstreamStore) Set(key string, val interface{}, expires time.Duration) (err error) {
+	err = c.store.Set(fmt.Sprintf(key, models.UpstreamStoreKeyPrefix), val, expires)
+	_ = c.store.Set(fmt.Sprintf(key, models.DownstreamStoreKeyPrefix), val, c.downstreamDefaultExpiration)
 	return
 }
 
-func (c *responsesStore) Add(key string, value interface{}, expires time.Duration) error {
+func (c *upstreamStore) Add(key string, value interface{}, expires time.Duration) error {
 	panic("unimplemented")
 }
 
-func (c *responsesStore) Replace(key string, value interface{}, expires time.Duration) error {
+func (c *upstreamStore) Replace(key string, value interface{}, expires time.Duration) error {
 	panic("unimplemented")
 }
 
-func (c *responsesStore) Delete(key string) error {
+func (c *upstreamStore) Delete(key string) error {
 	panic("unimplemented")
 }
 
-func (c *responsesStore) Increment(key string, n uint64) (uint64, error) {
+func (c *upstreamStore) Increment(key string, n uint64) (uint64, error) {
 	panic("unimplemented")
 }
 
-func (c *responsesStore) Decrement(key string, n uint64) (uint64, error) {
+func (c *upstreamStore) Decrement(key string, n uint64) (uint64, error) {
 	panic("unimplemented")
 }
 
-func (c *responsesStore) Flush() error {
+func (c *upstreamStore) Flush() error {
 	panic("unimplemented")
 }

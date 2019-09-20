@@ -7,8 +7,6 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/monitoror/monitoror/pkg/monitoror/builder"
-
 	"github.com/monitoror/monitoror/config"
 
 	"github.com/monitoror/monitoror/monitorable/config/models"
@@ -79,15 +77,12 @@ func (cu *configUsecase) hydrateDynamicTile(conf *models.Config, tile *models.Ti
 	_ = json.Unmarshal(bParams, &rInstance)
 
 	// Call builder and add inherited value from Dynamic tile
-	cacheKey := fmt.Sprintf("%s_%s_%s", tile.Type, tile.ConfigVariant, string(bParams))
+	cacheKey := fmt.Sprintf("%s:%s_%s_%s", DynamicTileStoreKeyPrefix, tile.Type, tile.ConfigVariant, string(bParams))
 	results, err := dynamicTileConfig.Builder.ListDynamicTile(rInstance)
 	if err != nil {
 		if os.IsTimeout(err) {
 			// Get previous value in cache
-			if r, exist := cu.dynamicTileCache.Get(cacheKey); exist {
-				// Cache found, inject result and continue
-				results = r.([]builder.Result)
-			} else {
+			if err := cu.dynamicTileStore.Get(cacheKey, &results); err != nil {
 				conf.AddWarnings(fmt.Sprintf(`Warning while listing %s dynamic tiles (params: %s). %v`, tile.Type, string(bParams), "timeout/host unreachable"))
 			}
 		} else {
@@ -95,7 +90,7 @@ func (cu *configUsecase) hydrateDynamicTile(conf *models.Config, tile *models.Ti
 		}
 	} else {
 		// Add result in cache
-		cu.dynamicTileCache.Set(cacheKey, results, 0)
+		_ = cu.dynamicTileStore.Set(cacheKey, results, cu.downstreamStoreExpiration)
 	}
 
 	tiles = []models.Tile{}
