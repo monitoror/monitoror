@@ -10,18 +10,24 @@ set -o errexit -o nounset -o pipefail
 
 VERSION_FILE=./VERSION
 
-if [[ -n $(git status -s) ]]; then
-  echo "You have changed files. Plz clean up your git directory."
+function error {
+  echo -e "$1" >&2
   exit 1
+}
+
+# Check if repository is dirty
+if [[ -n $(git status -s) ]]; then
+  error "You have changed files. Please clean up your git directory."
 fi
 
 git checkout master
-git pull --rebase origin master
 
-if [[ -n $(git status | grep "nothing to commit, working directory clean") ]]; then
-  echo "You have unpushed commit(s). Plz sync your master branch to origin"
-  exit 1
+# Check if master is sync with origin master
+if [[ $(git rev-parse origin/master) != $(git rev-parse HEAD) ]]; then
+  error "Local is not sync with origin remote, please sync before release"
 fi
+
+git pull --rebase origin master
 
 version=$(cat "$VERSION_FILE" 2>/dev/null)
 git tag "$version"

@@ -83,7 +83,7 @@ version: ## bump version of monitoror
 	@./scripts/version/bump
 
 .PHONY: release
-release: ## bump version of monitoror
+release: ## publish version of monitoror
 	@./scripts/version/release
 
 # ============= TOOLING =============
