@@ -86,12 +86,13 @@ systemctl start monitoror.service
 # rsyslog configuration
 # Copy the entire block until END tag (included)
 sudo tee -a /etc/rsyslog.d/99-monitoror.conf > /dev/null <<END
-if $programname == 'monitoror' then /var/log/monitoror/monitoror.log
+if \$programname == 'monitoror' then /var/log/monitoror/monitoror.log
 & stop
 END
 
 sudo mkdir /var/log/monitoror/
 sudo touch /var/log/monitoror/monitoror.log
+sudo chown syslog:adm /var/log/monitoror/monitoror.log
 
 sudo service rsyslog restart
 ```
