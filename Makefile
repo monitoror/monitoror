@@ -77,6 +77,15 @@ run: ## run monitoror
 run-faker: ## run monitoror in faker mode
 	@./scripts/run/faker
 
+# ============= VERSION =============
+.PHONY: version
+version: ## bump version of monitoror
+	@./scripts/version/bump
+
+.PHONY: release
+release: ## publish version of monitoror
+	@./scripts/version/release
+
 # ============= TOOLING =============
 .PHONY: clean
 clean: ## remove build artifacts

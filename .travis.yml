@@ -69,7 +69,7 @@ jobs:
 
       deploy:
         - provider: script
-          script: ./scripts/github-release
+          script: ./scripts/version/github-release
           skip_cleanup: true
           on:
             tags: true

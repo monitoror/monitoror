@@ -1,5 +1,3 @@
-//+build !faker
-
 package version
 
 // Default build-time variable.
