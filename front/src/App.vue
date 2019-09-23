@@ -21,7 +21,6 @@
     private static readonly SHOW_CURSOR_DELAY: number = 10 // 10 seconds
     private static readonly REFRESH_TILES_DELTA: number = 10 // Each 10 seconds
 
-
     /*
      * Data
      */
@@ -32,7 +31,6 @@
     private loadConfigurationInterval!: number
     private refreshTilesCount: number = 0
     private refreshTilesInterval!: number
-
 
     /*
      * Computed
@@ -63,7 +61,6 @@
       return this.$store.state.tiles
     }
 
-
     /*
      * Methods
      */
@@ -75,7 +72,6 @@
         this.showCursor = false
       }, App.SHOW_CURSOR_DELAY * 1000)
     }
-
 
     /*
      * Hooks
