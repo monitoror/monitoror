@@ -34,7 +34,7 @@
           </template>
         </div>
         <div class="c-monitoror-tile--progress">
-          <div class="c-monitoror-tile--progress-bar" :style="progressBatStyle"></div>
+          <div class="c-monitoror-tile--progress-bar" :style="progressBarStyle"></div>
         </div>
       </template>
     </div>
@@ -92,7 +92,7 @@
       return styles
     }
 
-    get progressBatStyle() {
+    get progressBarStyle() {
       if (!this.progress) {
         return
       }
