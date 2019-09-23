@@ -118,11 +118,11 @@
     }
 
     get mustCenterMessage(): boolean {
-      if (this.category === undefined) {
+      if (this.category === undefined || this.message === undefined) {
         return false
       }
 
-      return [TileCategory.Health].includes(this.category)
+      return [TileCategory.Health].includes(this.category) && /^[0-9]/.test(this.message)
     }
 
     get label(): string | undefined {
