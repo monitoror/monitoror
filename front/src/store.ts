@@ -55,6 +55,11 @@ const ORDERED_TILE_STATUS = [
   TileStatus.Running,
 ]
 
+export enum Theme {
+  Default = 'DEFAULT',
+  Dark = 'DARK',
+}
+
 interface ConfigInterface {
   columns: number,
   tiles: TileConfig[],
@@ -103,9 +108,12 @@ const store: StoreOptions<RootState> = {
     tilesState: {},
   },
   getters: {
-    configUrl(): string {
+    queryParams(): string[] {
+      return window.location.search.substr(1).split('&')
+    },
+    configUrl(state, getters): string {
       let configUrl = ''
-      const configQueryParam = window.location.search.substr(1).split('&').find((queryParam: string) => {
+      const configQueryParam = getters.queryParams.find((queryParam: string) => {
         return /^config=/.test(queryParam)
       })
       if (configQueryParam) {
@@ -113,6 +121,20 @@ const store: StoreOptions<RootState> = {
       }
 
       return configUrl
+    },
+    theme(state, getters): Theme {
+      let theme = Theme.Default
+      const themeQueryParam = getters.queryParams.find((queryParam: string) => {
+        return /^theme=/.test(queryParam)
+      })
+      if (themeQueryParam) {
+        const queryTheme = themeQueryParam.substr(themeQueryParam.indexOf('=') + 1)
+        if (Object.values(Theme).includes(queryTheme.toUpperCase())) {
+          theme = queryTheme.toUpperCase()
+        }
+      }
+
+      return theme
     },
   },
   mutations: {

@@ -52,6 +52,7 @@
 
     get classes() {
       return {
+        ['c-monitoror-sub-tile__theme-' + this.theme]: true,
         'c-monitoror-sub-tile__status-succeeded': this.isSucceeded,
         'c-monitoror-sub-tile__status-failed': this.isFailed,
         'c-monitoror-sub-tile__status-warning': this.isWarning,
@@ -93,6 +94,10 @@
 
     get stateKey(): string {
       return this.config.stateKey
+    }
+
+    get theme(): string {
+      return this.$store.getters.theme.toString().toLowerCase()
     }
 
     get state(): TileState | undefined {
@@ -243,6 +248,11 @@
     background: var(--color-background);
     border-radius: 15px;
     overflow: hidden;
+
+    .c-monitoror-sub-tile__theme-dark & {
+      background: none;
+      border: 1px solid var(--sub-tile-status-color);
+    }
   }
 
   .c-monitoror-sub-tile--label {
@@ -313,7 +323,7 @@
       opacity: 1;
     }
     50% {
-      opacity: 0.5;
+      opacity: 0.6;
     }
   }
 

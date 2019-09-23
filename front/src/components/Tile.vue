@@ -34,7 +34,7 @@
           </template>
         </div>
         <div class="c-monitoror-tile--progress">
-          <div class="c-monitoror-tile--progress-bar" :style="progressBatStyle"></div>
+          <div class="c-monitoror-tile--progress-bar" :style="progressBarStyle"></div>
         </div>
       </template>
     </div>
@@ -70,6 +70,7 @@
 
     get classes() {
       return {
+        ['c-monitoror-tile__theme-' + this.theme]: true,
         'c-monitoror-tile__empty': this.isEmpty,
         'c-monitoror-tile__group': this.isGroup,
         'c-monitoror-tile__centered-message': this.mustCenterMessage,
@@ -92,7 +93,7 @@
       return styles
     }
 
-    get progressBatStyle() {
+    get progressBarStyle() {
       if (!this.progress) {
         return
       }
@@ -117,11 +118,11 @@
     }
 
     get mustCenterMessage(): boolean {
-      if (this.category === undefined) {
+      if (this.category === undefined || this.message === undefined) {
         return false
       }
 
-      return [TileCategory.Health].includes(this.category)
+      return [TileCategory.Health].includes(this.category) && /^[0-9]/.test(this.message)
     }
 
     get label(): string | undefined {
@@ -147,6 +148,10 @@
 
     get stateKey(): string {
       return this.config.stateKey
+    }
+
+    get theme(): string {
+      return this.$store.getters.theme.toString().toLowerCase()
     }
 
     get nonSucceededSubTiles(): TileConfig[] | undefined {
@@ -333,6 +338,18 @@
     background: var(--tile-background) linear-gradient(rgba(255, 255, 255, 0.1), transparent);
     border-radius: $border-radius;
 
+    &__theme-dark {
+      color: var(--tile-background);
+      background: none;
+      border: 5px solid var(--tile-background);
+
+      &.c-monitoror-tile__status-queued,
+      &.c-monitoror-tile__status-running {
+        overflow: initial;
+        border-bottom: none;
+      }
+    }
+
     &__empty {
       visibility: hidden;
     }
@@ -413,6 +430,11 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+
+    .c-monitoror-tile__theme-dark & {
+      border: 1px solid var(--tile-background);
+      line-height: $tile-author-height - 8px;
+    }
   }
 
   .c-monitoror-tile--author-avatar {
@@ -422,6 +444,11 @@
     margin-right: 10px;
     background: #fff;
     border-radius: 100%;
+
+    .c-monitoror-tile__theme-dark & {
+      width: $tile-author-height - 8px;
+      height: $tile-author-height - 8px;
+    }
   }
 
   .c-monitoror-tile--progress-time {
@@ -434,9 +461,15 @@
     left: 0;
     bottom: 0;
     border-top: 4px solid #2c3e50;
-    background: rgba(#2c3e50, 0.5);
+    background: var(--tile-background) linear-gradient(rgba(#2c3e50, 0.5), rgba(#2c3e50, 0.5));
     overflow: hidden;
     transform: translateZ(0); /* Optimize repaints */
+
+    .c-monitoror-tile__theme-dark & {
+      left: -5px;
+      right: -5px;
+      border-radius: 0 0 $border-radius $border-radius;
+    }
   }
 
   .c-monitoror-tile--progress-bar {
@@ -445,6 +478,10 @@
     background: #fff;
     transform: translateX(-101%);
     transition: transform 150ms;
+
+    .c-monitoror-tile__theme-dark & {
+      height: 14px;
+    }
   }
 
   .c-monitoror-tile__status-running .c-monitoror-tile--progress-bar {
