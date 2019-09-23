@@ -1,5 +1,5 @@
 <template>
-  <div id="app" :style="cssProperties">
+  <div id="app" :class="classes" :style="cssProperties" @mousemove="resetShowCursorTimeout">
     <div class="c-app--tiles-container">
       <monitoror-tile v-for="tileConfig in tiles" :key="tileConfig.stateKey" :config="tileConfig"></monitoror-tile>
     </div>
@@ -18,20 +18,31 @@
     },
   })
   export default class App extends Vue {
-    private static readonly refreshTilesDelta: number = 10 // Each 10 seconds
+    private static readonly SHOW_CURSOR_DELAY: number = 10 // 10 seconds
+    private static readonly REFRESH_TILES_DELTA: number = 10 // Each 10 seconds
+
 
     /*
      * Data
      */
 
+    private showCursor: boolean = true
+    private showCursorTimeout!: number
     private autoUpdateInterval!: number
     private loadConfigurationInterval!: number
     private refreshTilesCount: number = 0
     private refreshTilesInterval!: number
 
+
     /*
      * Computed
      */
+
+    get classes() {
+      return {
+        'c-app__show-cursor': this.showCursor,
+      }
+    }
 
     get cssProperties() {
       const tilesCount = this.tiles.reduce((accumulator, tile) => {
@@ -51,6 +62,20 @@
     get tiles(): TileConfig[] {
       return this.$store.state.tiles
     }
+
+
+    /*
+     * Methods
+     */
+
+    private resetShowCursorTimeout() {
+      clearTimeout(this.showCursorTimeout)
+      this.showCursor = true
+      this.showCursorTimeout = setTimeout(() => {
+        this.showCursor = false
+      }, App.SHOW_CURSOR_DELAY * 1000)
+    }
+
 
     /*
      * Hooks
@@ -72,7 +97,7 @@
       }, 10000)
 
       this.refreshTilesInterval = setInterval(() => {
-        if (this.refreshTilesCount >= App.refreshTilesDelta) {
+        if (this.refreshTilesCount >= App.REFRESH_TILES_DELTA) {
           this.refreshTilesCount = 0
           return this.$store.dispatch('refreshTiles')
         }
@@ -97,6 +122,10 @@
 
     --columns: 1;
     --rows: 1;
+
+    &:not(.c-app__show-cursor) {
+      cursor: none;
+    }
   }
 
   .c-app--tiles-container {
