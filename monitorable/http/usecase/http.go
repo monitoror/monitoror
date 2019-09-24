@@ -23,8 +23,8 @@ type (
 		repository http.Repository
 
 		// Store used for caching request on same url
-		store                     cache.Store
-		downstreamCacheExpiration int
+		store                   cache.Store
+		upstreamCacheExpiration int
 	}
 )
 
@@ -37,8 +37,8 @@ const (
 	HttpRequestStoreKeyPrefix = "monitoror.http.request"
 )
 
-func NewHttpUsecase(repository http.Repository, store cache.Store, downstreamCacheExpiration int) http.Usecase {
-	return &httpUsecase{repository, store, downstreamCacheExpiration}
+func NewHttpUsecase(repository http.Repository, store cache.Store, upstreamCacheExpiration int) http.Usecase {
+	return &httpUsecase{repository, store, upstreamCacheExpiration}
 }
 
 func (hu *httpUsecase) HttpAny(params *models.HttpAnyParams) (tile *HealthTile, err error) {
@@ -133,7 +133,7 @@ func (hu *httpUsecase) get(url string) (response *models.Response, err error) {
 	}
 
 	// Adding result in store
-	err = hu.store.Set(key, *response, time.Millisecond*time.Duration(hu.downstreamCacheExpiration))
+	err = hu.store.Set(key, *response, time.Millisecond*time.Duration(hu.upstreamCacheExpiration))
 
 	return
 }
