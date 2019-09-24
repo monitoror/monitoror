@@ -78,7 +78,7 @@ func (s *Server) registerHttp(configHelper config.Helper) {
 	defer logStatus("HTTP", true)
 
 	repository := _httpRepository.NewHttpRepository(&s.config.Monitorable.Http)
-	usecase := _httpUsecase.NewHttpUsecase(repository, s.store, s.config.DownstreamCacheExpiration)
+	usecase := _httpUsecase.NewHttpUsecase(repository, s.store, s.config.UpstreamCacheExpiration)
 	delivery := _httpDelivery.NewHttpHttpDelivery(usecase)
 
 	// Register route to echo
