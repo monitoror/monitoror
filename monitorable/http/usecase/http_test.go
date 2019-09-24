@@ -4,6 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"testing"
+	"time"
+
+	"github.com/jsdidierlaurent/echo-middleware/cache"
 
 	"github.com/monitoror/monitoror/monitorable/http"
 	"gopkg.in/yaml.v2"
@@ -23,7 +26,7 @@ import (
 func TestHttpAny_WithError(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("Get", AnythingOfType("string")).Return(nil, context.DeadlineExceeded)
-	tu := NewHttpUsecase(mockRepository)
+	tu := NewHttpUsecase(mockRepository, cache.NewGoCacheStore(time.Minute*5, time.Second), 2000)
 
 	tile, err := tu.HttpAny(&models.HttpAnyParams{Url: "toto"})
 	if assert.Error(t, err) {
@@ -107,7 +110,7 @@ func TestHtmlAll_WithoutErrors(t *testing.T) {
 		mockRepository := new(mocks.Repository)
 		mockRepository.On("Get", AnythingOfType("string")).
 			Return(&models.Response{StatusCode: 200, Body: []byte(testcase.body)}, nil)
-		tu := NewHttpUsecase(mockRepository)
+		tu := NewHttpUsecase(mockRepository, cache.NewGoCacheStore(time.Minute*5, time.Second), 2000)
 
 		tile, err := testcase.usecaseFunc(tu)
 		if assert.NoError(t, err) {
@@ -118,6 +121,28 @@ func TestHtmlAll_WithoutErrors(t *testing.T) {
 			mockRepository.AssertExpectations(t)
 		}
 	}
+}
+
+func TestHttpAny_WithCache(t *testing.T) {
+	mockRepository := new(mocks.Repository)
+	mockRepository.On("Get", AnythingOfType("string")).
+		Return(&models.Response{StatusCode: 200, Body: []byte("test with cache")}, nil)
+
+	tu := NewHttpUsecase(mockRepository, cache.NewGoCacheStore(time.Minute*5, time.Second), 2000)
+
+	tile, err := tu.HttpRaw(&models.HttpRawParams{Url: "toto"})
+	if assert.NoError(t, err) {
+		assert.Equal(t, "toto", tile.Label)
+		assert.Equal(t, "test with cache", tile.Message)
+	}
+
+	tile, err = tu.HttpRaw(&models.HttpRawParams{Url: "toto"})
+	if assert.NoError(t, err) {
+		assert.Equal(t, "toto", tile.Label)
+		assert.Equal(t, "test with cache", tile.Message)
+	}
+	mockRepository.AssertNumberOfCalls(t, "Get", 1)
+	mockRepository.AssertExpectations(t)
 }
 
 func TestHttpUsecase_CheckStatusCode(t *testing.T) {

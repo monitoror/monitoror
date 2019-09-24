@@ -7,6 +7,9 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
+
+	"github.com/jsdidierlaurent/echo-middleware/cache"
 
 	. "github.com/monitoror/monitoror/models"
 
@@ -18,6 +21,10 @@ import (
 type (
 	httpUsecase struct {
 		repository http.Repository
+
+		// Store used for caching request on same url
+		store                     cache.Store
+		downstreamCacheExpiration int
 	}
 )
 
@@ -26,8 +33,12 @@ var (
 	ArrayKeyPartRegex = regexp.MustCompile(`^\[(\d*)]$`)
 )
 
-func NewHttpUsecase(repository http.Repository) http.Usecase {
-	return &httpUsecase{repository}
+const (
+	HttpRequestStoreKeyPrefix = "monitoror.http.request"
+)
+
+func NewHttpUsecase(repository http.Repository, store cache.Store, downstreamCacheExpiration int) http.Usecase {
+	return &httpUsecase{repository, store, downstreamCacheExpiration}
 }
 
 func (hu *httpUsecase) HttpAny(params *models.HttpAnyParams) (tile *HealthTile, err error) {
@@ -53,7 +64,7 @@ func (hu *httpUsecase) httpAll(tileType TileType, url string, params interface{}
 	tile.Status = SuccessStatus
 
 	// Download page
-	response, err := hu.repository.Get(url)
+	response, err := hu.get(url)
 	if err != nil {
 		return nil, &MonitororError{Err: err, Tile: tile.Tile, Message: fmt.Sprintf("unable to get %s", url)}
 	}
@@ -100,6 +111,29 @@ func (hu *httpUsecase) httpAll(tileType TileType, url string, params interface{}
 		}
 		tile.Message = content
 	}
+
+	return
+}
+
+// Adding cache to Repository.Get
+func (hu *httpUsecase) get(url string) (response *models.Response, err error) {
+	response = &models.Response{}
+
+	// Lookup in cache
+	key := fmt.Sprintf("%s:%s", UpstreamStoreKeyPrefix, url)
+	if err = hu.store.Get(key, response); err == nil {
+		// Cache found, return
+		return
+	}
+
+	// Download page
+	response, err = hu.repository.Get(url)
+	if err != nil {
+		return
+	}
+
+	// Adding result in store
+	err = hu.store.Set(key, *response, time.Millisecond*time.Duration(hu.downstreamCacheExpiration))
 
 	return
 }
