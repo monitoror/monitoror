@@ -9,7 +9,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/monitoror/monitoror/middlewares"
 	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
@@ -42,14 +41,14 @@ func TestHttpError_404(t *testing.T) {
 		Code:    http.StatusNotFound,
 		Message: "Not Found",
 	}
-	json, e := json.Marshal(apiError)
+	j, e := json.Marshal(apiError)
 	assert.NoError(t, e, "unable to marshal tile")
 
 	// Test
 	HttpErrorHandler(err, ctx)
 
 	assert.Equal(t, http.StatusNotFound, res.Code)
-	assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
+	assert.Equal(t, string(j), strings.TrimSpace(res.Body.String()))
 }
 
 func TestHttpError_500(t *testing.T) {
@@ -64,14 +63,14 @@ func TestHttpError_500(t *testing.T) {
 		Code:    http.StatusInternalServerError,
 		Message: err.Error(),
 	}
-	json, e := json.Marshal(apiError)
+	j, e := json.Marshal(apiError)
 	assert.NoError(t, e, "unable to marshal tile")
 
 	// Test
 	HttpErrorHandler(err, ctx)
 
 	assert.Equal(t, http.StatusInternalServerError, res.Code)
-	assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
+	assert.Equal(t, string(j), strings.TrimSpace(res.Body.String()))
 }
 
 func TestHttpError_MonitororError_WithoutTile(t *testing.T) {
@@ -86,14 +85,14 @@ func TestHttpError_MonitororError_WithoutTile(t *testing.T) {
 		Code:    http.StatusInternalServerError,
 		Message: err.Error(),
 	}
-	json, e := json.Marshal(apiError)
+	j, e := json.Marshal(apiError)
 	assert.NoError(t, e, "unable to marshal tile")
 
 	// Test
 	HttpErrorHandler(err, ctx)
 
 	assert.Equal(t, http.StatusInternalServerError, res.Code)
-	assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
+	assert.Equal(t, string(j), strings.TrimSpace(res.Body.String()))
 }
 
 func TestHttpError_MonitororError_WithTile(t *testing.T) {
@@ -110,14 +109,14 @@ func TestHttpError_MonitororError_WithTile(t *testing.T) {
 	expected.Label = "test jenkins"
 	expected.Status = tiles.FailedStatus
 	expected.Message = "rly big boom"
-	json, e := json.Marshal(expected)
+	j, e := json.Marshal(expected)
 	assert.NoError(t, e, "unable to marshal tile")
 
 	// Test
 	HttpErrorHandler(err, ctx)
 
 	assert.Equal(t, http.StatusOK, res.Code)
-	assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
+	assert.Equal(t, string(j), strings.TrimSpace(res.Body.String()))
 }
 
 func TestHttpError_MonitororError_Timeout_WithoutStore(t *testing.T) {
@@ -145,7 +144,7 @@ func TestHttpError_MonitororError_Timeout_WithoutStore(t *testing.T) {
 func TestHttpError_MonitororError_Timeout_WithWrongStore(t *testing.T) {
 	// Init
 	ctx, res := initErrorEcho()
-	ctx.Set(middlewares.DownstreamStoreContextKey, "store")
+	ctx.Set(models.DownstreamStoreContextKey, "store")
 
 	// Parameters
 	tile := tiles.NewHealthTile("TEST")
@@ -170,7 +169,7 @@ func TestHttpError_MonitororError_Timeout_CacheMiss(t *testing.T) {
 	ctx, res := initErrorEcho()
 	mockStore := new(mocks.Store)
 	mockStore.On("Get", AnythingOfType("string"), Anything).Return(cache.ErrCacheMiss)
-	ctx.Set(middlewares.DownstreamStoreContextKey, mockStore)
+	ctx.Set(models.DownstreamStoreContextKey, mockStore)
 
 	// Parameters
 	tile := tiles.NewHealthTile("TEST")
@@ -211,7 +210,7 @@ func TestHttpError_MonitororError_Timeout_Success(t *testing.T) {
 			arg.Header = header
 			arg.Status = status
 		})
-	ctx.Set(middlewares.DownstreamStoreContextKey, mockStore)
+	ctx.Set(models.DownstreamStoreContextKey, mockStore)
 
 	// Parameters
 	tile := tiles.NewHealthTile("TEST")

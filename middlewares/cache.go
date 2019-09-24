@@ -1,7 +1,6 @@
 package middlewares
 
 import (
-	"strings"
 	"time"
 
 	"github.com/monitoror/monitoror/models"
@@ -25,14 +24,6 @@ import (
 *
 * To fill both store at the same time, I implemented a store wrapper that performs every actions on both store
  */
-
-const (
-	DownstreamStoreContextKey = "monitoror.downstreamStore"
-	DownstreamCacheHeader     = "Timeout-Recover"
-
-	TempKeyPrefix = "T"
-)
-
 type (
 	CacheMiddleware struct {
 		store                       cache.Store
@@ -60,7 +51,7 @@ func NewCacheMiddleware(store cache.Store, downstreamDefaultExpiration, upstream
 func (cm *CacheMiddleware) UpstreamCacheHandler(handle echo.HandlerFunc) echo.HandlerFunc {
 	return cache.CacheHandlerWithConfig(cache.CacheMiddlewareConfig{
 		Store:     &upstreamStore{cm.store, cm.downstreamDefaultExpiration},
-		KeyPrefix: TempKeyPrefix, // hack for use Sprintf inside set methode
+		KeyPrefix: "-", // Hack we need to replace this by real key prefix in Store definition
 		Expire:    cm.upstreamDefaultExpiration,
 	}, handle)
 }
@@ -69,7 +60,7 @@ func (cm *CacheMiddleware) UpstreamCacheHandler(handle echo.HandlerFunc) echo.Ha
 func (cm *CacheMiddleware) UpstreamCacheHandlerWithExpiration(expire time.Duration, handle echo.HandlerFunc) echo.HandlerFunc {
 	return cache.CacheHandlerWithConfig(cache.CacheMiddlewareConfig{
 		Store:     &upstreamStore{cm.store, cm.downstreamDefaultExpiration},
-		KeyPrefix: TempKeyPrefix, // hack for use Sprintf inside set methode
+		KeyPrefix: "-", // Hack we need to replace this by real key prefix in Store definition
 		Expire:    expire,
 	}, handle)
 }
@@ -82,7 +73,7 @@ func (cm *CacheMiddleware) UpstreamCacheHandlerWithExpiration(expire time.Durati
 func (cm *CacheMiddleware) DownstreamStoreMiddleware() echo.MiddlewareFunc {
 	config := cache.StoreMiddlewareConfig{
 		Store:      cm.store,
-		ContextKey: DownstreamStoreContextKey,
+		ContextKey: models.DownstreamStoreContextKey,
 	}
 	return cache.StoreMiddlewareWithConfig(config)
 }
@@ -91,12 +82,12 @@ func (cm *CacheMiddleware) DownstreamStoreMiddleware() echo.MiddlewareFunc {
 // ResponsesStore methods (implementation of cache.Store)
 //==============================================================================
 func (c *upstreamStore) Get(key string, value interface{}) error {
-	return c.store.Get(getCustomKey(key, models.UpstreamStoreKeyPrefix), value)
+	return c.store.Get(models.UpstreamStoreKeyPrefix+key[1:], value)
 }
 
 func (c *upstreamStore) Set(key string, val interface{}, expires time.Duration) (err error) {
-	err = c.store.Set(getCustomKey(key, models.UpstreamStoreKeyPrefix), val, expires)
-	_ = c.store.Set(getCustomKey(key, models.DownstreamStoreKeyPrefix), val, c.downstreamDefaultExpiration)
+	err = c.store.Set(models.UpstreamStoreKeyPrefix+key[1:], val, expires)
+	_ = c.store.Set(models.DownstreamStoreKeyPrefix+key[1:], val, c.downstreamDefaultExpiration)
 	return
 }
 
@@ -122,8 +113,4 @@ func (c *upstreamStore) Decrement(key string, n uint64) (uint64, error) {
 
 func (c *upstreamStore) Flush() error {
 	panic("unimplemented")
-}
-
-func getCustomKey(key, keyPrefix string) string {
-	return strings.Replace(key, TempKeyPrefix, keyPrefix, 1)
 }

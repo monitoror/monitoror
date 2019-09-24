@@ -4,7 +4,7 @@ import (
 	"net/http"
 	. "net/http"
 
-	"github.com/monitoror/monitoror/middlewares"
+	"github.com/monitoror/monitoror/models"
 	. "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/models/tiles"
 
@@ -81,7 +81,7 @@ func handleMonitororError(me *MonitororError, ctx echo.Context) error {
 // cacheMiddleware look into downstream cache and return cached value to client
 func cacheMiddleware(ctx echo.Context) bool {
 	// Looking for TimeoutCache in echo.context
-	value := ctx.Get(middlewares.DownstreamStoreContextKey)
+	value := ctx.Get(models.DownstreamStoreContextKey)
 	if value == nil {
 		log.Errorf("unable to find DownstreamStore in echo.context")
 		return false
@@ -108,7 +108,7 @@ func cacheMiddleware(ctx echo.Context) bool {
 		}
 
 		// Adding Header
-		ctx.Response().Header().Add(middlewares.DownstreamCacheHeader, "true")
+		ctx.Response().Header().Add(models.DownstreamCacheHeader, "true")
 
 		ctx.Response().WriteHeader(cachedResponse.Status)
 		_, _ = ctx.Response().Write(cachedResponse.Data)

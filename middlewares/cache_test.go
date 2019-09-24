@@ -1,8 +1,6 @@
 package middlewares
 
 import (
-	"net/http"
-	"net/url"
 	"testing"
 	"time"
 
@@ -80,11 +78,4 @@ func TestStore(t *testing.T) {
 	assert.Panics(t, func() { _ = store.Flush() })
 
 	mockStore.AssertExpectations(t)
-}
-
-func TestGetCustomKey(t *testing.T) {
-	u, _ := url.Parse("http://localhost:8080/api/v1/test")
-	req := &http.Request{RequestURI: u.RequestURI()}
-
-	assert.Equal(t, "TEST:%2Fapi%2Fv1%2Ftest", getCustomKey(cache.GetKey(TempKeyPrefix, req), "TEST"))
 }
