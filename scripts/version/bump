@@ -1,20 +1,17 @@
 #!/usr/bin/env bash
 
 set -o errexit -o nounset -o pipefail
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+source $DIR/bump-function
 
 #######################################################################################
 # This script is used by "make version" command for creating new version of monitoror #
 #######################################################################################
 
 
-VERSION_REGEX="^([0-9]*)\\.([0-9]*)\\.([0-9]*)$"
 VERSION_FILE=./VERSION
 
-function error {
-  echo -e "$1" >&2
-  exit 1
-}
 
 if [[ -n $(git status -s) ]]; then
   error "You have changed files. Please clean up your git repository"
@@ -29,23 +26,10 @@ case $input in
   *) error "Invalid command $input";;
 esac
 
-if [[ "$version" =~ $VERSION_REGEX ]]; then
-  major=${BASH_REMATCH[1]}
-  minor=${BASH_REMATCH[2]}
-  patch=${BASH_REMATCH[3]}
-
-  case "$command" in
-    major) new="$((major + 1)).0.0";;
-    minor) new="${major}.$((minor + 1)).0";;
-    patch) new="${major}.${minor}.$((patch + 1))";;
-    *) error "Invalid command $command" ;;
-  esac
-else
-  error "Version $version does not match the version scheme 'major.minor.patch'."
-fi
+newVersion=$(bump_version "$version" "$command")
 
 # Update VERSION file
-echo "New version is $version"
+echo "New version is $newVersion"
 echo $newVersion > "$VERSION_FILE"
 
 # Commit !
