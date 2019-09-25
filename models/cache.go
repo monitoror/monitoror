@@ -1,6 +1,9 @@
 package models
 
 const (
-	DownstreamStoreKeyPrefix = "monitoror.downstream.store"
-	UpstreamStoreKeyPrefix   = "monitoror.upstream.store"
+	DownstreamStoreContextKey = "monitoror.downstream.store"
+	DownstreamStoreKeyPrefix  = "monitoror.downstream.key"
+	DownstreamCacheHeader     = "Timeout-Recover"
+
+	UpstreamStoreKeyPrefix = "monitoror.upstream.key"
 )

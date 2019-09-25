@@ -27,7 +27,7 @@ const (
 	GroupTileType tiles.TileType = "GROUP"
 
 	// Store key prefix
-	DynamicTileStoreKeyPrefix = "monitoror.config.dynamicTile.store"
+	DynamicTileStoreKeyPrefix = "monitoror.config.dynamicTile.key"
 )
 
 var SupportedVersions = map[int]bool{

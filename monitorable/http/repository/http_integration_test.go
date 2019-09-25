@@ -20,7 +20,6 @@ import (
 // Note : It may be necessary to separate them from unit tests
 
 // TestHttpRepository_Get test if http get works
-//
 func TestHttpRepository_Get(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, _ = fmt.Fprintln(w, "Hello")

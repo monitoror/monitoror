@@ -7,7 +7,6 @@ require (
 	github.com/GeertJohan/go.rice v1.0.0
 	github.com/bradfitz/gomemcache v0.0.0-20190329173943-551aad21a668 // indirect
 	github.com/fatih/structs v1.1.0
-	github.com/ghodss/yaml v1.0.0
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/jsdidierlaurent/echo-middleware v1.0.2
@@ -16,7 +15,6 @@ require (
 	github.com/labstack/gommon v0.2.9
 	github.com/orcaman/concurrent-map v0.0.0-20190314100340-2693aad1ed75
 	github.com/prometheus/common v0.4.0
-	github.com/robfig/go-cache v0.0.0-20130306151617-9fc39e0dbf62
 	github.com/shuheiktgw/go-travis v0.2.2
 	github.com/sparrc/go-ping v0.0.0-20190613174326-4e5b6552494c
 	github.com/spf13/viper v1.4.0

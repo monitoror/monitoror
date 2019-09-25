@@ -61,7 +61,7 @@ jobs:
       script:
         - yarn run build
         - cd ..
-        - make build-all
+        - VERSION=production make build-all
 
       # Deploy Github Release
       before_deploy:
