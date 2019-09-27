@@ -6,6 +6,7 @@ require (
 	github.com/AlekSi/pointer v1.0.0
 	github.com/GeertJohan/go.rice v1.0.0
 	github.com/bradfitz/gomemcache v0.0.0-20190329173943-551aad21a668 // indirect
+	github.com/dustin/go-humanize v1.0.0
 	github.com/fatih/structs v1.1.0
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/joho/godotenv v1.3.0

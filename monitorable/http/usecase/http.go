@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/dustin/go-humanize"
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 
 	. "github.com/monitoror/monitoror/models"
@@ -207,5 +208,10 @@ func lookupKey(params models.FormatedDataProvider, data interface{}) (bool, stri
 		return false, ""
 	}
 
-	return true, fmt.Sprintf("%v", data)
+	switch data.(type) {
+	case float64:
+		return true, fmt.Sprintf("%s", humanize.Ftoa(data.(float64)))
+	default:
+		return true, fmt.Sprintf("%v", data)
+	}
 }
