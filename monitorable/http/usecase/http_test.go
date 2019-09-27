@@ -83,6 +83,14 @@ func TestHtmlAll_WithoutErrors(t *testing.T) {
 			expectedStatus: tiles.SuccessStatus, expectedLabel: "toto", expectedMessage: "value",
 		},
 		{
+			// Http Json with long float
+			body: `{"key": 123456789 }`,
+			usecaseFunc: func(usecase http.Usecase) (tile *tiles.HealthTile, e error) {
+				return usecase.HttpJson(&models.HttpJsonParams{Url: "toto", Key: ".key"})
+			},
+			expectedStatus: tiles.SuccessStatus, expectedLabel: "toto", expectedMessage: "123456789",
+		},
+		{
 			// Http Json missing key
 			body: `{"key": "value"}`,
 			usecaseFunc: func(usecase http.Usecase) (tile *tiles.HealthTile, e error) {
