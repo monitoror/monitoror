@@ -36,8 +36,7 @@ func (h *httpConfigDelivery) GetConfig(c echo.Context) error {
 	// Verify config and if there is no errors, hydrate config
 	h.configUsecase.Verify(config)
 	if len(config.Errors) == 0 {
-		host := c.Scheme() + "://" + c.Request().Host
-		h.configUsecase.Hydrate(config, host)
+		h.configUsecase.Hydrate(config)
 	}
 
 	// Remove tiles if Errors is not empty

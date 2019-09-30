@@ -39,9 +39,9 @@ func (_m *Usecase) GetConfig(params *models.ConfigParams) (*models.Config, error
 	return r0, r1
 }
 
-// Hydrate provides a mock function with given fields: _a0, host
-func (_m *Usecase) Hydrate(_a0 *models.Config, host string) {
-	_m.Called(_a0, host)
+// Hydrate provides a mock function with given fields: _a0
+func (_m *Usecase) Hydrate(_a0 *models.Config) {
+	_m.Called(_a0)
 }
 
 // RegisterDynamicTile provides a mock function with given fields: tileType, _a1, _a2
