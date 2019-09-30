@@ -26,7 +26,7 @@ export enum TileType {
   HttpYaml = 'HTTP-YAML',
   Ping = 'PING',
   Port = 'PORT',
-  Pingdom = 'PINGDOM',
+  Pingdom = 'PINGDOM-CHECK',
   GitLab = 'GITLAB-BUILD',
   Travis = 'TRAVISCI-BUILD',
   Jenkins = 'JENKINS-BUILD',

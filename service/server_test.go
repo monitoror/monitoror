@@ -14,6 +14,7 @@ func TestInit_WithAllTile(t *testing.T) {
 	conf.Env = "Test"
 	conf.Monitorable.Jenkins[DefaultVariant].Url = "http://jenkins.test.com"
 	conf.Monitorable.Jenkins["variant1"] = &Jenkins{Url: "http://jenkins.test.com"}
+	conf.Monitorable.Pingdom[DefaultVariant] = &Pingdom{ApiKey: "abcdef"}
 
 	server := &Server{config: conf}
 	server.initEcho()
