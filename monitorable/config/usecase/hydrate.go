@@ -12,11 +12,11 @@ import (
 	"github.com/monitoror/monitoror/monitorable/config/models"
 )
 
-func (cu *configUsecase) Hydrate(conf *models.Config, host string) {
-	cu.hydrateTiles(conf, &conf.Tiles, host)
+func (cu *configUsecase) Hydrate(conf *models.Config) {
+	cu.hydrateTiles(conf, &conf.Tiles)
 }
 
-func (cu *configUsecase) hydrateTiles(conf *models.Config, tiles *[]models.Tile, host string) {
+func (cu *configUsecase) hydrateTiles(conf *models.Config, tiles *[]models.Tile) {
 	for i := 0; i < len(*tiles); i++ {
 		tile := &((*tiles)[i])
 		if tile.Type != EmptyTileType && tile.Type != GroupTileType {
@@ -27,7 +27,7 @@ func (cu *configUsecase) hydrateTiles(conf *models.Config, tiles *[]models.Tile,
 		}
 
 		if _, exists := cu.dynamicTileConfigs[tile.Type]; !exists {
-			cu.hydrateTile(conf, tile, host)
+			cu.hydrateTile(conf, tile)
 
 			if tile.Type == GroupTileType && len(tile.Tiles) == 0 {
 				*tiles = append((*tiles)[:i], (*tiles)[i+1:]...)
@@ -45,14 +45,14 @@ func (cu *configUsecase) hydrateTiles(conf *models.Config, tiles *[]models.Tile,
 	}
 }
 
-func (cu *configUsecase) hydrateTile(conf *models.Config, tile *models.Tile, host string) {
+func (cu *configUsecase) hydrateTile(conf *models.Config, tile *models.Tile) {
 	// Empty tile, skip
 	if tile.Type == EmptyTileType {
 		return
 	}
 
 	if tile.Type == GroupTileType {
-		cu.hydrateTiles(conf, &tile.Tiles, host)
+		cu.hydrateTiles(conf, &tile.Tiles)
 		return
 	}
 
@@ -63,7 +63,7 @@ func (cu *configUsecase) hydrateTile(conf *models.Config, tile *models.Tile, hos
 		urlParams.Add(key, fmt.Sprintf("%v", value))
 	}
 
-	tile.Url = fmt.Sprintf("%s%s?%s", host, path, urlParams.Encode())
+	tile.Url = fmt.Sprintf("%s?%s", path, urlParams.Encode())
 
 	// Remove Params / Variant
 	tile.Params = nil
