@@ -29,7 +29,7 @@ func NewTravisCIRepository(config *config.TravisCI, githubConfig *config.Github)
 	if githubConfig.Token != "" {
 		_, _, err := client.Authentication.UsingGithubToken(context.Background(), githubConfig.Token)
 		if err != nil {
-			panic(fmt.Sprintf("Unable to connect to TravisCI Using Github Token\n. %v\n", err))
+			panic(fmt.Sprintf("unable to connect to TravisCI Using Github Token\n. %v\n", err))
 		}
 	}
 
