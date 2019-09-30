@@ -107,6 +107,41 @@ func TestUsecase_Hydrate_WithDynamic(t *testing.T) {
 	mockBuilder.AssertExpectations(t)
 }
 
+func TestUsecase_Hydrate_WithDynamicEmpty(t *testing.T) {
+	input := `
+{
+  "columns": 4,
+  "tiles": [
+    { "type": "PING", "params": { "hostname": "aserver.com" } },
+    { "type": "GROUP", "label": "...", "tiles": [
+    	{ "type": "JENKINS-MULTIBRANCH", "params": {"job": "test"}}
+    ]},
+    { "type": "PING", "params": { "hostname": "bserver.com" } }
+  ]
+}
+`
+	params := make(map[string]interface{})
+	params["job"] = "test"
+	mockBuilder := new(DynamicTileBuilder)
+	mockBuilder.On("ListDynamicTile", Anything).Return([]builder.Result{}, nil)
+
+	store := cache.NewGoCacheStore(time.Second, time.Second)
+	usecase := initConfigUsecase(nil, store)
+	usecase.RegisterDynamicTile(jenkins.JenkinsMultiBranchTileType, &_jenkinsModels.MultiBranchParams{}, mockBuilder)
+
+	reader := ioutil.NopCloser(strings.NewReader(input))
+	config, err := repository.ReadConfig(reader)
+	assert.NoError(t, err)
+
+	usecase.Hydrate(config, "http://localhost:8080")
+	assert.Len(t, config.Errors, 0)
+	assert.Len(t, config.Warnings, 0)
+
+	assert.Equal(t, 2, len(config.Tiles))
+	mockBuilder.AssertNumberOfCalls(t, "ListDynamicTile", 1)
+	mockBuilder.AssertExpectations(t)
+}
+
 func TestUsecase_Hydrate_WithDynamic_WithError(t *testing.T) {
 	input := `
 {

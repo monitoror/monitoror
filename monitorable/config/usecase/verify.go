@@ -64,10 +64,10 @@ func (cu *configUsecase) verifyTile(conf *models.Config, tile *models.Tile, grou
 			return
 		}
 
-		//if tile.Tiles == nil || len(tile.Tiles) == 0 {
-		//	conf.AddErrors(fmt.Sprintf(`Missing or empty "tiles" key in %s tile definition.`, tile.Type))
-		//	return
-		//}
+		if tile.Tiles == nil || len(tile.Tiles) == 0 {
+			conf.AddErrors(fmt.Sprintf(`Missing or empty "tiles" key in %s tile definition.`, tile.Type))
+			return
+		}
 
 		for _, groupTile := range tile.Tiles {
 			cu.verifyTile(conf, &groupTile, true)

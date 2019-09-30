@@ -28,6 +28,11 @@ func (cu *configUsecase) hydrateTiles(conf *models.Config, tiles *[]models.Tile,
 
 		if _, exists := cu.dynamicTileConfigs[tile.Type]; !exists {
 			cu.hydrateTile(conf, tile, host)
+
+			if tile.Type == GroupTileType && len(tile.Tiles) == 0 {
+				*tiles = append((*tiles)[:i], (*tiles)[i+1:]...)
+				i--
+			}
 		} else {
 			dynamicTiles := cu.hydrateDynamicTile(conf, tile)
 
