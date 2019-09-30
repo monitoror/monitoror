@@ -21,7 +21,7 @@
       { "type": "PING", "params": { "hostname": "test.com", "status": "SUCCESS" } },
       { "type": "PORT", "params": { "hostname": "bserver.com", "port": 22, "status": "FAILURE" } }
     ]},
-    { "type": "EMPTY" },
+    { "type": "PINGDOM-CHECK", "params": { "id": 1000 } },
     { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "SUCCESS" } },
     { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "FAILURE" } },
     { "type": "JENKINS-BUILD", "params": { "job":  "monitoror", "status": "WARNING" } },

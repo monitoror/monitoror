@@ -136,6 +136,9 @@ func (s *Server) initApis() {
 	// ------------- HTTP ------------- //
 	s.registerHttp(configHelper)
 
+	// ------------- PINGDOM ------------- //
+	s.registerPingdom(configHelper)
+
 	// ------------- TRAVIS-CI ------------- //
 	s.registerTravisCI(configHelper)
 

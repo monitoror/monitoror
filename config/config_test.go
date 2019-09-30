@@ -47,3 +47,23 @@ func TestJenkins_IsValid(t *testing.T) {
 	config.Monitorable.Jenkins[DefaultVariant].Url = "http://jenkins.test.com"
 	assert.True(t, config.Monitorable.Jenkins[DefaultVariant].IsValid())
 }
+
+func TestPingdom_IsValid(t *testing.T) {
+	config := InitConfig()
+
+	config.Monitorable.Pingdom[DefaultVariant].Url = ""
+	config.Monitorable.Pingdom[DefaultVariant].ApiKey = ""
+	assert.False(t, config.Monitorable.Pingdom[DefaultVariant].IsValid())
+
+	config.Monitorable.Pingdom[DefaultVariant].Url = ""
+	config.Monitorable.Pingdom[DefaultVariant].ApiKey = "abcde"
+	assert.True(t, config.Monitorable.Pingdom[DefaultVariant].IsValid())
+
+	config.Monitorable.Pingdom[DefaultVariant].Url = "url%url"
+	config.Monitorable.Pingdom[DefaultVariant].ApiKey = "abcde"
+	assert.False(t, config.Monitorable.Pingdom[DefaultVariant].IsValid())
+
+	config.Monitorable.Pingdom[DefaultVariant].Url = "http://pingdom.com/api"
+	config.Monitorable.Pingdom[DefaultVariant].ApiKey = "abcde"
+	assert.True(t, config.Monitorable.Pingdom[DefaultVariant].IsValid())
+}

@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -31,6 +32,7 @@ type (
 		Ping     Ping                 `json:"ping"`
 		Port     Port                 `json:"port"`
 		Http     Http                 `json:"http"`
+		Pingdom  map[string]*Pingdom  `json:"pingdom"`  // With variants
 		Github   map[string]*Github   `json:"github"`   // With variants
 		TravisCI map[string]*TravisCI `json:"travisCI"` // With variants
 		Jenkins  map[string]*Jenkins  `json:"jenkins"`  // With variants
@@ -49,6 +51,13 @@ type (
 	Http struct {
 		Timeout   int  `json:"timeout"` // In Millisecond
 		SSLVerify bool `json:"sslVerify"`
+	}
+
+	Pingdom struct {
+		Url             string `json:"url"`
+		ApiKey          string `json:"apikey"`
+		Timeout         int    `json:"timeout"`         // In Millisecond
+		CacheExpiration int    `json:"cacheExpiration"` // In Millisecond
 	}
 
 	Github struct {
@@ -104,6 +113,14 @@ func InitConfig() *Config {
 	viper.SetDefault("Monitorable.Http.SSLVerify", true)
 	viper.SetDefault("Monitorable.Http.Url", "")
 
+	// --- Pingdom Configuration ---
+	for variant := range variants["Pingdom"] {
+		viper.SetDefault(fmt.Sprintf("Monitorable.Pingdom.%s.Url", variant), "")
+		viper.SetDefault(fmt.Sprintf("Monitorable.Pingdom.%s.ApiKey", variant), "")
+		viper.SetDefault(fmt.Sprintf("Monitorable.Pingdom.%s.Timeout", variant), 2000)
+		viper.SetDefault(fmt.Sprintf("Monitorable.Pingdom.%s.CacheExpiration", variant), 30000)
+	}
+
 	// --- Github Configuration ---
 	for variant := range variants["Github"] {
 		viper.SetDefault(fmt.Sprintf("Monitorable.Github.%s.Token", variant), "")
@@ -136,4 +153,14 @@ func (t *TravisCI) IsValid() bool {
 
 func (t *Jenkins) IsValid() bool {
 	return t.Url != ""
+}
+
+func (t *Pingdom) IsValid() bool {
+	if t.Url != "" {
+		if _, err := url.Parse(t.Url); err != nil {
+			return false
+		}
+	}
+
+	return t.ApiKey != ""
 }

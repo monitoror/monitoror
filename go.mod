@@ -11,11 +11,14 @@ require (
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/jsdidierlaurent/echo-middleware v1.0.2
+	github.com/jsdidierlaurent/go-pingdom v1.0.1-0.20190920153131-d8480d57a46f
 	github.com/jsdidierlaurent/golang-jenkins v0.0.0-20190826091201-0ea4c9df4e09
 	github.com/labstack/echo/v4 v4.1.7
 	github.com/labstack/gommon v0.2.9
 	github.com/orcaman/concurrent-map v0.0.0-20190314100340-2693aad1ed75
 	github.com/prometheus/common v0.4.0
+	github.com/robfig/go-cache v0.0.0-20130306151617-9fc39e0dbf62
+	github.com/satori/go.uuid v1.2.0
 	github.com/shuheiktgw/go-travis v0.2.2
 	github.com/sparrc/go-ping v0.0.0-20190613174326-4e5b6552494c
 	github.com/spf13/viper v1.4.0

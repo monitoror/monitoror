@@ -24,6 +24,11 @@ import (
 	_pingModels "github.com/monitoror/monitoror/monitorable/ping/models"
 	_pingRepository "github.com/monitoror/monitoror/monitorable/ping/repository"
 	_pingUsecase "github.com/monitoror/monitoror/monitorable/ping/usecase"
+	"github.com/monitoror/monitoror/monitorable/pingdom"
+	_pingdomDelivery "github.com/monitoror/monitoror/monitorable/pingdom/delivery/http"
+	_pingdomModels "github.com/monitoror/monitoror/monitorable/pingdom/models"
+	_pingdomRepository "github.com/monitoror/monitoror/monitorable/pingdom/repository"
+	_pingdomUsecase "github.com/monitoror/monitoror/monitorable/pingdom/usecase"
 	"github.com/monitoror/monitoror/monitorable/port"
 	_portDelivery "github.com/monitoror/monitoror/monitorable/port/delivery/http"
 	_portModels "github.com/monitoror/monitoror/monitorable/port/models"
@@ -93,6 +98,29 @@ func (s *Server) registerHttp(configHelper config.Helper) {
 	configHelper.RegisterTile(http.HttpRawTileType, &_httpModels.HttpRawParams{}, routeRaw.Path)
 	configHelper.RegisterTile(http.HttpJsonTileType, &_httpModels.HttpJsonParams{}, routeJson.Path)
 	configHelper.RegisterTile(http.HttpYamlTileType, &_httpModels.HttpYamlParams{}, routeYaml.Path)
+}
+
+func (s *Server) registerPingdom(configHelper config.Helper) {
+	for variant, pingdomConf := range s.config.Monitorable.Pingdom {
+		defer logStatusWithConfigVariant("PINGDOM", variant, pingdomConf.IsValid())
+		if !pingdomConf.IsValid() {
+			continue
+		}
+
+		repository := _pingdomRepository.NewPingdomRepository(pingdomConf)
+		usecase := _pingdomUsecase.NewPingdomUsecase(repository, pingdomConf, s.store)
+		delivery := _pingdomDelivery.NewHttpPingdomDelivery(usecase)
+
+		// Register route to echo
+		pingdomGroup := s.v1.Group(fmt.Sprintf("/pingdom/%s", variant))
+		route := pingdomGroup.GET("/check", s.cm.UpstreamCacheHandler(delivery.GetCheck))
+
+		// Register data for config hydration
+		configHelper.RegisterTileWithConfigVariant(pingdom.PingdomCheckTileType,
+			variant, &_pingdomModels.CheckParams{}, route.Path)
+		configHelper.RegisterDynamicTileWithConfigVariant(pingdom.PingdomChecksTileType,
+			variant, &_pingdomModels.ChecksParams{}, usecase)
+	}
 }
 
 func (s *Server) registerTravisCI(configHelper config.Helper) {
