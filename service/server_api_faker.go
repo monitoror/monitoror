@@ -3,8 +3,6 @@
 package service
 
 import (
-	"fmt"
-
 	"github.com/monitoror/monitoror/monitorable/config"
 	_configDelivery "github.com/monitoror/monitoror/monitorable/config/delivery/http"
 	_configRepository "github.com/monitoror/monitoror/monitorable/config/repository"
@@ -92,23 +90,17 @@ func (s *Server) registerHttp(configHelper config.Helper) {
 }
 
 func (s *Server) registerPingdom(configHelper config.Helper) {
-	for variant, pingdomConf := range s.config.Monitorable.Pingdom {
-		defer logStatusWithConfigVariant("PINGDOM", variant, pingdomConf.IsValid())
-		if !pingdomConf.IsValid() {
-			continue
-		}
+	defer logStatus(pingdom.PingdomCheckTileType, true)
 
-		usecase := _pingdomUsecase.NewPingdomUsecase()
-		delivery := _pingdomDelivery.NewHttpPingdomDelivery(usecase)
+	usecase := _pingdomUsecase.NewPingdomUsecase()
+	delivery := _pingdomDelivery.NewHttpPingdomDelivery(usecase)
 
-		// Register route to echo
-		pingdomGroup := s.v1.Group(fmt.Sprintf("/pingdom/%s", variant))
-		route := pingdomGroup.GET("/check", delivery.GetCheck)
+	// Register route to echo
+	pingdomGroup := s.v1.Group("/pingdom")
+	route := pingdomGroup.GET("/check", delivery.GetCheck)
 
-		// Register data for config hydration
-		configHelper.RegisterTileWithConfigVariant(pingdom.PingdomCheckTileType,
-			variant, &_pingdomModels.CheckParams{}, route.Path)
-	}
+	// Register data for config hydration
+	configHelper.RegisterTile(pingdom.PingdomCheckTileType, &_pingdomModels.CheckParams{}, route.Path)
 }
 
 func (s *Server) registerTravisCI(configHelper config.Helper) {
