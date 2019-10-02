@@ -7,6 +7,7 @@ import VueInstance from './main'
 
 Vue.use(Vuex)
 
+const API_BASE_PATH = '/api/v1'
 const INFO_URL = '/info'
 
 export interface InfoInterface {
@@ -100,6 +101,23 @@ interface RootState {
   tilesState: { [key: string]: TileState },
 }
 
+function getQueryParamValue(
+  queryParamName: string,
+  defaultValue: string = '',
+): string {
+  const queryParams = window.location.search.substr(1).split('&')
+
+  let value = defaultValue
+  const valueQueryParam = queryParams.find((queryParam: string) => {
+    return new RegExp(`^${queryParamName}=`).test(queryParam)
+  })
+  if (valueQueryParam) {
+    value = valueQueryParam.substr(valueQueryParam.indexOf('=') + 1)
+  }
+
+  return value
+}
+
 const store: StoreOptions<RootState> = {
   state: {
     version: undefined,
@@ -108,30 +126,34 @@ const store: StoreOptions<RootState> = {
     tilesState: {},
   },
   getters: {
-    queryParams(): string[] {
-      return window.location.search.substr(1).split('&')
+    apiBaseUrl(): string {
+      const defaultApiBaseUrl = window.location.origin
+      let apiBaseUrl = getQueryParamValue('apiBaseUrl', defaultApiBaseUrl)
+
+      apiBaseUrl = apiBaseUrl.replace(/\/+$/, '')
+
+      return apiBaseUrl
+    },
+    configPath(): string {
+      const configPath = getQueryParamValue('configPath')
+
+      return configPath
     },
     configUrl(state, getters): string {
-      let configUrl = ''
-      const configQueryParam = getters.queryParams.find((queryParam: string) => {
-        return /^config=/.test(queryParam)
-      })
-      if (configQueryParam) {
-        configUrl = configQueryParam.substr(configQueryParam.indexOf('=') + 1)
+      const configUrl = getQueryParamValue('configUrl')
+
+      if (!configUrl) {
+        return `${getters.apiBaseUrl}${API_BASE_PATH}/config?path=${getters.configPath}`
       }
 
       return configUrl
     },
-    theme(state, getters): Theme {
+    theme(): Theme {
       let theme = Theme.Default
-      const themeQueryParam = getters.queryParams.find((queryParam: string) => {
-        return /^theme=/.test(queryParam)
-      })
-      if (themeQueryParam) {
-        const queryTheme = themeQueryParam.substr(themeQueryParam.indexOf('=') + 1)
-        if (Object.values(Theme).includes(queryTheme.toUpperCase())) {
-          theme = queryTheme.toUpperCase()
-        }
+      const queryTheme = getQueryParamValue('theme', theme)
+
+      if (Object.values(Theme).includes(queryTheme.toUpperCase() as Theme)) {
+        theme = queryTheme.toUpperCase() as Theme
       }
 
       return theme
@@ -170,13 +192,18 @@ const store: StoreOptions<RootState> = {
         })
     },
     loadConfiguration({commit, getters}) {
-      function setTileStateKey(tile: TileConfig) {
+      function hydrateTile(tile: TileConfig) {
         // Create a random identifier
         tile.stateKey = tile.type + '_' + md5.hashStr(JSON.stringify(tile))
 
+        // Prefix URL with api base URL
+        if (tile.url) {
+          tile.url = getters.apiBaseUrl + tile.url
+        }
+
         // Set stateKey on group subTiles
         if (tile.tiles) {
-          tile.tiles = tile.tiles.map(setTileStateKey)
+          tile.tiles = tile.tiles.map(hydrateTile)
         }
 
         return tile
@@ -186,7 +213,7 @@ const store: StoreOptions<RootState> = {
         .then(async (data) => {
           const config: ConfigInterface = await data.json()
 
-          config.tiles = config.tiles.map(setTileStateKey)
+          config.tiles = config.tiles.map(hydrateTile)
 
           commit('setConfig', config)
         })
@@ -195,6 +222,7 @@ const store: StoreOptions<RootState> = {
       function timeout(delay: number = 0) {
         return new Promise(resolve => setTimeout(resolve, delay))
       }
+
       function refreshTile(tile: TileConfig): Promise<void> {
         if (!tile.url) {
           return Promise.resolve()
@@ -207,6 +235,7 @@ const store: StoreOptions<RootState> = {
             commit('setTileState', {tileStateKey: tile.stateKey, tileState})
           }) as Promise<void>
       }
+
       function refreshGroup(groupTile: TileConfig) {
         if (!groupTile.tiles) {
           return
