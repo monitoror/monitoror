@@ -8,12 +8,9 @@ import (
 	"sync"
 	"time"
 
-	. "github.com/monitoror/monitoror/models"
-
-	"github.com/monitoror/monitoror/config"
-
 	"github.com/jsdidierlaurent/echo-middleware/cache"
-	. "github.com/monitoror/monitoror/models/tiles"
+	"github.com/monitoror/monitoror/config"
+	. "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/pingdom"
 	"github.com/monitoror/monitoror/monitorable/pingdom/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/builder"
@@ -55,8 +52,8 @@ func NewPingdomUsecase(repository pingdom.Repository, config *config.Pingdom, st
 	}
 }
 
-func (pu *pingdomUsecase) Check(params *models.CheckParams) (*HealthTile, error) {
-	tile := NewHealthTile(pingdom.PingdomCheckTileType)
+func (pu *pingdomUsecase) Check(params *models.CheckParams) (*Tile, error) {
+	tile := NewTile(pingdom.PingdomCheckTileType)
 
 	checkId := *params.Id
 	var result models.Check

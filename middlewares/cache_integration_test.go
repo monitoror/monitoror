@@ -10,7 +10,6 @@ import (
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/monitoror/monitoror/handlers"
-	"github.com/monitoror/monitoror/models/tiles"
 
 	"github.com/monitoror/monitoror/models"
 
@@ -37,7 +36,7 @@ func TestCacheMiddleware(t *testing.T) {
 
 	e.GET("/test", cacheMiddleware.UpstreamCacheHandler(func(c echo.Context) error {
 		if timeout {
-			return &models.MonitororError{Err: context.DeadlineExceeded, Tile: &tiles.Tile{}}
+			return &models.MonitororError{Err: context.DeadlineExceeded, Tile: &models.Tile{}}
 		}
 		return c.JSON(200, `Hello world`)
 	}))

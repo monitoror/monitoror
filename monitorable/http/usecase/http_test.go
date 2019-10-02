@@ -6,21 +6,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/jsdidierlaurent/echo-middleware/cache"
-
-	"github.com/monitoror/monitoror/monitorable/http"
-	"gopkg.in/yaml.v2"
-
-	"github.com/monitoror/monitoror/models/tiles"
-
-	. "github.com/stretchr/testify/mock"
-
 	"github.com/AlekSi/pointer"
-
+	"github.com/jsdidierlaurent/echo-middleware/cache"
+	. "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/monitorable/http"
 	"github.com/monitoror/monitoror/monitorable/http/mocks"
 	"github.com/monitoror/monitoror/monitorable/http/models"
-
 	"github.com/stretchr/testify/assert"
+	. "github.com/stretchr/testify/mock"
+	"gopkg.in/yaml.v2"
 )
 
 func TestHttpAny_WithError(t *testing.T) {
@@ -39,80 +33,81 @@ func TestHttpAny_WithError(t *testing.T) {
 func TestHtmlAll_WithoutErrors(t *testing.T) {
 	for _, testcase := range []struct {
 		body            string
-		usecaseFunc     func(usecase http.Usecase) (*tiles.HealthTile, error)
-		expectedStatus  tiles.TileStatus
+		usecaseFunc     func(usecase http.Usecase) (*Tile, error)
+		expectedStatus  TileStatus
 		expectedLabel   string
 		expectedMessage string
+		expectedValues  []float64
 	}{
 		{
 			// Http Any
-			usecaseFunc: func(usecase http.Usecase) (tile *tiles.HealthTile, e error) {
+			usecaseFunc: func(usecase http.Usecase) (tile *Tile, e error) {
 				return usecase.HttpAny(&models.HttpAnyParams{Url: "toto"})
 			},
-			expectedStatus: tiles.SuccessStatus, expectedLabel: "toto",
+			expectedStatus: SuccessStatus, expectedLabel: "toto",
 		},
 		{
 			// Http Any with wrong status
-			usecaseFunc: func(usecase http.Usecase) (tile *tiles.HealthTile, e error) {
+			usecaseFunc: func(usecase http.Usecase) (tile *Tile, e error) {
 				return usecase.HttpAny(&models.HttpAnyParams{Url: "toto", StatusCodeMin: pointer.ToInt(400), StatusCodeMax: pointer.ToInt(499)})
 			},
-			expectedStatus: tiles.FailedStatus, expectedLabel: "toto", expectedMessage: "status code 200",
+			expectedStatus: FailedStatus, expectedLabel: "toto", expectedMessage: "status code 200",
 		},
 		{
 			// Http Raw with matched regex
 			body: "errors: 28",
-			usecaseFunc: func(usecase http.Usecase) (tile *tiles.HealthTile, e error) {
+			usecaseFunc: func(usecase http.Usecase) (tile *Tile, e error) {
 				return usecase.HttpRaw(&models.HttpRawParams{Url: "toto", Regex: `errors: (\d*)`})
 			},
-			expectedStatus: tiles.SuccessStatus, expectedLabel: "toto", expectedMessage: "28",
+			expectedStatus: SuccessStatus, expectedLabel: "toto", expectedValues: []float64{28},
 		},
 		{
 			// Http Raw without matched regex
 			body: "api call: 20",
-			usecaseFunc: func(usecase http.Usecase) (tile *tiles.HealthTile, e error) {
+			usecaseFunc: func(usecase http.Usecase) (tile *Tile, e error) {
 				return usecase.HttpRaw(&models.HttpRawParams{Url: "toto", Regex: `errors: (\d*)`})
 			},
-			expectedStatus: tiles.FailedStatus, expectedLabel: "toto", expectedMessage: `pattern not found "errors: (\d*)"`,
+			expectedStatus: FailedStatus, expectedLabel: "toto", expectedMessage: `pattern not found "errors: (\d*)"`,
 		},
 		{
 			// Http Json
 			body: `{"key": "value"}`,
-			usecaseFunc: func(usecase http.Usecase) (tile *tiles.HealthTile, e error) {
+			usecaseFunc: func(usecase http.Usecase) (tile *Tile, e error) {
 				return usecase.HttpJson(&models.HttpJsonParams{Url: "toto", Key: ".key"})
 			},
-			expectedStatus: tiles.SuccessStatus, expectedLabel: "toto", expectedMessage: "value",
+			expectedStatus: SuccessStatus, expectedLabel: "toto", expectedMessage: "value",
 		},
 		{
 			// Http Json with long float
 			body: `{"key": 123456789 }`,
-			usecaseFunc: func(usecase http.Usecase) (tile *tiles.HealthTile, e error) {
+			usecaseFunc: func(usecase http.Usecase) (tile *Tile, e error) {
 				return usecase.HttpJson(&models.HttpJsonParams{Url: "toto", Key: ".key"})
 			},
-			expectedStatus: tiles.SuccessStatus, expectedLabel: "toto", expectedMessage: "123456789",
+			expectedStatus: SuccessStatus, expectedLabel: "toto", expectedValues: []float64{123456789},
 		},
 		{
 			// Http Json missing key
 			body: `{"key": "value"}`,
-			usecaseFunc: func(usecase http.Usecase) (tile *tiles.HealthTile, e error) {
+			usecaseFunc: func(usecase http.Usecase) (tile *Tile, e error) {
 				return usecase.HttpJson(&models.HttpJsonParams{Url: "toto", Key: ".key2"})
 			},
-			expectedStatus: tiles.FailedStatus, expectedLabel: "toto", expectedMessage: `unable to lookup for key ".key2"`,
+			expectedStatus: FailedStatus, expectedLabel: "toto", expectedMessage: `unable to lookup for key ".key2"`,
 		},
 		{
 			// Http Json unable to unmarshal
 			body: `{"key": "value`,
-			usecaseFunc: func(usecase http.Usecase) (tile *tiles.HealthTile, e error) {
+			usecaseFunc: func(usecase http.Usecase) (tile *Tile, e error) {
 				return usecase.HttpYaml(&models.HttpYamlParams{Url: "toto", Key: ".key"})
 			},
-			expectedStatus: tiles.FailedStatus, expectedLabel: "toto", expectedMessage: `unable to unmarshal content`,
+			expectedStatus: FailedStatus, expectedLabel: "toto", expectedMessage: `unable to unmarshal content`,
 		},
 		{
 			// Http Yaml
 			body: "key: value",
-			usecaseFunc: func(usecase http.Usecase) (tile *tiles.HealthTile, e error) {
+			usecaseFunc: func(usecase http.Usecase) (tile *Tile, e error) {
 				return usecase.HttpYaml(&models.HttpYamlParams{Url: "toto", Key: ".key"})
 			},
-			expectedStatus: tiles.SuccessStatus, expectedLabel: "toto", expectedMessage: "value",
+			expectedStatus: SuccessStatus, expectedLabel: "toto", expectedMessage: "value",
 		},
 	} {
 		mockRepository := new(mocks.Repository)
@@ -125,6 +120,7 @@ func TestHtmlAll_WithoutErrors(t *testing.T) {
 			assert.Equal(t, testcase.expectedStatus, tile.Status)
 			assert.Equal(t, testcase.expectedLabel, tile.Label)
 			assert.Equal(t, testcase.expectedMessage, tile.Message)
+			assert.Equal(t, testcase.expectedValues, tile.Values)
 			mockRepository.AssertNumberOfCalls(t, "Get", 1)
 			mockRepository.AssertExpectations(t)
 		}

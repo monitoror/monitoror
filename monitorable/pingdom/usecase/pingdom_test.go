@@ -5,19 +5,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/monitoror/monitoror/models/tiles"
-
-	models2 "github.com/monitoror/monitoror/models"
-
 	"github.com/AlekSi/pointer"
-
-	. "github.com/monitoror/monitoror/config"
-
 	"github.com/jsdidierlaurent/echo-middleware/cache"
-
+	. "github.com/monitoror/monitoror/config"
+	. "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/pingdom/mocks"
 	"github.com/monitoror/monitoror/monitorable/pingdom/models"
-
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"
 )
@@ -34,7 +27,7 @@ func TestPingdomUsecase_Check_NoBulk_Error(t *testing.T) {
 	tile, err := pu.Check(&models.CheckParams{Id: pointer.ToInt(1000)})
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
-		assert.IsType(t, &models2.MonitororError{}, err)
+		assert.IsType(t, &MonitororError{}, err)
 		assert.Equal(t, "unable to found check", err.Error())
 		mockRepository.AssertNumberOfCalls(t, "GetCheck", 1)
 		mockRepository.AssertExpectations(t)
@@ -53,7 +46,7 @@ func TestPingdomUsecase_Check_NoBulk(t *testing.T) {
 	tile, err := pu.Check(&models.CheckParams{Id: pointer.ToInt(1000)})
 	if assert.NoError(t, err) {
 		assert.NotNil(t, tile)
-		assert.Equal(t, tiles.SuccessStatus, tile.Status)
+		assert.Equal(t, SuccessStatus, tile.Status)
 		assert.Equal(t, "Check 1", tile.Label)
 		mockRepository.AssertNumberOfCalls(t, "GetCheck", 1)
 		mockRepository.AssertExpectations(t)
@@ -78,7 +71,7 @@ func TestPingdomUsecase_Check_NoBulk_WithCache(t *testing.T) {
 	tile, err := pu.Check(&models.CheckParams{Id: pointer.ToInt(1000)})
 	if assert.NoError(t, err) {
 		assert.NotNil(t, tile)
-		assert.Equal(t, tiles.DisabledStatus, tile.Status)
+		assert.Equal(t, DisabledStatus, tile.Status)
 		assert.Equal(t, "Check 1", tile.Label)
 		mockRepository.AssertNumberOfCalls(t, "GetCheck", 0)
 		mockRepository.AssertExpectations(t)
@@ -101,7 +94,7 @@ func TestPingdomUsecase_Check_Bulk_Error(t *testing.T) {
 	tile, err := pu.Check(&models.CheckParams{Id: pointer.ToInt(1000)})
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
-		assert.IsType(t, &models2.MonitororError{}, err)
+		assert.IsType(t, &MonitororError{}, err)
 		assert.Equal(t, "unable to found checks", err.Error())
 		mockRepository.AssertNumberOfCalls(t, "GetChecks", 1)
 		mockRepository.AssertExpectations(t)
@@ -128,7 +121,7 @@ func TestPingdomUsecase_Check_Bulk(t *testing.T) {
 	tile, err := pu.Check(&models.CheckParams{Id: pointer.ToInt(1100)})
 	if assert.NoError(t, err) {
 		assert.NotNil(t, tile)
-		assert.Equal(t, tiles.FailedStatus, tile.Status)
+		assert.Equal(t, FailedStatus, tile.Status)
 		assert.Equal(t, "Check 2", tile.Label)
 		mockRepository.AssertNumberOfCalls(t, "GetChecks", 1)
 		mockRepository.AssertExpectations(t)
@@ -159,7 +152,7 @@ func TestPingdomUsecase_Check_Bulk_WithCache(t *testing.T) {
 	tile, err := pu.Check(&models.CheckParams{Id: pointer.ToInt(1000)})
 	if assert.NoError(t, err) {
 		assert.NotNil(t, tile)
-		assert.Equal(t, tiles.SuccessStatus, tile.Status)
+		assert.Equal(t, SuccessStatus, tile.Status)
 		assert.Equal(t, "Check 1", tile.Label)
 		mockRepository.AssertNumberOfCalls(t, "GetChecks", 0)
 		mockRepository.AssertExpectations(t)
@@ -207,8 +200,8 @@ func TestPingdomUsecase_ListDynamicTile(t *testing.T) {
 }
 
 func TestPingdomUsecase_ParseStatus(t *testing.T) {
-	assert.Equal(t, tiles.SuccessStatus, parseStatus("up"))
-	assert.Equal(t, tiles.FailedStatus, parseStatus("down"))
-	assert.Equal(t, tiles.DisabledStatus, parseStatus("paused"))
-	assert.Equal(t, tiles.UnknownStatus, parseStatus(""))
+	assert.Equal(t, SuccessStatus, parseStatus("up"))
+	assert.Equal(t, FailedStatus, parseStatus("down"))
+	assert.Equal(t, DisabledStatus, parseStatus("paused"))
+	assert.Equal(t, UnknownStatus, parseStatus(""))
 }

@@ -6,7 +6,7 @@ import (
 	"math/rand"
 	"time"
 
-	. "github.com/monitoror/monitoror/models/tiles"
+	. "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/http"
 	"github.com/monitoror/monitoror/monitorable/http/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
@@ -22,26 +22,26 @@ func NewHttpUsecase() http.Usecase {
 }
 
 // HttpAny only check status code
-func (hu *httpUsecase) HttpAny(params *models.HttpAnyParams) (tile *HealthTile, err error) {
+func (hu *httpUsecase) HttpAny(params *models.HttpAnyParams) (tile *Tile, err error) {
 	return hu.httpAll(http.HttpAnyTileType, params.Url, params)
 }
 
 // HttpRaw check status code and content
-func (hu *httpUsecase) HttpRaw(params *models.HttpRawParams) (tile *HealthTile, err error) {
+func (hu *httpUsecase) HttpRaw(params *models.HttpRawParams) (tile *Tile, err error) {
 	return hu.httpAll(http.HttpRawTileType, params.Url, params)
 }
 
-func (hu *httpUsecase) HttpJson(params *models.HttpJsonParams) (tile *HealthTile, err error) {
+func (hu *httpUsecase) HttpJson(params *models.HttpJsonParams) (tile *Tile, err error) {
 	return hu.httpAll(http.HttpJsonTileType, params.Url, params)
 }
 
-func (hu *httpUsecase) HttpYaml(params *models.HttpYamlParams) (tile *HealthTile, err error) {
+func (hu *httpUsecase) HttpYaml(params *models.HttpYamlParams) (tile *Tile, err error) {
 	return hu.httpAll(http.HttpYamlTileType, params.Url, params)
 }
 
 // httpAll handle all http usecase by checking if params match interfaces listed in models.params
-func (hu *httpUsecase) httpAll(tileType TileType, url string, params models.FakerParamsProvider) (tile *HealthTile, err error) {
-	tile = NewHealthTile(tileType)
+func (hu *httpUsecase) httpAll(tileType TileType, url string, params models.FakerParamsProvider) (tile *Tile, err error) {
+	tile = NewTile(tileType)
 	tile.Label = url
 
 	// Init random generator

@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"regexp"
 
-	"github.com/monitoror/monitoror/models/tiles"
+	"github.com/monitoror/monitoror/models"
 )
 
 type (
@@ -17,8 +17,8 @@ type (
 		StatusCodeMin *int   `json:"statusCodeMin" query:"statusCodeMin"`
 		StatusCodeMax *int   `json:"statusCodeMax" query:"statusCodeMax"`
 
-		Status  tiles.TileStatus `json:"status" query:"status"`
-		Message string           `json:"message" query:"message"`
+		Status  models.TileStatus `json:"status" query:"status"`
+		Message string            `json:"message" query:"message"`
 	}
 )
 
@@ -46,5 +46,5 @@ func (p *HttpJsonParams) GetUnmarshaller() func(data []byte, v interface{}) erro
 	return json.Unmarshal
 }
 
-func (p *HttpJsonParams) GetStatus() tiles.TileStatus { return p.Status }
-func (p *HttpJsonParams) GetMessage() string          { return p.Message }
+func (p *HttpJsonParams) GetStatus() models.TileStatus { return p.Status }
+func (p *HttpJsonParams) GetMessage() string           { return p.Message }

@@ -7,7 +7,6 @@ import (
 	"time"
 
 	. "github.com/monitoror/monitoror/models"
-	. "github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
 	"github.com/monitoror/monitoror/monitorable/jenkins/mocks"
 	"github.com/monitoror/monitoror/monitorable/jenkins/models"
@@ -98,7 +97,7 @@ func CheckBuild(t *testing.T, result string) {
 		// Add cache for previousStatus
 		tUsecase.buildsCache.Add(fmt.Sprintf("%s : #%s", job, branch), "0", SuccessStatus, time.Second*120)
 
-		expected := NewBuildTile(jenkins.JenkinsBuildTileType)
+		expected := NewTile(jenkins.JenkinsBuildTileType)
 		expected.Label = fmt.Sprintf("%s : #%s", job, branch)
 		expected.Status = parseResult(repositoryBuild.Result)
 		expected.PreviousStatus = SuccessStatus
@@ -152,7 +151,7 @@ func TestBuild_Queued(t *testing.T) {
 		// Add cache for previousStatus
 		tUsecase.buildsCache.Add(fmt.Sprintf("%s : #%s", job, branch), "0", SuccessStatus, time.Second*120)
 
-		expected := NewBuildTile(jenkins.JenkinsBuildTileType)
+		expected := NewTile(jenkins.JenkinsBuildTileType)
 		expected.Label = fmt.Sprintf("%s : #%s", job, branch)
 		expected.Status = QueuedStatus
 		expected.PreviousStatus = SuccessStatus
@@ -184,7 +183,7 @@ func TestBuild_Running(t *testing.T) {
 	tUsecase, ok := tu.(*jenkinsUsecase)
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		// Without cached build
-		expected := NewBuildTile(jenkins.JenkinsBuildTileType)
+		expected := NewTile(jenkins.JenkinsBuildTileType)
 		expected.Label = fmt.Sprintf("%s : #%s", job, branch)
 		expected.Status = RunningStatus
 		expected.PreviousStatus = UnknownStatus

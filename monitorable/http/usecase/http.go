@@ -11,10 +11,7 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"github.com/jsdidierlaurent/echo-middleware/cache"
-
 	. "github.com/monitoror/monitoror/models"
-
-	. "github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/http"
 	"github.com/monitoror/monitoror/monitorable/http/models"
 )
@@ -42,32 +39,32 @@ func NewHttpUsecase(repository http.Repository, store cache.Store, upstreamCache
 	return &httpUsecase{repository, store, upstreamCacheExpiration}
 }
 
-func (hu *httpUsecase) HttpAny(params *models.HttpAnyParams) (tile *HealthTile, err error) {
+func (hu *httpUsecase) HttpAny(params *models.HttpAnyParams) (tile *Tile, err error) {
 	return hu.httpAll(http.HttpAnyTileType, params.Url, params)
 }
 
-func (hu *httpUsecase) HttpRaw(params *models.HttpRawParams) (tile *HealthTile, err error) {
+func (hu *httpUsecase) HttpRaw(params *models.HttpRawParams) (tile *Tile, err error) {
 	return hu.httpAll(http.HttpRawTileType, params.Url, params)
 }
 
-func (hu *httpUsecase) HttpJson(params *models.HttpJsonParams) (tile *HealthTile, err error) {
+func (hu *httpUsecase) HttpJson(params *models.HttpJsonParams) (tile *Tile, err error) {
 	return hu.httpAll(http.HttpJsonTileType, params.Url, params)
 }
 
-func (hu *httpUsecase) HttpYaml(params *models.HttpYamlParams) (tile *HealthTile, err error) {
+func (hu *httpUsecase) HttpYaml(params *models.HttpYamlParams) (tile *Tile, err error) {
 	return hu.httpAll(http.HttpYamlTileType, params.Url, params)
 }
 
 // httpAll handle all http usecase by checking if params match interfaces listed in models.params
-func (hu *httpUsecase) httpAll(tileType TileType, url string, params interface{}) (tile *HealthTile, err error) {
-	tile = NewHealthTile(tileType)
+func (hu *httpUsecase) httpAll(tileType TileType, url string, params interface{}) (tile *Tile, err error) {
+	tile = NewTile(tileType)
 	tile.Label = url
 	tile.Status = SuccessStatus
 
 	// Download page
 	response, err := hu.get(url)
 	if err != nil {
-		return nil, &MonitororError{Err: err, Tile: tile.Tile, Message: fmt.Sprintf("unable to get %s", url)}
+		return nil, &MonitororError{Err: err, Tile: tile, Message: fmt.Sprintf("unable to get %s", url)}
 	}
 
 	// Check Status Code
@@ -98,7 +95,6 @@ func (hu *httpUsecase) httpAll(tileType TileType, url string, params interface{}
 			tile.Message = fmt.Sprintf(`unable to lookup for key "%s"`, formatedDataProvider.GetKey())
 			return tile, nil
 		}
-		tile.Message = content
 	} else {
 		content = string(response.Body)
 	}
@@ -110,6 +106,11 @@ func (hu *httpUsecase) httpAll(tileType TileType, url string, params interface{}
 			tile.Message = fmt.Sprintf(`pattern not found "%s"`, regexProvider.GetRegex())
 			return tile, nil
 		}
+	}
+
+	if s, err := strconv.ParseFloat(content, 64); err == nil {
+		tile.Values = []float64{s}
+	} else {
 		tile.Message = content
 	}
 

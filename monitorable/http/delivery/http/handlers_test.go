@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/http"
 	"github.com/monitoror/monitoror/monitorable/http/mocks"
 
@@ -112,7 +111,7 @@ func Test_httpHttpDelivery_GetHttp_Error(t *testing.T) {
 func Test_httpHttpDelivery_GetHttp(t *testing.T) {
 	// init tests cases
 	testcases := []struct {
-		tileType     tiles.TileType
+		tileType     models.TileType
 		mockFuncName string
 		handlerFunc  handlerFunc
 	}{
@@ -153,7 +152,7 @@ func Test_httpHttpDelivery_GetHttp(t *testing.T) {
 		ctx.QueryParams().Set("regex", "(.*)")
 		ctx.QueryParams().Set("key", ".key")
 
-		tile := tiles.NewHealthTile(testcase.tileType)
+		tile := models.NewTile(testcase.tileType)
 		mockUsecase := new(mocks.Usecase)
 		mockUsecase.On(testcase.mockFuncName, Anything).Return(tile, nil)
 		handler := NewHttpHttpDelivery(mockUsecase)

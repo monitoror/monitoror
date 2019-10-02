@@ -5,7 +5,7 @@ package models
 import (
 	"time"
 
-	"github.com/monitoror/monitoror/models/tiles"
+	"github.com/monitoror/monitoror/models"
 )
 
 type (
@@ -16,12 +16,12 @@ type (
 		AuthorName      string `json:"authorName" query:"authorName"`
 		AuthorAvatarUrl string `json:"authorAvatarUrl" query:"authorAvatarUrl"`
 
-		Status            tiles.TileStatus `json:"status" query:"status"`
-		PreviousStatus    tiles.TileStatus `json:"previousStatus" query:"previousStatus"`
-		StartedAt         time.Time        `json:"startedAt" query:"startedAt"`
-		FinishedAt        time.Time        `json:"finishedAt" query:"finishedAt"`
-		Duration          int64            `json:"duration" query:"duration"`
-		EstimatedDuration int64            `json:"estimatedDuration" query:"estimatedDuration"`
+		Status            models.TileStatus `json:"status" query:"status"`
+		PreviousStatus    models.TileStatus `json:"previousStatus" query:"previousStatus"`
+		StartedAt         time.Time         `json:"startedAt" query:"startedAt"`
+		FinishedAt        time.Time         `json:"finishedAt" query:"finishedAt"`
+		Duration          int64             `json:"duration" query:"duration"`
+		EstimatedDuration int64             `json:"estimatedDuration" query:"estimatedDuration"`
 	}
 )
 

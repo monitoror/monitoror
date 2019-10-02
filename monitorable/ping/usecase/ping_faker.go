@@ -6,11 +6,10 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
-
-	. "github.com/monitoror/monitoror/models/tiles"
+	. "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/ping"
 	"github.com/monitoror/monitoror/monitorable/ping/models"
+	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
 )
 
 type (
@@ -22,8 +21,8 @@ func NewPingUsecase() ping.Usecase {
 	return &pingUsecase{}
 }
 
-func (pu *pingUsecase) Ping(params *models.PingParams) (tile *HealthTile, err error) {
-	tile = NewHealthTile(ping.PingTileType)
+func (pu *pingUsecase) Ping(params *models.PingParams) (tile *Tile, err error) {
+	tile = NewTile(ping.PingTileType)
 	tile.Label = params.Hostname
 
 	// Init random generator

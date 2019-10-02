@@ -2,13 +2,13 @@
 
 package models
 
-import "github.com/monitoror/monitoror/models/tiles"
+import "github.com/monitoror/monitoror/models"
 
 type (
 	CheckParams struct {
 		Id *int `json:"id" query:"id"`
 
-		Status tiles.TileStatus `json:"status" query:"status"`
+		Status models.TileStatus `json:"status" query:"status"`
 	}
 )
 

@@ -6,7 +6,7 @@ import (
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 
 	. "github.com/monitoror/monitoror/config"
-	"github.com/monitoror/monitoror/models/tiles"
+	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/config"
 	. "github.com/monitoror/monitoror/pkg/monitoror/builder"
 	. "github.com/monitoror/monitoror/pkg/monitoror/validator"
@@ -23,8 +23,8 @@ const (
 
 const (
 	// Custom Tile Type
-	EmptyTileType tiles.TileType = "EMPTY"
-	GroupTileType tiles.TileType = "GROUP"
+	EmptyTileType models.TileType = "EMPTY"
+	GroupTileType models.TileType = "GROUP"
 
 	// Store key prefix
 	DynamicTileStoreKeyPrefix = "monitoror.config.dynamicTile.key"
@@ -38,8 +38,8 @@ type (
 	configUsecase struct {
 		repository config.Repository
 
-		tileConfigs        map[tiles.TileType]map[string]*TileConfig
-		dynamicTileConfigs map[tiles.TileType]map[string]*DynamicTileConfig
+		tileConfigs        map[models.TileType]map[string]*TileConfig
+		dynamicTileConfigs map[models.TileType]map[string]*DynamicTileConfig
 
 		// jobs cache. used in case of timeout
 		dynamicTileStore          cache.Store
@@ -60,13 +60,13 @@ type (
 )
 
 func NewConfigUsecase(repository config.Repository, store cache.Store, downstreamStoreExpiration int) config.Usecase {
-	tileConfigs := make(map[tiles.TileType]map[string]*TileConfig)
+	tileConfigs := make(map[models.TileType]map[string]*TileConfig)
 
 	// Used for authorized type
 	tileConfigs[EmptyTileType] = nil
 	tileConfigs[GroupTileType] = nil
 
-	dynamicTileConfigs := make(map[tiles.TileType]map[string]*DynamicTileConfig)
+	dynamicTileConfigs := make(map[models.TileType]map[string]*DynamicTileConfig)
 
 	return &configUsecase{
 		repository:                repository,
@@ -77,11 +77,11 @@ func NewConfigUsecase(repository config.Repository, store cache.Store, downstrea
 	}
 }
 
-func (cu *configUsecase) RegisterTile(tileType tiles.TileType, validator Validator, path string) {
+func (cu *configUsecase) RegisterTile(tileType models.TileType, validator Validator, path string) {
 	cu.RegisterTileWithConfigVariant(tileType, DefaultVariant, validator, path)
 }
 
-func (cu *configUsecase) RegisterTileWithConfigVariant(tileType tiles.TileType, variant string, validator Validator, path string) {
+func (cu *configUsecase) RegisterTileWithConfigVariant(tileType models.TileType, variant string, validator Validator, path string) {
 	value, exists := cu.tileConfigs[tileType]
 	if !exists {
 		value = make(map[string]*TileConfig)
@@ -94,11 +94,11 @@ func (cu *configUsecase) RegisterTileWithConfigVariant(tileType tiles.TileType, 
 	}
 }
 
-func (cu *configUsecase) RegisterDynamicTile(tileType tiles.TileType, validator Validator, builder DynamicTileBuilder) {
+func (cu *configUsecase) RegisterDynamicTile(tileType models.TileType, validator Validator, builder DynamicTileBuilder) {
 	cu.RegisterDynamicTileWithConfigVariant(tileType, DefaultVariant, validator, builder)
 }
 
-func (cu *configUsecase) RegisterDynamicTileWithConfigVariant(tileType tiles.TileType, variant string, validator Validator, builder DynamicTileBuilder) {
+func (cu *configUsecase) RegisterDynamicTileWithConfigVariant(tileType models.TileType, variant string, validator Validator, builder DynamicTileBuilder) {
 	// Used for authorized type
 	cu.tileConfigs[tileType] = nil
 

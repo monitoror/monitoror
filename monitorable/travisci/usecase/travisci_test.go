@@ -7,8 +7,6 @@ import (
 	"time"
 
 	. "github.com/monitoror/monitoror/models"
-
-	. "github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/travisci"
 	"github.com/monitoror/monitoror/monitorable/travisci/mocks"
 	"github.com/monitoror/monitoror/monitorable/travisci/models"
@@ -65,7 +63,7 @@ func TestBuild_Success(t *testing.T) {
 	tUsecase, ok := tu.(*travisCIUsecase)
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		// Expected
-		expected := NewBuildTile(travisci.TravisCIBuildTileType)
+		expected := NewTile(travisci.TravisCIBuildTileType)
 		expected.Label = fmt.Sprintf("%s : #%s", repo, branch)
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
@@ -105,7 +103,7 @@ func TestBuild_Failed(t *testing.T) {
 	tUsecase, ok := tu.(*travisCIUsecase)
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		// Expected
-		expected := NewBuildTile(travisci.TravisCIBuildTileType)
+		expected := NewTile(travisci.TravisCIBuildTileType)
 		expected.Label = fmt.Sprintf("%s : #%s", repo, branch)
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
@@ -146,7 +144,7 @@ func TestBuild_Queued(t *testing.T) {
 		tUsecase.buildsCache.Add(fmt.Sprintf("%s : #%s", repo, branch), "0", SuccessStatus, time.Second*10)
 
 		// Expected
-		expected := NewBuildTile(travisci.TravisCIBuildTileType)
+		expected := NewTile(travisci.TravisCIBuildTileType)
 		expected.Label = fmt.Sprintf("%s : #%s", repo, branch)
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
@@ -176,7 +174,7 @@ func TestBuild_Running(t *testing.T) {
 	tUsecase, ok := tu.(*travisCIUsecase)
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		// Expected
-		expected := NewBuildTile(travisci.TravisCIBuildTileType)
+		expected := NewTile(travisci.TravisCIBuildTileType)
 		expected.Label = fmt.Sprintf("%s : #%s", repo, branch)
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = UnknownStatus
@@ -224,7 +222,7 @@ func TestBuild_Aborded(t *testing.T) {
 		tUsecase.buildsCache.Add(fmt.Sprintf("%s : #%s", repo, branch), "0", SuccessStatus, time.Second*10)
 
 		// Expected
-		expected := NewBuildTile(travisci.TravisCIBuildTileType)
+		expected := NewTile(travisci.TravisCIBuildTileType)
 		expected.Label = fmt.Sprintf("%s : #%s", repo, branch)
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus

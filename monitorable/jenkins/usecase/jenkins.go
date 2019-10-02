@@ -9,7 +9,6 @@ import (
 	"time"
 
 	. "github.com/monitoror/monitoror/models"
-	. "github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
 	"github.com/monitoror/monitoror/monitorable/jenkins/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/builder"
@@ -36,8 +35,8 @@ func NewJenkinsUsecase(repository jenkins.Repository) jenkins.Usecase {
 	}
 }
 
-func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *BuildTile, err error) {
-	tile = NewBuildTile(jenkins.JenkinsBuildTileType)
+func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *Tile, err error) {
+	tile = NewTile(jenkins.JenkinsBuildTileType)
 
 	jobLabel, _ := url.QueryUnescape(params.Job)
 	branchLabel, _ := url.QueryUnescape(params.Branch)
@@ -49,7 +48,7 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *BuildTile, er
 
 	job, err := tu.repository.GetJob(params.Job, params.Branch)
 	if err != nil {
-		return nil, &MonitororError{Err: err, Tile: tile.Tile, Message: "unable to found job"}
+		return nil, &MonitororError{Err: err, Tile: tile, Message: "unable to found job"}
 	}
 
 	// Is Buildable
@@ -76,7 +75,7 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *BuildTile, er
 	// Get Last Build
 	build, err := tu.repository.GetLastBuildStatus(job)
 	if err != nil || build == nil {
-		return nil, &MonitororError{Err: err, Tile: tile.Tile, Message: "unable to found build", ErrorStatus: WarningStatus}
+		return nil, &MonitororError{Err: err, Tile: tile, Message: "unable to found build", ErrorStatus: WarningStatus}
 	}
 
 	// Set Status

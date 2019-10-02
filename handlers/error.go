@@ -6,7 +6,6 @@ import (
 
 	"github.com/monitoror/monitoror/models"
 	. "github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/models/tiles"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/labstack/echo/v4"
@@ -59,11 +58,10 @@ func handleMonitororError(me *MonitororError, ctx echo.Context) error {
 		}
 
 		// Cache not found, reply Timeout based on Tile
-		tile := me.Tile
-		tile.Status = tiles.WarningStatus
-		tile.Message = "timeout/host unreachable"
+		me.Tile.Status = WarningStatus
+		me.Tile.Message = "timeout/host unreachable"
 
-		_ = ctx.JSON(http.StatusOK, tile)
+		_ = ctx.JSON(http.StatusOK, me.Tile)
 		return nil
 	}
 
@@ -71,7 +69,7 @@ func handleMonitororError(me *MonitororError, ctx echo.Context) error {
 	tile.Message = me.Error()
 	tile.Status = me.ErrorStatus
 	if tile.Status == "" {
-		tile.Status = tiles.FailedStatus
+		tile.Status = FailedStatus
 	}
 
 	_ = ctx.JSON(http.StatusOK, tile)

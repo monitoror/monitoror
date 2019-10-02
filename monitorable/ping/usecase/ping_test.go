@@ -5,11 +5,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/monitoror/monitoror/models/tiles"
+	. "github.com/monitoror/monitoror/models"
 	. "github.com/monitoror/monitoror/monitorable/ping"
 	"github.com/monitoror/monitoror/monitorable/ping/mocks"
 	"github.com/monitoror/monitoror/monitorable/ping/models"
-
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"
 )
@@ -30,10 +29,11 @@ func TestUsecase_Ping_Success(t *testing.T) {
 	}
 
 	// Expected
-	eTile := tiles.NewHealthTile(PingTileType)
+	eTile := NewTile(PingTileType)
+	eTile.Unit = MillisecondUnit
 	eTile.Label = param.Hostname
-	eTile.Status = tiles.SuccessStatus
-	eTile.Message = "1s"
+	eTile.Status = SuccessStatus
+	eTile.Values = []float64{1000}
 
 	// Test
 	rTile, err := usecase.Ping(param)
@@ -58,9 +58,9 @@ func TestUsecase_Ping_Fail(t *testing.T) {
 	}
 
 	// Expected
-	eTile := tiles.NewHealthTile(PingTileType)
+	eTile := NewTile(PingTileType)
 	eTile.Label = param.Hostname
-	eTile.Status = tiles.FailedStatus
+	eTile.Status = FailedStatus
 
 	// Test
 	rTile, err := usecase.Ping(param)

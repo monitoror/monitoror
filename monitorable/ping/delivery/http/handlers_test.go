@@ -10,7 +10,6 @@ import (
 
 	"github.com/monitoror/monitoror/models"
 
-	"github.com/monitoror/monitoror/models/tiles"
 	. "github.com/monitoror/monitoror/monitorable/ping"
 	"github.com/monitoror/monitoror/monitorable/ping/mocks"
 
@@ -34,10 +33,11 @@ func TestDelivery_PingHandler_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
-	tile := tiles.NewHealthTile(PingTileType)
+	tile := models.NewTile(PingTileType)
 	tile.Label = "test.com"
-	tile.Status = tiles.SuccessStatus
-	tile.Message = "1s"
+	tile.Status = models.SuccessStatus
+	tile.Values = []float64{1000}
+	tile.Unit = models.MillisecondUnit
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Ping", Anything).Return(tile, nil)
