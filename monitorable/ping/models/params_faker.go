@@ -8,8 +8,8 @@ type (
 	PingParams struct {
 		Hostname string `json:"hostname" query:"hostname"`
 
-		Status  models.TileStatus `json:"status" query:"status"`
-		Message string            `json:"message" query:"message"`
+		Status models.TileStatus `json:"status" query:"status"`
+		Value  float64           `json:"value" query:"value"`
 	}
 )
 
