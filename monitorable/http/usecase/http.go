@@ -80,9 +80,9 @@ func (hu *httpUsecase) httpAll(tileType TileType, url string, params interface{}
 	var content string
 	var match bool
 
-	if formatedDataProvider, ok := params.(models.FormatedDataProvider); ok {
+	if formattedDataProvider, ok := params.(models.FormatedDataProvider); ok {
 		var jsonData interface{}
-		err := formatedDataProvider.GetUnmarshaller()(response.Body, &jsonData)
+		err := formattedDataProvider.GetUnmarshaller()(response.Body, &jsonData)
 		if err != nil {
 			tile.Status = FailedStatus
 			tile.Message = fmt.Sprintf("unable to unmarshal content")
@@ -90,9 +90,9 @@ func (hu *httpUsecase) httpAll(tileType TileType, url string, params interface{}
 		}
 
 		// Lookup a key
-		if match, content = lookupKey(formatedDataProvider, jsonData); !match {
+		if match, content = lookupKey(formattedDataProvider, jsonData); !match {
 			tile.Status = FailedStatus
-			tile.Message = fmt.Sprintf(`unable to lookup for key "%s"`, formatedDataProvider.GetKey())
+			tile.Message = fmt.Sprintf(`unable to lookup for key "%s"`, formattedDataProvider.GetKey())
 			return tile, nil
 		}
 	} else {
