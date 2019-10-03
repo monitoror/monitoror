@@ -48,19 +48,19 @@ func TestUsecase_Hydrate(t *testing.T) {
 	config, err := repository.ReadConfig(reader)
 	assert.NoError(t, err)
 
-	usecase.Hydrate(config, "http://localhost:8080")
+	usecase.Hydrate(config)
 	assert.Len(t, config.Errors, 0)
 	assert.Len(t, config.Warnings, 0)
 
-	assert.Equal(t, "http://localhost:8080/ping?hostname=aserver.com", config.Tiles[1].Url)
-	assert.Equal(t, "http://localhost:8080/port?hostname=bserver.com&port=22", config.Tiles[2].Url)
+	assert.Equal(t, "/ping?hostname=aserver.com", config.Tiles[1].Url)
+	assert.Equal(t, "/port?hostname=bserver.com&port=22", config.Tiles[2].Url)
 
 	group := config.Tiles[3].Tiles
-	assert.Equal(t, "http://localhost:8080/ping?hostname=aserver.com", group[0].Url)
-	assert.Equal(t, "http://localhost:8080/port?hostname=bserver.com&port=22", group[1].Url)
+	assert.Equal(t, "/ping?hostname=aserver.com", group[0].Url)
+	assert.Equal(t, "/port?hostname=bserver.com&port=22", group[1].Url)
 
-	assert.Equal(t, "http://localhost:8080/jenkins/default?job=test", config.Tiles[4].Url)
-	assert.Equal(t, "http://localhost:8080/jenkins/variant1?job=test", config.Tiles[5].Url)
+	assert.Equal(t, "/jenkins/default?job=test", config.Tiles[4].Url)
+	assert.Equal(t, "/jenkins/variant1?job=test", config.Tiles[5].Url)
 }
 
 func TestUsecase_Hydrate_WithDynamic(t *testing.T) {
@@ -92,17 +92,17 @@ func TestUsecase_Hydrate_WithDynamic(t *testing.T) {
 	config, err := repository.ReadConfig(reader)
 	assert.NoError(t, err)
 
-	usecase.Hydrate(config, "http://localhost:8080")
+	usecase.Hydrate(config)
 	assert.Len(t, config.Errors, 0)
 	assert.Len(t, config.Warnings, 0)
 
 	assert.Equal(t, 3, len(config.Tiles))
 	assert.Equal(t, jenkins.JenkinsBuildTileType, config.Tiles[0].Type)
-	assert.Equal(t, "http://localhost:8080/jenkins/default?job=test", config.Tiles[0].Url)
+	assert.Equal(t, "/jenkins/default?job=test", config.Tiles[0].Url)
 	assert.Equal(t, jenkins.JenkinsBuildTileType, config.Tiles[1].Tiles[1].Type)
-	assert.Equal(t, "http://localhost:8080/jenkins/default?job=test", config.Tiles[1].Tiles[1].Url)
+	assert.Equal(t, "/jenkins/default?job=test", config.Tiles[1].Tiles[1].Url)
 	assert.Equal(t, jenkins.JenkinsBuildTileType, config.Tiles[2].Tiles[0].Type)
-	assert.Equal(t, "http://localhost:8080/jenkins/default?job=test", config.Tiles[2].Tiles[0].Url)
+	assert.Equal(t, "/jenkins/default?job=test", config.Tiles[2].Tiles[0].Url)
 	mockBuilder.AssertNumberOfCalls(t, "ListDynamicTile", 3)
 	mockBuilder.AssertExpectations(t)
 }
@@ -133,7 +133,7 @@ func TestUsecase_Hydrate_WithDynamicEmpty(t *testing.T) {
 	config, err := repository.ReadConfig(reader)
 	assert.NoError(t, err)
 
-	usecase.Hydrate(config, "http://localhost:8080")
+	usecase.Hydrate(config)
 	assert.Len(t, config.Errors, 0)
 	assert.Len(t, config.Warnings, 0)
 
@@ -175,7 +175,7 @@ func TestUsecase_Hydrate_WithDynamic_WithError(t *testing.T) {
 	config, err := repository.ReadConfig(reader)
 	assert.NoError(t, err)
 
-	usecase.Hydrate(config, "http://localhost:8080")
+	usecase.Hydrate(config)
 	assert.Len(t, config.Errors, 1)
 	assert.Len(t, config.Warnings, 0)
 	assert.Contains(t, config.Errors, `Error while listing JENKINS-MULTIBRANCH dynamic tiles (params: {"job":"test"}). unable to found job`)
@@ -218,7 +218,7 @@ func TestUsecase_Hydrate_WithDynamic_WithWarning(t *testing.T) {
 	config, err := repository.ReadConfig(reader)
 	assert.NoError(t, err)
 
-	usecase.Hydrate(config, "http://localhost:8080")
+	usecase.Hydrate(config)
 	assert.Len(t, config.Errors, 0)
 	assert.Len(t, config.Warnings, 1)
 	assert.Contains(t, config.Warnings, `Warning while listing JENKINS-MULTIBRANCH dynamic tiles (params: {"job":"test"}). timeout/host unreachable`)
@@ -253,11 +253,11 @@ func TestUsecase_Hydrate_WithDynamic_WithTimeoutCache(t *testing.T) {
 	reader := ioutil.NopCloser(strings.NewReader(input))
 	config, err := repository.ReadConfig(reader)
 	if assert.NoError(t, err) {
-		usecase.Hydrate(config, "http://localhost:8080")
+		usecase.Hydrate(config)
 		assert.Len(t, config.Errors, 0)
 		assert.Len(t, config.Warnings, 0)
 		assert.Equal(t, jenkins.JenkinsBuildTileType, config.Tiles[0].Type)
-		assert.Equal(t, "http://localhost:8080/jenkins/default?job=test", config.Tiles[0].Url)
+		assert.Equal(t, "/jenkins/default?job=test", config.Tiles[0].Url)
 		mockBuilder.AssertNumberOfCalls(t, "ListDynamicTile", 1)
 		mockBuilder.AssertExpectations(t)
 	}

@@ -22,6 +22,6 @@ type (
 
 		GetConfig(params *models.ConfigParams) (*models.Config, error)
 		Verify(config *models.Config)
-		Hydrate(config *models.Config, host string)
+		Hydrate(config *models.Config)
 	}
 )
