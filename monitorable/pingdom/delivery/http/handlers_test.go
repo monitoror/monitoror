@@ -12,7 +12,6 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/pingdom/mocks"
 
 	"github.com/stretchr/testify/assert"
@@ -34,9 +33,9 @@ func TestDelivery_GetCheck_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
-	tile := tiles.NewHealthTile(pingdom.PingdomChecksTileType)
+	tile := models.NewTile(pingdom.PingdomChecksTileType)
 	tile.Label = "check 1"
-	tile.Status = tiles.SuccessStatus
+	tile.Status = models.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Check", Anything).Return(tile, nil)

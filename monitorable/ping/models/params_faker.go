@@ -2,14 +2,14 @@
 
 package models
 
-import "github.com/monitoror/monitoror/models/tiles"
+import "github.com/monitoror/monitoror/models"
 
 type (
 	PingParams struct {
 		Hostname string `json:"hostname" query:"hostname"`
 
-		Status  tiles.TileStatus `json:"status" query:"status"`
-		Message string           `json:"message" query:"message"`
+		Status models.TileStatus `json:"status" query:"status"`
+		Values []float64         `json:"value" query:"value"`
 	}
 )
 

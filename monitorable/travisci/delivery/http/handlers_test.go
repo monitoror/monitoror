@@ -10,7 +10,6 @@ import (
 
 	"github.com/monitoror/monitoror/models"
 
-	"github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/travisci"
 	"github.com/monitoror/monitoror/monitorable/travisci/mocks"
 
@@ -50,9 +49,9 @@ func TestDelivery_BuildHandler_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
-	tile := tiles.NewBuildTile(travisci.TravisCIBuildTileType)
+	tile := models.NewTile(travisci.TravisCIBuildTileType)
 	tile.Label = "test : #master"
-	tile.Status = tiles.SuccessStatus
+	tile.Status = models.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Build", Anything).Return(tile, nil)

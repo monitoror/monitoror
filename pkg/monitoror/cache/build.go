@@ -3,9 +3,8 @@ package cache
 import (
 	"time"
 
+	"github.com/monitoror/monitoror/models"
 	cmap "github.com/orcaman/concurrent-map"
-
-	"github.com/monitoror/monitoror/models/tiles"
 )
 
 type BuildCache struct {
@@ -15,7 +14,7 @@ type BuildCache struct {
 
 type build struct {
 	id       string
-	status   tiles.TileStatus
+	status   models.TileStatus
 	duration time.Duration
 }
 
@@ -40,7 +39,7 @@ func (c *BuildCache) GetEstimatedDuration(key string) *time.Duration {
 }
 
 // Get Previous Status excluse current status in case of multiple call with the same current build
-func (c *BuildCache) GetPreviousStatus(key, id string) *tiles.TileStatus {
+func (c *BuildCache) GetPreviousStatus(key, id string) *models.TileStatus {
 	value, ok := c.previousBuilds.Get(key)
 	if !ok {
 		return nil
@@ -58,7 +57,7 @@ func (c *BuildCache) GetPreviousStatus(key, id string) *tiles.TileStatus {
 	return &previous.status
 }
 
-func (c *BuildCache) Add(key, id string, s tiles.TileStatus, d time.Duration) {
+func (c *BuildCache) Add(key, id string, s models.TileStatus, d time.Duration) {
 	// If cache is not found, create it
 	var builds []build
 	if tmp, ok := c.previousBuilds.Get(key); !ok {

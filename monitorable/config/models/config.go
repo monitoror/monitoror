@@ -1,8 +1,6 @@
 package models
 
-import (
-	"github.com/monitoror/monitoror/models/tiles"
-)
+import "github.com/monitoror/monitoror/models"
 
 type (
 	Config struct {
@@ -14,7 +12,7 @@ type (
 	}
 
 	Tile struct {
-		Type   tiles.TileType         `json:"type"`
+		Type   models.TileType        `json:"type"`
 		Params map[string]interface{} `json:"params,omitempty"`
 
 		Label      string `json:"label,omitempty"`

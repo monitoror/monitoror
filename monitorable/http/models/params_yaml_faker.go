@@ -5,7 +5,7 @@ package models
 import (
 	"regexp"
 
-	"github.com/monitoror/monitoror/models/tiles"
+	"github.com/monitoror/monitoror/models"
 	"gopkg.in/yaml.v2"
 )
 
@@ -17,8 +17,9 @@ type (
 		StatusCodeMin *int   `json:"statusCodeMin" query:"statusCodeMin"`
 		StatusCodeMax *int   `json:"statusCodeMax" query:"statusCodeMax"`
 
-		Status  tiles.TileStatus `json:"status" query:"status"`
-		Message string           `json:"message" query:"message"`
+		Status  models.TileStatus `json:"status" query:"status"`
+		Message string            `json:"message" query:"message"`
+		Values  []float64         `json:"values" query:"values"`
 	}
 )
 
@@ -46,5 +47,6 @@ func (p *HttpYamlParams) GetUnmarshaller() func(data []byte, v interface{}) erro
 	return yaml.Unmarshal
 }
 
-func (p *HttpYamlParams) GetStatus() tiles.TileStatus { return p.Status }
-func (p *HttpYamlParams) GetMessage() string          { return p.Message }
+func (p *HttpYamlParams) GetStatus() models.TileStatus { return p.Status }
+func (p *HttpYamlParams) GetMessage() string           { return p.Message }
+func (p *HttpYamlParams) GetValues() []float64         { return p.Values }

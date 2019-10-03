@@ -10,7 +10,6 @@ import (
 	"testing"
 
 	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
@@ -100,14 +99,14 @@ func TestHttpError_MonitororError_WithTile(t *testing.T) {
 	ctx, res := initErrorEcho()
 
 	// Parameters
-	tile := tiles.NewBuildTile(jenkins.JenkinsBuildTileType)
+	tile := models.NewTile(jenkins.JenkinsBuildTileType)
 	tile.Label = "test jenkins"
-	err := &models.MonitororError{Err: errors.New("boom"), Tile: tile.Tile, Message: "rly big boom"}
+	err := &models.MonitororError{Err: errors.New("boom"), Tile: tile, Message: "rly big boom"}
 
 	// Expected
-	expected := tiles.NewBuildTile(jenkins.JenkinsBuildTileType)
+	expected := models.NewTile(jenkins.JenkinsBuildTileType)
 	expected.Label = "test jenkins"
-	expected.Status = tiles.FailedStatus
+	expected.Status = models.FailedStatus
 	expected.Message = "rly big boom"
 	j, e := json.Marshal(expected)
 	assert.NoError(t, e, "unable to marshal tile")
@@ -124,12 +123,12 @@ func TestHttpError_MonitororError_Timeout_WithoutStore(t *testing.T) {
 	ctx, res := initErrorEcho()
 
 	// Parameters
-	tile := tiles.NewHealthTile("TEST")
-	err := &models.MonitororError{Err: context.DeadlineExceeded, Tile: tile.Tile}
+	tile := models.NewTile("TEST")
+	err := &models.MonitororError{Err: context.DeadlineExceeded, Tile: tile}
 
 	// Expected
 	expectedTile := tile
-	expectedTile.Status = tiles.WarningStatus
+	expectedTile.Status = models.WarningStatus
 	expectedTile.Message = "timeout/host unreachable"
 	j, e := json.Marshal(expectedTile)
 	assert.NoError(t, e, "unable to marshal tile")
@@ -147,12 +146,12 @@ func TestHttpError_MonitororError_Timeout_WithWrongStore(t *testing.T) {
 	ctx.Set(models.DownstreamStoreContextKey, "store")
 
 	// Parameters
-	tile := tiles.NewHealthTile("TEST")
-	err := &models.MonitororError{Err: context.DeadlineExceeded, Tile: tile.Tile}
+	tile := models.NewTile("TEST")
+	err := &models.MonitororError{Err: context.DeadlineExceeded, Tile: tile}
 
 	// Expected
 	expectedTile := tile
-	expectedTile.Status = tiles.WarningStatus
+	expectedTile.Status = models.WarningStatus
 	expectedTile.Message = "timeout/host unreachable"
 	j, e := json.Marshal(expectedTile)
 	assert.NoError(t, e, "unable to marshal tile")
@@ -172,12 +171,12 @@ func TestHttpError_MonitororError_Timeout_CacheMiss(t *testing.T) {
 	ctx.Set(models.DownstreamStoreContextKey, mockStore)
 
 	// Parameters
-	tile := tiles.NewHealthTile("TEST")
-	err := &models.MonitororError{Err: context.DeadlineExceeded, Tile: tile.Tile}
+	tile := models.NewTile("TEST")
+	err := &models.MonitororError{Err: context.DeadlineExceeded, Tile: tile}
 
 	// Expected
 	expectedTile := tile
-	expectedTile.Status = tiles.WarningStatus
+	expectedTile.Status = models.WarningStatus
 	expectedTile.Message = "timeout/host unreachable"
 	j, e := json.Marshal(expectedTile)
 	assert.NoError(t, e, "unable to marshal tile")
@@ -213,8 +212,8 @@ func TestHttpError_MonitororError_Timeout_Success(t *testing.T) {
 	ctx.Set(models.DownstreamStoreContextKey, mockStore)
 
 	// Parameters
-	tile := tiles.NewHealthTile("TEST")
-	err := &models.MonitororError{Err: context.DeadlineExceeded, Tile: tile.Tile}
+	tile := models.NewTile("TEST")
+	err := &models.MonitororError{Err: context.DeadlineExceeded, Tile: tile}
 
 	// Test
 	HttpErrorHandler(err, ctx)

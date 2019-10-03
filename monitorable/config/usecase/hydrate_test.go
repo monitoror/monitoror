@@ -28,7 +28,7 @@ func TestUsecase_Hydrate(t *testing.T) {
   "columns": 4,
   "tiles": [
     { "type": "EMPTY" },
-    { "type": "PING", "params": { "hostname": "aserver.com" } },
+    { "type": "PING", "params": { "hostname": "aserver.com", "values": [123, 456] } },
     { "type": "PORT", "params": { "hostname": "bserver.com", "port": 22 } },
     { "type": "GROUP", "label": "...", "tiles": [
       { "type": "PING", "params": { "hostname": "aserver.com" } },
@@ -52,7 +52,7 @@ func TestUsecase_Hydrate(t *testing.T) {
 	assert.Len(t, config.Errors, 0)
 	assert.Len(t, config.Warnings, 0)
 
-	assert.Equal(t, "/ping?hostname=aserver.com", config.Tiles[1].Url)
+	assert.Equal(t, "/ping?hostname=aserver.com&values=123&values=456", config.Tiles[1].Url)
 	assert.Equal(t, "/port?hostname=bserver.com&port=22", config.Tiles[2].Url)
 
 	group := config.Tiles[3].Tiles

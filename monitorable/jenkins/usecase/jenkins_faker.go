@@ -7,12 +7,10 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/monitoror/monitoror/pkg/monitoror/builder"
-
-	"github.com/monitoror/monitoror/monitorable/jenkins/models"
-
-	. "github.com/monitoror/monitoror/models/tiles"
+	. "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
+	"github.com/monitoror/monitoror/monitorable/jenkins/models"
+	"github.com/monitoror/monitoror/pkg/monitoror/builder"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
 
 	. "github.com/AlekSi/pointer"
@@ -36,8 +34,8 @@ func NewJenkinsUsecase() jenkins.Usecase {
 	return &jenkinsUsecase{make(map[string]*durations)}
 }
 
-func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *BuildTile, err error) {
-	tile = NewBuildTile(jenkins.JenkinsBuildTileType)
+func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *Tile, err error) {
+	tile = NewTile(jenkins.JenkinsBuildTileType)
 	if params.Branch == "" {
 		tile.Label = params.Job
 	} else {

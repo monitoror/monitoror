@@ -60,7 +60,14 @@ func (cu *configUsecase) hydrateTile(conf *models.Config, tile *models.Tile) {
 	path := cu.tileConfigs[tile.Type][tile.ConfigVariant].Path
 	urlParams := url.Values{}
 	for key, value := range tile.Params {
-		urlParams.Add(key, fmt.Sprintf("%v", value))
+		// Array of value
+		if reflect.TypeOf(value).Kind() == reflect.Slice {
+			for _, v := range value.([]interface{}) {
+				urlParams.Add(key, fmt.Sprintf("%v", v))
+			}
+		} else {
+			urlParams.Add(key, fmt.Sprintf("%v", value))
+		}
 	}
 
 	tile.Url = fmt.Sprintf("%s?%s", path, urlParams.Encode())

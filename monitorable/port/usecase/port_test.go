@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/monitoror/monitoror/models/tiles"
+	. "github.com/monitoror/monitoror/models"
 	. "github.com/monitoror/monitoror/monitorable/port"
 	"github.com/monitoror/monitoror/monitorable/port/mocks"
 	"github.com/monitoror/monitoror/monitorable/port/models"
@@ -27,9 +27,9 @@ func TestUsecase_CheckPort_Success(t *testing.T) {
 	}
 
 	// Expected
-	eTile := tiles.NewHealthTile(PortTileType)
+	eTile := NewTile(PortTileType)
 	eTile.Label = fmt.Sprintf("%s:%d", param.Hostname, param.Port)
-	eTile.Status = tiles.SuccessStatus
+	eTile.Status = SuccessStatus
 
 	// Test
 	rTile, err := usecase.Port(param)
@@ -54,9 +54,9 @@ func TestUsecase_CheckPort_Fail(t *testing.T) {
 	}
 
 	// Expected
-	eTile := tiles.NewHealthTile(PortTileType)
+	eTile := NewTile(PortTileType)
 	eTile.Label = fmt.Sprintf("%s:%d", param.Hostname, param.Port)
-	eTile.Status = tiles.FailedStatus
+	eTile.Status = FailedStatus
 
 	// Test
 	rTile, err := usecase.Port(param)

@@ -5,7 +5,7 @@ package models
 import (
 	"regexp"
 
-	"github.com/monitoror/monitoror/models/tiles"
+	"github.com/monitoror/monitoror/models"
 )
 
 type (
@@ -15,8 +15,9 @@ type (
 		StatusCodeMax *int   `json:"statusCodeMax" query:"statusCodeMax"`
 		Regex         string `json:"regex" query:"regex"`
 
-		Status  tiles.TileStatus `json:"status" query:"status"`
-		Message string           `json:"message" query:"message"`
+		Status  models.TileStatus `json:"status" query:"status"`
+		Message string            `json:"message" query:"message"`
+		Values  []float64         `json:"values" query:"values"`
 	}
 )
 
@@ -35,5 +36,6 @@ func (p *HttpRawParams) GetStatusCodes() (min int, max int) {
 func (p *HttpRawParams) GetRegex() string          { return p.Regex }
 func (p *HttpRawParams) GetRegexp() *regexp.Regexp { return getRegexp(p.GetRegex()) }
 
-func (p *HttpRawParams) GetStatus() tiles.TileStatus { return p.Status }
-func (p *HttpRawParams) GetMessage() string          { return p.Message }
+func (p *HttpRawParams) GetStatus() models.TileStatus { return p.Status }
+func (p *HttpRawParams) GetMessage() string           { return p.Message }
+func (p *HttpRawParams) GetValues() []float64         { return p.Values }

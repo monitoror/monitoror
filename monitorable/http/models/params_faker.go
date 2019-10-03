@@ -2,13 +2,12 @@
 
 package models
 
-import (
-	"github.com/monitoror/monitoror/models/tiles"
-)
+import "github.com/monitoror/monitoror/models"
 
 type (
 	FakerParamsProvider interface {
-		GetStatus() tiles.TileStatus
+		GetStatus() models.TileStatus
 		GetMessage() string
+		GetValues() []float64
 	}
 )

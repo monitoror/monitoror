@@ -14,10 +14,9 @@ export interface InfoInterface {
   version: string,
 }
 
-export enum TileCategory {
-  Health = 'HEALTH',
-  Build = 'BUILD',
-  Group = 'GROUP',
+export enum TileValueUnit {
+  Millisecond = 'MILLISECOND',
+  Default = '',
 }
 
 export enum TileType {
@@ -82,11 +81,12 @@ export interface TileAuthor {
 }
 
 export interface TileState {
-  category: TileCategory,
   label?: string,
   status: TileStatus,
   previousStatus?: TileStatus,
   message?: string,
+  values?: number[],
+  unit?: TileValueUnit,
   author?: TileAuthor,
   duration?: number,
   estimatedDuration?: number,
@@ -260,7 +260,6 @@ const store: StoreOptions<RootState> = {
         const groupMessage = `${groupSucceededSubTiles.length} / ${groupTile.tiles.length}`
 
         const groupState = {
-          category: TileCategory.Group,
           status: groupStatus,
           message: groupMessage,
         }

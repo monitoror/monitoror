@@ -10,7 +10,6 @@ import (
 
 	"github.com/monitoror/monitoror/models"
 
-	"github.com/monitoror/monitoror/models/tiles"
 	. "github.com/monitoror/monitoror/monitorable/port"
 	"github.com/monitoror/monitoror/monitorable/port/mocks"
 
@@ -47,9 +46,9 @@ func TestDelivery_PortHandler_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
-	tile := tiles.NewHealthTile(PortTileType)
+	tile := models.NewTile(PortTileType)
 	tile.Label = "test.com:1234"
-	tile.Status = tiles.SuccessStatus
+	tile.Status = models.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Port", Anything).Return(tile, nil)

@@ -5,8 +5,6 @@ import (
 	"net"
 	"os"
 	"strings"
-
-	"github.com/monitoror/monitoror/models/tiles"
 )
 
 type (
@@ -18,11 +16,11 @@ type (
 		Message string
 
 		// Tile is used in error handler to return errored tile to request
-		Tile *tiles.Tile
+		Tile *Tile
 
 		// ErrorStatus is used for override current tile Status when error happen
 		// Default : ErrorStatus
-		ErrorStatus tiles.TileStatus
+		ErrorStatus TileStatus
 	}
 )
 

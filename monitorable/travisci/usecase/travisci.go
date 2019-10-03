@@ -7,7 +7,6 @@ import (
 	"time"
 
 	. "github.com/monitoror/monitoror/models"
-	. "github.com/monitoror/monitoror/models/tiles"
 	"github.com/monitoror/monitoror/monitorable/travisci"
 	"github.com/monitoror/monitoror/monitorable/travisci/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/cache"
@@ -30,18 +29,18 @@ func NewTravisCIUsecase(repository travisci.Repository) travisci.Usecase {
 	return &travisCIUsecase{repository, cache.NewBuildCache(cacheSize)}
 }
 
-func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *BuildTile, err error) {
-	tile = NewBuildTile(travisci.TravisCIBuildTileType)
+func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *Tile, err error) {
+	tile = NewTile(travisci.TravisCIBuildTileType)
 	tile.Label = fmt.Sprintf("%s : #%s", params.Repository, params.Branch)
 
 	// Request
 	build, err := tu.repository.GetLastBuildStatus(params.Group, params.Repository, params.Branch)
 	if err != nil {
-		return nil, &MonitororError{Err: err, Tile: tile.Tile, Message: "unable to found build"}
+		return nil, &MonitororError{Err: err, Tile: tile, Message: "unable to found build"}
 	}
 	if build == nil {
 		// Warning because request was correct but there is no build
-		return nil, &MonitororError{Tile: tile.Tile, Message: "unable to found build", ErrorStatus: WarningStatus}
+		return nil, &MonitororError{Tile: tile, Message: "unable to found build", ErrorStatus: WarningStatus}
 	}
 
 	// Set Status

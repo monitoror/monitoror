@@ -17,7 +17,6 @@ require (
 	github.com/labstack/gommon v0.2.9
 	github.com/orcaman/concurrent-map v0.0.0-20190314100340-2693aad1ed75
 	github.com/prometheus/common v0.4.0
-	github.com/robfig/go-cache v0.0.0-20130306151617-9fc39e0dbf62
 	github.com/satori/go.uuid v1.2.0
 	github.com/shuheiktgw/go-travis v0.2.2
 	github.com/sparrc/go-ping v0.0.0-20190613174326-4e5b6552494c

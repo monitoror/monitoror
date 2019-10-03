@@ -5,7 +5,7 @@ package usecase
 import (
 	"fmt"
 
-	. "github.com/monitoror/monitoror/models/tiles"
+	. "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/port"
 	"github.com/monitoror/monitoror/monitorable/port/models"
 )
@@ -20,8 +20,8 @@ func NewPortUsecase(repository port.Repository) port.Usecase {
 	return &portUsecase{repository}
 }
 
-func (pu *portUsecase) Port(params *models.PortParams) (tile *HealthTile, err error) {
-	tile = NewHealthTile(port.PortTileType)
+func (pu *portUsecase) Port(params *models.PortParams) (tile *Tile, err error) {
+	tile = NewTile(port.PortTileType)
 	tile.Label = fmt.Sprintf("%s:%d", params.Hostname, params.Port)
 
 	err = pu.repository.OpenSocket(params.Hostname, params.Port)

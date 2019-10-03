@@ -1,8 +1,6 @@
 package builder
 
-import (
-	"github.com/monitoror/monitoror/models/tiles"
-)
+import "github.com/monitoror/monitoror/models"
 
 type (
 	DynamicTileBuilder interface {
@@ -10,7 +8,7 @@ type (
 	}
 
 	Result struct {
-		TileType tiles.TileType
+		TileType models.TileType
 		Label    string
 		Params   map[string]interface{}
 	}
