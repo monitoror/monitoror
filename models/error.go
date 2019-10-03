@@ -49,7 +49,7 @@ func (e *MonitororError) Timeout() bool {
 	// Host unreachable
 	err := e.Err
 	for {
-		if x, ok := err.(*net.DNSError); ok && x.IsNotFound {
+		if _, ok := err.(*net.DNSError); ok {
 			return true
 		}
 
