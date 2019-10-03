@@ -99,6 +99,7 @@ interface RootState {
   columns: number,
   tiles: TileConfig[],
   tilesState: { [key: string]: TileState },
+  online: boolean,
 }
 
 function getQueryParamValue(
@@ -124,6 +125,7 @@ const store: StoreOptions<RootState> = {
     columns: 4,
     tiles: [],
     tilesState: {},
+    online: true,
   },
   getters: {
     apiBaseUrl(): string {
@@ -173,6 +175,9 @@ const store: StoreOptions<RootState> = {
       } else {
         state.tilesState[payload.tileStateKey] = payload.tileState
       }
+    },
+    setOnline(state, payload: boolean): void {
+      state.online = payload
     },
   },
   actions: {
@@ -285,10 +290,8 @@ const store: StoreOptions<RootState> = {
       state.tiles
         .filter((tile) => !!tile.url)
         .forEach(async (tile) => {
-          if (state.tilesState.hasOwnProperty(tile.stateKey)) {
-            // Randomize delay for each tile to avoid DoS back-end services
-            await timeout(Math.random() * 10000)
-          }
+          // Randomize delay for each tile to avoid DoS back-end services
+          await timeout(Math.random() * 10000)
 
           await refreshTile(tile)
         })
@@ -299,10 +302,8 @@ const store: StoreOptions<RootState> = {
           return
         }
 
-        if (state.tilesState.hasOwnProperty(tile.stateKey)) {
-          // Randomize delay for each group to avoid DoS back-end services
-          await timeout(Math.random() * 10000)
-        }
+        // Randomize delay for each group to avoid DoS back-end services
+        await timeout(Math.random() * 10000)
 
         const throttledRefreshGroup = throttle(refreshGroup, 150)
         tile.tiles.map(async (subTile) => {
@@ -320,6 +321,9 @@ const store: StoreOptions<RootState> = {
           commit('setTileState', {tileStateKey, tileState})
         }
       })
+    },
+    updateNetworkState({commit}) {
+      commit('setOnline', navigator.onLine)
     },
   },
 }
