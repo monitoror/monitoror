@@ -9,7 +9,7 @@ type (
 
 		Label   string        `json:"label,omitempty"`
 		Message string        `json:"message,omitempty"`
-		Values  []float64     `json:"value,omitempty"`
+		Values  []float64     `json:"values,omitempty"`
 		Unit    TileValueUnit `json:"unit,omitempty"`
 
 		Author *Author `json:"author,omitempty"`
