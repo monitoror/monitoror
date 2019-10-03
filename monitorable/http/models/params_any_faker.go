@@ -12,6 +12,7 @@ type (
 
 		Status  models.TileStatus `json:"status" query:"status"`
 		Message string            `json:"message" query:"message"`
+		Values  []float64         `json:"values" query:"values"`
 	}
 )
 
@@ -25,3 +26,4 @@ func (p *HttpAnyParams) GetStatusCodes() (min int, max int) {
 
 func (p *HttpAnyParams) GetStatus() models.TileStatus { return p.Status }
 func (p *HttpAnyParams) GetMessage() string           { return p.Message }
+func (p *HttpAnyParams) GetValues() []float64         { return p.Values }

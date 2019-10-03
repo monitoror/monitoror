@@ -19,6 +19,7 @@ type (
 
 		Status  models.TileStatus `json:"status" query:"status"`
 		Message string            `json:"message" query:"message"`
+		Values  []float64         `json:"values" query:"values"`
 	}
 )
 
@@ -48,3 +49,4 @@ func (p *HttpJsonParams) GetUnmarshaller() func(data []byte, v interface{}) erro
 
 func (p *HttpJsonParams) GetStatus() models.TileStatus { return p.Status }
 func (p *HttpJsonParams) GetMessage() string           { return p.Message }
+func (p *HttpJsonParams) GetValues() []float64         { return p.Values }

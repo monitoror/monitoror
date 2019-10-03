@@ -17,6 +17,7 @@ type (
 
 		Status  models.TileStatus `json:"status" query:"status"`
 		Message string            `json:"message" query:"message"`
+		Values  []float64         `json:"values" query:"values"`
 	}
 )
 
@@ -37,3 +38,4 @@ func (p *HttpRawParams) GetRegexp() *regexp.Regexp { return getRegexp(p.GetRegex
 
 func (p *HttpRawParams) GetStatus() models.TileStatus { return p.Status }
 func (p *HttpRawParams) GetMessage() string           { return p.Message }
+func (p *HttpRawParams) GetValues() []float64         { return p.Values }

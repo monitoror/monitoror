@@ -9,7 +9,7 @@ type (
 		Hostname string `json:"hostname" query:"hostname"`
 
 		Status models.TileStatus `json:"status" query:"status"`
-		Value  float64           `json:"value" query:"value"`
+		Values []float64         `json:"value" query:"value"`
 	}
 )
 

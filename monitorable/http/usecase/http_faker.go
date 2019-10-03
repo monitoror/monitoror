@@ -49,7 +49,18 @@ func (hu *httpUsecase) httpAll(tileType TileType, url string, params models.Fake
 
 	tile.Status = nonempty.Struct(params.GetStatus(), randomStatus()).(TileStatus)
 	if tile.Status == SuccessStatus && tileType != http.HttpAnyTileType {
-		tile.Message = nonempty.String(params.GetMessage(), "random message")
+		if len(params.GetValues()) != 0 {
+			tile.Values = params.GetValues()
+		} else if params.GetMessage() != "" {
+			tile.Message = params.GetMessage()
+		} else {
+			if rand.Intn(2) == 0 {
+				tile.Values = []float64{float64(rand.Intn(10000))}
+			} else {
+				tile.Message = "random message"
+			}
+		}
+
 	}
 
 	if tile.Status == FailedStatus {

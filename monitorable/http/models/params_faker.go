@@ -8,5 +8,6 @@ type (
 	FakerParamsProvider interface {
 		GetStatus() models.TileStatus
 		GetMessage() string
+		GetValues() []float64
 	}
 )

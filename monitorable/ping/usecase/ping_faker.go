@@ -34,7 +34,12 @@ func (pu *pingUsecase) Ping(params *models.PingParams) (tile *Tile, err error) {
 	// Message
 	if tile.Status == SuccessStatus {
 		tile.Unit = MillisecondUnit
-		tile.Values = []float64{nonempty.Float64(params.Value, float64(time.Duration(rand.Intn(10000))))}
+
+		if len(params.Values) != 0 {
+			tile.Values = params.Values
+		} else {
+			tile.Values = []float64{float64(rand.Intn(1000))}
+		}
 	}
 
 	return
