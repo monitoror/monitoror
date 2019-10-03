@@ -1,3 +1,4 @@
+import { TileValueUnit } from '@/store'
 <template>
   <div class="c-monitoror-tile" :class="classes" :style="styles">
     <div class="c-monitoror-tile--content" v-if="!isEmpty">
@@ -7,6 +8,10 @@
 
       <div class="c-monitoror-tile--message" v-if="message">
         {{ message }}
+      </div>
+
+      <div class="c-monitoror-tile--value" v-if="value">
+        {{ value }}
       </div>
 
       <div class="c-monitoror-tile--sub-tiles" v-if="isGroup">
@@ -42,13 +47,13 @@
 </template>
 
 <script lang="ts">
-  import {formatDistanceToNow, parseISO} from 'date-fns'
+  import {formatDistanceToNow} from 'date-fns'
   import Vue from 'vue'
   import {Component, Prop} from 'vue-property-decorator'
 
   import MonitororSubTile from '@/components/SubTile.vue'
   import MonitororTileIcon from '@/components/TileIcon.vue'
-  import {TileAuthor, TileCategory, TileConfig, TileState, TileStatus, TileType} from '@/store'
+  import {TileAuthor, TileConfig, TileState, TileStatus, TileType, TileValueUnit} from '@/store'
 
   @Component({
     components: {
@@ -118,11 +123,7 @@
     }
 
     get mustCenterMessage(): boolean {
-      if (this.category === undefined || this.message === undefined) {
-        return false
-      }
-
-      return [TileCategory.Health].includes(this.category) && /^[0-9]/.test(this.message)
+      return this.values !== undefined
     }
 
     get label(): string | undefined {
@@ -176,14 +177,6 @@
       }
 
       return this.$store.state.tilesState[this.stateKey]
-    }
-
-    get category(): TileCategory | undefined {
-      if (!this.state) {
-        return
-      }
-
-      return this.state.category
     }
 
     get status(): string | undefined {
@@ -240,6 +233,35 @@
       }
 
       return this.state.message
+    }
+
+    get unit(): TileValueUnit {
+      if (!this.state) {
+        return TileValueUnit.Default
+      }
+
+      return this.state.unit as TileValueUnit
+    }
+
+    get values(): number[] | undefined {
+      if (!this.state) {
+        return
+      }
+
+      return this.state.values
+    }
+
+    get value(): string | undefined {
+      if (!this.values) {
+        return
+      }
+
+      const UNIT_DISPLAY = {
+        [TileValueUnit.Millisecond]: 'ms',
+        [TileValueUnit.Default]: '',
+      }
+
+      return this.values[this.values.length - 1] + UNIT_DISPLAY[this.unit]
     }
 
     get finishedAt(): number | undefined {
@@ -380,13 +402,15 @@
     font-size: 32px;
   }
 
-  .c-monitoror-tile--message {
+  .c-monitoror-tile--message,
+  .c-monitoror-tile--value {
     padding-top: 5px;
     font-size: 24px;
     opacity: 0.8;
   }
 
-  .c-monitoror-tile__centered-message .c-monitoror-tile--message {
+  .c-monitoror-tile__centered-message .c-monitoror-tile--message,
+  .c-monitoror-tile--value {
     position: absolute;
     top: 50%;
     left: 50%;
