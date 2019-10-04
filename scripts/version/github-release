@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+##########################################################################
+# This script is used by TravisCI to deploy release version of monitoror #
+##########################################################################
+
+echo "Starting release-on-github script ..."
+echo " - VERSION: ${TRAVIS_TAG}"
+
+ghr \
+  -t ${GITHUB_TOKEN} \
+  -u monitoror \
+  -r monitoror \
+  -c ${TRAVIS_COMMIT} \
+  -delete \
+  -n "Release ${TRAVIS_TAG}" \
+  ${TRAVIS_TAG} \
+  ./output/
