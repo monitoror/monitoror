@@ -236,7 +236,7 @@ import { TileValueUnit } from '@/store'
     }
 
     get unit(): TileValueUnit {
-      if (!this.state) {
+      if (!this.state || this.state.unit === undefined) {
         return TileValueUnit.Default
       }
 
