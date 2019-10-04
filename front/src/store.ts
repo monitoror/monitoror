@@ -141,14 +141,23 @@ const store: StoreOptions<RootState> = {
 
       return configPath
     },
-    configUrl(state, getters): string {
+    configUrl(): string {
       const configUrl = getQueryParamValue('configUrl')
 
-      if (!configUrl) {
-        return `${getters.apiBaseUrl}${API_BASE_PATH}/config?path=${getters.configPath}`
+      return configUrl
+    },
+    proxyfiedConfigUrl(state, getters): string {
+      const configProxyUrl = `${getters.apiBaseUrl}${API_BASE_PATH}/config`
+
+      if (getters.configUrl !== '') {
+        return `${configProxyUrl}?url=${getters.configUrl}`
       }
 
-      return configUrl
+      if (getters.configPath !== '') {
+        return `${configProxyUrl}?path=${getters.configPath}`
+      }
+
+      return ''
     },
     theme(): Theme {
       let theme = Theme.Default
@@ -182,7 +191,9 @@ const store: StoreOptions<RootState> = {
   },
   actions: {
     autoUpdate({commit, state, getters}) {
-      return VueInstance.$http.get(getters.configUrl.replace(/\/config.*$/, INFO_URL))
+      const infoUrl = getters.apiBaseUrl + API_BASE_PATH + INFO_URL
+
+      return VueInstance.$http.get(infoUrl)
         .then(async (data) => {
           const info: InfoInterface = await data.json()
 
@@ -214,7 +225,7 @@ const store: StoreOptions<RootState> = {
         return tile
       }
 
-      return VueInstance.$http.get(getters.configUrl)
+      return VueInstance.$http.get(getters.proxyfiedConfigUrl)
         .then(async (data) => {
           const config: ConfigInterface = await data.json()
 

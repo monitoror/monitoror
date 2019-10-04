@@ -46,8 +46,8 @@
               </template>
               <template v-else>
                 <hr>
-                Your configuration path or URL seems broken, please verify it: <br>
-                <code>{{configUrl}}</code>
+                Your configuration URL or path seems broken, please verify it: <br>
+                <code>{{configUrlOrPath}}</code>
               </template>
             </template>
           </template>
@@ -125,8 +125,8 @@
       return this.$store.state.tiles
     }
 
-    get configUrl(): string {
-      return decodeURIComponent(this.$store.getters.configPath) || this.$store.getters.configUrl
+    get configUrlOrPath(): string {
+      return this.$store.getters.configUrl || decodeURIComponent(this.$store.getters.configPath)
     }
 
     get isOnline(): boolean {
