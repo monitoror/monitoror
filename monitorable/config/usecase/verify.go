@@ -7,10 +7,8 @@ import (
 	"strings"
 
 	"github.com/monitoror/monitoror/config"
-
-	. "github.com/monitoror/monitoror/pkg/monitoror/validator"
-
 	"github.com/monitoror/monitoror/monitorable/config/models"
+	. "github.com/monitoror/monitoror/pkg/monitoror/utils"
 )
 
 func (cu *configUsecase) Verify(conf *models.Config) {

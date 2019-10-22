@@ -7,17 +7,16 @@ import (
 	"runtime"
 	"testing"
 
-	"github.com/monitoror/monitoror/pkg/monitoror/validator"
-	"gopkg.in/yaml.v2"
+	. "github.com/monitoror/monitoror/pkg/monitoror/utils"
 
 	"github.com/AlekSi/pointer"
-
 	"github.com/stretchr/testify/assert"
+	"gopkg.in/yaml.v2"
 )
 
 func TestHttpParams_IsValid(t *testing.T) {
 	for _, testcase := range []struct {
-		params   validator.Validator
+		params   Validator
 		expected bool
 	}{
 		{&HttpAnyParams{}, false},
