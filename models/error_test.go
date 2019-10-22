@@ -16,6 +16,12 @@ func TestMonitororError_Error(t *testing.T) {
 
 	me.Message = "big boom"
 	assert.Equal(t, "big boom", me.Error())
+
+	me.Err = nil
+	assert.Equal(t, "big boom", me.Error())
+
+	me.Message = ""
+	assert.Equal(t, "", me.Error())
 }
 
 func TestMonitororError_Unwrap(t *testing.T) {
@@ -25,7 +31,10 @@ func TestMonitororError_Unwrap(t *testing.T) {
 }
 
 func TestMonitororError_Timeout(t *testing.T) {
-	me := &MonitororError{Err: &net.DNSError{IsTimeout: true}}
+	me := &MonitororError{}
+	assert.False(t, me.Timeout())
+
+	me = &MonitororError{Err: &net.DNSError{IsTimeout: true}}
 	assert.True(t, me.Timeout())
 
 	me = &MonitororError{Err: fmt.Errorf("boom, %w", &net.DNSError{IsNotFound: true})}

@@ -45,12 +45,11 @@ func missingParam(t *testing.T, param string) {
 	assert.IsType(t, &models.MonitororError{}, err)
 }
 
-func TestDelivery_BuildHandler_Success(t *testing.T) {
+func TestDelivery_GetBuild_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
 	tile := models.NewTile(travisci.TravisCIBuildTileType)
-	tile.Label = "test : #master"
 	tile.Status = models.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)
@@ -70,19 +69,19 @@ func TestDelivery_BuildHandler_Success(t *testing.T) {
 	}
 }
 
-func TestDelivery_BuildHandler_QueryParamsError_MissingGroup(t *testing.T) {
+func TestDelivery_GetBuild_QueryParamsError_MissingGroup(t *testing.T) {
 	missingParam(t, "group")
 }
 
-func TestDelivery_BuildHandler_QueryParamsError_MissingRepository(t *testing.T) {
+func TestDelivery_GetBuild_QueryParamsError_MissingRepository(t *testing.T) {
 	missingParam(t, "repository")
 }
 
-func TestDelivery_BuildHandler_QueryParamsError_MissingBranch(t *testing.T) {
+func TestDelivery_GetBuild_QueryParamsError_MissingBranch(t *testing.T) {
 	missingParam(t, "branch")
 }
 
-func TestDelivery_BuildHandler_Error(t *testing.T) {
+func TestDelivery_GetBuild_Error(t *testing.T) {
 	// Init
 	ctx, _ := initEcho()
 

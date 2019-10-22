@@ -163,7 +163,7 @@ func TestUsecase_Hydrate_WithDynamic_WithError(t *testing.T) {
 	mockBuilder := new(DynamicTileBuilder)
 	mockBuilder.On("ListDynamicTile", Anything).Return([]builder.Result{{TileType: jenkins.JenkinsBuildTileType, Params: params}}, nil)
 	mockBuilder2 := new(mocks2.DynamicTileBuilder)
-	mockBuilder2.On("ListDynamicTile", Anything).Return(nil, errors.New("unable to found job"))
+	mockBuilder2.On("ListDynamicTile", Anything).Return(nil, errors.New("unable to find job"))
 
 	store := cache.NewGoCacheStore(time.Second, time.Second)
 	usecase := initConfigUsecase(nil, store)
@@ -178,7 +178,7 @@ func TestUsecase_Hydrate_WithDynamic_WithError(t *testing.T) {
 	usecase.Hydrate(config)
 	assert.Len(t, config.Errors, 1)
 	assert.Len(t, config.Warnings, 0)
-	assert.Contains(t, config.Errors, `Error while listing JENKINS-MULTIBRANCH dynamic tiles (params: {"job":"test"}). unable to found job`)
+	assert.Contains(t, config.Errors, `Error while listing JENKINS-MULTIBRANCH dynamic tiles (params: {"job":"test"}). unable to find job`)
 	mockBuilder.AssertNumberOfCalls(t, "ListDynamicTile", 2)
 	mockBuilder.AssertExpectations(t)
 	mockBuilder2.AssertNumberOfCalls(t, "ListDynamicTile", 1)

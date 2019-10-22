@@ -63,7 +63,7 @@ func (pu *pingdomUsecase) Check(params *models.CheckParams) (*Tile, error) {
 	if err := pu.store.Get(pu.getTagsByIdStoreKey(checkId), &tags); err == nil {
 		checks, err := pu.loadChecks(tags)
 		if err != nil {
-			return nil, &MonitororError{Err: err, Message: "unable to found checks"}
+			return nil, &MonitororError{Err: err, Message: "unable to find checks"}
 		}
 
 		// Find check in array
@@ -77,7 +77,7 @@ func (pu *pingdomUsecase) Check(params *models.CheckParams) (*Tile, error) {
 	{
 		check, err := pu.loadCheck(checkId)
 		if err != nil {
-			return nil, &MonitororError{Err: err, Message: "unable to found check"}
+			return nil, &MonitororError{Err: err, Message: "unable to find check"}
 		}
 		result = *check
 	}

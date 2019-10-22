@@ -13,6 +13,7 @@ import (
 	"github.com/monitoror/monitoror/monitorable/jenkins/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/builder"
 	"github.com/monitoror/monitoror/pkg/monitoror/cache"
+	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
 
 	. "github.com/AlekSi/pointer"
 )
@@ -39,16 +40,16 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *Tile, err err
 	tile = NewTile(jenkins.JenkinsBuildTileType)
 
 	jobLabel, _ := url.QueryUnescape(params.Job)
+	tile.Label = jobLabel
+
 	branchLabel, _ := url.QueryUnescape(params.Branch)
-	if params.Branch == "" {
-		tile.Label = jobLabel
-	} else {
-		tile.Label = fmt.Sprintf("%s : #%s", jobLabel, branchLabel)
+	if params.Branch != "" {
+		tile.Message = fmt.Sprintf("%s", git.HumanizeBranch(branchLabel))
 	}
 
 	job, err := tu.repository.GetJob(params.Job, params.Branch)
 	if err != nil {
-		return nil, &MonitororError{Err: err, Tile: tile, Message: "unable to found job"}
+		return nil, &MonitororError{Err: err, Tile: tile, Message: "unable to find job"}
 	}
 
 	// Is Buildable
@@ -58,7 +59,7 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *Tile, err err
 	}
 
 	// Set Previous Status
-	previousStatus := tu.buildsCache.GetPreviousStatus(tile.Label, "null")
+	previousStatus := tu.buildsCache.GetPreviousStatus(params, "null")
 	if previousStatus != nil {
 		tile.PreviousStatus = *previousStatus
 	} else {
@@ -94,7 +95,7 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *Tile, err err
 	} else {
 		tile.Duration = ToInt64(int64(time.Now().Sub(build.StartedAt).Seconds()))
 
-		estimatedDuration := tu.buildsCache.GetEstimatedDuration(tile.Label)
+		estimatedDuration := tu.buildsCache.GetEstimatedDuration(params)
 		if estimatedDuration != nil {
 			tile.EstimatedDuration = ToInt64(int64(estimatedDuration.Seconds()))
 		} else {
@@ -112,7 +113,7 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *Tile, err err
 
 	// Cache Duration when success / failed / warning
 	if tile.Status == SuccessStatus || tile.Status == FailedStatus || tile.Status == WarningStatus {
-		tu.buildsCache.Add(tile.Label, build.Number, tile.Status, build.Duration)
+		tu.buildsCache.Add(params, build.Number, tile.Status, build.Duration)
 	}
 
 	return
@@ -123,7 +124,7 @@ func (tu *jenkinsUsecase) ListDynamicTile(params interface{}) (results []builder
 
 	job, err := tu.repository.GetJob(mbParams.Job, "")
 	if err != nil {
-		return nil, &MonitororError{Err: err, Message: "unable to found job"}
+		return nil, &MonitororError{Err: err, Message: "unable to find job"}
 	}
 
 	matcher, err := regexp.Compile(mbParams.Match)

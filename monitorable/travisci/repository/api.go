@@ -26,6 +26,7 @@ func NewTravisCIRepository(config *config.TravisCI, githubConfig *config.Github)
 	client := travis.NewClient(config.Url, config.Token)
 
 	// Using Github token if exist
+	// TODO: Change this to use Lazy load
 	if githubConfig.Token != "" {
 		_, _, err := client.Authentication.UsingGithubToken(context.Background(), githubConfig.Token)
 		if err != nil {

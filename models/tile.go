@@ -17,8 +17,8 @@ type (
 		PreviousStatus    TileStatus `json:"previousStatus,omitempty"`
 		StartedAt         *time.Time `json:"startedAt,omitempty"`
 		FinishedAt        *time.Time `json:"finishedAt,omitempty"`
-		Duration          *int64     `json:"duration,omitempty"`
-		EstimatedDuration *int64     `json:"estimatedDuration,omitempty"`
+		Duration          *int64     `json:"duration,omitempty"`          // In Seconds
+		EstimatedDuration *int64     `json:"estimatedDuration,omitempty"` // In Seconds
 	}
 
 	TileType      string // PING, JENKINS_BUILD, ...

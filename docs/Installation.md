@@ -53,7 +53,7 @@ sudo nano /opt/monitoror/.env
 
 # Starting frontend
 chromium-browser --kiosk --password-store=basic --disable-infobars \
-  --app=http://localhost:8080/?config=http://localhost:8080/api/v1/config?url={CONFIG_URL}
+  --app=http://localhost:8080/?configUrl={CONFIG_URL}
 ```
 
 ### Automatically
@@ -104,7 +104,7 @@ sudo service rsyslog restart
 tee -a ~/.config/autostart/chromium-browser.desktop > /dev/null <<END
 [Desktop Entry]
 Type=Application
-Exec=chromium-browser --kiosk --password-store=basic --disable-infobars --app=http://localhost:8080/?config=http://localhost:8080/api/v1/config?url={CONFIG_URL}
+Exec=chromium-browser --kiosk --password-store=basic --disable-infobars --app=http://localhost:8080/?configUrl={CONFIG_URL}
 Hidden=false
 X-MATE-Autostart-enabled=true
 Name[fr_FR]=chromium-browse

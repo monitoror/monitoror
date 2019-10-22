@@ -9,7 +9,7 @@ import (
 	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/config"
 	. "github.com/monitoror/monitoror/pkg/monitoror/builder"
-	. "github.com/monitoror/monitoror/pkg/monitoror/validator"
+	. "github.com/monitoror/monitoror/pkg/monitoror/utils"
 )
 
 // Versions

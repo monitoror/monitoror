@@ -11,6 +11,7 @@ import (
 	. "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/travisci"
 	"github.com/monitoror/monitoror/monitorable/travisci/models"
+	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
 )
 
@@ -34,7 +35,8 @@ func NewTravisCIUsecase() travisci.Usecase {
 
 func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *Tile, err error) {
 	tile = NewTile(travisci.TravisCIBuildTileType)
-	tile.Label = fmt.Sprintf("%s : #%s", params.Repository, params.Branch)
+	tile.Label = fmt.Sprintf("%s", params.Repository)
+	tile.Message = fmt.Sprintf("%s", git.HumanizeBranch(params.Branch))
 
 	// Init random generator
 	rand.Seed(time.Now().UnixNano())

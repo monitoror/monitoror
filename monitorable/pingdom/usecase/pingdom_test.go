@@ -28,7 +28,7 @@ func TestPingdomUsecase_Check_NoBulk_Error(t *testing.T) {
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
 		assert.IsType(t, &MonitororError{}, err)
-		assert.Equal(t, "unable to found check", err.Error())
+		assert.Equal(t, "unable to find check", err.Error())
 		mockRepository.AssertNumberOfCalls(t, "GetCheck", 1)
 		mockRepository.AssertExpectations(t)
 	}
@@ -95,7 +95,7 @@ func TestPingdomUsecase_Check_Bulk_Error(t *testing.T) {
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
 		assert.IsType(t, &MonitororError{}, err)
-		assert.Equal(t, "unable to found checks", err.Error())
+		assert.Equal(t, "unable to find checks", err.Error())
 		mockRepository.AssertNumberOfCalls(t, "GetChecks", 1)
 		mockRepository.AssertExpectations(t)
 	}

@@ -55,7 +55,7 @@ type (
 
 	Pingdom struct {
 		Url             string `json:"url"`
-		ApiKey          string `json:"apikey"`
+		Token           string `json:"token"`
 		Timeout         int    `json:"timeout"`         // In Millisecond
 		CacheExpiration int    `json:"cacheExpiration"` // In Millisecond
 	}
@@ -116,7 +116,7 @@ func InitConfig() *Config {
 	// --- Pingdom Configuration ---
 	for variant := range variants["Pingdom"] {
 		viper.SetDefault(fmt.Sprintf("Monitorable.Pingdom.%s.Url", variant), "")
-		viper.SetDefault(fmt.Sprintf("Monitorable.Pingdom.%s.ApiKey", variant), "")
+		viper.SetDefault(fmt.Sprintf("Monitorable.Pingdom.%s.Token", variant), "")
 		viper.SetDefault(fmt.Sprintf("Monitorable.Pingdom.%s.Timeout", variant), 2000)
 		viper.SetDefault(fmt.Sprintf("Monitorable.Pingdom.%s.CacheExpiration", variant), 30000)
 	}
@@ -135,9 +135,9 @@ func InitConfig() *Config {
 
 	// --- Jenkins Configuration ---
 	for variant := range variants["Jenkins"] {
+		viper.SetDefault(fmt.Sprintf("Monitorable.Jenkins.%s.Url", variant), "")
 		viper.SetDefault(fmt.Sprintf("Monitorable.Jenkins.%s.Timeout", variant), 2000)
 		viper.SetDefault(fmt.Sprintf("Monitorable.Jenkins.%s.SSLVerify", variant), true)
-		viper.SetDefault(fmt.Sprintf("Monitorable.Jenkins.%s.Url", variant), "")
 		viper.SetDefault(fmt.Sprintf("Monitorable.Jenkins.%s.Login", variant), "")
 		viper.SetDefault(fmt.Sprintf("Monitorable.Jenkins.%s.Token", variant), "")
 	}
@@ -147,20 +147,37 @@ func InitConfig() *Config {
 	return &config
 }
 
-func (t *TravisCI) IsValid() bool {
-	return t.Url != ""
-}
-
-func (t *Jenkins) IsValid() bool {
-	return t.Url != ""
-}
-
 func (t *Pingdom) IsValid() bool {
+	// Pingdom url can be empty, plugin will use default value
 	if t.Url != "" {
 		if _, err := url.Parse(t.Url); err != nil {
 			return false
 		}
 	}
 
-	return t.ApiKey != ""
+	return t.Token != ""
+}
+
+func (t *TravisCI) IsValid() bool {
+	if t.Url == "" {
+		return false
+	}
+
+	if _, err := url.Parse(t.Url); err != nil {
+		return false
+	}
+
+	return true
+}
+
+func (t *Jenkins) IsValid() bool {
+	if t.Url == "" {
+		return false
+	}
+
+	if _, err := url.Parse(t.Url); err != nil {
+		return false
+	}
+
+	return true
 }

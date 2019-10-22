@@ -10,6 +10,7 @@ import (
 	"github.com/monitoror/monitoror/monitorable/travisci"
 	"github.com/monitoror/monitoror/monitorable/travisci/mocks"
 	"github.com/monitoror/monitoror/monitorable/travisci/models"
+	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
 
 	. "github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
@@ -29,7 +30,7 @@ func TestBuild_Error(t *testing.T) {
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
 		assert.IsType(t, &MonitororError{}, err)
-		assert.Equal(t, "unable to found build", err.Error())
+		assert.Equal(t, "unable to find build", err.Error())
 		mockRepository.AssertNumberOfCalls(t, "GetLastBuildStatus", 1)
 		mockRepository.AssertExpectations(t)
 	}
@@ -64,7 +65,8 @@ func TestBuild_Success(t *testing.T) {
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		// Expected
 		expected := NewTile(travisci.TravisCIBuildTileType)
-		expected.Label = fmt.Sprintf("%s : #%s", repo, branch)
+		expected.Label = fmt.Sprintf("%s", repo)
+		expected.Message = fmt.Sprintf("%s", git.HumanizeBranch(branch))
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(build.StartedAt)
@@ -75,14 +77,15 @@ func TestBuild_Success(t *testing.T) {
 		}
 
 		// Tests
-		tUsecase.buildsCache.Add(fmt.Sprintf("%s : #%s", repo, branch), "0", SuccessStatus, time.Second*120)
-		tile, err := tu.Build(&models.BuildParams{Group: group, Repository: repo, Branch: branch})
+		params := &models.BuildParams{Group: group, Repository: repo, Branch: branch}
+		tUsecase.buildsCache.Add(params, "0", SuccessStatus, time.Second*120)
+		tile, err := tu.Build(params)
 		if assert.NotNil(t, tile) {
 			assert.NoError(t, err)
 			assert.Equal(t, expected, tile)
 
 			// Check if duration is added into cache
-			previousDuration := tUsecase.buildsCache.GetEstimatedDuration(tile.Label)
+			previousDuration := tUsecase.buildsCache.GetEstimatedDuration(params)
 			assert.NotNil(t, previousDuration)
 			assert.Equal(t, time.Second*110, *previousDuration)
 
@@ -104,7 +107,8 @@ func TestBuild_Failed(t *testing.T) {
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		// Expected
 		expected := NewTile(travisci.TravisCIBuildTileType)
-		expected.Label = fmt.Sprintf("%s : #%s", repo, branch)
+		expected.Label = fmt.Sprintf("%s", repo)
+		expected.Message = fmt.Sprintf("%s", git.HumanizeBranch(branch))
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(build.StartedAt)
@@ -114,14 +118,15 @@ func TestBuild_Failed(t *testing.T) {
 			AvatarUrl: build.Author.AvatarUrl,
 		}
 
-		tUsecase.buildsCache.Add(fmt.Sprintf("%s : #%s", repo, branch), "0", SuccessStatus, time.Second*120)
-		tile, err := tu.Build(&models.BuildParams{Group: group, Repository: repo, Branch: branch})
+		params := &models.BuildParams{Group: group, Repository: repo, Branch: branch}
+		tUsecase.buildsCache.Add(params, "0", SuccessStatus, time.Second*120)
+		tile, err := tu.Build(params)
 		if assert.NotNil(t, tile) {
 			assert.NoError(t, err)
 			assert.Equal(t, expected, tile)
 
 			// Check if duration is added into cache
-			previousDuration := tUsecase.buildsCache.GetEstimatedDuration(tile.Label)
+			previousDuration := tUsecase.buildsCache.GetEstimatedDuration(params)
 			assert.NotNil(t, previousDuration)
 			assert.Equal(t, time.Second*110, *previousDuration)
 
@@ -141,11 +146,10 @@ func TestBuild_Queued(t *testing.T) {
 	tu := NewTravisCIUsecase(mockRepository)
 	tUsecase, ok := tu.(*travisCIUsecase)
 	if assert.True(t, ok) {
-		tUsecase.buildsCache.Add(fmt.Sprintf("%s : #%s", repo, branch), "0", SuccessStatus, time.Second*10)
-
 		// Expected
 		expected := NewTile(travisci.TravisCIBuildTileType)
-		expected.Label = fmt.Sprintf("%s : #%s", repo, branch)
+		expected.Label = fmt.Sprintf("%s", repo)
+		expected.Message = fmt.Sprintf("%s", git.HumanizeBranch(branch))
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(build.StartedAt)
@@ -155,7 +159,9 @@ func TestBuild_Queued(t *testing.T) {
 		}
 
 		// Without Estimated Duration
-		tile, err := tu.Build(&models.BuildParams{Group: group, Repository: repo, Branch: branch})
+		params := &models.BuildParams{Group: group, Repository: repo, Branch: branch}
+		tUsecase.buildsCache.Add(params, "0", SuccessStatus, time.Second*10)
+		tile, err := tu.Build(params)
 		if assert.NotNil(t, tile) {
 			assert.NoError(t, err)
 			assert.Equal(t, expected, tile)
@@ -175,7 +181,8 @@ func TestBuild_Running(t *testing.T) {
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		// Expected
 		expected := NewTile(travisci.TravisCIBuildTileType)
-		expected.Label = fmt.Sprintf("%s : #%s", repo, branch)
+		expected.Label = fmt.Sprintf("%s", repo)
+		expected.Message = fmt.Sprintf("%s", git.HumanizeBranch(branch))
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = UnknownStatus
 		expected.Duration = ToInt64(int64(build.Duration / time.Second))
@@ -187,7 +194,8 @@ func TestBuild_Running(t *testing.T) {
 		}
 
 		// Without Previous Build
-		tile, err := tu.Build(&models.BuildParams{Group: group, Repository: repo, Branch: branch})
+		params := &models.BuildParams{Group: group, Repository: repo, Branch: branch}
+		tile, err := tu.Build(params)
 		if assert.NotNil(t, tile) {
 			assert.NoError(t, err)
 			assert.Equal(t, expected, tile)
@@ -196,9 +204,8 @@ func TestBuild_Running(t *testing.T) {
 		// With Previous Build
 		expected.PreviousStatus = SuccessStatus
 		expected.EstimatedDuration = ToInt64(int64(120))
-		tUsecase.buildsCache.Add(fmt.Sprintf("%s : #%s", repo, branch), "0", SuccessStatus, time.Second*120)
-
-		tile, err = tu.Build(&models.BuildParams{Group: group, Repository: repo, Branch: branch})
+		tUsecase.buildsCache.Add(params, "0", SuccessStatus, time.Second*120)
+		tile, err = tu.Build(params)
 		if assert.NotNil(t, tile) {
 			assert.NoError(t, err)
 			assert.Equal(t, expected, tile)
@@ -219,11 +226,10 @@ func TestBuild_Aborded(t *testing.T) {
 	tu := NewTravisCIUsecase(mockRepository)
 	tUsecase, ok := tu.(*travisCIUsecase)
 	if assert.True(t, ok) {
-		tUsecase.buildsCache.Add(fmt.Sprintf("%s : #%s", repo, branch), "0", SuccessStatus, time.Second*10)
-
 		// Expected
 		expected := NewTile(travisci.TravisCIBuildTileType)
-		expected.Label = fmt.Sprintf("%s : #%s", repo, branch)
+		expected.Label = fmt.Sprintf("%s", repo)
+		expected.Message = fmt.Sprintf("%s", git.HumanizeBranch(branch))
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(build.StartedAt)
@@ -233,7 +239,9 @@ func TestBuild_Aborded(t *testing.T) {
 		}
 
 		// Without Estimated Duration
-		tile, err := tu.Build(&models.BuildParams{Group: group, Repository: repo, Branch: branch})
+		params := &models.BuildParams{Group: group, Repository: repo, Branch: branch}
+		tUsecase.buildsCache.Add(params, "0", SuccessStatus, time.Second*10)
+		tile, err := tu.Build(params)
 		if assert.NotNil(t, tile) {
 			assert.NoError(t, err)
 			assert.Equal(t, expected, tile)

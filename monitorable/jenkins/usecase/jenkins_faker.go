@@ -7,6 +7,8 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
+
 	. "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
 	"github.com/monitoror/monitoror/monitorable/jenkins/models"
@@ -39,7 +41,8 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *Tile, err err
 	if params.Branch == "" {
 		tile.Label = params.Job
 	} else {
-		tile.Label = fmt.Sprintf("%s : #%s", params.Job, params.Branch)
+		tile.Label = fmt.Sprintf("%s", params.Job)
+		tile.Message = fmt.Sprintf("%s", git.HumanizeBranch(params.Branch))
 	}
 
 	// Init random generator
