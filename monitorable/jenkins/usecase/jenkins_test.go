@@ -95,9 +95,6 @@ func CheckBuild(t *testing.T, result string) {
 	tu := NewJenkinsUsecase(mockRepository)
 	tUsecase, ok := tu.(*jenkinsUsecase)
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
-		// Add cache for previousStatus
-		tUsecase.buildsCache.Add(fmt.Sprintf("%s : #%s", job, branch), "0", SuccessStatus, time.Second*120)
-
 		expected := NewTile(jenkins.JenkinsBuildTileType)
 		expected.Label = fmt.Sprintf("%s", job)
 		expected.Message = fmt.Sprintf("%s", git.HumanizeBranch(branch))
@@ -110,7 +107,10 @@ func CheckBuild(t *testing.T, result string) {
 			AvatarUrl: repositoryBuild.Author.AvatarUrl,
 		}
 
-		tile, err := tu.Build(&models.BuildParams{Job: job, Branch: branch})
+		// Add cache for previousStatus
+		params := &models.BuildParams{Job: job, Branch: branch}
+		tUsecase.buildsCache.Add(params, "0", SuccessStatus, time.Second*120)
+		tile, err := tu.Build(params)
 		if assert.NoError(t, err) {
 			assert.Equal(t, expected, tile)
 			mockRepository.AssertNumberOfCalls(t, "GetJob", 1)
@@ -150,9 +150,6 @@ func TestBuild_Queued(t *testing.T) {
 	tu := NewJenkinsUsecase(mockRepository)
 	tUsecase, ok := tu.(*jenkinsUsecase)
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
-		// Add cache for previousStatus
-		tUsecase.buildsCache.Add(fmt.Sprintf("%s : #%s", job, branch), "0", SuccessStatus, time.Second*120)
-
 		expected := NewTile(jenkins.JenkinsBuildTileType)
 		expected.Label = fmt.Sprintf("%s", job)
 		expected.Message = fmt.Sprintf("%s", git.HumanizeBranch(branch))
@@ -160,7 +157,10 @@ func TestBuild_Queued(t *testing.T) {
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = repositoryJob.QueuedAt
 
-		tile, err := tu.Build(&models.BuildParams{Job: job, Branch: branch})
+		// Add cache for previousStatus
+		params := &models.BuildParams{Job: job, Branch: branch}
+		tUsecase.buildsCache.Add(params, "0", SuccessStatus, time.Second*120)
+		tile, err := tu.Build(params)
 		if assert.NoError(t, err) {
 			assert.Equal(t, expected, tile)
 			mockRepository.AssertNumberOfCalls(t, "GetJob", 1)
@@ -199,18 +199,19 @@ func TestBuild_Running(t *testing.T) {
 			AvatarUrl: repositoryBuild.Author.AvatarUrl,
 		}
 
-		tile, err := tu.Build(&models.BuildParams{Job: job, Branch: branch})
+		params := &models.BuildParams{Job: job, Branch: branch}
+		tile, err := tu.Build(params)
 		if assert.NoError(t, err) {
 			assert.Equal(t, expected, tile)
 		}
 
 		// With cached build
-		tUsecase.buildsCache.Add(fmt.Sprintf("%s : #%s", job, branch), "0", SuccessStatus, time.Second*120)
+		tUsecase.buildsCache.Add(params, "0", SuccessStatus, time.Second*120)
 
 		expected.PreviousStatus = SuccessStatus
 		expected.EstimatedDuration = ToInt64(int64(120))
 
-		tile, err = tu.Build(&models.BuildParams{Job: job, Branch: branch})
+		tile, err = tu.Build(params)
 		if assert.NoError(t, err) {
 			assert.Equal(t, expected, tile)
 		}

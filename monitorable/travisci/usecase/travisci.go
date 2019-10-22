@@ -50,7 +50,7 @@ func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *Tile, err er
 	tile.Status = parseState(build.State)
 
 	// Set Previous Status
-	previousStatus := tu.buildsCache.GetPreviousStatus(tile.Label, fmt.Sprintf("%d", build.Id))
+	previousStatus := tu.buildsCache.GetPreviousStatus(params, fmt.Sprintf("%d", build.Id))
 	if previousStatus != nil {
 		tile.PreviousStatus = *previousStatus
 	} else {
@@ -69,7 +69,7 @@ func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *Tile, err er
 	if tile.Status == RunningStatus {
 		tile.Duration = ToInt64(int64(time.Now().Sub(build.StartedAt).Seconds()))
 
-		estimatedDuration := tu.buildsCache.GetEstimatedDuration(tile.Label)
+		estimatedDuration := tu.buildsCache.GetEstimatedDuration(params)
 		if estimatedDuration != nil {
 			tile.EstimatedDuration = ToInt64(int64(estimatedDuration.Seconds()))
 		} else {
@@ -87,7 +87,7 @@ func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *Tile, err er
 
 	// Cache Duration when success / failed
 	if tile.Status == SuccessStatus || tile.Status == FailedStatus {
-		tu.buildsCache.Add(tile.Label, fmt.Sprintf("%d", build.Id), tile.Status, build.Duration)
+		tu.buildsCache.Add(params, fmt.Sprintf("%d", build.Id), tile.Status, build.Duration)
 	}
 
 	return

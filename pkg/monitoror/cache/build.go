@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/monitoror/monitoror/models"
@@ -22,8 +23,9 @@ func NewBuildCache(size int) *BuildCache {
 	return &BuildCache{maxSize: size, previousBuilds: cmap.New()}
 }
 
-func (c *BuildCache) GetEstimatedDuration(key string) *time.Duration {
-	value, ok := c.previousBuilds.Get(key)
+func (c *BuildCache) GetEstimatedDuration(key interface{}) *time.Duration {
+	k := fmt.Sprint(key)
+	value, ok := c.previousBuilds.Get(k)
 	if !ok {
 		return nil
 	}
@@ -39,8 +41,9 @@ func (c *BuildCache) GetEstimatedDuration(key string) *time.Duration {
 }
 
 // Get Previous Status excluse current status in case of multiple call with the same current build
-func (c *BuildCache) GetPreviousStatus(key, id string) *models.TileStatus {
-	value, ok := c.previousBuilds.Get(key)
+func (c *BuildCache) GetPreviousStatus(key interface{}, id string) *models.TileStatus {
+	k := fmt.Sprint(key)
+	value, ok := c.previousBuilds.Get(k)
 	if !ok {
 		return nil
 	}
@@ -57,11 +60,12 @@ func (c *BuildCache) GetPreviousStatus(key, id string) *models.TileStatus {
 	return &previous.status
 }
 
-func (c *BuildCache) Add(key, id string, s models.TileStatus, d time.Duration) {
+func (c *BuildCache) Add(key interface{}, id string, s models.TileStatus, d time.Duration) {
+	k := fmt.Sprint(key)
 	// If cache is not found, create it
 	var builds []build
-	if tmp, ok := c.previousBuilds.Get(key); !ok {
-		c.previousBuilds.Set(key, builds)
+	if tmp, ok := c.previousBuilds.Get(k); !ok {
+		c.previousBuilds.Set(k, builds)
 	} else {
 		builds = tmp.([]build)
 	}
@@ -78,5 +82,5 @@ func (c *BuildCache) Add(key, id string, s models.TileStatus, d time.Duration) {
 		builds = builds[:len(builds)-1]
 	}
 
-	c.previousBuilds.Set(key, append([]build{{id, s, d}}, builds...))
+	c.previousBuilds.Set(k, append([]build{{id, s, d}}, builds...))
 }

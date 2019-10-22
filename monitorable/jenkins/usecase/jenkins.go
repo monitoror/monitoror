@@ -59,7 +59,7 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *Tile, err err
 	}
 
 	// Set Previous Status
-	previousStatus := tu.buildsCache.GetPreviousStatus(tile.Label, "null")
+	previousStatus := tu.buildsCache.GetPreviousStatus(params, "null")
 	if previousStatus != nil {
 		tile.PreviousStatus = *previousStatus
 	} else {
@@ -95,7 +95,7 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *Tile, err err
 	} else {
 		tile.Duration = ToInt64(int64(time.Now().Sub(build.StartedAt).Seconds()))
 
-		estimatedDuration := tu.buildsCache.GetEstimatedDuration(tile.Label)
+		estimatedDuration := tu.buildsCache.GetEstimatedDuration(params)
 		if estimatedDuration != nil {
 			tile.EstimatedDuration = ToInt64(int64(estimatedDuration.Seconds()))
 		} else {
@@ -113,7 +113,7 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *Tile, err err
 
 	// Cache Duration when success / failed / warning
 	if tile.Status == SuccessStatus || tile.Status == FailedStatus || tile.Status == WarningStatus {
-		tu.buildsCache.Add(tile.Label, build.Number, tile.Status, build.Duration)
+		tu.buildsCache.Add(params, build.Number, tile.Status, build.Duration)
 	}
 
 	return
