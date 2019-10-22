@@ -30,7 +30,7 @@ func TestBuild_Error(t *testing.T) {
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
 		assert.IsType(t, &MonitororError{}, err)
-		assert.Equal(t, "unable to found job", err.Error())
+		assert.Equal(t, "unable to find job", err.Error())
 		mockRepository.AssertNumberOfCalls(t, "GetJob", 1)
 		mockRepository.AssertExpectations(t)
 	}
@@ -270,7 +270,7 @@ func TestListDynamicTile_Error(t *testing.T) {
 
 	_, err := tu.ListDynamicTile(&models.MultiBranchParams{Job: "test"})
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "unable to found job")
+	assert.Contains(t, err.Error(), "unable to find job")
 
 	mockRepository.AssertNumberOfCalls(t, "GetJob", 1)
 	mockRepository.AssertExpectations(t)

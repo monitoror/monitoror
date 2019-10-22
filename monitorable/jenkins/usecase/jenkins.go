@@ -49,7 +49,7 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *Tile, err err
 
 	job, err := tu.repository.GetJob(params.Job, params.Branch)
 	if err != nil {
-		return nil, &MonitororError{Err: err, Tile: tile, Message: "unable to found job"}
+		return nil, &MonitororError{Err: err, Tile: tile, Message: "unable to find job"}
 	}
 
 	// Is Buildable
@@ -124,7 +124,7 @@ func (tu *jenkinsUsecase) ListDynamicTile(params interface{}) (results []builder
 
 	job, err := tu.repository.GetJob(mbParams.Job, "")
 	if err != nil {
-		return nil, &MonitororError{Err: err, Message: "unable to found job"}
+		return nil, &MonitororError{Err: err, Message: "unable to find job"}
 	}
 
 	matcher, err := regexp.Compile(mbParams.Match)

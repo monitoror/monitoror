@@ -30,7 +30,7 @@ func TestBuild_Error(t *testing.T) {
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
 		assert.IsType(t, &MonitororError{}, err)
-		assert.Equal(t, "unable to found build", err.Error())
+		assert.Equal(t, "unable to find build", err.Error())
 		mockRepository.AssertNumberOfCalls(t, "GetLastBuildStatus", 1)
 		mockRepository.AssertExpectations(t)
 	}

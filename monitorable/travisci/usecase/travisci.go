@@ -39,7 +39,7 @@ func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *Tile, err er
 	// Request
 	build, err := tu.repository.GetLastBuildStatus(params.Group, params.Repository, params.Branch)
 	if err != nil {
-		return nil, &MonitororError{Err: err, Tile: tile, Message: "unable to found build"}
+		return nil, &MonitororError{Err: err, Tile: tile, Message: "unable to find build"}
 	}
 	if build == nil {
 		// Warning because request was correct but there is no build
