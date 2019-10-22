@@ -32,12 +32,21 @@ func (e *MonitororError) Error() string {
 	if e.Message != "" {
 		return e.Message
 	}
-	return e.Err.Error()
+
+	if e.Err != nil {
+		return e.Err.Error()
+	}
+
+	return ""
 }
 func (e *MonitororError) Unwrap() error { return e.Err }
 func (e *MonitororError) Timeout() bool {
 	// timeout, host unreachable, deadline exceeded are considered "timeout"
 	// it mean we will found previous status in cache to answer
+
+	if e.Err == nil {
+		return false
+	}
 
 	// Timeout
 	if os.IsTimeout(e.Err) {
