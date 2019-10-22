@@ -21,8 +21,8 @@ func main() {
 	// GetConfig .env file
 	dir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
 
-	_ = godotenv.Load(".env.local")
 	_ = godotenv.Load(".env")
+	_ = godotenv.Load(".env.local")
 	_ = godotenv.Load(filepath.Join(dir, ".env"))
 
 	// GetConfig GetConfig from File/Env
