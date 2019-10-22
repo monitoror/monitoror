@@ -43,7 +43,7 @@ func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *Tile, err er
 	}
 	if build == nil {
 		// Warning because request was correct but there is no build
-		return nil, &MonitororError{Tile: tile, Message: "unable to found build", ErrorStatus: WarningStatus}
+		return nil, &MonitororError{Tile: tile, Message: "no build found", ErrorStatus: UnknownStatus}
 	}
 
 	// Set Status

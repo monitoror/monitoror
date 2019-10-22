@@ -76,7 +76,7 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *Tile, err err
 	// Get Last Build
 	build, err := tu.repository.GetLastBuildStatus(job)
 	if err != nil || build == nil {
-		return nil, &MonitororError{Err: err, Tile: tile, Message: "unable to found build", ErrorStatus: WarningStatus}
+		return nil, &MonitororError{Err: err, Tile: tile, Message: "no build found", ErrorStatus: UnknownStatus}
 	}
 
 	// Set Status
