@@ -25,8 +25,8 @@ type (
 
 func NewPingdomRepository(config *config.Pingdom) pingdom.Repository {
 	client, err := NewClientWithConfig(ClientConfig{
-		BaseURL: config.Url,
-		APIKey:  config.ApiKey,
+		BaseURL:  config.Url,
+		APIToken: config.Token,
 		HTTPClient: &http.Client{
 			Timeout: time.Millisecond * time.Duration(config.Timeout),
 		},
