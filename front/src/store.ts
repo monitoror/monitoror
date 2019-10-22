@@ -55,6 +55,14 @@ const ORDERED_TILE_STATUS = [
   TileStatus.Running,
 ]
 
+export const DISPLAYABLE_SUBTILE_STATUS = [
+  TileStatus.Canceled,
+  TileStatus.Warning,
+  TileStatus.Failed,
+  TileStatus.Queued,
+  TileStatus.Running,
+]
+
 export enum Theme {
   Default = 'DEFAULT',
   Dark = 'DARK',
@@ -267,13 +275,13 @@ const store: StoreOptions<RootState> = {
           return mostImportantStatus(worstSubTileStatus, subTileStatus)
         }, TileStatus.Unknown)
 
-        const groupSucceededSubTiles = groupSubTilesState.filter((subTileState) => {
+        const groupNonDisplayedSubTiles = groupSubTilesState.filter((subTileState) => {
           const subTileStatus = subTileState !== undefined ? getPreviousOrStatus(subTileState) : TileStatus.Unknown
 
-          return subTileStatus === TileStatus.Success
+          return !DISPLAYABLE_SUBTILE_STATUS.includes(subTileStatus)
         })
 
-        const groupMessage = `${groupSucceededSubTiles.length} / ${groupTile.tiles.length}`
+        const groupMessage = `${groupNonDisplayedSubTiles.length} / ${groupTile.tiles.length}`
 
         const groupState = {
           status: groupStatus,

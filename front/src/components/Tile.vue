@@ -15,7 +15,7 @@ import { TileValueUnit } from '@/store'
       </div>
 
       <div class="c-monitoror-tile--sub-tiles" v-if="isGroup">
-        <monitoror-sub-tile v-for="subTile in nonSucceededSubTiles" :key="subTile.stateKey" :config="subTile"></monitoror-sub-tile>
+        <monitoror-sub-tile v-for="subTile in displayedSubTiles" :key="subTile.stateKey" :config="subTile"></monitoror-sub-tile>
       </div>
 
       <monitoror-tile-icon :tile-type="type" class="c-monitoror-tile--icon"></monitoror-tile-icon>
@@ -53,7 +53,15 @@ import { TileValueUnit } from '@/store'
 
   import MonitororSubTile from '@/components/SubTile.vue'
   import MonitororTileIcon from '@/components/TileIcon.vue'
-  import {TileAuthor, TileConfig, TileState, TileStatus, TileType, TileValueUnit} from '@/store'
+  import {
+      DISPLAYABLE_SUBTILE_STATUS,
+      TileAuthor,
+      TileConfig,
+      TileState,
+      TileStatus,
+      TileType,
+      TileValueUnit,
+  } from '@/store'
 
   @Component({
     components: {
@@ -155,20 +163,20 @@ import { TileValueUnit } from '@/store'
       return this.$store.getters.theme.toString().toLowerCase()
     }
 
-    get nonSucceededSubTiles(): TileConfig[] | undefined {
+    get displayedSubTiles(): TileConfig[] | undefined {
       if (!this.config.tiles) {
         return
       }
 
-      const nonSucceededSubTiles = this.config.tiles.filter((subTile) => {
+      const displayedSubTiles = this.config.tiles.filter((subTile) => {
         if (!this.$store.state.tilesState.hasOwnProperty(subTile.stateKey)) {
           return false
         }
 
-        return this.$store.state.tilesState[subTile.stateKey].status !== TileStatus.Success
+        return DISPLAYABLE_SUBTILE_STATUS.includes(this.$store.state.tilesState[subTile.stateKey].status)
       })
 
-      return nonSucceededSubTiles
+      return displayedSubTiles
     }
 
     get state(): TileState | undefined {
