@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
+
 	. "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/travisci"
 	"github.com/monitoror/monitoror/monitorable/travisci/models"
@@ -31,7 +33,8 @@ func NewTravisCIUsecase(repository travisci.Repository) travisci.Usecase {
 
 func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *Tile, err error) {
 	tile = NewTile(travisci.TravisCIBuildTileType)
-	tile.Label = fmt.Sprintf("%s : #%s", params.Repository, params.Branch)
+	tile.Label = fmt.Sprintf("%s", params.Repository)
+	tile.Message = fmt.Sprintf("%s", git.HumanizeBranch(params.Branch))
 
 	// Request
 	build, err := tu.repository.GetLastBuildStatus(params.Group, params.Repository, params.Branch)

@@ -10,6 +10,7 @@ import (
 	"github.com/monitoror/monitoror/monitorable/travisci"
 	"github.com/monitoror/monitoror/monitorable/travisci/mocks"
 	"github.com/monitoror/monitoror/monitorable/travisci/models"
+	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
 
 	. "github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
@@ -64,7 +65,8 @@ func TestBuild_Success(t *testing.T) {
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		// Expected
 		expected := NewTile(travisci.TravisCIBuildTileType)
-		expected.Label = fmt.Sprintf("%s : #%s", repo, branch)
+		expected.Label = fmt.Sprintf("%s", repo)
+		expected.Message = fmt.Sprintf("%s", git.HumanizeBranch(branch))
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(build.StartedAt)
@@ -104,7 +106,8 @@ func TestBuild_Failed(t *testing.T) {
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		// Expected
 		expected := NewTile(travisci.TravisCIBuildTileType)
-		expected.Label = fmt.Sprintf("%s : #%s", repo, branch)
+		expected.Label = fmt.Sprintf("%s", repo)
+		expected.Message = fmt.Sprintf("%s", git.HumanizeBranch(branch))
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(build.StartedAt)
@@ -145,7 +148,8 @@ func TestBuild_Queued(t *testing.T) {
 
 		// Expected
 		expected := NewTile(travisci.TravisCIBuildTileType)
-		expected.Label = fmt.Sprintf("%s : #%s", repo, branch)
+		expected.Label = fmt.Sprintf("%s", repo)
+		expected.Message = fmt.Sprintf("%s", git.HumanizeBranch(branch))
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(build.StartedAt)
@@ -175,7 +179,8 @@ func TestBuild_Running(t *testing.T) {
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		// Expected
 		expected := NewTile(travisci.TravisCIBuildTileType)
-		expected.Label = fmt.Sprintf("%s : #%s", repo, branch)
+		expected.Label = fmt.Sprintf("%s", repo)
+		expected.Message = fmt.Sprintf("%s", git.HumanizeBranch(branch))
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = UnknownStatus
 		expected.Duration = ToInt64(int64(build.Duration / time.Second))
@@ -223,7 +228,8 @@ func TestBuild_Aborded(t *testing.T) {
 
 		// Expected
 		expected := NewTile(travisci.TravisCIBuildTileType)
-		expected.Label = fmt.Sprintf("%s : #%s", repo, branch)
+		expected.Label = fmt.Sprintf("%s", repo)
+		expected.Message = fmt.Sprintf("%s", git.HumanizeBranch(branch))
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(build.StartedAt)

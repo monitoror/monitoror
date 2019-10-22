@@ -10,6 +10,7 @@ import (
 	"github.com/monitoror/monitoror/monitorable/jenkins"
 	"github.com/monitoror/monitoror/monitorable/jenkins/mocks"
 	"github.com/monitoror/monitoror/monitorable/jenkins/models"
+	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
 
 	. "github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
@@ -98,7 +99,8 @@ func CheckBuild(t *testing.T, result string) {
 		tUsecase.buildsCache.Add(fmt.Sprintf("%s : #%s", job, branch), "0", SuccessStatus, time.Second*120)
 
 		expected := NewTile(jenkins.JenkinsBuildTileType)
-		expected.Label = fmt.Sprintf("%s : #%s", job, branch)
+		expected.Label = fmt.Sprintf("%s", job)
+		expected.Message = fmt.Sprintf("%s", git.HumanizeBranch(branch))
 		expected.Status = parseResult(repositoryBuild.Result)
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(repositoryBuild.StartedAt)
@@ -152,7 +154,8 @@ func TestBuild_Queued(t *testing.T) {
 		tUsecase.buildsCache.Add(fmt.Sprintf("%s : #%s", job, branch), "0", SuccessStatus, time.Second*120)
 
 		expected := NewTile(jenkins.JenkinsBuildTileType)
-		expected.Label = fmt.Sprintf("%s : #%s", job, branch)
+		expected.Label = fmt.Sprintf("%s", job)
+		expected.Message = fmt.Sprintf("%s", git.HumanizeBranch(branch))
 		expected.Status = QueuedStatus
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = repositoryJob.QueuedAt
@@ -184,7 +187,8 @@ func TestBuild_Running(t *testing.T) {
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		// Without cached build
 		expected := NewTile(jenkins.JenkinsBuildTileType)
-		expected.Label = fmt.Sprintf("%s : #%s", job, branch)
+		expected.Label = fmt.Sprintf("%s", job)
+		expected.Message = fmt.Sprintf("%s", git.HumanizeBranch(branch))
 		expected.Status = RunningStatus
 		expected.PreviousStatus = UnknownStatus
 		expected.StartedAt = ToTime(repositoryBuild.StartedAt)

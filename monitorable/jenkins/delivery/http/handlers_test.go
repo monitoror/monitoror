@@ -30,12 +30,11 @@ func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 	return
 }
 
-func TestDelivery_BuildHandler_Success(t *testing.T) {
+func TestDelivery_GetBuild_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
 	tile := models.NewTile(travisci.TravisCIBuildTileType)
-	tile.Label = "test : #master"
 	tile.Status = models.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)
@@ -55,7 +54,7 @@ func TestDelivery_BuildHandler_Success(t *testing.T) {
 	}
 }
 
-func TestDelivery_BuildHandler_QueryParamsError_MissingGroup(t *testing.T) {
+func TestDelivery_GetBuild_QueryParamsError_MissingGroup(t *testing.T) {
 	// Init
 	ctx, _ := initEcho()
 	ctx.QueryParams().Del("job")
@@ -69,7 +68,7 @@ func TestDelivery_BuildHandler_QueryParamsError_MissingGroup(t *testing.T) {
 	assert.IsType(t, &models.MonitororError{}, err)
 }
 
-func TestDelivery_BuildHandler_Error(t *testing.T) {
+func TestDelivery_GetBuild_Error(t *testing.T) {
 	// Init
 	ctx, _ := initEcho()
 

@@ -13,6 +13,7 @@ import (
 	"github.com/monitoror/monitoror/monitorable/jenkins/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/builder"
 	"github.com/monitoror/monitoror/pkg/monitoror/cache"
+	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
 
 	. "github.com/AlekSi/pointer"
 )
@@ -39,11 +40,11 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *Tile, err err
 	tile = NewTile(jenkins.JenkinsBuildTileType)
 
 	jobLabel, _ := url.QueryUnescape(params.Job)
+	tile.Label = jobLabel
+
 	branchLabel, _ := url.QueryUnescape(params.Branch)
-	if params.Branch == "" {
-		tile.Label = jobLabel
-	} else {
-		tile.Label = fmt.Sprintf("%s : #%s", jobLabel, branchLabel)
+	if params.Branch != "" {
+		tile.Message = fmt.Sprintf("%s", git.HumanizeBranch(branchLabel))
 	}
 
 	job, err := tu.repository.GetJob(params.Job, params.Branch)
