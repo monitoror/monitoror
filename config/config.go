@@ -29,13 +29,14 @@ type (
 	}
 
 	Monitorable struct {
-		Ping     Ping                 `json:"ping"`
-		Port     Port                 `json:"port"`
-		Http     Http                 `json:"http"`
-		Pingdom  map[string]*Pingdom  `json:"pingdom"`  // With variants
-		Github   map[string]*Github   `json:"github"`   // With variants
-		TravisCI map[string]*TravisCI `json:"travisCI"` // With variants
-		Jenkins  map[string]*Jenkins  `json:"jenkins"`  // With variants
+		Ping        Ping                    `json:"ping"`
+		Port        Port                    `json:"port"`
+		Http        Http                    `json:"http"`
+		Pingdom     map[string]*Pingdom     `json:"pingdom"`     // With variants
+		Github      map[string]*Github      `json:"github"`      // With variants
+		TravisCI    map[string]*TravisCI    `json:"travisCI"`    // With variants
+		Jenkins     map[string]*Jenkins     `json:"jenkins"`     // With variants
+		AzureDevOps map[string]*AzureDevOps `json:"azureDevOps"` // With variants
 	}
 
 	Ping struct {
@@ -76,6 +77,12 @@ type (
 		SSLVerify bool   `json:"sslVerify"`
 		Login     string `json:"login"`
 		Token     string `json:"token"`
+	}
+
+	AzureDevOps struct {
+		Url     string `json:"url"`
+		Timeout int    `json:"timeout"` // In Millisecond
+		Token   string `json:"token"`
 	}
 )
 
@@ -142,6 +149,13 @@ func InitConfig() *Config {
 		viper.SetDefault(fmt.Sprintf("Monitorable.Jenkins.%s.Token", variant), "")
 	}
 
+	// --- Azure DevOps Configuration ---
+	for variant := range variants["AzureDevOps"] {
+		viper.SetDefault(fmt.Sprintf("Monitorable.AzureDevOps.%s.Url", variant), "")
+		viper.SetDefault(fmt.Sprintf("Monitorable.AzureDevOps.%s.Timeout", variant), 4000)
+		viper.SetDefault(fmt.Sprintf("Monitorable.AzureDevOps.%s.Token", variant), "")
+	}
+
 	_ = viper.Unmarshal(&config)
 
 	return &config
@@ -180,4 +194,16 @@ func (t *Jenkins) IsValid() bool {
 	}
 
 	return true
+}
+
+func (t *AzureDevOps) IsValid() bool {
+	if t.Url == "" {
+		return false
+	}
+
+	if _, err := url.Parse(t.Url); err != nil {
+		return false
+	}
+
+	return t.Token != ""
 }

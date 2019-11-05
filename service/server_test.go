@@ -12,9 +12,10 @@ import (
 func TestInit_WithAllTile(t *testing.T) {
 	conf := InitConfig()
 	conf.Env = "Test"
-	conf.Monitorable.Jenkins[DefaultVariant].Url = "http://jenkins.test.com"
-	conf.Monitorable.Jenkins["variant1"] = &Jenkins{Url: "http://jenkins.test.com"}
-	conf.Monitorable.Pingdom[DefaultVariant] = &Pingdom{Token: "abcdef"}
+
+	conf.Monitorable.Jenkins["jenkins"] = &Jenkins{Url: "http://jenkins.test.com"}
+	conf.Monitorable.Pingdom["pingdom"] = &Pingdom{Token: "abcdef"}
+	conf.Monitorable.AzureDevOps["azure-devops"] = &AzureDevOps{Url: "https://dev.azure.com/test", Token: "abcdef"}
 
 	server := &Server{config: conf}
 	server.initEcho()

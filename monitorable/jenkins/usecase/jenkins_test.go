@@ -183,9 +183,9 @@ func TestBuild_Running(t *testing.T) {
 	mockRepository.On("GetLastBuildStatus", Anything).
 		Return(repositoryBuild, nil)
 
-	tu := NewJenkinsUsecase(mockRepository)
-	tUsecase, ok := tu.(*jenkinsUsecase)
-	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
+	ju := NewJenkinsUsecase(mockRepository)
+	jUsecase, ok := ju.(*jenkinsUsecase)
+	if assert.True(t, ok, "enable to case ju into jenkinsUsecase") {
 		// Without cached build
 		expected := NewTile(jenkins.JenkinsBuildTileType)
 		expected.Label = fmt.Sprintf("%s", job)
@@ -201,18 +201,18 @@ func TestBuild_Running(t *testing.T) {
 		}
 
 		params := &models.BuildParams{Job: job, Branch: branch}
-		tile, err := tu.Build(params)
+		tile, err := ju.Build(params)
 		if assert.NoError(t, err) {
 			assert.Equal(t, expected, tile)
 		}
 
 		// With cached build
-		tUsecase.buildsCache.Add(params, "0", SuccessStatus, time.Second*120)
+		jUsecase.buildsCache.Add(params, "0", SuccessStatus, time.Second*120)
 
 		expected.PreviousStatus = SuccessStatus
 		expected.EstimatedDuration = ToInt64(int64(120))
 
-		tile, err = tu.Build(params)
+		tile, err = ju.Build(params)
 		if assert.NoError(t, err) {
 			assert.Equal(t, expected, tile)
 		}

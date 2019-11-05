@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-dirs=("pkg/gotravis" "pkg/gojenkins" "pkg/gopingdom" "pkg/monitoror/validator" "pkg/monitoror/builder")
+dirs=("pkg/gojenkins" "pkg/gopingdom" "pkg/gotravis" "pkg/monitoror/validator" "pkg/monitoror/builder")
 
 # Generate mocks of interfaces find inside directory listed on dirs
 for dir in "${dirs[@]}"; do
@@ -11,3 +11,9 @@ for dir in "${dirs[@]}"; do
       -all \
       -note "If you want to rebuild this file, make mock-pkg"
 done
+
+# Generate mocks for external libs with interface
+# Azure DevOps
+rm -rf pkg/goazuredevops/build/mocks pkg/goazuredevops/release/mocks
+mockery -name Client -output pkg/goazuredevops/build/mocks  -dir $(go list -m -f '{{ .Dir }}' github.com/jsdidierlaurent/azure-devops-go-api/azuredevops)/build
+mockery -name Client -output pkg/goazuredevops/release/mocks  -dir $(go list -m -f '{{ .Dir }}' github.com/jsdidierlaurent/azure-devops-go-api/azuredevops)/release
