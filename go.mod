@@ -10,6 +10,7 @@ require (
 	github.com/fatih/structs v1.1.0
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/joho/godotenv v1.3.0
+	github.com/jsdidierlaurent/azure-devops-go-api/azuredevops v0.0.0-20191016103718-deea5b1446b8
 	github.com/jsdidierlaurent/echo-middleware v1.0.2
 	github.com/jsdidierlaurent/go-pingdom v1.0.1-0.20191016073917-beef4d2f78cd
 	github.com/jsdidierlaurent/golang-jenkins v0.0.0-20190826091201-0ea4c9df4e09

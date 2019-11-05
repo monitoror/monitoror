@@ -144,6 +144,9 @@ func (s *Server) initApis() {
 
 	// ------------- JENKINS ------------- //
 	s.registerJenkins(configHelper)
+
+	// ------------- AZURE DEVOPS ------------- //
+	s.registerAzureDevOps(configHelper)
 }
 
 func logStatus(name interface{}, enabled bool) {

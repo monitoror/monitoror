@@ -5,6 +5,11 @@ package service
 import (
 	"fmt"
 
+	"github.com/monitoror/monitoror/monitorable/azuredevops"
+	_azureDevOpsDelivery "github.com/monitoror/monitoror/monitorable/azuredevops/delivery/http"
+	_azureDevOpsModels "github.com/monitoror/monitoror/monitorable/azuredevops/models"
+	_azureDevOpsRepository "github.com/monitoror/monitoror/monitorable/azuredevops/repository"
+	_azureDevOpsUsecase "github.com/monitoror/monitoror/monitorable/azuredevops/usecase"
 	"github.com/monitoror/monitoror/monitorable/config"
 	_configDelivery "github.com/monitoror/monitoror/monitorable/config/delivery/http"
 	_configRepository "github.com/monitoror/monitoror/monitorable/config/repository"
@@ -166,5 +171,29 @@ func (s *Server) registerJenkins(configHelper config.Helper) {
 			variant, &_jenkinsModels.BuildParams{}, route.Path)
 		configHelper.RegisterDynamicTileWithConfigVariant(jenkins.JenkinsMultiBranchTileType,
 			variant, &_jenkinsModels.MultiBranchParams{}, usecase)
+	}
+}
+
+func (s *Server) registerAzureDevOps(configHelper config.Helper) {
+	for variant, azureDevOpsConf := range s.config.Monitorable.AzureDevOps {
+		defer logStatusWithConfigVariant("AZURE-DEVOPS", variant, azureDevOpsConf.IsValid())
+		if !azureDevOpsConf.IsValid() {
+			continue
+		}
+
+		repository := _azureDevOpsRepository.NewAzureDevOpsRepository(azureDevOpsConf)
+		usecase := _azureDevOpsUsecase.NewAzureDevOpsUsecase(repository)
+		delivery := _azureDevOpsDelivery.NewHttpAzureDevOpsDelivery(usecase)
+
+		// Register route to echo
+		azureGroup := s.v1.Group(fmt.Sprintf("/azuredevops/%s", variant))
+		routeBuild := azureGroup.GET("/build", s.cm.UpstreamCacheHandler(delivery.GetBuild))
+		routeRelease := azureGroup.GET("/release", s.cm.UpstreamCacheHandler(delivery.GetRelease))
+
+		// Register data for config hydration
+		configHelper.RegisterTileWithConfigVariant(azuredevops.AzureDevOpsBuildTileType,
+			variant, &_azureDevOpsModels.BuildParams{}, routeBuild.Path)
+		configHelper.RegisterTileWithConfigVariant(azuredevops.AzureDevOpsReleaseTileType,
+			variant, &_azureDevOpsModels.ReleaseParams{}, routeRelease.Path)
 	}
 }

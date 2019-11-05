@@ -17,6 +17,8 @@ func TestInitConfig_WithEnv(t *testing.T) {
 	assert.NoError(t, err, "unable to setEnv")
 	err = os.Setenv(EnvPrefix+"_MONITORABLE_JENKINS_URL", "test")
 	assert.NoError(t, err, "unable to setEnv")
+	err = os.Setenv(EnvPrefix+"_MONITORABLE_AZUREDEVOPS_URL", "test")
+	assert.NoError(t, err, "unable to setEnv")
 
 	config := InitConfig()
 
@@ -28,6 +30,7 @@ func TestInitConfig_WithEnv(t *testing.T) {
 	assert.Equal(t, true, config.Monitorable.Jenkins[DefaultVariant].SSLVerify)
 	assert.Equal(t, 2000, config.Monitorable.Jenkins[DefaultVariant].Timeout)
 	assert.Equal(t, "test", config.Monitorable.Jenkins[DefaultVariant].Url)
+	assert.Equal(t, "test", config.Monitorable.AzureDevOps[DefaultVariant].Url)
 }
 
 func TestPingdom_IsValid(t *testing.T) {
@@ -72,4 +75,24 @@ func TestJenkins_IsValid(t *testing.T) {
 
 	config.Monitorable.Jenkins[DefaultVariant].Url = "http://jenkins.test.com"
 	assert.True(t, config.Monitorable.Jenkins[DefaultVariant].IsValid())
+}
+
+func TestAzureDevOps_IsValid(t *testing.T) {
+	config := InitConfig()
+
+	config.Monitorable.AzureDevOps[DefaultVariant].Url = ""
+	config.Monitorable.AzureDevOps[DefaultVariant].Token = ""
+	assert.False(t, config.Monitorable.AzureDevOps[DefaultVariant].IsValid())
+
+	config.Monitorable.AzureDevOps[DefaultVariant].Url = ""
+	config.Monitorable.AzureDevOps[DefaultVariant].Token = "abcde"
+	assert.False(t, config.Monitorable.AzureDevOps[DefaultVariant].IsValid())
+
+	config.Monitorable.AzureDevOps[DefaultVariant].Url = "url%url"
+	config.Monitorable.AzureDevOps[DefaultVariant].Token = "abcde"
+	assert.False(t, config.Monitorable.AzureDevOps[DefaultVariant].IsValid())
+
+	config.Monitorable.AzureDevOps[DefaultVariant].Url = "http://pingdom.com/api"
+	config.Monitorable.AzureDevOps[DefaultVariant].Token = "abcde"
+	assert.True(t, config.Monitorable.AzureDevOps[DefaultVariant].IsValid())
 }
