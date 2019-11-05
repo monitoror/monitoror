@@ -186,9 +186,9 @@ func (s *Server) registerAzureDevOps(configHelper config.Helper) {
 		delivery := _azureDevOpsDelivery.NewHttpAzureDevOpsDelivery(usecase)
 
 		// Register route to echo
-		jenkinsGroup := s.v1.Group(fmt.Sprintf("/azuredevops/%s", variant))
-		routeBuild := jenkinsGroup.GET("/build", s.cm.UpstreamCacheHandler(delivery.GetBuild))
-		routeRelease := jenkinsGroup.GET("/release", s.cm.UpstreamCacheHandler(delivery.GetRelease))
+		azureGroup := s.v1.Group(fmt.Sprintf("/azuredevops/%s", variant))
+		routeBuild := azureGroup.GET("/build", s.cm.UpstreamCacheHandler(delivery.GetBuild))
+		routeRelease := azureGroup.GET("/release", s.cm.UpstreamCacheHandler(delivery.GetRelease))
 
 		// Register data for config hydration
 		configHelper.RegisterTileWithConfigVariant(azuredevops.AzureDevOpsBuildTileType,

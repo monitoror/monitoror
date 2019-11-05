@@ -17,20 +17,10 @@
       { "type": "PORT", "params": { "hostname": "bserver.com", "port": 443, "status": "FAILURE" } }
     ]},
     { "type": "GROUP", "label": "Partially failed group", "tiles": [
-      { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "previousStatus": "SUCCESS" } },
       { "type": "PING", "params": { "hostname": "test.com", "status": "SUCCESS" } },
       { "type": "PORT", "params": { "hostname": "bserver.com", "port": 22, "status": "FAILURE" } }
     ]},
     { "type": "PINGDOM-CHECK", "params": { "id": 1000 } },
-    { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "SUCCESS" } },
-    { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "FAILURE" } },
-    { "type": "JENKINS-BUILD", "params": { "job":  "monitoror", "status": "WARNING" } },
-    { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "QUEUED", "previousStatus": "SUCCESS" } },
-    { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "QUEUED", "previousStatus": "FAILURE" } },
-    { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "previousStatus": "SUCCESS" } },
-    { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "previousStatus": "FAILURE" } },
-    { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "estimatedDuration": 200 } },
-    { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "WARNING" } },
     { "type": "HTTP-ANY", "params": { "url": "http://monitoror.test" } },
     { "type": "HTTP-ANY", "params": { "url": "http://monitoror.test", "status": "SUCCESS"} },
     { "type": "HTTP-ANY", "params": { "url": "http://monitoror.test", "status": "FAILURE", "message": "status code 404"} },

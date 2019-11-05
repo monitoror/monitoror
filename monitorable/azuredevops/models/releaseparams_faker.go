@@ -3,16 +3,15 @@
 package models
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/monitoror/monitoror/models"
 )
 
 type (
-	BuildParams struct {
-		Job    string `json:"job" query:"job"`
-		Branch string `json:"branch" query:"branch"`
+	ReleaseParams struct {
+		Project    string `json:"project" query:"project"`
+		Definition *int   `json:"definition" query:"definition"`
 
 		AuthorName      string `json:"authorName" query:"authorName"`
 		AuthorAvatarUrl string `json:"authorAvatarUrl" query:"authorAvatarUrl"`
@@ -26,11 +25,6 @@ type (
 	}
 )
 
-func (p *BuildParams) IsValid() bool {
-	return p.Job != ""
-}
-
-// Used by cache as identifier
-func (p *BuildParams) String() string {
-	return fmt.Sprintf("BUILD-%s-%s", p.Job, p.Branch)
+func (p *ReleaseParams) IsValid() bool {
+	return p.Project != "" && p.Definition != nil
 }

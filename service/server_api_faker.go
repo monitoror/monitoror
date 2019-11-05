@@ -3,6 +3,10 @@
 package service
 
 import (
+	"github.com/monitoror/monitoror/monitorable/azuredevops"
+	_azureDevOpsDelivery "github.com/monitoror/monitoror/monitorable/azuredevops/delivery/http"
+	_azureDevOpsModels "github.com/monitoror/monitoror/monitorable/azuredevops/models"
+	_azureDevOpsUsecase "github.com/monitoror/monitoror/monitorable/azuredevops/usecase"
 	"github.com/monitoror/monitoror/monitorable/config"
 	_configDelivery "github.com/monitoror/monitoror/monitorable/config/delivery/http"
 	_configRepository "github.com/monitoror/monitoror/monitorable/config/repository"
@@ -129,4 +133,20 @@ func (s *Server) registerJenkins(configHelper config.Helper) {
 
 	// Register param and path to config usecase
 	configHelper.RegisterTile(jenkins.JenkinsBuildTileType, &_jenkinsModels.BuildParams{}, route.Path)
+}
+
+func (s *Server) registerAzureDevOps(configHelper config.Helper) {
+	defer logStatus("AZURE-DEVOPS", true)
+
+	usecase := _azureDevOpsUsecase.NewAzureDevOpsUsecase()
+	delivery := _azureDevOpsDelivery.NewHttpAzureDevOpsDelivery(usecase)
+
+	// Register route to echo
+	azureGroup := s.v1.Group("/azuredevops")
+	routeBuild := azureGroup.GET("/build", s.cm.UpstreamCacheHandler(delivery.GetBuild))
+	routeRelease := azureGroup.GET("/release", s.cm.UpstreamCacheHandler(delivery.GetRelease))
+
+	// Register data for config hydration
+	configHelper.RegisterTile(azuredevops.AzureDevOpsBuildTileType, &_azureDevOpsModels.BuildParams{}, routeBuild.Path)
+	configHelper.RegisterTile(azuredevops.AzureDevOpsReleaseTileType, &_azureDevOpsModels.ReleaseParams{}, routeRelease.Path)
 }

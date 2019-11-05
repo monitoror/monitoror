@@ -38,10 +38,8 @@ func NewJenkinsUsecase() jenkins.Usecase {
 
 func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *Tile, err error) {
 	tile = NewTile(jenkins.JenkinsBuildTileType)
-	if params.Branch == "" {
-		tile.Label = params.Job
-	} else {
-		tile.Label = fmt.Sprintf("%s", params.Job)
+	tile.Label = params.Job
+	if params.Branch != "" {
 		tile.Message = fmt.Sprintf("%s", git.HumanizeBranch(params.Branch))
 	}
 
@@ -87,10 +85,10 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *Tile, err err
 	// Duration / EstimatedDuration
 	if tile.Status == RunningStatus {
 		// Creating cache for duration
-		dur, ok := tu.cachedRunningValue[tile.Label]
+		dur, ok := tu.cachedRunningValue[params.String()]
 		if !ok {
 			dur = &durations{}
-			tu.cachedRunningValue[tile.Label] = dur
+			tu.cachedRunningValue[params.String()] = dur
 		}
 
 		// Test if there is cached value or if user force value with param
