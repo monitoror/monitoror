@@ -7,9 +7,9 @@ import (
 	"math/rand"
 	"time"
 
-	. "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/port"
-	"github.com/monitoror/monitoror/monitorable/port/models"
+	portModels "github.com/monitoror/monitoror/monitorable/port/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
 )
 
@@ -22,23 +22,23 @@ func NewPortUsecase() port.Usecase {
 	return &portUsecase{}
 }
 
-func (pu *portUsecase) Port(params *models.PortParams) (tile *Tile, err error) {
-	tile = NewTile(port.PortTileType)
+func (pu *portUsecase) Port(params *portModels.PortParams) (tile *models.Tile, err error) {
+	tile = models.NewTile(port.PortTileType)
 	tile.Label = fmt.Sprintf("%s:%d", params.Hostname, params.Port)
 
 	// Init random generator
 	rand.Seed(time.Now().UnixNano())
 
 	// Code
-	tile.Status = nonempty.Struct(params.Status, randomStatus()).(TileStatus)
+	tile.Status = nonempty.Struct(params.Status, randomStatus()).(models.TileStatus)
 
 	return
 }
 
-func randomStatus() TileStatus {
+func randomStatus() models.TileStatus {
 	if rand.Intn(2) == 0 {
-		return SuccessStatus
+		return models.SuccessStatus
 	} else {
-		return FailedStatus
+		return models.FailedStatus
 	}
 }

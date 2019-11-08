@@ -5,11 +5,11 @@ import (
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 
-	. "github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/config"
-	. "github.com/monitoror/monitoror/pkg/monitoror/builder"
-	. "github.com/monitoror/monitoror/pkg/monitoror/utils"
+	monitorableConfig "github.com/monitoror/monitoror/monitorable/config"
+	"github.com/monitoror/monitoror/pkg/monitoror/builder"
+	"github.com/monitoror/monitoror/pkg/monitoror/utils"
 )
 
 // Versions
@@ -22,11 +22,9 @@ const (
 )
 
 const (
-	// Custom Tile Type
 	EmptyTileType models.TileType = "EMPTY"
 	GroupTileType models.TileType = "GROUP"
 
-	// Store key prefix
 	DynamicTileStoreKeyPrefix = "monitoror.config.dynamicTile.key"
 )
 
@@ -36,7 +34,7 @@ var SupportedVersions = map[int]bool{
 
 type (
 	configUsecase struct {
-		repository config.Repository
+		repository monitorableConfig.Repository
 
 		tileConfigs        map[models.TileType]map[string]*TileConfig
 		dynamicTileConfigs map[models.TileType]map[string]*DynamicTileConfig
@@ -48,18 +46,18 @@ type (
 
 	// TileConfig struct is used by GetConfig endpoint to check / hydrate config
 	TileConfig struct {
-		Validator Validator
+		Validator utils.Validator
 		Path      string
 	}
 
 	// DynamicTileConfig struct is used by GetConfig endpoint to check / hydrate config
 	DynamicTileConfig struct {
-		Validator Validator
-		Builder   DynamicTileBuilder
+		Validator utils.Validator
+		Builder   builder.DynamicTileBuilder
 	}
 )
 
-func NewConfigUsecase(repository config.Repository, store cache.Store, downstreamStoreExpiration int) config.Usecase {
+func NewConfigUsecase(repository monitorableConfig.Repository, store cache.Store, downstreamStoreExpiration int) monitorableConfig.Usecase {
 	tileConfigs := make(map[models.TileType]map[string]*TileConfig)
 
 	// Used for authorized type
@@ -77,11 +75,11 @@ func NewConfigUsecase(repository config.Repository, store cache.Store, downstrea
 	}
 }
 
-func (cu *configUsecase) RegisterTile(tileType models.TileType, validator Validator, path string) {
-	cu.RegisterTileWithConfigVariant(tileType, DefaultVariant, validator, path)
+func (cu *configUsecase) RegisterTile(tileType models.TileType, validator utils.Validator, path string) {
+	cu.RegisterTileWithConfigVariant(tileType, config.DefaultVariant, validator, path)
 }
 
-func (cu *configUsecase) RegisterTileWithConfigVariant(tileType models.TileType, variant string, validator Validator, path string) {
+func (cu *configUsecase) RegisterTileWithConfigVariant(tileType models.TileType, variant string, validator utils.Validator, path string) {
 	value, exists := cu.tileConfigs[tileType]
 	if !exists {
 		value = make(map[string]*TileConfig)
@@ -94,11 +92,11 @@ func (cu *configUsecase) RegisterTileWithConfigVariant(tileType models.TileType,
 	}
 }
 
-func (cu *configUsecase) RegisterDynamicTile(tileType models.TileType, validator Validator, builder DynamicTileBuilder) {
-	cu.RegisterDynamicTileWithConfigVariant(tileType, DefaultVariant, validator, builder)
+func (cu *configUsecase) RegisterDynamicTile(tileType models.TileType, validator utils.Validator, builder builder.DynamicTileBuilder) {
+	cu.RegisterDynamicTileWithConfigVariant(tileType, config.DefaultVariant, validator, builder)
 }
 
-func (cu *configUsecase) RegisterDynamicTileWithConfigVariant(tileType models.TileType, variant string, validator Validator, builder DynamicTileBuilder) {
+func (cu *configUsecase) RegisterDynamicTileWithConfigVariant(tileType models.TileType, variant string, validator utils.Validator, builder builder.DynamicTileBuilder) {
 	// Used for authorized type
 	cu.tileConfigs[tileType] = nil
 

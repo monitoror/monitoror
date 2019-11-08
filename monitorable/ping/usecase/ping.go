@@ -3,9 +3,9 @@
 package usecase
 
 import (
-	. "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/ping"
-	"github.com/monitoror/monitoror/monitorable/ping/models"
+	pingModels "github.com/monitoror/monitoror/monitorable/ping/models"
 )
 
 type (
@@ -18,17 +18,17 @@ func NewPingUsecase(repository ping.Repository) ping.Usecase {
 	return &pingUsecase{repository}
 }
 
-func (pu *pingUsecase) Ping(params *models.PingParams) (tile *Tile, err error) {
-	tile = NewTile(ping.PingTileType)
+func (pu *pingUsecase) Ping(params *pingModels.PingParams) (tile *models.Tile, err error) {
+	tile = models.NewTile(ping.PingTileType)
 	tile.Label = params.Hostname
 
 	ping, err := pu.repository.ExecutePing(params.Hostname)
 	if err == nil {
-		tile.Status = SuccessStatus
-		tile.Unit = MillisecondUnit
+		tile.Status = models.SuccessStatus
+		tile.Unit = models.MillisecondUnit
 		tile.Values = []float64{float64(ping.Average.Milliseconds())}
 	} else {
-		tile.Status = FailedStatus
+		tile.Status = models.FailedStatus
 		err = nil
 	}
 

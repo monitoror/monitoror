@@ -20,7 +20,7 @@ type (
 		ColumnSpan *int   `json:"columnSpan,omitempty"`
 
 		Tiles []Tile `json:"tiles,omitempty"`
-		Url   string `json:"url,omitempty"`
+		URL   string `json:"url,omitempty"`
 
 		// Used by config.hydrate only (will be remove before returning config to front)
 		ConfigVariant string `json:"configVariant,omitempty"`

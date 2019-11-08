@@ -7,7 +7,7 @@
   <a href="https://codecov.io/gh/monitoror/monitoror"><img src="https://img.shields.io/codecov/c/gh/monitoror/monitoror/master.svg?style=for-the-badge" alt="Code Coverage"/></a>
   <a href="https://github.com/monitoror/monitoror/releases"><img src="https://img.shields.io/github/release/monitoror/monitoror.svg?style=for-the-badge" alt="Releases"/></a>
   <br>
-  <img src="https://img.shields.io/badge/Go-1.12-blue.svg?style=for-the-badge" alt="Go"/>
+  <img src="https://img.shields.io/badge/Go-1.13-blue.svg?style=for-the-badge" alt="Go"/>
   <img src="https://img.shields.io/badge/NodeJS-10.0-blue.svg?style=for-the-badge" alt="NodeJS"/>
 </p>
 
@@ -21,7 +21,7 @@ TODO: Introduction, Documentation, Contributing
 
 ### Requirements
 
-- Go v1.12+
+- Go v1.13+
 - Nodejs v10+
 - Yarn v1.7+
 - GNU make
@@ -42,6 +42,7 @@ go get gotest.tools/gotestsum
 go get github.com/GeertJohan/go.rice/rice
 ```
 
+For installing Linter, see installation guide of https://github.com/golangci/golangci-lint
 
 ### Running project
 ```bash

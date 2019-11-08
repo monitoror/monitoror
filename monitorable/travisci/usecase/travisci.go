@@ -8,12 +8,12 @@ import (
 
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
 
-	. "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/travisci"
-	"github.com/monitoror/monitoror/monitorable/travisci/models"
+	travisCIModels "github.com/monitoror/monitoror/monitorable/travisci/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/cache"
 
-	. "github.com/AlekSi/pointer"
+	"github.com/AlekSi/pointer"
 )
 
 type (
@@ -31,85 +31,85 @@ func NewTravisCIUsecase(repository travisci.Repository) travisci.Usecase {
 	return &travisCIUsecase{repository, cache.NewBuildCache(cacheSize)}
 }
 
-func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *Tile, err error) {
-	tile = NewTile(travisci.TravisCIBuildTileType)
-	tile.Label = fmt.Sprintf("%s", params.Repository)
-	tile.Message = fmt.Sprintf("%s", git.HumanizeBranch(params.Branch))
+func (tu *travisCIUsecase) Build(params *travisCIModels.BuildParams) (*models.Tile, error) {
+	tile := models.NewTile(travisci.TravisCIBuildTileType)
+	tile.Label = params.Repository
+	tile.Message = git.HumanizeBranch(params.Branch)
 
 	// Request
 	build, err := tu.repository.GetLastBuildStatus(params.Group, params.Repository, params.Branch)
 	if err != nil {
-		return nil, &MonitororError{Err: err, Tile: tile, Message: "unable to find build"}
+		return nil, &models.MonitororError{Err: err, Tile: tile, Message: "unable to find build"}
 	}
 	if build == nil {
 		// Warning because request was correct but there is no build
-		return nil, &MonitororError{Tile: tile, Message: "no build found", ErrorStatus: UnknownStatus}
+		return nil, &models.MonitororError{Tile: tile, Message: "no build found", ErrorStatus: models.UnknownStatus}
 	}
 
 	// Set Status
 	tile.Status = parseState(build.State)
 
 	// Set Previous Status
-	previousStatus := tu.buildsCache.GetPreviousStatus(params, fmt.Sprintf("%d", build.Id))
+	previousStatus := tu.buildsCache.GetPreviousStatus(params, fmt.Sprintf("%d", build.ID))
 	if previousStatus != nil {
 		tile.PreviousStatus = *previousStatus
 	} else {
-		tile.PreviousStatus = UnknownStatus
+		tile.PreviousStatus = models.UnknownStatus
 	}
 
 	// Set StartedAt
 	if !build.StartedAt.IsZero() {
-		tile.StartedAt = ToTime(build.StartedAt)
+		tile.StartedAt = pointer.ToTime(build.StartedAt)
 	}
 	// Set FinishedAt
 	if !build.FinishedAt.IsZero() {
-		tile.FinishedAt = ToTime(build.FinishedAt)
+		tile.FinishedAt = pointer.ToTime(build.FinishedAt)
 	}
 
-	if tile.Status == RunningStatus {
-		tile.Duration = ToInt64(int64(time.Now().Sub(build.StartedAt).Seconds()))
+	if tile.Status == models.RunningStatus {
+		tile.Duration = pointer.ToInt64(int64(time.Since(build.StartedAt).Seconds()))
 
 		estimatedDuration := tu.buildsCache.GetEstimatedDuration(params)
 		if estimatedDuration != nil {
-			tile.EstimatedDuration = ToInt64(int64(estimatedDuration.Seconds()))
+			tile.EstimatedDuration = pointer.ToInt64(int64(estimatedDuration.Seconds()))
 		} else {
-			tile.EstimatedDuration = ToInt64(int64(0))
+			tile.EstimatedDuration = pointer.ToInt64(int64(0))
 		}
 	}
 
 	// Set Author
-	if build.Author.Name != "" || build.Author.AvatarUrl != "" {
-		tile.Author = &Author{
+	if build.Author.Name != "" || build.Author.AvatarURL != "" {
+		tile.Author = &models.Author{
 			Name:      build.Author.Name,
-			AvatarUrl: build.Author.AvatarUrl,
+			AvatarURL: build.Author.AvatarURL,
 		}
 	}
 
 	// Cache Duration when success / failed
-	if tile.Status == SuccessStatus || tile.Status == FailedStatus {
-		tu.buildsCache.Add(params, fmt.Sprintf("%d", build.Id), tile.Status, build.Duration)
+	if tile.Status == models.SuccessStatus || tile.Status == models.FailedStatus {
+		tu.buildsCache.Add(params, fmt.Sprintf("%d", build.ID), tile.Status, build.Duration)
 	}
 
-	return
+	return tile, nil
 }
 
-func parseState(state string) TileStatus {
+func parseState(state string) models.TileStatus {
 	switch state {
 	case "created":
-		return QueuedStatus
+		return models.QueuedStatus
 	case "received":
-		return QueuedStatus
+		return models.QueuedStatus
 	case "started":
-		return RunningStatus
+		return models.RunningStatus
 	case "passed":
-		return SuccessStatus
+		return models.SuccessStatus
 	case "failed":
-		return FailedStatus
+		return models.FailedStatus
 	case "errored":
-		return FailedStatus
+		return models.FailedStatus
 	case "canceled":
-		return AbortedStatus
+		return models.AbortedStatus
 	default:
-		return UnknownStatus
+		return models.UnknownStatus
 	}
 }

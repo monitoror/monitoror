@@ -9,8 +9,8 @@ import (
 )
 
 type (
-	HttpRawParams struct {
-		Url           string `json:"url" query:"url"`
+	HTTPRawParams struct {
+		URL           string `json:"url" query:"url"`
 		StatusCodeMin *int   `json:"statusCodeMin" query:"statusCodeMin"`
 		StatusCodeMax *int   `json:"statusCodeMax" query:"statusCodeMax"`
 		Regex         string `json:"regex" query:"regex"`
@@ -21,21 +21,21 @@ type (
 	}
 )
 
-func (p *HttpRawParams) IsValid() bool {
-	if !isValid(p.Url, p) {
+func (p *HTTPRawParams) IsValid() bool {
+	if !isValid(p.URL, p) {
 		return false
 	}
 
 	return isValidRegex(p)
 }
 
-func (p *HttpRawParams) GetStatusCodes() (min int, max int) {
+func (p *HTTPRawParams) GetStatusCodes() (min int, max int) {
 	return getStatusCodes(p.StatusCodeMin, p.StatusCodeMax)
 }
 
-func (p *HttpRawParams) GetRegex() string          { return p.Regex }
-func (p *HttpRawParams) GetRegexp() *regexp.Regexp { return getRegexp(p.GetRegex()) }
+func (p *HTTPRawParams) GetRegex() string          { return p.Regex }
+func (p *HTTPRawParams) GetRegexp() *regexp.Regexp { return getRegexp(p.GetRegex()) }
 
-func (p *HttpRawParams) GetStatus() models.TileStatus { return p.Status }
-func (p *HttpRawParams) GetMessage() string           { return p.Message }
-func (p *HttpRawParams) GetValues() []float64         { return p.Values }
+func (p *HTTPRawParams) GetStatus() models.TileStatus { return p.Status }
+func (p *HTTPRawParams) GetMessage() string           { return p.Message }
+func (p *HTTPRawParams) GetValues() []float64         { return p.Values }

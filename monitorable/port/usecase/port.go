@@ -5,9 +5,9 @@ package usecase
 import (
 	"fmt"
 
-	. "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/port"
-	"github.com/monitoror/monitoror/monitorable/port/models"
+	portModels "github.com/monitoror/monitoror/monitorable/port/models"
 )
 
 type (
@@ -20,15 +20,15 @@ func NewPortUsecase(repository port.Repository) port.Usecase {
 	return &portUsecase{repository}
 }
 
-func (pu *portUsecase) Port(params *models.PortParams) (tile *Tile, err error) {
-	tile = NewTile(port.PortTileType)
+func (pu *portUsecase) Port(params *portModels.PortParams) (tile *models.Tile, err error) {
+	tile = models.NewTile(port.PortTileType)
 	tile.Label = fmt.Sprintf("%s:%d", params.Hostname, params.Port)
 
 	err = pu.repository.OpenSocket(params.Hostname, params.Port)
 	if err == nil {
-		tile.Status = SuccessStatus
+		tile.Status = models.SuccessStatus
 	} else {
-		tile.Status = FailedStatus
+		tile.Status = models.FailedStatus
 		err = nil
 	}
 

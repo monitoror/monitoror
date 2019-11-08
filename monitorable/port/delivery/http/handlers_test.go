@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"github.com/monitoror/monitoror/models"
-
 	. "github.com/monitoror/monitoror/monitorable/port"
 	"github.com/monitoror/monitoror/monitorable/port/mocks"
 
@@ -35,7 +34,7 @@ func missingParam(t *testing.T, param string) {
 	ctx, _ := initEcho()
 	ctx.QueryParams().Del(param)
 	mockUsecase := new(mocks.Usecase)
-	handler := NewHttpPortDelivery(mockUsecase)
+	handler := NewPortDelivery(mockUsecase)
 	// Test
 	err := handler.GetPort(ctx)
 	assert.Error(t, err)
@@ -52,7 +51,7 @@ func TestDelivery_PortHandler_Success(t *testing.T) {
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Port", Anything).Return(tile, nil)
-	handler := NewHttpPortDelivery(mockUsecase)
+	handler := NewPortDelivery(mockUsecase)
 
 	// Expected
 	json, err := json.Marshal(tile)
@@ -81,7 +80,7 @@ func TestDelivery_PortHandler_Error(t *testing.T) {
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Port", Anything).Return(nil, errors.New("port error"))
-	handler := NewHttpPortDelivery(mockUsecase)
+	handler := NewPortDelivery(mockUsecase)
 
 	// Test
 	assert.Error(t, handler.GetPort(ctx))

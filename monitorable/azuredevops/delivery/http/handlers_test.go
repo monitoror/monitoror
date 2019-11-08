@@ -38,7 +38,7 @@ func TestDelivery_BuildHandler_Success(t *testing.T) {
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Build", Anything).Return(tile, nil)
-	handler := NewHttpAzureDevOpsDelivery(mockUsecase)
+	handler := NewAzureDevOpsDelivery(mockUsecase)
 
 	// Expected
 	json, err := json.Marshal(tile)
@@ -59,7 +59,7 @@ func TestDelivery_BuildHandler_QueryParamsError_MissingGroup(t *testing.T) {
 	ctx.QueryParams().Del("project")
 
 	mockUsecase := new(mocks.Usecase)
-	handler := NewHttpAzureDevOpsDelivery(mockUsecase)
+	handler := NewAzureDevOpsDelivery(mockUsecase)
 
 	// Test
 	err := handler.GetBuild(ctx)
@@ -73,7 +73,7 @@ func TestDelivery_BuildHandler_Error(t *testing.T) {
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Build", Anything).Return(nil, errors.New("build error"))
-	handler := NewHttpAzureDevOpsDelivery(mockUsecase)
+	handler := NewAzureDevOpsDelivery(mockUsecase)
 
 	// Test
 	assert.Error(t, handler.GetBuild(ctx))
@@ -90,7 +90,7 @@ func TestDelivery_GetRelease_Success(t *testing.T) {
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Release", Anything).Return(tile, nil)
-	handler := NewHttpAzureDevOpsDelivery(mockUsecase)
+	handler := NewAzureDevOpsDelivery(mockUsecase)
 
 	// Expected
 	json, err := json.Marshal(tile)
@@ -111,7 +111,7 @@ func TestDelivery_GetRelease_QueryParamsError_MissingGroup(t *testing.T) {
 	ctx.QueryParams().Del("project")
 
 	mockUsecase := new(mocks.Usecase)
-	handler := NewHttpAzureDevOpsDelivery(mockUsecase)
+	handler := NewAzureDevOpsDelivery(mockUsecase)
 
 	// Test
 	err := handler.GetRelease(ctx)
@@ -125,7 +125,7 @@ func TestDelivery_GetRelease_Error(t *testing.T) {
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Release", Anything).Return(nil, errors.New("build error"))
-	handler := NewHttpAzureDevOpsDelivery(mockUsecase)
+	handler := NewAzureDevOpsDelivery(mockUsecase)
 
 	// Test
 	assert.Error(t, handler.GetRelease(ctx))

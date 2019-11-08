@@ -13,13 +13,13 @@ import (
 	. "github.com/stretchr/testify/mock"
 )
 
-func initRepository(t *testing.T, checkApi pkgPingdom.PingdomCheckApi) *pingdomRepository {
+func initRepository(t *testing.T, checkAPI pkgPingdom.PingdomCheckAPI) *pingdomRepository {
 	conf := InitConfig()
 	repository := NewPingdomRepository(conf.Monitorable.Pingdom[DefaultVariant])
 
 	apiPingdomRepository, ok := repository.(*pingdomRepository)
 	if assert.True(t, ok) {
-		apiPingdomRepository.pingdomCheckApi = checkApi
+		apiPingdomRepository.pingdomCheckAPI = checkAPI
 		return apiPingdomRepository
 	}
 	return nil
@@ -27,13 +27,13 @@ func initRepository(t *testing.T, checkApi pkgPingdom.PingdomCheckApi) *pingdomR
 
 func TestPingdomRepository_NewPingdomRepository_Error(t *testing.T) {
 	conf := InitConfig()
-	conf.Monitorable.Pingdom[DefaultVariant].Url = "wrong%url"
+	conf.Monitorable.Pingdom[DefaultVariant].URL = "wrong%url"
 
 	assert.Panics(t, func() { _ = NewPingdomRepository(conf.Monitorable.Pingdom[DefaultVariant]) })
 }
 
 func TestPingdomRepository_GetPingdomCheck_Success(t *testing.T) {
-	mock := new(mocks.PingdomCheckApi)
+	mock := new(mocks.PingdomCheckAPI)
 	mock.On("Read", Anything).Return(&pingdom.CheckResponse{ID: 1000, Name: "Check 1", Status: "up"}, nil)
 
 	repository := initRepository(t, mock)
@@ -48,7 +48,7 @@ func TestPingdomRepository_GetPingdomCheck_Success(t *testing.T) {
 }
 
 func TestPingdomRepository_GetPingdomCheck_Error(t *testing.T) {
-	mock := new(mocks.PingdomCheckApi)
+	mock := new(mocks.PingdomCheckAPI)
 	mock.On("Read", Anything).Return(nil, errors.New("boom"))
 
 	repository := initRepository(t, mock)
@@ -59,7 +59,7 @@ func TestPingdomRepository_GetPingdomCheck_Error(t *testing.T) {
 }
 
 func TestPingdomRepository_GetPingdomChecks_Success(t *testing.T) {
-	mock := new(mocks.PingdomCheckApi)
+	mock := new(mocks.PingdomCheckAPI)
 	mock.On("List", Anything).Return([]pingdom.CheckResponse{
 		{ID: 1000, Name: "Check 1", Status: "up"},
 		{ID: 2000, Name: "Check 2", Status: "up"},
@@ -77,7 +77,7 @@ func TestPingdomRepository_GetPingdomChecks_Success(t *testing.T) {
 }
 
 func TestPingdomRepository_GetPingdomChecks_Error(t *testing.T) {
-	mock := new(mocks.PingdomCheckApi)
+	mock := new(mocks.PingdomCheckAPI)
 	mock.On("List", Anything).Return(nil, errors.New("boom"))
 
 	repository := initRepository(t, mock)

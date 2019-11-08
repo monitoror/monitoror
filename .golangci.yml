@@ -1,0 +1,25 @@
+run:
+  concurrency: 4
+  deadline: 5m
+  issues-exit-code: 1
+  tests: true
+
+output:
+  format: colored-line-number
+  print-issued-lines: true
+  print-linter-name: true
+
+linters:
+  enable:
+    - megacheck
+    - govet
+    - golint
+    - interfacer
+    - unconvert
+    - gocyclo
+    - goimports
+    - maligned
+    - misspell
+    - unparam
+    - nakedret
+    - bodyclose

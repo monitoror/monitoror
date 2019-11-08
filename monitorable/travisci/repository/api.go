@@ -18,12 +18,12 @@ type (
 		config *config.TravisCI
 
 		// Interfaces for Builds route
-		travisBuildsApi pkgTravis.TravisCI
+		travisBuildsAPI pkgTravis.TravisCI
 	}
 )
 
 func NewTravisCIRepository(config *config.TravisCI, githubConfig *config.Github) travisci.Repository {
-	client := travis.NewClient(config.Url, config.Token)
+	client := travis.NewClient(config.URL, config.Token)
 
 	// Using Github token if exist
 	// TODO: Change this to use Lazy load
@@ -41,7 +41,7 @@ func NewTravisCIRepository(config *config.TravisCI, githubConfig *config.Github)
 }
 
 // GetBuildStatus fetch build information from travis-ci
-func (r *travisCIRepository) GetLastBuildStatus(group, repository, branch string) (build *models.Build, err error) {
+func (r *travisCIRepository) GetLastBuildStatus(group, repository, branch string) (*models.Build, error) {
 	// GetConfig
 	repoSlug := fmt.Sprintf("%s/%s", group, repository)
 	options := &travis.BuildsByRepoOption{
@@ -51,26 +51,27 @@ func (r *travisCIRepository) GetLastBuildStatus(group, repository, branch string
 	}
 
 	ctx := context.Background()
-	ctx, _ = context.WithTimeout(ctx, time.Duration(r.config.Timeout)*time.Millisecond)
+	ctx, cancel := context.WithTimeout(ctx, time.Duration(r.config.Timeout)*time.Millisecond)
+	defer cancel()
 
 	// Request
-	builds, _, err := r.travisBuildsApi.ListByRepoSlug(ctx, repoSlug, options)
+	builds, _, err := r.travisBuildsAPI.ListByRepoSlug(ctx, repoSlug, options)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	// No build found
 	if len(builds) == 0 {
-		return
+		return nil, nil
 	}
 
 	tBuild := builds[0]
-	build = &models.Build{
-		Id:     *tBuild.Id,
+	build := &models.Build{
+		ID:     *tBuild.Id,
 		Branch: *tBuild.Branch.Name,
 		Author: models.Author{
 			Name:      tBuild.Commit.Author.Name,
-			AvatarUrl: tBuild.Commit.Author.AvatarURL,
+			AvatarURL: tBuild.Commit.Author.AvatarURL,
 		},
 		State: *tBuild.State,
 	}
@@ -87,7 +88,7 @@ func (r *travisCIRepository) GetLastBuildStatus(group, repository, branch string
 		build.Duration = parseDuration(*tBuild.Duration)
 	}
 
-	return
+	return build, nil
 }
 
 func parseDate(date string) time.Time {

@@ -11,7 +11,7 @@ import (
 	"github.com/monitoror/monitoror/monitorable/pingdom"
 	"github.com/monitoror/monitoror/monitorable/pingdom/models"
 
-	. "github.com/jsdidierlaurent/go-pingdom/pingdom"
+	pingdomAPI "github.com/jsdidierlaurent/go-pingdom/pingdom"
 )
 
 type (
@@ -19,38 +19,38 @@ type (
 		config *config.Pingdom
 
 		// Pingdom check client
-		pingdomCheckApi gopingdom.PingdomCheckApi
+		pingdomCheckAPI gopingdom.PingdomCheckAPI
 	}
 )
 
 func NewPingdomRepository(config *config.Pingdom) pingdom.Repository {
-	client, err := NewClientWithConfig(ClientConfig{
-		BaseURL:  config.Url,
+	client, err := pingdomAPI.NewClientWithConfig(pingdomAPI.ClientConfig{
+		BaseURL:  config.URL,
 		APIToken: config.Token,
 		HTTPClient: &http.Client{
 			Timeout: time.Millisecond * time.Duration(config.Timeout),
 		},
 	})
 
-	// Only if Pingdom Url is not a valid URL
+	// Only if Pingdom URL is not a valid URL
 	if err != nil {
 		panic(fmt.Sprintf("unable to initiate connection to Pingdom\n. %v\n", err))
 	}
 
 	return &pingdomRepository{
 		config:          config,
-		pingdomCheckApi: client.Checks,
+		pingdomCheckAPI: client.Checks,
 	}
 }
 
 func (r *pingdomRepository) GetCheck(id int) (result *models.Check, err error) {
-	check, err := r.pingdomCheckApi.Read(id)
+	check, err := r.pingdomCheckAPI.Read(id)
 	if err != nil {
 		return
 	}
 
 	result = &models.Check{
-		Id:     check.ID,
+		ID:     check.ID,
 		Name:   check.Name,
 		Status: check.Status,
 	}
@@ -59,14 +59,14 @@ func (r *pingdomRepository) GetCheck(id int) (result *models.Check, err error) {
 }
 
 func (r *pingdomRepository) GetChecks(tags string) (results []models.Check, err error) {
-	checks, err := r.pingdomCheckApi.List()
+	checks, err := r.pingdomCheckAPI.List()
 	if err != nil {
 		return
 	}
 
 	for _, check := range checks {
 		results = append(results, models.Check{
-			Id:     check.ID,
+			ID:     check.ID,
 			Name:   check.Name,
 			Status: check.Status,
 		})

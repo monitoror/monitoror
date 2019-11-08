@@ -6,7 +6,6 @@ import (
 	"github.com/monitoror/monitoror/monitorable/azuredevops/models"
 )
 
-// Repository represent the jenkins's repository contract
 type (
 	Connection interface {
 		GetBuildConnection() (build.Client, error)

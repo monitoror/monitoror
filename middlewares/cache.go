@@ -9,8 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-/**
-* Cache Middleware for monitoror
+/*CacheMiddleware for monitoror
 *
 * We need two types of Cache.
 * - UpstreamCache : serves as a circuit breaker to answer before executing the request. (By default, short TTL)
@@ -47,7 +46,7 @@ func NewCacheMiddleware(store cache.Store, downstreamDefaultExpiration, upstream
 // UPSTREAM MIDDLEWARE
 //==============================================================================
 
-// UpstreamCache return the cached response if he finds it in the store. (Decorator Handlers)
+//UpstreamCacheHandler return the cached response if he finds it in the store. (Decorator Handlers)
 func (cm *CacheMiddleware) UpstreamCacheHandler(handle echo.HandlerFunc) echo.HandlerFunc {
 	return cache.CacheHandlerWithConfig(cache.CacheMiddlewareConfig{
 		Store:     &upstreamStore{cm.store, cm.downstreamDefaultExpiration},
@@ -56,7 +55,7 @@ func (cm *CacheMiddleware) UpstreamCacheHandler(handle echo.HandlerFunc) echo.Ha
 	}, handle)
 }
 
-//UpstreamCacheWithExpiration return the cached response if he finds it in the store. (Decorator Handlers)
+//UpstreamCacheHandlerWithExpiration return the cached response if he finds it in the store. (Decorator Handlers)
 func (cm *CacheMiddleware) UpstreamCacheHandlerWithExpiration(expire time.Duration, handle echo.HandlerFunc) echo.HandlerFunc {
 	return cache.CacheHandlerWithConfig(cache.CacheMiddlewareConfig{
 		Store:     &upstreamStore{cm.store, cm.downstreamDefaultExpiration},
@@ -69,7 +68,7 @@ func (cm *CacheMiddleware) UpstreamCacheHandlerWithExpiration(expire time.Durati
 // DOWNSTREAM MIDDLEWARE
 //==============================================================================
 
-// DownstreamStoreMiddleware Provide Downstream Store to all route. Used when route return timeout error
+//DownstreamStoreMiddleware Provide Downstream Store to all route. Used when route return timeout error
 func (cm *CacheMiddleware) DownstreamStoreMiddleware() echo.MiddlewareFunc {
 	config := cache.StoreMiddlewareConfig{
 		Store:      cm.store,

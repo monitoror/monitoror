@@ -66,9 +66,5 @@ func (e *MonitororError) Timeout() bool {
 	}
 
 	// Deadline Exceeded aka context cancellation
-	if strings.Contains(e.Err.Error(), "net/http: request canceled while waiting for connection") {
-		return true
-	}
-
-	return false
+	return strings.Contains(e.Err.Error(), "net/http: request canceled while waiting for connection")
 }

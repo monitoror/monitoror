@@ -1,24 +1,23 @@
 package http
 
 import (
-	. "github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/http/models"
+	"github.com/monitoror/monitoror/models"
+	httpModels "github.com/monitoror/monitoror/monitorable/http/models"
 )
 
 const (
-	HttpAnyTileType TileType = "HTTP-ANY"
-	HttpRawTileType TileType = "HTTP-RAW"
+	HTTPAnyTileType models.TileType = "HTTP-ANY"
+	HTTPRawTileType models.TileType = "HTTP-RAW"
 
-	HttpJsonTileType TileType = "HTTP-JSON"
-	HttpYamlTileType TileType = "HTTP-YAML"
+	HTTPJsonTileType models.TileType = "HTTP-JSON"
+	HTTPYamlTileType models.TileType = "HTTP-YAML"
 )
 
-// Usecase represent the ping's usecases
 type (
 	Usecase interface {
-		HttpAny(params *models.HttpAnyParams) (*Tile, error)
-		HttpRaw(params *models.HttpRawParams) (*Tile, error)
-		HttpJson(params *models.HttpJsonParams) (*Tile, error)
-		HttpYaml(params *models.HttpYamlParams) (*Tile, error)
+		HTTPAny(params *httpModels.HTTPAnyParams) (*models.Tile, error)
+		HTTPRaw(params *httpModels.HTTPRawParams) (*models.Tile, error)
+		HTTPJson(params *httpModels.HTTPJsonParams) (*models.Tile, error)
+		HTTPYaml(params *httpModels.HTTPYamlParams) (*models.Tile, error)
 	}
 )

@@ -2,7 +2,7 @@ package models
 
 type (
 	Check struct {
-		Id     int
+		ID     int
 		Name   string
 		Status string
 	}

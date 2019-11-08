@@ -15,7 +15,7 @@ type (
 		Branch string `json:"branch" query:"branch"`
 
 		AuthorName      string `json:"authorName" query:"authorName"`
-		AuthorAvatarUrl string `json:"authorAvatarUrl" query:"authorAvatarUrl"`
+		AuthorAvatarURL string `json:"authorAvatarURL" query:"authorAvatarURL"`
 
 		Status            models.TileStatus `json:"status" query:"status"`
 		PreviousStatus    models.TileStatus `json:"previousStatus" query:"previousStatus"`

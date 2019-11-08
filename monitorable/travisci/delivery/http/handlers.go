@@ -3,27 +3,27 @@ package http
 import (
 	"net/http"
 
-	. "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/travisci"
-	"github.com/monitoror/monitoror/monitorable/travisci/models"
+	travisCIModels "github.com/monitoror/monitoror/monitorable/travisci/models"
 
 	"github.com/labstack/echo/v4"
 )
 
-type httpTravisCIDelivery struct {
+type TravisCIDelivery struct {
 	travisciUsecase travisci.Usecase
 }
 
-func NewHttpTravisCIDelivery(p travisci.Usecase) *httpTravisCIDelivery {
-	return &httpTravisCIDelivery{p}
+func NewTravisCIDelivery(p travisci.Usecase) *TravisCIDelivery {
+	return &TravisCIDelivery{p}
 }
 
-func (h *httpTravisCIDelivery) GetBuild(c echo.Context) error {
+func (h *TravisCIDelivery) GetBuild(c echo.Context) error {
 	// Bind / check Params
-	params := &models.BuildParams{}
+	params := &travisCIModels.BuildParams{}
 	err := c.Bind(params)
 	if err != nil || !params.IsValid() {
-		return QueryParamsError
+		return models.QueryParamsError
 	}
 
 	tile, err := h.travisciUsecase.Build(params)

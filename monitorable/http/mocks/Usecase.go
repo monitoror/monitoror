@@ -13,12 +13,12 @@ type Usecase struct {
 	mock.Mock
 }
 
-// HttpAny provides a mock function with given fields: params
-func (_m *Usecase) HttpAny(params *models.HttpAnyParams) (*monitorormodels.Tile, error) {
+// HTTPAny provides a mock function with given fields: params
+func (_m *Usecase) HTTPAny(params *models.HTTPAnyParams) (*monitorormodels.Tile, error) {
 	ret := _m.Called(params)
 
 	var r0 *monitorormodels.Tile
-	if rf, ok := ret.Get(0).(func(*models.HttpAnyParams) *monitorormodels.Tile); ok {
+	if rf, ok := ret.Get(0).(func(*models.HTTPAnyParams) *monitorormodels.Tile); ok {
 		r0 = rf(params)
 	} else {
 		if ret.Get(0) != nil {
@@ -27,7 +27,7 @@ func (_m *Usecase) HttpAny(params *models.HttpAnyParams) (*monitorormodels.Tile,
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*models.HttpAnyParams) error); ok {
+	if rf, ok := ret.Get(1).(func(*models.HTTPAnyParams) error); ok {
 		r1 = rf(params)
 	} else {
 		r1 = ret.Error(1)
@@ -36,12 +36,12 @@ func (_m *Usecase) HttpAny(params *models.HttpAnyParams) (*monitorormodels.Tile,
 	return r0, r1
 }
 
-// HttpJson provides a mock function with given fields: params
-func (_m *Usecase) HttpJson(params *models.HttpJsonParams) (*monitorormodels.Tile, error) {
+// HTTPJson provides a mock function with given fields: params
+func (_m *Usecase) HTTPJson(params *models.HTTPJsonParams) (*monitorormodels.Tile, error) {
 	ret := _m.Called(params)
 
 	var r0 *monitorormodels.Tile
-	if rf, ok := ret.Get(0).(func(*models.HttpJsonParams) *monitorormodels.Tile); ok {
+	if rf, ok := ret.Get(0).(func(*models.HTTPJsonParams) *monitorormodels.Tile); ok {
 		r0 = rf(params)
 	} else {
 		if ret.Get(0) != nil {
@@ -50,7 +50,7 @@ func (_m *Usecase) HttpJson(params *models.HttpJsonParams) (*monitorormodels.Til
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*models.HttpJsonParams) error); ok {
+	if rf, ok := ret.Get(1).(func(*models.HTTPJsonParams) error); ok {
 		r1 = rf(params)
 	} else {
 		r1 = ret.Error(1)
@@ -59,12 +59,12 @@ func (_m *Usecase) HttpJson(params *models.HttpJsonParams) (*monitorormodels.Til
 	return r0, r1
 }
 
-// HttpRaw provides a mock function with given fields: params
-func (_m *Usecase) HttpRaw(params *models.HttpRawParams) (*monitorormodels.Tile, error) {
+// HTTPRaw provides a mock function with given fields: params
+func (_m *Usecase) HTTPRaw(params *models.HTTPRawParams) (*monitorormodels.Tile, error) {
 	ret := _m.Called(params)
 
 	var r0 *monitorormodels.Tile
-	if rf, ok := ret.Get(0).(func(*models.HttpRawParams) *monitorormodels.Tile); ok {
+	if rf, ok := ret.Get(0).(func(*models.HTTPRawParams) *monitorormodels.Tile); ok {
 		r0 = rf(params)
 	} else {
 		if ret.Get(0) != nil {
@@ -73,7 +73,7 @@ func (_m *Usecase) HttpRaw(params *models.HttpRawParams) (*monitorormodels.Tile,
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*models.HttpRawParams) error); ok {
+	if rf, ok := ret.Get(1).(func(*models.HTTPRawParams) error); ok {
 		r1 = rf(params)
 	} else {
 		r1 = ret.Error(1)
@@ -82,12 +82,12 @@ func (_m *Usecase) HttpRaw(params *models.HttpRawParams) (*monitorormodels.Tile,
 	return r0, r1
 }
 
-// HttpYaml provides a mock function with given fields: params
-func (_m *Usecase) HttpYaml(params *models.HttpYamlParams) (*monitorormodels.Tile, error) {
+// HTTPYaml provides a mock function with given fields: params
+func (_m *Usecase) HTTPYaml(params *models.HTTPYamlParams) (*monitorormodels.Tile, error) {
 	ret := _m.Called(params)
 
 	var r0 *monitorormodels.Tile
-	if rf, ok := ret.Get(0).(func(*models.HttpYamlParams) *monitorormodels.Tile); ok {
+	if rf, ok := ret.Get(0).(func(*models.HTTPYamlParams) *monitorormodels.Tile); ok {
 		r0 = rf(params)
 	} else {
 		if ret.Get(0) != nil {
@@ -96,7 +96,7 @@ func (_m *Usecase) HttpYaml(params *models.HttpYamlParams) (*monitorormodels.Til
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(*models.HttpYamlParams) error); ok {
+	if rf, ok := ret.Get(1).(func(*models.HTTPYamlParams) error); ok {
 		r1 = rf(params)
 	} else {
 		r1 = ret.Error(1)

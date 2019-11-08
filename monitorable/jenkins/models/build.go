@@ -16,6 +16,6 @@ type (
 
 	Author struct {
 		Name      string
-		AvatarUrl string
+		AvatarURL string
 	}
 )

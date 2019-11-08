@@ -6,6 +6,6 @@ import (
 
 type Jenkins interface {
 	GetJob(jobName string) (job gojenkins.Job, err error)
-	GetBuildByJobId(jobId string, number int) (build gojenkins.Build, err error)
-	GetLastBuildByJobId(jobId string) (build gojenkins.Build, err error)
+	GetBuildByJobId(jobID string, number int) (build gojenkins.Build, err error)
+	GetLastBuildByJobId(jobID string) (build gojenkins.Build, err error)
 }

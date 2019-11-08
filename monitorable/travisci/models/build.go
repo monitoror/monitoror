@@ -4,7 +4,7 @@ import "time"
 
 type (
 	Build struct {
-		Id     uint
+		ID     uint
 		Branch string
 		Author Author
 
@@ -16,6 +16,6 @@ type (
 
 	Author struct {
 		Name      string
-		AvatarUrl string
+		AvatarURL string
 	}
 )

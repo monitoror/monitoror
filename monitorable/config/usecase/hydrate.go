@@ -56,7 +56,7 @@ func (cu *configUsecase) hydrateTile(conf *models.Config, tile *models.Tile) {
 		return
 	}
 
-	// Change Params by a valid Url
+	// Change Params by a valid URL
 	path := cu.tileConfigs[tile.Type][tile.ConfigVariant].Path
 	urlParams := url.Values{}
 	for key, value := range tile.Params {
@@ -70,14 +70,14 @@ func (cu *configUsecase) hydrateTile(conf *models.Config, tile *models.Tile) {
 		}
 	}
 
-	tile.Url = fmt.Sprintf("%s?%s", path, urlParams.Encode())
+	tile.URL = fmt.Sprintf("%s?%s", path, urlParams.Encode())
 
 	// Remove Params / Variant
 	tile.Params = nil
 	tile.ConfigVariant = ""
 }
 
-func (cu *configUsecase) hydrateDynamicTile(conf *models.Config, tile *models.Tile) (tiles []models.Tile) {
+func (cu *configUsecase) hydrateDynamicTile(conf *models.Config, tile *models.Tile) []models.Tile {
 	dynamicTileConfig := cu.dynamicTileConfigs[tile.Type][tile.ConfigVariant]
 
 	// Create new validator by reflexion
@@ -105,7 +105,7 @@ func (cu *configUsecase) hydrateDynamicTile(conf *models.Config, tile *models.Ti
 		_ = cu.dynamicTileStore.Set(cacheKey, results, cu.downstreamStoreExpiration)
 	}
 
-	tiles = []models.Tile{}
+	tiles := []models.Tile{}
 	for _, result := range results {
 		newTile := models.Tile{
 			Type:          result.TileType,
@@ -119,5 +119,5 @@ func (cu *configUsecase) hydrateDynamicTile(conf *models.Config, tile *models.Ti
 		tiles = append(tiles, newTile)
 	}
 
-	return
+	return tiles
 }

@@ -39,7 +39,7 @@ func TestDelivery_ConfigHandler_Success(t *testing.T) {
 	mockUsecase.On("GetConfig", Anything).Return(config, nil)
 	mockUsecase.On("Verify", Anything)
 	mockUsecase.On("Hydrate", Anything, Anything)
-	handler := NewHttpConfigDelivery(mockUsecase)
+	handler := NewConfigDelivery(mockUsecase)
 
 	// Expected
 	json, err := json.Marshal(config)
@@ -62,7 +62,7 @@ func TestDelivery_ConfigHandler_QueryParamsError(t *testing.T) {
 	ctx.QueryParams().Del("hostname")
 
 	mockUsecase := new(mocks.Usecase)
-	handler := NewHttpConfigDelivery(mockUsecase)
+	handler := NewConfigDelivery(mockUsecase)
 
 	// Test
 	err := handler.GetConfig(ctx)
@@ -77,7 +77,7 @@ func TestDelivery_ConfigHandler_ErrorConfig(t *testing.T) {
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("GetConfig", Anything).Return(nil, errors.New("boom"))
-	handler := NewHttpConfigDelivery(mockUsecase)
+	handler := NewConfigDelivery(mockUsecase)
 
 	// Test
 	if assert.Error(t, handler.GetConfig(ctx)) {
@@ -100,7 +100,7 @@ func TestDelivery_ConfigHandler_ErrorVerify(t *testing.T) {
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("GetConfig", Anything).Return(conf, nil)
 	mockUsecase.On("Verify", Anything)
-	handler := NewHttpConfigDelivery(mockUsecase)
+	handler := NewConfigDelivery(mockUsecase)
 
 	// Expected
 	json, err := json.Marshal(conf)
@@ -131,7 +131,7 @@ func TestDelivery_ConfigHandler_ErrorHydrate(t *testing.T) {
 	mockUsecase.On("GetConfig", Anything).Return(conf, nil)
 	mockUsecase.On("Verify", Anything)
 	mockUsecase.On("Hydrate", Anything, Anything)
-	handler := NewHttpConfigDelivery(mockUsecase)
+	handler := NewConfigDelivery(mockUsecase)
 
 	// Expected
 	json, err := json.Marshal(conf)

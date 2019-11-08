@@ -22,7 +22,7 @@ import (
 
 func initRepository(t *testing.T, buildClient build.Client, releaseClient release.Client) *azureDevOpsRepository {
 	conf := InitConfig()
-	conf.Monitorable.AzureDevOps[DefaultVariant].Url = "http://azure.test.com"
+	conf.Monitorable.AzureDevOps[DefaultVariant].URL = "http://azure.test.com"
 	conf.Monitorable.AzureDevOps[DefaultVariant].Token = "test"
 
 	mockConnection := new(mocks.Connection)
@@ -111,7 +111,7 @@ func TestRepository_GetBuild_Failure_NoBuildsFound(t *testing.T) {
 func TestRepository_GetBuild_Success(t *testing.T) {
 	author := make(map[string]string)
 	author["pr.sender.name"] = "Microsoft.VisualStudio.Services.TFS"
-	author["pr.sender.avatarUrl"] = "http://avatar.url.com"
+	author["pr.sender.avatarURL"] = "http://avatar.url.com"
 
 	now := time.Now()
 

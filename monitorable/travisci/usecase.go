@@ -1,17 +1,16 @@
 package travisci
 
 import (
-	. "github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/travisci/models"
+	"github.com/monitoror/monitoror/models"
+	travisCIModels "github.com/monitoror/monitoror/monitorable/travisci/models"
 )
 
 const (
-	TravisCIBuildTileType TileType = "TRAVISCI-BUILD"
+	TravisCIBuildTileType models.TileType = "TRAVISCI-BUILD"
 )
 
-// Usecase represent the travisci's usecases
 type (
 	Usecase interface {
-		Build(params *models.BuildParams) (*Tile, error)
+		Build(params *travisCIModels.BuildParams) (*models.Tile, error)
 	}
 )

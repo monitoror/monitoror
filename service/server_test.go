@@ -8,14 +8,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// This tests are realy basic and juste check if Server member are not nil
+// This tests are really basic and just check if Server member are not nil
 func TestInit_WithAllTile(t *testing.T) {
 	conf := InitConfig()
 	conf.Env = "Test"
 
-	conf.Monitorable.Jenkins["jenkins"] = &Jenkins{Url: "http://jenkins.test.com"}
+	conf.Monitorable.Jenkins["jenkins"] = &Jenkins{URL: "http://jenkins.test.com"}
 	conf.Monitorable.Pingdom["pingdom"] = &Pingdom{Token: "abcdef"}
-	conf.Monitorable.AzureDevOps["azure-devops"] = &AzureDevOps{Url: "https://dev.azure.com/test", Token: "abcdef"}
+	conf.Monitorable.AzureDevOps["azure-devops"] = &AzureDevOps{URL: "https://dev.azure.com/test", Token: "abcdef"}
 
 	server := &Server{config: conf}
 	server.initEcho()
@@ -26,11 +26,11 @@ func TestInit_WithAllTile(t *testing.T) {
 	assert.NotNil(t, server.Echo)
 }
 
-// This tests are realy basic and juste check if Server member are not nil
+// This tests are really basic and just check if Server member are not nil
 func TestInit_WithoutAllTile(t *testing.T) {
 	conf := InitConfig()
 	conf.Env = "Test"
-	conf.Monitorable.TravisCI[DefaultVariant].Url = ""
+	conf.Monitorable.TravisCI[DefaultVariant].URL = ""
 
 	server := &Server{config: conf}
 	server.initEcho()

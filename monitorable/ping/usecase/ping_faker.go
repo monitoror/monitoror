@@ -6,9 +6,9 @@ import (
 	"math/rand"
 	"time"
 
-	. "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/ping"
-	"github.com/monitoror/monitoror/monitorable/ping/models"
+	pingModels "github.com/monitoror/monitoror/monitorable/ping/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
 )
 
@@ -21,19 +21,19 @@ func NewPingUsecase() ping.Usecase {
 	return &pingUsecase{}
 }
 
-func (pu *pingUsecase) Ping(params *models.PingParams) (tile *Tile, err error) {
-	tile = NewTile(ping.PingTileType)
+func (pu *pingUsecase) Ping(params *pingModels.PingParams) (tile *models.Tile, err error) {
+	tile = models.NewTile(ping.PingTileType)
 	tile.Label = params.Hostname
 
 	// Init random generator
 	rand.Seed(time.Now().UnixNano())
 
 	// Code
-	tile.Status = nonempty.Struct(params.Status, randomStatus()).(TileStatus)
+	tile.Status = nonempty.Struct(params.Status, randomStatus()).(models.TileStatus)
 
 	// Message
-	if tile.Status == SuccessStatus {
-		tile.Unit = MillisecondUnit
+	if tile.Status == models.SuccessStatus {
+		tile.Unit = models.MillisecondUnit
 
 		if len(params.Values) != 0 {
 			tile.Values = params.Values
@@ -45,10 +45,10 @@ func (pu *pingUsecase) Ping(params *models.PingParams) (tile *Tile, err error) {
 	return
 }
 
-func randomStatus() TileStatus {
+func randomStatus() models.TileStatus {
 	if rand.Intn(2) == 0 {
-		return SuccessStatus
+		return models.SuccessStatus
 	} else {
-		return FailedStatus
+		return models.FailedStatus
 	}
 }

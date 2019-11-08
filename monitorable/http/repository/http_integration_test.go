@@ -19,14 +19,14 @@ import (
 // /!\ this is an integration test /!\
 // Note : It may be necessary to separate them from unit tests
 
-// TestHttpRepository_Get test if http get works
-func TestHttpRepository_Get(t *testing.T) {
+// TestHTTPRepository_Get test if http get works
+func TestHTTPRepository_Get(t *testing.T) {
 	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		_, _ = fmt.Fprintln(w, "Hello")
 	}))
 	defer ts.Close()
 
-	repository := NewHttpRepository(&config.Http{SSLVerify: false, Timeout: 2000})
+	repository := NewHTTPRepository(&config.HTTP{SSLVerify: false, Timeout: 2000})
 	response, err := repository.Get(ts.URL)
 
 	if assert.NoError(t, err) {
@@ -35,13 +35,13 @@ func TestHttpRepository_Get(t *testing.T) {
 	}
 }
 
-func TestHttpRepository_Get_Error(t *testing.T) {
-	repository := NewHttpRepository(&config.Http{SSLVerify: false, Timeout: 2000})
+func TestHTTPRepository_Get_Error(t *testing.T) {
+	repository := NewHTTPRepository(&config.HTTP{SSLVerify: false, Timeout: 2000})
 	_, err := repository.Get("http://monitoror.test")
 	assert.Error(t, err)
 }
 
-func TestHttpRepository_Get_ReadAll_Error(t *testing.T) {
+func TestHTTPRepository_Get_ReadAll_Error(t *testing.T) {
 	client := test.NewTestClient(func(req *http.Request) *http.Response {
 		// Test request parameters
 		return &http.Response{

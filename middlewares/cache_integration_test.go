@@ -28,7 +28,7 @@ func TestCacheMiddleware(t *testing.T) {
 	// test server
 	e := echo.New()
 	e.HideBanner = true
-	e.HTTPErrorHandler = handlers.HttpErrorHandler
+	e.HTTPErrorHandler = handlers.HTTPErrorHandler
 
 	store := cache.NewGoCacheStore(time.Minute*5, time.Millisecond*10)
 	cacheMiddleware := NewCacheMiddleware(store, time.Second, time.Millisecond*10)
@@ -42,7 +42,9 @@ func TestCacheMiddleware(t *testing.T) {
 	}))
 
 	// Start server
-	go e.Start(fmt.Sprintf(":%d", 0))
+	go func() {
+		_ = e.Start(fmt.Sprintf(":%d", 0))
+	}()
 
 	// Wait until echo start
 	for range time.Tick(time.Millisecond * 10) {
@@ -58,12 +60,14 @@ func TestCacheMiddleware(t *testing.T) {
 	if assert.NoError(t, err) {
 		assert.Equal(t, 200, resp.StatusCode)
 		assert.Empty(t, resp.Header.Get("Last-Modified"))
+		_ = resp.Body.Close()
 	}
 
 	resp, err = http.Get(url)
 	if assert.NoError(t, err) {
 		assert.Equal(t, 200, resp.StatusCode)
 		assert.NotEmpty(t, resp.Header.Get("Last-Modified"))
+		_ = resp.Body.Close()
 	}
 
 	// Wait until upstream cache was clean
@@ -74,6 +78,7 @@ func TestCacheMiddleware(t *testing.T) {
 	if assert.NoError(t, err) {
 		assert.Equal(t, 200, resp.StatusCode)
 		assert.NotEmpty(t, resp.Header.Get(models.DownstreamCacheHeader))
+		_ = resp.Body.Close()
 	}
 
 	// Close server

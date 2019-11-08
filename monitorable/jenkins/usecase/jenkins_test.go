@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"errors"
-	"fmt"
 	"testing"
 	"time"
 
@@ -97,15 +96,15 @@ func CheckBuild(t *testing.T, result string) {
 	tUsecase, ok := tu.(*jenkinsUsecase)
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		expected := NewTile(jenkins.JenkinsBuildTileType)
-		expected.Label = fmt.Sprintf("%s", job)
-		expected.Message = fmt.Sprintf("%s", git.HumanizeBranch(branch))
+		expected.Label = job
+		expected.Message = git.HumanizeBranch(branch)
 		expected.Status = parseResult(repositoryBuild.Result)
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(repositoryBuild.StartedAt)
 		expected.FinishedAt = ToTime(repositoryBuild.StartedAt.Add(repositoryBuild.Duration))
 		expected.Author = &Author{
 			Name:      repositoryBuild.Author.Name,
-			AvatarUrl: repositoryBuild.Author.AvatarUrl,
+			AvatarURL: repositoryBuild.Author.AvatarURL,
 		}
 
 		// Add cache for previousStatus
@@ -152,8 +151,8 @@ func TestBuild_Queued(t *testing.T) {
 	tUsecase, ok := tu.(*jenkinsUsecase)
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		expected := NewTile(jenkins.JenkinsBuildTileType)
-		expected.Label = fmt.Sprintf("%s", job)
-		expected.Message = fmt.Sprintf("%s", git.HumanizeBranch(branch))
+		expected.Label = job
+		expected.Message = git.HumanizeBranch(branch)
 		expected.Status = QueuedStatus
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = repositoryJob.QueuedAt
@@ -188,8 +187,8 @@ func TestBuild_Running(t *testing.T) {
 	if assert.True(t, ok, "enable to case ju into jenkinsUsecase") {
 		// Without cached build
 		expected := NewTile(jenkins.JenkinsBuildTileType)
-		expected.Label = fmt.Sprintf("%s", job)
-		expected.Message = fmt.Sprintf("%s", git.HumanizeBranch(branch))
+		expected.Label = job
+		expected.Message = git.HumanizeBranch(branch)
 		expected.Status = RunningStatus
 		expected.PreviousStatus = UnknownStatus
 		expected.StartedAt = ToTime(repositoryBuild.StartedAt)
@@ -197,7 +196,7 @@ func TestBuild_Running(t *testing.T) {
 		expected.EstimatedDuration = ToInt64(int64(0))
 		expected.Author = &Author{
 			Name:      repositoryBuild.Author.Name,
-			AvatarUrl: repositoryBuild.Author.AvatarUrl,
+			AvatarURL: repositoryBuild.Author.AvatarURL,
 		}
 
 		params := &models.BuildParams{Job: job, Branch: branch}
@@ -314,7 +313,7 @@ func buildResponse(result string, startedAt time.Time, duration time.Duration) *
 		Duration:  duration,
 		Author: &models.Author{
 			Name:      "me",
-			AvatarUrl: "http://avatar.com",
+			AvatarURL: "http://avatar.com",
 		},
 	}
 	return repositoryBuild

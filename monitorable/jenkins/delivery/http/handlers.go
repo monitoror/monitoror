@@ -3,28 +3,27 @@ package http
 import (
 	"net/http"
 
-	. "github.com/monitoror/monitoror/models"
-
+	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
-	"github.com/monitoror/monitoror/monitorable/jenkins/models"
+	jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
 
 	"github.com/labstack/echo/v4"
 )
 
-type httpJenkinsDelivery struct {
+type JenkinsDelivery struct {
 	jenkinsUsecase jenkins.Usecase
 }
 
-func NewHttpJenkinsDelivery(p jenkins.Usecase) *httpJenkinsDelivery {
-	return &httpJenkinsDelivery{p}
+func NewJenkinsDelivery(p jenkins.Usecase) *JenkinsDelivery {
+	return &JenkinsDelivery{p}
 }
 
-func (h *httpJenkinsDelivery) GetBuild(c echo.Context) error {
+func (h *JenkinsDelivery) GetBuild(c echo.Context) error {
 	// Bind / check Params
-	params := &models.BuildParams{}
+	params := &jenkinsModels.BuildParams{}
 	err := c.Bind(params)
 	if err != nil || !params.IsValid() {
-		return QueryParamsError
+		return models.QueryParamsError
 	}
 
 	tile, err := h.jenkinsUsecase.Build(params)

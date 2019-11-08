@@ -34,7 +34,7 @@ func (c *connection) GetReleaseConnection() (release.Client, error) {
 }
 
 func NewAzureDevOpsRepository(config *config.AzureDevOps) azuredevops.Repository {
-	conn := azureDevOpsApi.NewPatConnection(config.Url, config.Token)
+	conn := azureDevOpsApi.NewPatConnection(config.URL, config.Token)
 
 	// Setup timeout
 	timeout := time.Duration(config.Timeout) * time.Millisecond
@@ -46,7 +46,7 @@ func NewAzureDevOpsRepository(config *config.AzureDevOps) azuredevops.Repository
 	}
 }
 
-func (r *azureDevOpsRepository) GetBuild(project string, definition int, branch *string) (result *models.Build, err error) {
+func (r *azureDevOpsRepository) GetBuild(project string, definition int, branch *string) (*models.Build, error) {
 	ids := []int{definition}
 	args := build.GetBuildsArgs{
 		Project:                pointer.ToString(project),
@@ -57,21 +57,21 @@ func (r *azureDevOpsRepository) GetBuild(project string, definition int, branch 
 
 	client, err := r.connection.GetBuildConnection()
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	aBuilds, err := client.GetBuilds(context.TODO(), args)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	// No build found
 	if len(aBuilds.Value) == 0 {
-		return
+		return nil, nil
 	}
 	aBuild := aBuilds.Value[0]
 
-	result = &models.Build{
+	result := &models.Build{
 		BuildNumber:    *aBuild.BuildNumber,
 		DefinitionName: *aBuild.Definition.Name,
 	}
@@ -97,8 +97,8 @@ func (r *azureDevOpsRepository) GetBuild(project string, definition int, branch 
 		if value, ok := (*aBuild.TriggerInfo)["pr.sender.name"]; ok {
 			result.Author.Name = value
 		}
-		if value, ok := (*aBuild.TriggerInfo)["pr.sender.avatarUrl"]; ok {
-			result.Author.AvatarUrl = value
+		if value, ok := (*aBuild.TriggerInfo)["pr.sender.avatarURL"]; ok {
+			result.Author.AvatarURL = value
 		}
 	}
 
@@ -106,9 +106,9 @@ func (r *azureDevOpsRepository) GetBuild(project string, definition int, branch 
 		if result.Author.Name == "" && aBuild.RequestedFor.DisplayName != nil {
 			result.Author.Name = *aBuild.RequestedFor.DisplayName
 		}
-		if result.Author.AvatarUrl == "" {
+		if result.Author.AvatarURL == "" {
 			if link, ok := aBuild.RequestedFor.Links["avatar"]; ok {
-				result.Author.AvatarUrl = *link.Href
+				result.Author.AvatarURL = *link.Href
 			}
 		}
 	}
@@ -128,10 +128,10 @@ func (r *azureDevOpsRepository) GetBuild(project string, definition int, branch 
 		result.FinishedAt = &aBuild.FinishTime.Time
 	}
 
-	return
+	return result, nil
 }
 
-func (r *azureDevOpsRepository) GetRelease(project string, definition int) (result *models.Release, err error) {
+func (r *azureDevOpsRepository) GetRelease(project string, definition int) (*models.Release, error) {
 	args := release.GetDeploymentsArgs{
 		Project:            pointer.ToString(project),
 		DefinitionId:       pointer.ToInt(definition),
@@ -141,21 +141,21 @@ func (r *azureDevOpsRepository) GetRelease(project string, definition int) (resu
 
 	client, err := r.connection.GetReleaseConnection()
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	aReleases, err := client.GetDeployments(context.TODO(), args)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	// No build found
 	if len(aReleases.Value) == 0 {
-		return
+		return nil, nil
 	}
 	aRelease := aReleases.Value[0]
 
-	result = &models.Release{
+	result := &models.Release{
 		ReleaseNumber:  *aRelease.Release.Name,
 		DefinitionName: *aRelease.ReleaseDefinition.Name,
 		Status:         string(*aRelease.DeploymentStatus),
@@ -169,7 +169,7 @@ func (r *azureDevOpsRepository) GetRelease(project string, definition int) (resu
 			result.Author.Name = *aRelease.RequestedFor.DisplayName
 		}
 		if link, ok := aRelease.RequestedFor.Links["avatar"]; ok {
-			result.Author.AvatarUrl = *link.Href
+			result.Author.AvatarURL = *link.Href
 		}
 
 		// HACK: Remove author if user is the default Azure user or empty
@@ -188,5 +188,5 @@ func (r *azureDevOpsRepository) GetRelease(project string, definition int) (resu
 		result.FinishedAt = &aRelease.CompletedOn.Time
 	}
 
-	return
+	return result, nil
 }

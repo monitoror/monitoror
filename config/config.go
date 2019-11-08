@@ -12,7 +12,7 @@ const EnvPrefix = "MO"
 const DefaultVariant = "default"
 
 type (
-	// Backend Configuration
+	// Config contain backend Configuration
 	Config struct {
 		// --- General Configuration ---
 		Port int    `json:"port"` // Default: 8080
@@ -31,7 +31,7 @@ type (
 	Monitorable struct {
 		Ping        Ping                    `json:"ping"`
 		Port        Port                    `json:"port"`
-		Http        Http                    `json:"http"`
+		HTTP        HTTP                    `json:"http"`
 		Pingdom     map[string]*Pingdom     `json:"pingdom"`     // With variants
 		Github      map[string]*Github      `json:"github"`      // With variants
 		TravisCI    map[string]*TravisCI    `json:"travisCI"`    // With variants
@@ -49,13 +49,13 @@ type (
 		Timeout int `json:"timeout"` // In Millisecond
 	}
 
-	Http struct {
+	HTTP struct {
 		Timeout   int  `json:"timeout"` // In Millisecond
 		SSLVerify bool `json:"sslVerify"`
 	}
 
 	Pingdom struct {
-		Url             string `json:"url"`
+		URL             string `json:"url"`
 		Token           string `json:"token"`
 		Timeout         int    `json:"timeout"`         // In Millisecond
 		CacheExpiration int    `json:"cacheExpiration"` // In Millisecond
@@ -66,13 +66,13 @@ type (
 	}
 
 	TravisCI struct {
-		Url     string `json:"url"`
+		URL     string `json:"url"`
 		Timeout int    `json:"timeout"` // In Millisecond
 		Token   string `json:"token"`
 	}
 
 	Jenkins struct {
-		Url       string `json:"url"`
+		URL       string `json:"url"`
 		Timeout   int    `json:"timeout"` // In Millisecond
 		SSLVerify bool   `json:"sslVerify"`
 		Login     string `json:"login"`
@@ -80,13 +80,13 @@ type (
 	}
 
 	AzureDevOps struct {
-		Url     string `json:"url"`
+		URL     string `json:"url"`
 		Timeout int    `json:"timeout"` // In Millisecond
 		Token   string `json:"token"`
 	}
 )
 
-// GetConfig configuration from configuration file / env / default value
+// InitConfig from configuration file / env / default value
 func InitConfig() *Config {
 	var config Config
 
@@ -115,14 +115,14 @@ func InitConfig() *Config {
 	// --- Port Configuration ---
 	viper.SetDefault("Monitorable.Port.Timeout", 2000)
 
-	// --- Http Configuration ---
-	viper.SetDefault("Monitorable.Http.Timeout", 2000)
-	viper.SetDefault("Monitorable.Http.SSLVerify", true)
-	viper.SetDefault("Monitorable.Http.Url", "")
+	// --- HTTP Configuration ---
+	viper.SetDefault("Monitorable.HTTP.Timeout", 2000)
+	viper.SetDefault("Monitorable.HTTP.SSLVerify", true)
+	viper.SetDefault("Monitorable.HTTP.URL", "")
 
 	// --- Pingdom Configuration ---
 	for variant := range variants["Pingdom"] {
-		viper.SetDefault(fmt.Sprintf("Monitorable.Pingdom.%s.Url", variant), "")
+		viper.SetDefault(fmt.Sprintf("Monitorable.Pingdom.%s.URL", variant), "")
 		viper.SetDefault(fmt.Sprintf("Monitorable.Pingdom.%s.Token", variant), "")
 		viper.SetDefault(fmt.Sprintf("Monitorable.Pingdom.%s.Timeout", variant), 2000)
 		viper.SetDefault(fmt.Sprintf("Monitorable.Pingdom.%s.CacheExpiration", variant), 30000)
@@ -135,14 +135,14 @@ func InitConfig() *Config {
 
 	// --- TravisCI Configuration ---
 	for variant := range variants["TravisCI"] {
-		viper.SetDefault(fmt.Sprintf("Monitorable.TravisCI.%s.Url", variant), "https://api.travis-ci.org/")
+		viper.SetDefault(fmt.Sprintf("Monitorable.TravisCI.%s.URL", variant), "https://api.travis-ci.org/")
 		viper.SetDefault(fmt.Sprintf("Monitorable.TravisCI.%s.Timeout", variant), 2000)
 		viper.SetDefault(fmt.Sprintf("Monitorable.TravisCI.%s.Token", variant), "")
 	}
 
 	// --- Jenkins Configuration ---
 	for variant := range variants["Jenkins"] {
-		viper.SetDefault(fmt.Sprintf("Monitorable.Jenkins.%s.Url", variant), "")
+		viper.SetDefault(fmt.Sprintf("Monitorable.Jenkins.%s.URL", variant), "")
 		viper.SetDefault(fmt.Sprintf("Monitorable.Jenkins.%s.Timeout", variant), 2000)
 		viper.SetDefault(fmt.Sprintf("Monitorable.Jenkins.%s.SSLVerify", variant), true)
 		viper.SetDefault(fmt.Sprintf("Monitorable.Jenkins.%s.Login", variant), "")
@@ -151,7 +151,7 @@ func InitConfig() *Config {
 
 	// --- Azure DevOps Configuration ---
 	for variant := range variants["AzureDevOps"] {
-		viper.SetDefault(fmt.Sprintf("Monitorable.AzureDevOps.%s.Url", variant), "")
+		viper.SetDefault(fmt.Sprintf("Monitorable.AzureDevOps.%s.URL", variant), "")
 		viper.SetDefault(fmt.Sprintf("Monitorable.AzureDevOps.%s.Timeout", variant), 4000)
 		viper.SetDefault(fmt.Sprintf("Monitorable.AzureDevOps.%s.Token", variant), "")
 	}
@@ -163,8 +163,8 @@ func InitConfig() *Config {
 
 func (t *Pingdom) IsValid() bool {
 	// Pingdom url can be empty, plugin will use default value
-	if t.Url != "" {
-		if _, err := url.Parse(t.Url); err != nil {
+	if t.URL != "" {
+		if _, err := url.Parse(t.URL); err != nil {
 			return false
 		}
 	}
@@ -173,11 +173,11 @@ func (t *Pingdom) IsValid() bool {
 }
 
 func (t *TravisCI) IsValid() bool {
-	if t.Url == "" {
+	if t.URL == "" {
 		return false
 	}
 
-	if _, err := url.Parse(t.Url); err != nil {
+	if _, err := url.Parse(t.URL); err != nil {
 		return false
 	}
 
@@ -185,11 +185,11 @@ func (t *TravisCI) IsValid() bool {
 }
 
 func (t *Jenkins) IsValid() bool {
-	if t.Url == "" {
+	if t.URL == "" {
 		return false
 	}
 
-	if _, err := url.Parse(t.Url); err != nil {
+	if _, err := url.Parse(t.URL); err != nil {
 		return false
 	}
 
@@ -197,11 +197,11 @@ func (t *Jenkins) IsValid() bool {
 }
 
 func (t *AzureDevOps) IsValid() bool {
-	if t.Url == "" {
+	if t.URL == "" {
 		return false
 	}
 
-	if _, err := url.Parse(t.Url); err != nil {
+	if _, err := url.Parse(t.URL); err != nil {
 		return false
 	}
 

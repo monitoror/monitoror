@@ -8,7 +8,7 @@ import (
 
 	"github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/monitorable/config/models"
-	. "github.com/monitoror/monitoror/pkg/monitoror/utils"
+	"github.com/monitoror/monitoror/pkg/monitoror/utils"
 )
 
 func (cu *configUsecase) Verify(conf *models.Config) {
@@ -92,23 +92,23 @@ func (cu *configUsecase) verifyTile(conf *models.Config, tile *models.Tile, grou
 	// Get the validator for current tile
 	// - for non dynamic tile, the validator is register in tileConfigs
 	// - for dynamic tile, the validator is register in dynamicTileConfigs
-	var validator Validator
+	var validator utils.Validator
 	if _, exists := cu.dynamicTileConfigs[tile.Type]; !exists {
-		if tileConfig, exists := cu.tileConfigs[tile.Type][tile.ConfigVariant]; !exists {
+		tileConfig, exists := cu.tileConfigs[tile.Type][tile.ConfigVariant]
+		if !exists {
 			conf.AddErrors(fmt.Sprintf(`Unknown "%s" variant for %s type in tile definition. Must be %s`,
 				tile.ConfigVariant, tile.Type, keys(cu.tileConfigs[tile.Type])))
 			return
-		} else {
-			validator = tileConfig.Validator
 		}
+		validator = tileConfig.Validator
 	} else {
-		if dynamicTileConfig, exists := cu.dynamicTileConfigs[tile.Type][tile.ConfigVariant]; !exists {
+		dynamicTileConfig, exists := cu.dynamicTileConfigs[tile.Type][tile.ConfigVariant]
+		if !exists {
 			conf.AddErrors(fmt.Sprintf(`Unknown "%s" variant for %s dynamic type in tile definition. Must be %s`,
 				tile.ConfigVariant, tile.Type, keys(cu.dynamicTileConfigs[tile.Type])))
 			return
-		} else {
-			validator = dynamicTileConfig.Validator
 		}
+		validator = dynamicTileConfig.Validator
 	}
 
 	// Create new validator by reflexion
@@ -119,12 +119,9 @@ func (cu *configUsecase) verifyTile(conf *models.Config, tile *models.Tile, grou
 	bParams, _ := json.Marshal(tile.Params)
 	unmarshalErr := json.Unmarshal(bParams, &rInstance)
 
-	if unmarshalErr != nil || !rInstance.(Validator).IsValid() {
+	if unmarshalErr != nil || !rInstance.(utils.Validator).IsValid() {
 		conf.AddErrors(fmt.Sprintf(`Invalid params definition for "%s": "%s".`, tile.Type, string(bParams)))
-		return
 	}
-
-	return
 }
 
 // --- Utility functions ---
