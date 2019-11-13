@@ -3,23 +3,35 @@
 package usecase
 
 import (
-	"fmt"
 	"math/rand"
 	"time"
 
+	"github.com/AlekSi/pointer"
+
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
 
-	. "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
-	"github.com/monitoror/monitoror/monitorable/jenkins/models"
+	jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/builder"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
-
-	. "github.com/AlekSi/pointer"
 )
 
-var AvailableStatus = []TileStatus{SuccessStatus, FailedStatus, AbortedStatus, RunningStatus, QueuedStatus, WarningStatus, DisabledStatus}
-var AvailablePreviousStatus = []TileStatus{SuccessStatus, FailedStatus, WarningStatus, UnknownStatus}
+var AvailableStatus = []models.TileStatus{
+	models.SuccessStatus,
+	models.FailedStatus,
+	models.AbortedStatus,
+	models.RunningStatus,
+	models.QueuedStatus,
+	models.WarningStatus,
+	models.DisabledStatus,
+}
+var AvailablePreviousStatus = []models.TileStatus{
+	models.SuccessStatus,
+	models.FailedStatus,
+	models.WarningStatus,
+	models.UnknownStatus,
+}
 
 type (
 	jenkinsUsecase struct {
@@ -36,23 +48,23 @@ func NewJenkinsUsecase() jenkins.Usecase {
 	return &jenkinsUsecase{make(map[string]*durations)}
 }
 
-func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *Tile, err error) {
-	tile = NewTile(jenkins.JenkinsBuildTileType)
+func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (tile *models.Tile, err error) {
+	tile = models.NewTile(jenkins.JenkinsBuildTileType)
 	tile.Label = params.Job
 	if params.Branch != "" {
-		tile.Message = fmt.Sprintf("%s", git.HumanizeBranch(params.Branch))
+		tile.Message = git.HumanizeBranch(params.Branch)
 	}
 
 	// Init random generator
 	rand.Seed(time.Now().UnixNano())
 
-	tile.Status = nonempty.Struct(params.Status, randomStatus(AvailableStatus)).(TileStatus)
+	tile.Status = nonempty.Struct(params.Status, randomStatus(AvailableStatus)).(models.TileStatus)
 
-	if tile.Status == DisabledStatus {
+	if tile.Status == models.DisabledStatus {
 		return
 	}
 
-	if tile.Status == WarningStatus {
+	if tile.Status == models.WarningStatus {
 		// Warning can be Unstable Build
 		if rand.Intn(2) == 0 {
 			tile.Message = "random error message"
@@ -60,30 +72,30 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *Tile, err err
 		}
 	}
 
-	tile.PreviousStatus = nonempty.Struct(params.PreviousStatus, randomStatus(AvailablePreviousStatus)).(TileStatus)
+	tile.PreviousStatus = nonempty.Struct(params.PreviousStatus, randomStatus(AvailablePreviousStatus)).(models.TileStatus)
 
 	// Author
-	if tile.Status != QueuedStatus {
-		tile.Author = &Author{}
+	if tile.Status != models.QueuedStatus {
+		tile.Author = &models.Author{}
 		tile.Author.Name = nonempty.String(params.AuthorName, "Faker")
-		tile.Author.AvatarUrl = nonempty.String(params.AuthorAvatarUrl, "https://www.gravatar.com/avatar/00000000000000000000000000000000")
+		tile.Author.AvatarURL = nonempty.String(params.AuthorAvatarURL, "https://www.gravatar.com/avatar/00000000000000000000000000000000")
 	}
 
 	// StartedAt / FinishedAt
-	if tile.Status == SuccessStatus || tile.Status == FailedStatus || tile.Status == WarningStatus || tile.Status == AbortedStatus {
+	if tile.Status == models.SuccessStatus || tile.Status == models.FailedStatus || tile.Status == models.WarningStatus || tile.Status == models.AbortedStatus {
 		min := time.Now().Unix() - int64(time.Hour.Seconds()*24*30) - 3600
 		max := time.Now().Unix() - 3600
 		delta := max - min
 
-		tile.StartedAt = ToTime(nonempty.Time(params.StartedAt, time.Unix(rand.Int63n(delta)+min, 0)))
-		tile.FinishedAt = ToTime(nonempty.Time(params.FinishedAt, tile.StartedAt.Add(time.Second*time.Duration(rand.Int63n(3600)))))
+		tile.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Unix(rand.Int63n(delta)+min, 0)))
+		tile.FinishedAt = pointer.ToTime(nonempty.Time(params.FinishedAt, tile.StartedAt.Add(time.Second*time.Duration(rand.Int63n(3600)))))
 	}
-	if tile.Status == QueuedStatus || tile.Status == RunningStatus {
-		tile.StartedAt = ToTime(nonempty.Time(params.StartedAt, time.Now().Add(-time.Second*time.Duration(rand.Int63n(3600)))))
+	if tile.Status == models.QueuedStatus || tile.Status == models.RunningStatus {
+		tile.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Now().Add(-time.Second*time.Duration(rand.Int63n(3600)))))
 	}
 
 	// Duration / EstimatedDuration
-	if tile.Status == RunningStatus {
+	if tile.Status == models.RunningStatus {
 		// Creating cache for duration
 		dur, ok := tu.cachedRunningValue[params.String()]
 		if !ok {
@@ -102,12 +114,12 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *Tile, err err
 			dur.duration = 0
 		}
 
-		tile.Duration = ToInt64(nonempty.Int64(params.Duration, dur.duration))
+		tile.Duration = pointer.ToInt64(nonempty.Int64(params.Duration, dur.duration))
 
-		if tile.PreviousStatus != UnknownStatus {
-			tile.EstimatedDuration = ToInt64(dur.estimatedDuration)
+		if tile.PreviousStatus != models.UnknownStatus {
+			tile.EstimatedDuration = pointer.ToInt64(dur.estimatedDuration)
 		} else {
-			tile.EstimatedDuration = ToInt64(0)
+			tile.EstimatedDuration = pointer.ToInt64(0)
 		}
 	}
 
@@ -118,6 +130,6 @@ func (tu *jenkinsUsecase) ListDynamicTile(params interface{}) ([]builder.Result,
 	panic("unimplemented")
 }
 
-func randomStatus(status []TileStatus) TileStatus {
+func randomStatus(status []models.TileStatus) models.TileStatus {
 	return status[rand.Intn(len(status))]
 }

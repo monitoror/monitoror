@@ -6,9 +6,9 @@ import (
 	"math/rand"
 	"time"
 
-	. "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/http"
-	"github.com/monitoror/monitoror/monitorable/http/models"
+	httpModels "github.com/monitoror/monitoror/monitorable/http/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
 )
 
@@ -17,38 +17,38 @@ type (
 	}
 )
 
-func NewHttpUsecase() http.Usecase {
+func NewHTTPUsecase() http.Usecase {
 	return &httpUsecase{}
 }
 
-// HttpAny only check status code
-func (hu *httpUsecase) HttpAny(params *models.HttpAnyParams) (tile *Tile, err error) {
-	return hu.httpAll(http.HttpAnyTileType, params.Url, params)
+// HTTPAny only check status code
+func (hu *httpUsecase) HTTPAny(params *httpModels.HTTPAnyParams) (tile *models.Tile, err error) {
+	return hu.httpAll(http.HTTPAnyTileType, params.URL, params)
 }
 
-// HttpRaw check status code and content
-func (hu *httpUsecase) HttpRaw(params *models.HttpRawParams) (tile *Tile, err error) {
-	return hu.httpAll(http.HttpRawTileType, params.Url, params)
+// HTTPRaw check status code and content
+func (hu *httpUsecase) HTTPRaw(params *httpModels.HTTPRawParams) (tile *models.Tile, err error) {
+	return hu.httpAll(http.HTTPRawTileType, params.URL, params)
 }
 
-func (hu *httpUsecase) HttpJson(params *models.HttpJsonParams) (tile *Tile, err error) {
-	return hu.httpAll(http.HttpJsonTileType, params.Url, params)
+func (hu *httpUsecase) HTTPJson(params *httpModels.HTTPJsonParams) (tile *models.Tile, err error) {
+	return hu.httpAll(http.HTTPJsonTileType, params.URL, params)
 }
 
-func (hu *httpUsecase) HttpYaml(params *models.HttpYamlParams) (tile *Tile, err error) {
-	return hu.httpAll(http.HttpYamlTileType, params.Url, params)
+func (hu *httpUsecase) HTTPYaml(params *httpModels.HTTPYamlParams) (tile *models.Tile, err error) {
+	return hu.httpAll(http.HTTPYamlTileType, params.URL, params)
 }
 
 // httpAll handle all http usecase by checking if params match interfaces listed in models.params
-func (hu *httpUsecase) httpAll(tileType TileType, url string, params models.FakerParamsProvider) (tile *Tile, err error) {
-	tile = NewTile(tileType)
+func (hu *httpUsecase) httpAll(tileType models.TileType, url string, params httpModels.FakerParamsProvider) (tile *models.Tile, err error) {
+	tile = models.NewTile(tileType)
 	tile.Label = url
 
 	// Init random generator
 	rand.Seed(time.Now().UnixNano())
 
-	tile.Status = nonempty.Struct(params.GetStatus(), randomStatus()).(TileStatus)
-	if tile.Status == SuccessStatus && tileType != http.HttpAnyTileType {
+	tile.Status = nonempty.Struct(params.GetStatus(), randomStatus()).(models.TileStatus)
+	if tile.Status == models.SuccessStatus && tileType != http.HTTPAnyTileType {
 		if len(params.GetValues()) != 0 {
 			tile.Values = params.GetValues()
 		} else if params.GetMessage() != "" {
@@ -63,17 +63,17 @@ func (hu *httpUsecase) httpAll(tileType TileType, url string, params models.Fake
 
 	}
 
-	if tile.Status == FailedStatus {
+	if tile.Status == models.FailedStatus {
 		tile.Message = nonempty.String(params.GetMessage(), "random error message")
 	}
 
 	return
 }
 
-func randomStatus() TileStatus {
+func randomStatus() models.TileStatus {
 	if rand.Intn(2) == 0 {
-		return SuccessStatus
+		return models.SuccessStatus
 	} else {
-		return FailedStatus
+		return models.FailedStatus
 	}
 }

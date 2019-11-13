@@ -39,7 +39,7 @@ func TestDelivery_GetBuild_Success(t *testing.T) {
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Build", Anything).Return(tile, nil)
-	handler := NewHttpJenkinsDelivery(mockUsecase)
+	handler := NewJenkinsDelivery(mockUsecase)
 
 	// Expected
 	json, err := json.Marshal(tile)
@@ -60,7 +60,7 @@ func TestDelivery_GetBuild_QueryParamsError_MissingGroup(t *testing.T) {
 	ctx.QueryParams().Del("job")
 
 	mockUsecase := new(mocks.Usecase)
-	handler := NewHttpJenkinsDelivery(mockUsecase)
+	handler := NewJenkinsDelivery(mockUsecase)
 
 	// Test
 	err := handler.GetBuild(ctx)
@@ -74,7 +74,7 @@ func TestDelivery_GetBuild_Error(t *testing.T) {
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Build", Anything).Return(nil, errors.New("build error"))
-	handler := NewHttpJenkinsDelivery(mockUsecase)
+	handler := NewJenkinsDelivery(mockUsecase)
 
 	// Test
 	assert.Error(t, handler.GetBuild(ctx))

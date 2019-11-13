@@ -30,15 +30,15 @@ func initConfigUsecase(repository config.Repository, store cache.Store) *configU
 	return usecase.(*configUsecase)
 }
 
-func TestUsecase_Load_WithUrl_Success(t *testing.T) {
+func TestUsecase_Load_WithURL_Success(t *testing.T) {
 	mockRepo := new(mocks.Repository)
-	mockRepo.On("GetConfigFromUrl", AnythingOfType("string")).Return(&models.Config{}, nil)
+	mockRepo.On("GetConfigFromURL", AnythingOfType("string")).Return(&models.Config{}, nil)
 
 	usecase := initConfigUsecase(mockRepo, nil)
 
-	_, err := usecase.GetConfig(&models.ConfigParams{Url: "test"})
+	_, err := usecase.GetConfig(&models.ConfigParams{URL: "test"})
 	if assert.NoError(t, err) {
-		mockRepo.AssertNumberOfCalls(t, "GetConfigFromUrl", 1)
+		mockRepo.AssertNumberOfCalls(t, "GetConfigFromURL", 1)
 		mockRepo.AssertExpectations(t)
 	}
 }

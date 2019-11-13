@@ -49,7 +49,7 @@ import (
 func (s *Server) registerConfig() config.Helper {
 	repository := _configRepository.NewConfigRepository()
 	usecase := _configUsecase.NewConfigUsecase(repository, s.store, s.config.DownstreamCacheExpiration)
-	delivery := _configDelivery.NewHttpConfigDelivery(usecase)
+	delivery := _configDelivery.NewConfigDelivery(usecase)
 
 	s.v1.GET("/config", delivery.GetConfig)
 
@@ -61,7 +61,7 @@ func (s *Server) registerPing(configHelper config.Helper) {
 
 	repository := _pingRepository.NewPingRepository(&s.config.Monitorable.Ping)
 	usecase := _pingUsecase.NewPingUsecase(repository)
-	delivery := _pingDelivery.NewHttpPingDelivery(usecase)
+	delivery := _pingDelivery.NewPingDelivery(usecase)
 
 	// Register route to echo
 	route := s.v1.GET("/ping", s.cm.UpstreamCacheHandler(delivery.GetPing))
@@ -75,7 +75,7 @@ func (s *Server) registerPort(configHelper config.Helper) {
 
 	repository := _portRepository.NewPortRepository(&s.config.Monitorable.Port)
 	usecase := _portUsecase.NewPortUsecase(repository)
-	delivery := _portDelivery.NewHttpPortDelivery(usecase)
+	delivery := _portDelivery.NewPortDelivery(usecase)
 
 	// Register route to echo
 	route := s.v1.GET("/port", s.cm.UpstreamCacheHandler(delivery.GetPort))
@@ -84,25 +84,25 @@ func (s *Server) registerPort(configHelper config.Helper) {
 	configHelper.RegisterTile(port.PortTileType, &_portModels.PortParams{}, route.Path)
 }
 
-func (s *Server) registerHttp(configHelper config.Helper) {
+func (s *Server) registerHTTP(configHelper config.Helper) {
 	defer logStatus("HTTP", true)
 
-	repository := _httpRepository.NewHttpRepository(&s.config.Monitorable.Http)
-	usecase := _httpUsecase.NewHttpUsecase(repository, s.store, s.config.UpstreamCacheExpiration)
-	delivery := _httpDelivery.NewHttpHttpDelivery(usecase)
+	repository := _httpRepository.NewHTTPRepository(&s.config.Monitorable.HTTP)
+	usecase := _httpUsecase.NewHTTPUsecase(repository, s.store, s.config.UpstreamCacheExpiration)
+	delivery := _httpDelivery.NewHTTPDelivery(usecase)
 
 	// Register route to echo
 	httpGroup := s.v1.Group("/http")
-	routeAny := httpGroup.GET("/any", s.cm.UpstreamCacheHandler(delivery.GetHttpAny))
-	routeRaw := httpGroup.GET("/raw", s.cm.UpstreamCacheHandler(delivery.GetHttpRaw))
-	routeJson := httpGroup.GET("/json", s.cm.UpstreamCacheHandler(delivery.GetHttpJson))
-	routeYaml := httpGroup.GET("/yaml", s.cm.UpstreamCacheHandler(delivery.GetHttpYaml))
+	routeAny := httpGroup.GET("/any", s.cm.UpstreamCacheHandler(delivery.GetHTTPAny))
+	routeRaw := httpGroup.GET("/raw", s.cm.UpstreamCacheHandler(delivery.GetHTTPRaw))
+	routeJSON := httpGroup.GET("/json", s.cm.UpstreamCacheHandler(delivery.GetHTTPJson))
+	routeYAML := httpGroup.GET("/yaml", s.cm.UpstreamCacheHandler(delivery.GetHTTPYaml))
 
 	// Register data for config hydration
-	configHelper.RegisterTile(http.HttpAnyTileType, &_httpModels.HttpAnyParams{}, routeAny.Path)
-	configHelper.RegisterTile(http.HttpRawTileType, &_httpModels.HttpRawParams{}, routeRaw.Path)
-	configHelper.RegisterTile(http.HttpJsonTileType, &_httpModels.HttpJsonParams{}, routeJson.Path)
-	configHelper.RegisterTile(http.HttpYamlTileType, &_httpModels.HttpYamlParams{}, routeYaml.Path)
+	configHelper.RegisterTile(http.HTTPAnyTileType, &_httpModels.HTTPAnyParams{}, routeAny.Path)
+	configHelper.RegisterTile(http.HTTPRawTileType, &_httpModels.HTTPRawParams{}, routeRaw.Path)
+	configHelper.RegisterTile(http.HTTPJsonTileType, &_httpModels.HTTPJsonParams{}, routeJSON.Path)
+	configHelper.RegisterTile(http.HTTPYamlTileType, &_httpModels.HTTPJsonParams{}, routeYAML.Path)
 }
 
 func (s *Server) registerPingdom(configHelper config.Helper) {
@@ -114,7 +114,7 @@ func (s *Server) registerPingdom(configHelper config.Helper) {
 
 		repository := _pingdomRepository.NewPingdomRepository(pingdomConf)
 		usecase := _pingdomUsecase.NewPingdomUsecase(repository, pingdomConf, s.store)
-		delivery := _pingdomDelivery.NewHttpPingdomDelivery(usecase)
+		delivery := _pingdomDelivery.NewPingdomDelivery(usecase)
 
 		// Register route to echo
 		pingdomGroup := s.v1.Group(fmt.Sprintf("/pingdom/%s", variant))
@@ -140,7 +140,7 @@ func (s *Server) registerTravisCI(configHelper config.Helper) {
 
 		repository := _travisciRepository.NewTravisCIRepository(travisCIConf, githubConf)
 		usecase := _travisciUsecase.NewTravisCIUsecase(repository)
-		delivery := _travisciDelivery.NewHttpTravisCIDelivery(usecase)
+		delivery := _travisciDelivery.NewTravisCIDelivery(usecase)
 
 		// Register route to echo
 		travisCIGroup := s.v1.Group(fmt.Sprintf("/travisci/%s", variant))
@@ -160,7 +160,7 @@ func (s *Server) registerJenkins(configHelper config.Helper) {
 
 		repository := _jenkinsRepository.NewJenkinsRepository(jenkinsConf)
 		usecase := _jenkinsUsecase.NewJenkinsUsecase(repository)
-		delivery := _jenkinsDelivery.NewHttpJenkinsDelivery(usecase)
+		delivery := _jenkinsDelivery.NewJenkinsDelivery(usecase)
 
 		// Register route to echo
 		jenkinsGroup := s.v1.Group(fmt.Sprintf("/jenkins/%s", variant))
@@ -183,7 +183,7 @@ func (s *Server) registerAzureDevOps(configHelper config.Helper) {
 
 		repository := _azureDevOpsRepository.NewAzureDevOpsRepository(azureDevOpsConf)
 		usecase := _azureDevOpsUsecase.NewAzureDevOpsUsecase(repository)
-		delivery := _azureDevOpsDelivery.NewHttpAzureDevOpsDelivery(usecase)
+		delivery := _azureDevOpsDelivery.NewAzureDevOpsDelivery(usecase)
 
 		// Register route to echo
 		azureGroup := s.v1.Group(fmt.Sprintf("/azuredevops/%s", variant))

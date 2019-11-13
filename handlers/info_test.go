@@ -26,7 +26,7 @@ func initInfoEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 func TestGetInfo(t *testing.T) {
 	// Init
 	ctx, res := initInfoEcho()
-	handler := NewHttpInfoDelivery()
+	handler := NewHTTPInfoDelivery()
 
 	// Create expected value
 	json, err := json.Marshal(models.NewInfoResponse(version.Version, version.GitCommit, version.BuildTime))

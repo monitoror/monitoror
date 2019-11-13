@@ -17,7 +17,7 @@ type (
 	}
 )
 
-func NewHttpRepository(config *config.Http) ping.Repository {
+func NewHTTPRepository(config *config.HTTP) ping.Repository {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: !config.SSLVerify},
 	}

@@ -18,7 +18,7 @@ import (
 type (
 	jenkinsRepository struct {
 		// Interfaces for Jenkins API
-		jenkinsApi pkgJenkins.Jenkins
+		jenkinsAPI pkgJenkins.Jenkins
 	}
 )
 
@@ -30,7 +30,7 @@ func NewJenkinsRepository(config *config.Jenkins) jenkins.Repository {
 			ApiToken: config.Token,
 		}
 	}
-	jenkins := gojenkins.NewJenkins(auth, config.Url)
+	jenkins := gojenkins.NewJenkins(auth, config.URL)
 
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: !config.SSLVerify},
@@ -44,18 +44,18 @@ func NewJenkinsRepository(config *config.Jenkins) jenkins.Repository {
 }
 
 func (r *jenkinsRepository) GetJob(jobName string, branch string) (job *models.Job, err error) {
-	jobId := jobName
+	jobID := jobName
 	if branch != "" {
-		jobId = fmt.Sprintf("%s/job/%s", jobName, branch)
+		jobID = fmt.Sprintf("%s/job/%s", jobName, branch)
 	}
 
-	jenkinsJob, err := r.jenkinsApi.GetJob(jobId)
+	jenkinsJob, err := r.jenkinsAPI.GetJob(jobID)
 	if err != nil {
 		return nil, err
 	}
 
 	job = &models.Job{}
-	job.ID = jobId
+	job.ID = jobID
 
 	job.Buildable = jenkinsJob.Buildable
 	job.InQueue = jenkinsJob.InQueue
@@ -76,13 +76,13 @@ func (r *jenkinsRepository) GetJob(jobName string, branch string) (job *models.J
 }
 
 //GetBuildStatus fetch build information from travis-ci
-func (r *jenkinsRepository) GetLastBuildStatus(job *models.Job) (build *models.Build, err error) {
-	jenkinsBuild, err := r.jenkinsApi.GetLastBuildByJobId(job.ID)
+func (r *jenkinsRepository) GetLastBuildStatus(job *models.Job) (*models.Build, error) {
+	jenkinsBuild, err := r.jenkinsAPI.GetLastBuildByJobId(job.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	build = &models.Build{}
+	build := &models.Build{}
 	build.Number = string(jenkinsBuild.Number)
 	build.FullName = jenkinsBuild.FullDisplayName
 
@@ -105,11 +105,11 @@ func (r *jenkinsRepository) GetLastBuildStatus(job *models.Job) (build *models.B
 		}
 
 		if item.AuthorEmail != "" {
-			build.Author.AvatarUrl = gravatar.GetGravatarUrl(item.AuthorEmail)
+			build.Author.AvatarURL = gravatar.GetGravatarURL(item.AuthorEmail)
 		}
 	}
 
-	return
+	return build, nil
 }
 
 func parseDate(date int64) time.Time {

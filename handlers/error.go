@@ -2,10 +2,8 @@ package handlers
 
 import (
 	"net/http"
-	. "net/http"
 
 	"github.com/monitoror/monitoror/models"
-	. "github.com/monitoror/monitoror/models"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/labstack/echo/v4"
@@ -13,21 +11,21 @@ import (
 )
 
 type (
-	ApiError struct {
+	APIError struct {
 		Code    int    `json:"status"`
 		Message string `json:"message"`
 	}
 )
 
-func HttpErrorHandler(err error, ctx echo.Context) {
+func HTTPErrorHandler(err error, ctx echo.Context) {
 	switch e := err.(type) {
-	case *MonitororError:
+	case *models.MonitororError:
 		err = handleMonitororError(e, ctx)
 	default:
 		if he, ok := err.(*echo.HTTPError); ok {
-			if he.Code == StatusNotFound {
+			if he.Code == http.StatusNotFound {
 				// 404
-				_ = ctx.JSON(he.Code, ApiError{
+				_ = ctx.JSON(he.Code, APIError{
 					Code:    he.Code,
 					Message: "Not Found",
 				})
@@ -37,14 +35,14 @@ func HttpErrorHandler(err error, ctx echo.Context) {
 	}
 
 	if err != nil {
-		_ = ctx.JSON(http.StatusInternalServerError, ApiError{
+		_ = ctx.JSON(http.StatusInternalServerError, APIError{
 			Code:    http.StatusInternalServerError,
 			Message: err.Error(),
 		})
 	}
 }
 
-func handleMonitororError(me *MonitororError, ctx echo.Context) error {
+func handleMonitororError(me *models.MonitororError, ctx echo.Context) error {
 	// No tile set, forward error
 	if me.Tile == nil {
 		return me
@@ -58,7 +56,7 @@ func handleMonitororError(me *MonitororError, ctx echo.Context) error {
 		}
 
 		// Cache not found, reply Timeout based on Tile
-		me.Tile.Status = WarningStatus
+		me.Tile.Status = models.WarningStatus
 		me.Tile.Message = "timeout/host unreachable"
 
 		_ = ctx.JSON(http.StatusOK, me.Tile)
@@ -69,7 +67,7 @@ func handleMonitororError(me *MonitororError, ctx echo.Context) error {
 	tile.Message = me.Error()
 	tile.Status = me.ErrorStatus
 	if tile.Status == "" {
-		tile.Status = FailedStatus
+		tile.Status = models.FailedStatus
 	}
 
 	_ = ctx.JSON(http.StatusOK, tile)
@@ -93,23 +91,24 @@ func cacheMiddleware(ctx echo.Context) bool {
 
 	// Looking for Data in DownstreamStore
 	var cachedResponse cache.ResponseCache
-	if err := store.Get(cache.GetKey(DownstreamStoreKeyPrefix, ctx.Request()), &cachedResponse); err != nil {
+	if err := store.Get(cache.GetKey(models.DownstreamStoreKeyPrefix, ctx.Request()), &cachedResponse); err != nil {
+		// Cache not found, return
 		return false
-	} else {
-		// Cache found, return cached Data
-		for k, vals := range cachedResponse.Header {
-			for _, v := range vals {
-				if ctx.Response().Header().Get(k) == "" {
-					ctx.Response().Header().Add(k, v)
-				}
+	}
+
+	for k, vals := range cachedResponse.Header {
+		for _, v := range vals {
+			if ctx.Response().Header().Get(k) == "" {
+				ctx.Response().Header().Add(k, v)
 			}
 		}
-
-		// Adding Header
-		ctx.Response().Header().Add(models.DownstreamCacheHeader, "true")
-
-		ctx.Response().WriteHeader(cachedResponse.Status)
-		_, _ = ctx.Response().Write(cachedResponse.Data)
 	}
+
+	// Adding Header
+	ctx.Response().Header().Add(models.DownstreamCacheHeader, "true")
+
+	ctx.Response().WriteHeader(cachedResponse.Status)
+	_, _ = ctx.Response().Write(cachedResponse.Data)
+
 	return true
 }

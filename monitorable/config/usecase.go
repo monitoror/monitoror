@@ -1,27 +1,26 @@
 package config
 
 import (
-	. "github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/config/models"
-	. "github.com/monitoror/monitoror/pkg/monitoror/builder"
-	. "github.com/monitoror/monitoror/pkg/monitoror/utils"
+	"github.com/monitoror/monitoror/models"
+	configModels "github.com/monitoror/monitoror/monitorable/config/models"
+	"github.com/monitoror/monitoror/pkg/monitoror/builder"
+	"github.com/monitoror/monitoror/pkg/monitoror/utils"
 )
 
-// Usecase represent the config's usecases
 type (
 	Helper interface {
-		RegisterTile(tileType TileType, validator Validator, path string)
-		RegisterTileWithConfigVariant(tileType TileType, variant string, validator Validator, path string)
+		RegisterTile(tileType models.TileType, validator utils.Validator, path string)
+		RegisterTileWithConfigVariant(tileType models.TileType, variant string, validator utils.Validator, path string)
 
-		RegisterDynamicTile(tileType TileType, validator Validator, builder DynamicTileBuilder)
-		RegisterDynamicTileWithConfigVariant(tileType TileType, configVariant string, validator Validator, builder DynamicTileBuilder)
+		RegisterDynamicTile(tileType models.TileType, validator utils.Validator, builder builder.DynamicTileBuilder)
+		RegisterDynamicTileWithConfigVariant(tileType models.TileType, configVariant string, validator utils.Validator, builder builder.DynamicTileBuilder)
 	}
 
 	Usecase interface {
 		Helper
 
-		GetConfig(params *models.ConfigParams) (*models.Config, error)
-		Verify(config *models.Config)
-		Hydrate(config *models.Config)
+		GetConfig(params *configModels.ConfigParams) (*configModels.Config, error)
+		Verify(config *configModels.Config)
+		Hydrate(config *configModels.Config)
 	}
 )

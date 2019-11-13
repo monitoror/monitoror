@@ -40,7 +40,7 @@ import (
 func (s *Server) registerConfig() config.Helper {
 	repository := _configRepository.NewConfigRepository()
 	usecase := _configUsecase.NewConfigUsecase(repository, s.store, s.config.DownstreamCacheExpiration)
-	delivery := _configDelivery.NewHttpConfigDelivery(usecase)
+	delivery := _configDelivery.NewConfigDelivery(usecase)
 
 	s.v1.GET("/config", delivery.GetConfig)
 
@@ -51,7 +51,7 @@ func (s *Server) registerPing(configHelper config.Helper) {
 	defer logStatus(ping.PingTileType, true)
 
 	usecase := _pingUsecase.NewPingUsecase()
-	delivery := _pingDelivery.NewHttpPingDelivery(usecase)
+	delivery := _pingDelivery.NewPingDelivery(usecase)
 
 	// Register route to echo
 	route := s.v1.GET("/ping", delivery.GetPing)
@@ -64,7 +64,7 @@ func (s *Server) registerPort(configHelper config.Helper) {
 	defer logStatus(port.PortTileType, true)
 
 	usecase := _portUsecase.NewPortUsecase()
-	delivery := _portDelivery.NewHttpPortDelivery(usecase)
+	delivery := _portDelivery.NewPortDelivery(usecase)
 
 	// Register route to echo
 	route := s.v1.GET("/port", delivery.GetPort)
@@ -73,31 +73,31 @@ func (s *Server) registerPort(configHelper config.Helper) {
 	configHelper.RegisterTile(port.PortTileType, &_portModels.PortParams{}, route.Path)
 }
 
-func (s *Server) registerHttp(configHelper config.Helper) {
+func (s *Server) registerHTTP(configHelper config.Helper) {
 	defer logStatus("HTTP", true)
 
-	usecase := _httpUsecase.NewHttpUsecase()
-	delivery := _httpDelivery.NewHttpHttpDelivery(usecase)
+	usecase := _httpUsecase.NewHTTPUsecase()
+	delivery := _httpDelivery.NewHTTPDelivery(usecase)
 
 	// Register route to echo
 	httpGroup := s.v1.Group("/http")
-	routeAny := httpGroup.GET("/any", delivery.GetHttpAny)
-	routeRaw := httpGroup.GET("/raw", delivery.GetHttpRaw)
-	routeJson := httpGroup.GET("/json", delivery.GetHttpJson)
-	routeYaml := httpGroup.GET("/yaml", delivery.GetHttpYaml)
+	routeAny := httpGroup.GET("/any", delivery.GetHTTPAny)
+	routeRaw := httpGroup.GET("/raw", delivery.GetHTTPRaw)
+	routeJson := httpGroup.GET("/json", delivery.GetHTTPJson)
+	routeYaml := httpGroup.GET("/yaml", delivery.GetHTTPYaml)
 
 	// Register data for config hydration
-	configHelper.RegisterTile(http.HttpAnyTileType, &_httpModels.HttpAnyParams{}, routeAny.Path)
-	configHelper.RegisterTile(http.HttpRawTileType, &_httpModels.HttpRawParams{}, routeRaw.Path)
-	configHelper.RegisterTile(http.HttpJsonTileType, &_httpModels.HttpJsonParams{}, routeJson.Path)
-	configHelper.RegisterTile(http.HttpYamlTileType, &_httpModels.HttpYamlParams{}, routeYaml.Path)
+	configHelper.RegisterTile(http.HTTPAnyTileType, &_httpModels.HTTPAnyParams{}, routeAny.Path)
+	configHelper.RegisterTile(http.HTTPRawTileType, &_httpModels.HTTPRawParams{}, routeRaw.Path)
+	configHelper.RegisterTile(http.HTTPJsonTileType, &_httpModels.HTTPJsonParams{}, routeJson.Path)
+	configHelper.RegisterTile(http.HTTPYamlTileType, &_httpModels.HTTPYamlParams{}, routeYaml.Path)
 }
 
 func (s *Server) registerPingdom(configHelper config.Helper) {
 	defer logStatus(pingdom.PingdomCheckTileType, true)
 
 	usecase := _pingdomUsecase.NewPingdomUsecase()
-	delivery := _pingdomDelivery.NewHttpPingdomDelivery(usecase)
+	delivery := _pingdomDelivery.NewPingdomDelivery(usecase)
 
 	// Register route to echo
 	pingdomGroup := s.v1.Group("/pingdom")
@@ -111,7 +111,7 @@ func (s *Server) registerTravisCI(configHelper config.Helper) {
 	defer logStatus(travisci.TravisCIBuildTileType, true)
 
 	usecase := _travisciUsecase.NewTravisCIUsecase()
-	delivery := _travisciDelivery.NewHttpTravisCIDelivery(usecase)
+	delivery := _travisciDelivery.NewTravisCIDelivery(usecase)
 
 	// Register route to echo
 	travisCIGroup := s.v1.Group("/travisci")
@@ -125,7 +125,7 @@ func (s *Server) registerJenkins(configHelper config.Helper) {
 	defer logStatus(jenkins.JenkinsBuildTileType, true)
 
 	usecase := _jenkinsUsecase.NewJenkinsUsecase()
-	delivery := _jenkinsDelivery.NewHttpJenkinsDelivery(usecase)
+	delivery := _jenkinsDelivery.NewJenkinsDelivery(usecase)
 
 	// Register route to echo
 	jenkinsGroup := s.v1.Group("/jenkins")
@@ -139,7 +139,7 @@ func (s *Server) registerAzureDevOps(configHelper config.Helper) {
 	defer logStatus("AZURE-DEVOPS", true)
 
 	usecase := _azureDevOpsUsecase.NewAzureDevOpsUsecase()
-	delivery := _azureDevOpsDelivery.NewHttpAzureDevOpsDelivery(usecase)
+	delivery := _azureDevOpsDelivery.NewAzureDevOpsDelivery(usecase)
 
 	// Register route to echo
 	azureGroup := s.v1.Group("/azuredevops")

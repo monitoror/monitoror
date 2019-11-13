@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"errors"
-	"fmt"
 	"testing"
 	"time"
 
@@ -66,15 +65,15 @@ func TestBuild_Success(t *testing.T) {
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		// Expected
 		expected := NewTile(travisci.TravisCIBuildTileType)
-		expected.Label = fmt.Sprintf("%s", repo)
-		expected.Message = fmt.Sprintf("%s", git.HumanizeBranch(branch))
+		expected.Label = repo
+		expected.Message = git.HumanizeBranch(branch)
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(build.StartedAt)
 		expected.FinishedAt = ToTime(build.FinishedAt)
 		expected.Author = &Author{
 			Name:      build.Author.Name,
-			AvatarUrl: build.Author.AvatarUrl,
+			AvatarURL: build.Author.AvatarURL,
 		}
 
 		// Tests
@@ -108,15 +107,15 @@ func TestBuild_Failed(t *testing.T) {
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		// Expected
 		expected := NewTile(travisci.TravisCIBuildTileType)
-		expected.Label = fmt.Sprintf("%s", repo)
-		expected.Message = fmt.Sprintf("%s", git.HumanizeBranch(branch))
+		expected.Label = repo
+		expected.Message = git.HumanizeBranch(branch)
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(build.StartedAt)
 		expected.FinishedAt = ToTime(build.FinishedAt)
 		expected.Author = &Author{
 			Name:      build.Author.Name,
-			AvatarUrl: build.Author.AvatarUrl,
+			AvatarURL: build.Author.AvatarURL,
 		}
 
 		params := &models.BuildParams{Group: group, Repository: repo, Branch: branch}
@@ -149,14 +148,14 @@ func TestBuild_Queued(t *testing.T) {
 	if assert.True(t, ok) {
 		// Expected
 		expected := NewTile(travisci.TravisCIBuildTileType)
-		expected.Label = fmt.Sprintf("%s", repo)
-		expected.Message = fmt.Sprintf("%s", git.HumanizeBranch(branch))
+		expected.Label = repo
+		expected.Message = git.HumanizeBranch(branch)
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(build.StartedAt)
 		expected.Author = &Author{
 			Name:      build.Author.Name,
-			AvatarUrl: build.Author.AvatarUrl,
+			AvatarURL: build.Author.AvatarURL,
 		}
 
 		// Without Estimated Duration
@@ -182,8 +181,8 @@ func TestBuild_Running(t *testing.T) {
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		// Expected
 		expected := NewTile(travisci.TravisCIBuildTileType)
-		expected.Label = fmt.Sprintf("%s", repo)
-		expected.Message = fmt.Sprintf("%s", git.HumanizeBranch(branch))
+		expected.Label = repo
+		expected.Message = git.HumanizeBranch(branch)
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = UnknownStatus
 		expected.Duration = ToInt64(int64(build.Duration / time.Second))
@@ -191,7 +190,7 @@ func TestBuild_Running(t *testing.T) {
 		expected.StartedAt = ToTime(build.StartedAt)
 		expected.Author = &Author{
 			Name:      build.Author.Name,
-			AvatarUrl: build.Author.AvatarUrl,
+			AvatarURL: build.Author.AvatarURL,
 		}
 
 		// Without Previous Build
@@ -229,14 +228,14 @@ func TestBuild_Aborded(t *testing.T) {
 	if assert.True(t, ok) {
 		// Expected
 		expected := NewTile(travisci.TravisCIBuildTileType)
-		expected.Label = fmt.Sprintf("%s", repo)
-		expected.Message = fmt.Sprintf("%s", git.HumanizeBranch(branch))
+		expected.Label = repo
+		expected.Message = git.HumanizeBranch(branch)
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(build.StartedAt)
 		expected.Author = &Author{
 			Name:      build.Author.Name,
-			AvatarUrl: build.Author.AvatarUrl,
+			AvatarURL: build.Author.AvatarURL,
 		}
 
 		// Without Estimated Duration
@@ -263,11 +262,11 @@ func TestParseState(t *testing.T) {
 
 func buildResponse(branch, state string, startedAt, finishedAt time.Time, duration time.Duration) *models.Build {
 	return &models.Build{
-		Id:     1,
+		ID:     1,
 		Branch: branch,
 		Author: models.Author{
 			Name:      "me",
-			AvatarUrl: "http://avatar.com",
+			AvatarURL: "http://avatar.com",
 		},
 		State:      state,
 		StartedAt:  startedAt,

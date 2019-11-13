@@ -3,19 +3,18 @@
 package usecase
 
 import (
-	"fmt"
 	"net/url"
 	"regexp"
 	"time"
 
-	. "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
-	"github.com/monitoror/monitoror/monitorable/jenkins/models"
+	jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/builder"
 	"github.com/monitoror/monitoror/pkg/monitoror/cache"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
 
-	. "github.com/AlekSi/pointer"
+	"github.com/AlekSi/pointer"
 )
 
 type (
@@ -36,26 +35,26 @@ func NewJenkinsUsecase(repository jenkins.Repository) jenkins.Usecase {
 	}
 }
 
-func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *Tile, err error) {
-	tile = NewTile(jenkins.JenkinsBuildTileType)
+func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (*models.Tile, error) {
+	tile := models.NewTile(jenkins.JenkinsBuildTileType)
 
 	jobLabel, _ := url.QueryUnescape(params.Job)
 	tile.Label = jobLabel
 
 	branchLabel, _ := url.QueryUnescape(params.Branch)
 	if params.Branch != "" {
-		tile.Message = fmt.Sprintf("%s", git.HumanizeBranch(branchLabel))
+		tile.Message = git.HumanizeBranch(branchLabel)
 	}
 
 	job, err := tu.repository.GetJob(params.Job, params.Branch)
 	if err != nil {
-		return nil, &MonitororError{Err: err, Tile: tile, Message: "unable to find job"}
+		return nil, &models.MonitororError{Err: err, Tile: tile, Message: "unable to find job"}
 	}
 
 	// Is Buildable
 	if !job.Buildable {
-		tile.Status = DisabledStatus
-		return
+		tile.Status = models.DisabledStatus
+		return tile, nil
 	}
 
 	// Set Previous Status
@@ -63,81 +62,81 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (tile *Tile, err err
 	if previousStatus != nil {
 		tile.PreviousStatus = *previousStatus
 	} else {
-		tile.PreviousStatus = UnknownStatus
+		tile.PreviousStatus = models.UnknownStatus
 	}
 
 	// Queued build
 	if job.InQueue {
-		tile.Status = QueuedStatus
+		tile.Status = models.QueuedStatus
 		tile.StartedAt = job.QueuedAt
-		return
+		return tile, nil
 	}
 
 	// Get Last Build
 	build, err := tu.repository.GetLastBuildStatus(job)
 	if err != nil || build == nil {
-		return nil, &MonitororError{Err: err, Tile: tile, Message: "no build found", ErrorStatus: UnknownStatus}
+		return nil, &models.MonitororError{Err: err, Tile: tile, Message: "no build found", ErrorStatus: models.UnknownStatus}
 	}
 
 	// Set Status
 	if build.Building {
-		tile.Status = RunningStatus
+		tile.Status = models.RunningStatus
 	} else {
 		tile.Status = parseResult(build.Result)
 	}
 
 	// Set StartedAt
-	tile.StartedAt = ToTime(build.StartedAt)
+	tile.StartedAt = pointer.ToTime(build.StartedAt)
 
 	// Set FinishedAt Or Duration
-	if tile.Status != RunningStatus {
-		tile.FinishedAt = ToTime(build.StartedAt.Add(build.Duration))
+	if tile.Status != models.RunningStatus {
+		tile.FinishedAt = pointer.ToTime(build.StartedAt.Add(build.Duration))
 	} else {
-		tile.Duration = ToInt64(int64(time.Now().Sub(build.StartedAt).Seconds()))
+		tile.Duration = pointer.ToInt64(int64(time.Since(build.StartedAt).Seconds()))
 
 		estimatedDuration := tu.buildsCache.GetEstimatedDuration(params)
 		if estimatedDuration != nil {
-			tile.EstimatedDuration = ToInt64(int64(estimatedDuration.Seconds()))
+			tile.EstimatedDuration = pointer.ToInt64(int64(estimatedDuration.Seconds()))
 		} else {
-			tile.EstimatedDuration = ToInt64(int64(0))
+			tile.EstimatedDuration = pointer.ToInt64(int64(0))
 		}
 	}
 
 	// Set Author
 	if build.Author != nil {
-		tile.Author = &Author{
+		tile.Author = &models.Author{
 			Name:      build.Author.Name,
-			AvatarUrl: build.Author.AvatarUrl,
+			AvatarURL: build.Author.AvatarURL,
 		}
 	}
 
 	// Cache Duration when success / failed / warning
-	if tile.Status == SuccessStatus || tile.Status == FailedStatus || tile.Status == WarningStatus {
+	if tile.Status == models.SuccessStatus || tile.Status == models.FailedStatus || tile.Status == models.WarningStatus {
 		tu.buildsCache.Add(params, build.Number, tile.Status, build.Duration)
 	}
 
-	return
+	return tile, nil
 }
 
-func (tu *jenkinsUsecase) ListDynamicTile(params interface{}) (results []builder.Result, err error) {
-	mbParams := params.(*models.MultiBranchParams)
+func (tu *jenkinsUsecase) ListDynamicTile(params interface{}) ([]builder.Result, error) {
+	mbParams := params.(*jenkinsModels.MultiBranchParams)
 
 	job, err := tu.repository.GetJob(mbParams.Job, "")
 	if err != nil {
-		return nil, &MonitororError{Err: err, Message: "unable to find job"}
+		return nil, &models.MonitororError{Err: err, Message: "unable to find job"}
 	}
 
 	matcher, err := regexp.Compile(mbParams.Match)
 	if err != nil {
-		return
+		return nil, err
 	}
 
 	unmatcher, err := regexp.Compile(mbParams.Unmatch)
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	results = []builder.Result{}
+	results := []builder.Result{}
 	for _, branch := range job.Branches {
 		branchToFilter, _ := url.QueryUnescape(branch)
 		if !matcher.MatchString(branchToFilter) ||
@@ -155,20 +154,20 @@ func (tu *jenkinsUsecase) ListDynamicTile(params interface{}) (results []builder
 		})
 	}
 
-	return
+	return results, nil
 }
 
-func parseResult(result string) TileStatus {
+func parseResult(result string) models.TileStatus {
 	switch result {
 	case "SUCCESS":
-		return SuccessStatus
+		return models.SuccessStatus
 	case "UNSTABLE":
-		return WarningStatus
+		return models.WarningStatus
 	case "FAILURE":
-		return FailedStatus
+		return models.FailedStatus
 	case "ABORTED":
-		return AbortedStatus
+		return models.AbortedStatus
 	default:
-		return UnknownStatus
+		return models.UnknownStatus
 	}
 }

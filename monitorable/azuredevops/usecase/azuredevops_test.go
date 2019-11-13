@@ -54,7 +54,7 @@ func TestAzureDevOpsUsecase_Build_Success(t *testing.T) {
 		Branch:         "master",
 		Author: &models.Author{
 			Name:      "test",
-			AvatarUrl: "test.com",
+			AvatarURL: "test.com",
 		},
 		Status:     "completed",
 		Result:     "succeeded",
@@ -70,7 +70,7 @@ func TestAzureDevOpsUsecase_Build_Success(t *testing.T) {
 	expected.Message = "#master - 1"
 	expected.Author = &Author{
 		Name:      "test",
-		AvatarUrl: "test.com",
+		AvatarURL: "test.com",
 	}
 	expected.Status = SuccessStatus
 	expected.PreviousStatus = UnknownStatus
@@ -211,7 +211,7 @@ func TestAzureDevOpsUsecase_Release_Success(t *testing.T) {
 		DefinitionName: "definitionName",
 		Author: &models.Author{
 			Name:      "test",
-			AvatarUrl: "test.com",
+			AvatarURL: "test.com",
 		},
 		Status:     "succeeded",
 		FinishedAt: &now,
@@ -226,7 +226,7 @@ func TestAzureDevOpsUsecase_Release_Success(t *testing.T) {
 	expected.Message = "1"
 	expected.Author = &Author{
 		Name:      "test",
-		AvatarUrl: "test.com",
+		AvatarURL: "test.com",
 	}
 	expected.Status = SuccessStatus
 	expected.PreviousStatus = UnknownStatus

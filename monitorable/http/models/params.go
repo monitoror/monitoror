@@ -29,11 +29,7 @@ func isValid(url string, statusCodesProvider StatusCodesProvider) bool {
 	}
 
 	min, max := statusCodesProvider.GetStatusCodes()
-	if min > max {
-		return false
-	}
-
-	return true
+	return min <= max
 }
 
 func isValidRegex(regexProvider RegexProvider) bool {

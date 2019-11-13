@@ -62,7 +62,7 @@ func (s *Server) initEcho() {
 	s.HideBanner = true
 
 	// ----- Errors Handler -----
-	s.HTTPErrorHandler = handlers.HttpErrorHandler
+	s.HTTPErrorHandler = handlers.HTTPErrorHandler
 }
 
 func (s *Server) initMiddleware() {
@@ -121,7 +121,7 @@ func (s *Server) initApis() {
 	s.v1 = s.api.Group("/v1")
 
 	// ------------- INFO ------------- //
-	infoDelivery := handlers.NewHttpInfoDelivery()
+	infoDelivery := handlers.NewHTTPInfoDelivery()
 	s.v1.GET("/info", s.cm.UpstreamCacheHandlerWithExpiration(cache.NEVER, infoDelivery.GetInfo))
 
 	// ------------- CONFIG ------------- //
@@ -134,7 +134,7 @@ func (s *Server) initApis() {
 	s.registerPort(configHelper)
 
 	// ------------- HTTP ------------- //
-	s.registerHttp(configHelper)
+	s.registerHTTP(configHelper)
 
 	// ------------- PINGDOM ------------- //
 	s.registerPingdom(configHelper)

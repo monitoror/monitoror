@@ -22,6 +22,11 @@ test-coverage: ## run test coverage
 test-coverage-html: ## run test coverage and generate cover.html
 	@./scripts/test/test-coverage-html
 
+# ============= TESTS =============
+.PHONY: lint
+lint: ## run linter
+	@./scripts/lint
+
 # ============= MOCKS =============
 .PHONY: mock
 mock: mock-monitorable mock-pkg

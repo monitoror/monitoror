@@ -28,7 +28,7 @@ func initErrorEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 	return
 }
 
-func TestHttpError_404(t *testing.T) {
+func TestHTTPError_404(t *testing.T) {
 	// Init
 	ctx, res := initErrorEcho()
 
@@ -36,7 +36,7 @@ func TestHttpError_404(t *testing.T) {
 	err := echo.NewHTTPError(http.StatusNotFound, "not found")
 
 	// Expected
-	apiError := ApiError{
+	apiError := APIError{
 		Code:    http.StatusNotFound,
 		Message: "Not Found",
 	}
@@ -44,13 +44,13 @@ func TestHttpError_404(t *testing.T) {
 	assert.NoError(t, e, "unable to marshal tile")
 
 	// Test
-	HttpErrorHandler(err, ctx)
+	HTTPErrorHandler(err, ctx)
 
 	assert.Equal(t, http.StatusNotFound, res.Code)
 	assert.Equal(t, string(j), strings.TrimSpace(res.Body.String()))
 }
 
-func TestHttpError_500(t *testing.T) {
+func TestHTTPError_500(t *testing.T) {
 	// Init
 	ctx, res := initErrorEcho()
 
@@ -58,7 +58,7 @@ func TestHttpError_500(t *testing.T) {
 	err := errors.New("boom")
 
 	// Expected
-	apiError := ApiError{
+	apiError := APIError{
 		Code:    http.StatusInternalServerError,
 		Message: err.Error(),
 	}
@@ -66,13 +66,13 @@ func TestHttpError_500(t *testing.T) {
 	assert.NoError(t, e, "unable to marshal tile")
 
 	// Test
-	HttpErrorHandler(err, ctx)
+	HTTPErrorHandler(err, ctx)
 
 	assert.Equal(t, http.StatusInternalServerError, res.Code)
 	assert.Equal(t, string(j), strings.TrimSpace(res.Body.String()))
 }
 
-func TestHttpError_MonitororError_WithoutTile(t *testing.T) {
+func TestHTTPError_MonitororError_WithoutTile(t *testing.T) {
 	// Init
 	ctx, res := initErrorEcho()
 
@@ -80,7 +80,7 @@ func TestHttpError_MonitororError_WithoutTile(t *testing.T) {
 	err := &models.MonitororError{Err: errors.New("boom"), Message: "rly big boom"}
 
 	// Expected
-	apiError := ApiError{
+	apiError := APIError{
 		Code:    http.StatusInternalServerError,
 		Message: err.Error(),
 	}
@@ -88,13 +88,13 @@ func TestHttpError_MonitororError_WithoutTile(t *testing.T) {
 	assert.NoError(t, e, "unable to marshal tile")
 
 	// Test
-	HttpErrorHandler(err, ctx)
+	HTTPErrorHandler(err, ctx)
 
 	assert.Equal(t, http.StatusInternalServerError, res.Code)
 	assert.Equal(t, string(j), strings.TrimSpace(res.Body.String()))
 }
 
-func TestHttpError_MonitororError_WithTile(t *testing.T) {
+func TestHTTPError_MonitororError_WithTile(t *testing.T) {
 	// Init
 	ctx, res := initErrorEcho()
 
@@ -112,13 +112,13 @@ func TestHttpError_MonitororError_WithTile(t *testing.T) {
 	assert.NoError(t, e, "unable to marshal tile")
 
 	// Test
-	HttpErrorHandler(err, ctx)
+	HTTPErrorHandler(err, ctx)
 
 	assert.Equal(t, http.StatusOK, res.Code)
 	assert.Equal(t, string(j), strings.TrimSpace(res.Body.String()))
 }
 
-func TestHttpError_MonitororError_Timeout_WithoutStore(t *testing.T) {
+func TestHTTPError_MonitororError_Timeout_WithoutStore(t *testing.T) {
 	// Init
 	ctx, res := initErrorEcho()
 
@@ -134,13 +134,13 @@ func TestHttpError_MonitororError_Timeout_WithoutStore(t *testing.T) {
 	assert.NoError(t, e, "unable to marshal tile")
 
 	// Test
-	HttpErrorHandler(err, ctx)
+	HTTPErrorHandler(err, ctx)
 
 	assert.Equal(t, http.StatusOK, res.Code)
 	assert.Equal(t, string(j), strings.TrimSpace(res.Body.String()))
 }
 
-func TestHttpError_MonitororError_Timeout_WithWrongStore(t *testing.T) {
+func TestHTTPError_MonitororError_Timeout_WithWrongStore(t *testing.T) {
 	// Init
 	ctx, res := initErrorEcho()
 	ctx.Set(models.DownstreamStoreContextKey, "store")
@@ -157,13 +157,13 @@ func TestHttpError_MonitororError_Timeout_WithWrongStore(t *testing.T) {
 	assert.NoError(t, e, "unable to marshal tile")
 
 	// Test
-	HttpErrorHandler(err, ctx)
+	HTTPErrorHandler(err, ctx)
 
 	assert.Equal(t, http.StatusOK, res.Code)
 	assert.Equal(t, string(j), strings.TrimSpace(res.Body.String()))
 }
 
-func TestHttpError_MonitororError_Timeout_CacheMiss(t *testing.T) {
+func TestHTTPError_MonitororError_Timeout_CacheMiss(t *testing.T) {
 	// Init
 	ctx, res := initErrorEcho()
 	mockStore := new(mocks.Store)
@@ -182,7 +182,7 @@ func TestHttpError_MonitororError_Timeout_CacheMiss(t *testing.T) {
 	assert.NoError(t, e, "unable to marshal tile")
 
 	// Test
-	HttpErrorHandler(err, ctx)
+	HTTPErrorHandler(err, ctx)
 
 	assert.Equal(t, http.StatusOK, res.Code)
 	assert.Equal(t, string(j), strings.TrimSpace(res.Body.String()))
@@ -190,7 +190,7 @@ func TestHttpError_MonitororError_Timeout_CacheMiss(t *testing.T) {
 	mockStore.AssertExpectations(t)
 }
 
-func TestHttpError_MonitororError_Timeout_Success(t *testing.T) {
+func TestHTTPError_MonitororError_Timeout_Success(t *testing.T) {
 	// Init
 	ctx, res := initErrorEcho()
 
@@ -216,7 +216,7 @@ func TestHttpError_MonitororError_Timeout_Success(t *testing.T) {
 	err := &models.MonitororError{Err: context.DeadlineExceeded, Tile: tile}
 
 	// Test
-	HttpErrorHandler(err, ctx)
+	HTTPErrorHandler(err, ctx)
 	header.Add("Timeout-Recover", "true")
 
 	assert.Equal(t, status, res.Code)

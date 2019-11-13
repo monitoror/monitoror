@@ -15,13 +15,13 @@ import (
 	. "github.com/stretchr/testify/mock"
 )
 
-func initRepository(t *testing.T, buildsApi pkgTravis.TravisCI) *travisCIRepository {
+func initRepository(t *testing.T, buildsAPI pkgTravis.TravisCI) *travisCIRepository {
 	conf := InitConfig()
 	repository := NewTravisCIRepository(conf.Monitorable.TravisCI[DefaultVariant], conf.Monitorable.Github[DefaultVariant])
 
 	apiTravisCIRepository, ok := repository.(*travisCIRepository)
 	if assert.True(t, ok) {
-		apiTravisCIRepository.travisBuildsApi = buildsApi
+		apiTravisCIRepository.travisBuildsAPI = buildsAPI
 		return apiTravisCIRepository
 	}
 	return nil
@@ -30,9 +30,9 @@ func initRepository(t *testing.T, buildsApi pkgTravis.TravisCI) *travisCIReposit
 func TestNewApiTravisCIRepository_Panic(t *testing.T) {
 	conf := InitConfig()
 	conf.Monitorable.Github[DefaultVariant].Token = "token"
-	conf.Monitorable.TravisCI[DefaultVariant].Url = ""
+	conf.Monitorable.TravisCI[DefaultVariant].URL = ""
 
-	// Panic because ApiUrl is not define
+	// Panic because ApiURL is not define
 	assert.Panics(t, func() {
 		_ = NewTravisCIRepository(conf.Monitorable.TravisCI[DefaultVariant], conf.Monitorable.Github[DefaultVariant])
 	})
@@ -97,11 +97,11 @@ func TestRepository_GetLastBuildStatus_Success(t *testing.T) {
 
 	// Expected
 	expectedBuild := &models.Build{
-		Id:     1,
+		ID:     1,
 		Branch: *travisBuild.Branch.Name,
 		Author: models.Author{
 			Name:      travisBuild.Commit.Author.Name,
-			AvatarUrl: travisBuild.Commit.Author.AvatarURL,
+			AvatarURL: travisBuild.Commit.Author.AvatarURL,
 		},
 		State:      *travisBuild.State,
 		StartedAt:  parseDate(*travisBuild.StartedAt),

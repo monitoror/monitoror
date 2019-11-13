@@ -9,14 +9,14 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type httpInfoDelivery struct {
+type HTTPInfoDelivery struct {
 }
 
-func NewHttpInfoDelivery() *httpInfoDelivery {
-	return &httpInfoDelivery{}
+func NewHTTPInfoDelivery() *HTTPInfoDelivery {
+	return &HTTPInfoDelivery{}
 }
 
-func (h *httpInfoDelivery) GetInfo(c echo.Context) error {
+func (h *HTTPInfoDelivery) GetInfo(c echo.Context) error {
 	response := models.NewInfoResponse(version.Version, version.GitCommit, version.BuildTime)
 	return c.JSON(http.StatusOK, response)
 }

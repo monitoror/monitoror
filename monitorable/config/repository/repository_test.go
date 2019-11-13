@@ -16,7 +16,7 @@ func TestRepository_ReadConfig_Success(t *testing.T) {
 	input := `
 {
   "columns": 4,
-  "apiBaseUrl": "localhost:3000",
+  "apiBaseURL": "localhost:3000",
   "tiles": [
     { "type": "EMPTY" },
     { "type": "PING", "label": "...", "params": { "hostname": "server.com"}},
@@ -37,7 +37,7 @@ func TestRepository_ReadConfig_Error_WrongJson(t *testing.T) {
 	input := `
 {
   "columns": 4,
-  "apiBaseUrl": "localhost:3000",
+  "apiBaseURL": "localhost:3000",
   "tiles": [
     { "type": "EMPTY" },
     { "type": "PING", "label": "...", "params": { "hostname": "server.com"}},
@@ -55,7 +55,7 @@ func TestRepository_ReadConfig_Error_WrongJson2(t *testing.T) {
 	input := `
 {
   "columns": "4",
-  "apiBaseUrl": "localhost:3000",
+  "apiBaseURL": "localhost:3000",
   "tiles": [
     { "type": "EMPTY" },
     { "type": "PING", "label": "...", "params": { "hostname": "server.com"}}

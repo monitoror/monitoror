@@ -39,7 +39,7 @@ func TestDelivery_GetCheck_Success(t *testing.T) {
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Check", Anything).Return(tile, nil)
-	handler := NewHttpPingdomDelivery(mockUsecase)
+	handler := NewPingdomDelivery(mockUsecase)
 
 	// Expected
 	json, err := json.Marshal(tile)
@@ -60,7 +60,7 @@ func TestDelivery_GetCheck_QueryParamsError(t *testing.T) {
 	ctx.QueryParams().Del("id")
 
 	mockUsecase := new(mocks.Usecase)
-	handler := NewHttpPingdomDelivery(mockUsecase)
+	handler := NewPingdomDelivery(mockUsecase)
 
 	// Test
 	err := handler.GetCheck(ctx)
@@ -74,7 +74,7 @@ func TestDelivery_GetCheck_Error(t *testing.T) {
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Check", Anything).Return(nil, errors.New("boom"))
-	handler := NewHttpPingdomDelivery(mockUsecase)
+	handler := NewPingdomDelivery(mockUsecase)
 
 	// Test
 	assert.Error(t, handler.GetCheck(ctx))

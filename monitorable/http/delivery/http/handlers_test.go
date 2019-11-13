@@ -17,7 +17,7 @@ import (
 	. "github.com/stretchr/testify/mock"
 )
 
-type handlerFunc func(handler *httpHttpDelivery) func(ctx echo.Context) error
+type handlerFunc func(handler *HTTPDelivery) func(ctx echo.Context) error
 
 func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 	e := echo.New()
@@ -31,24 +31,24 @@ func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 func Test_httpHttpDelivery_GetHttp_MissingParams(t *testing.T) {
 	// init tests cases
 	testcases := []handlerFunc{
-		func(handler *httpHttpDelivery) func(ctx echo.Context) error {
-			return handler.GetHttpAny
+		func(handler *HTTPDelivery) func(ctx echo.Context) error {
+			return handler.GetHTTPAny
 		},
-		func(handler *httpHttpDelivery) func(ctx echo.Context) error {
-			return handler.GetHttpRaw
+		func(handler *HTTPDelivery) func(ctx echo.Context) error {
+			return handler.GetHTTPRaw
 		},
-		func(handler *httpHttpDelivery) func(ctx echo.Context) error {
-			return handler.GetHttpJson
+		func(handler *HTTPDelivery) func(ctx echo.Context) error {
+			return handler.GetHTTPJson
 		},
-		func(handler *httpHttpDelivery) func(ctx echo.Context) error {
-			return handler.GetHttpYaml
+		func(handler *HTTPDelivery) func(ctx echo.Context) error {
+			return handler.GetHTTPYaml
 		},
 	}
 
 	// tests
 	for _, handlerFunc := range testcases {
 		ctx, _ := initEcho()
-		handler := NewHttpHttpDelivery(nil)
+		handler := NewHTTPDelivery(nil)
 
 		err := handlerFunc(handler)(ctx)
 		if assert.Error(t, err) {
@@ -64,27 +64,27 @@ func Test_httpHttpDelivery_GetHttp_Error(t *testing.T) {
 		handlerFunc  handlerFunc
 	}{
 		{
-			mockFuncName: "HttpAny",
-			handlerFunc: func(handler *httpHttpDelivery) func(ctx echo.Context) error {
-				return handler.GetHttpAny
+			mockFuncName: "HTTPAny",
+			handlerFunc: func(handler *HTTPDelivery) func(ctx echo.Context) error {
+				return handler.GetHTTPAny
 			},
 		},
 		{
-			mockFuncName: "HttpRaw",
-			handlerFunc: func(handler *httpHttpDelivery) func(ctx echo.Context) error {
-				return handler.GetHttpRaw
+			mockFuncName: "HTTPRaw",
+			handlerFunc: func(handler *HTTPDelivery) func(ctx echo.Context) error {
+				return handler.GetHTTPRaw
 			},
 		},
 		{
-			mockFuncName: "HttpJson",
-			handlerFunc: func(handler *httpHttpDelivery) func(ctx echo.Context) error {
-				return handler.GetHttpJson
+			mockFuncName: "HTTPJson",
+			handlerFunc: func(handler *HTTPDelivery) func(ctx echo.Context) error {
+				return handler.GetHTTPJson
 			},
 		},
 		{
-			mockFuncName: "HttpYaml",
-			handlerFunc: func(handler *httpHttpDelivery) func(ctx echo.Context) error {
-				return handler.GetHttpYaml
+			mockFuncName: "HTTPYaml",
+			handlerFunc: func(handler *HTTPDelivery) func(ctx echo.Context) error {
+				return handler.GetHTTPYaml
 			},
 		},
 	}
@@ -98,7 +98,7 @@ func Test_httpHttpDelivery_GetHttp_Error(t *testing.T) {
 
 		mockUsecase := new(mocks.Usecase)
 		mockUsecase.On(testcase.mockFuncName, Anything).Return(nil, errors.New("boom"))
-		handler := NewHttpHttpDelivery(mockUsecase)
+		handler := NewHTTPDelivery(mockUsecase)
 
 		// Test
 		if assert.Error(t, testcase.handlerFunc(handler)(ctx)) {
@@ -116,31 +116,31 @@ func Test_httpHttpDelivery_GetHttp(t *testing.T) {
 		handlerFunc  handlerFunc
 	}{
 		{
-			tileType:     http.HttpAnyTileType,
-			mockFuncName: "HttpAny",
-			handlerFunc: func(handler *httpHttpDelivery) func(ctx echo.Context) error {
-				return handler.GetHttpAny
+			tileType:     http.HTTPAnyTileType,
+			mockFuncName: "HTTPAny",
+			handlerFunc: func(handler *HTTPDelivery) func(ctx echo.Context) error {
+				return handler.GetHTTPAny
 			},
 		},
 		{
-			tileType:     http.HttpRawTileType,
-			mockFuncName: "HttpRaw",
-			handlerFunc: func(handler *httpHttpDelivery) func(ctx echo.Context) error {
-				return handler.GetHttpRaw
+			tileType:     http.HTTPRawTileType,
+			mockFuncName: "HTTPRaw",
+			handlerFunc: func(handler *HTTPDelivery) func(ctx echo.Context) error {
+				return handler.GetHTTPRaw
 			},
 		},
 		{
-			tileType:     http.HttpJsonTileType,
-			mockFuncName: "HttpJson",
-			handlerFunc: func(handler *httpHttpDelivery) func(ctx echo.Context) error {
-				return handler.GetHttpJson
+			tileType:     http.HTTPJsonTileType,
+			mockFuncName: "HTTPJson",
+			handlerFunc: func(handler *HTTPDelivery) func(ctx echo.Context) error {
+				return handler.GetHTTPJson
 			},
 		},
 		{
-			tileType:     http.HttpYamlTileType,
-			mockFuncName: "HttpYaml",
-			handlerFunc: func(handler *httpHttpDelivery) func(ctx echo.Context) error {
-				return handler.GetHttpYaml
+			tileType:     http.HTTPYamlTileType,
+			mockFuncName: "HTTPYaml",
+			handlerFunc: func(handler *HTTPDelivery) func(ctx echo.Context) error {
+				return handler.GetHTTPYaml
 			},
 		},
 	}
@@ -155,7 +155,7 @@ func Test_httpHttpDelivery_GetHttp(t *testing.T) {
 		tile := models.NewTile(testcase.tileType)
 		mockUsecase := new(mocks.Usecase)
 		mockUsecase.On(testcase.mockFuncName, Anything).Return(tile, nil)
-		handler := NewHttpHttpDelivery(mockUsecase)
+		handler := NewHTTPDelivery(mockUsecase)
 
 		// Expected
 		j, err := json.Marshal(tile)

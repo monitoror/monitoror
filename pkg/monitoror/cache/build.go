@@ -40,7 +40,7 @@ func (c *BuildCache) GetEstimatedDuration(key interface{}) *time.Duration {
 	return &duration
 }
 
-// Get Previous Status excluse current status in case of multiple call with the same current build
+// Get Previous Status excludes current status in case of multiple call with the same current build
 func (c *BuildCache) GetPreviousStatus(key interface{}, id string) *models.TileStatus {
 	k := fmt.Sprint(key)
 	value, ok := c.previousBuilds.Get(k)

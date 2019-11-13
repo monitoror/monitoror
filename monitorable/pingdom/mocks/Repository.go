@@ -12,13 +12,13 @@ type Repository struct {
 	mock.Mock
 }
 
-// GetCheck provides a mock function with given fields: checkId
-func (_m *Repository) GetCheck(checkId int) (*models.Check, error) {
-	ret := _m.Called(checkId)
+// GetCheck provides a mock function with given fields: checkID
+func (_m *Repository) GetCheck(checkID int) (*models.Check, error) {
+	ret := _m.Called(checkID)
 
 	var r0 *models.Check
 	if rf, ok := ret.Get(0).(func(int) *models.Check); ok {
-		r0 = rf(checkId)
+		r0 = rf(checkID)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Check)
@@ -27,7 +27,7 @@ func (_m *Repository) GetCheck(checkId int) (*models.Check, error) {
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(int) error); ok {
-		r1 = rf(checkId)
+		r1 = rf(checkID)
 	} else {
 		r1 = ret.Error(1)
 	}

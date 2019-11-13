@@ -24,7 +24,7 @@ func TestPingdomUsecase_Check_NoBulk_Error(t *testing.T) {
 	config := &Pingdom{CacheExpiration: 1000}
 	pu := NewPingdomUsecase(mockRepository, config, store)
 
-	tile, err := pu.Check(&models.CheckParams{Id: pointer.ToInt(1000)})
+	tile, err := pu.Check(&models.CheckParams{ID: pointer.ToInt(1000)})
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
 		assert.IsType(t, &MonitororError{}, err)
@@ -37,13 +37,13 @@ func TestPingdomUsecase_Check_NoBulk_Error(t *testing.T) {
 func TestPingdomUsecase_Check_NoBulk(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetCheck", AnythingOfType("int")).
-		Return(&models.Check{Id: 1000, Status: "up", Name: "Check 1"}, nil)
+		Return(&models.Check{ID: 1000, Status: "up", Name: "Check 1"}, nil)
 
 	store := cache.NewGoCacheStore(time.Minute*5, time.Second)
 	config := &Pingdom{CacheExpiration: 1000}
 	pu := NewPingdomUsecase(mockRepository, config, store)
 
-	tile, err := pu.Check(&models.CheckParams{Id: pointer.ToInt(1000)})
+	tile, err := pu.Check(&models.CheckParams{ID: pointer.ToInt(1000)})
 	if assert.NoError(t, err) {
 		assert.NotNil(t, tile)
 		assert.Equal(t, SuccessStatus, tile.Status)
@@ -64,11 +64,11 @@ func TestPingdomUsecase_Check_NoBulk_WithCache(t *testing.T) {
 	// Force cache
 	key := castedTu.getCheckStoreKey(1000)
 	_ = castedTu.store.Set(key,
-		models.Check{Id: 1000, Name: "Check 1", Status: "paused"},
+		models.Check{ID: 1000, Name: "Check 1", Status: "paused"},
 		time.Second,
 	)
 
-	tile, err := pu.Check(&models.CheckParams{Id: pointer.ToInt(1000)})
+	tile, err := pu.Check(&models.CheckParams{ID: pointer.ToInt(1000)})
 	if assert.NoError(t, err) {
 		assert.NotNil(t, tile)
 		assert.Equal(t, DisabledStatus, tile.Status)
@@ -89,9 +89,9 @@ func TestPingdomUsecase_Check_Bulk_Error(t *testing.T) {
 	castedTu := pu.(*pingdomUsecase)
 
 	// Force cache
-	_ = castedTu.store.Set(castedTu.getTagsByIdStoreKey(1000), "", time.Minute)
+	_ = castedTu.store.Set(castedTu.getTagsByIDStoreKey(1000), "", time.Minute)
 
-	tile, err := pu.Check(&models.CheckParams{Id: pointer.ToInt(1000)})
+	tile, err := pu.Check(&models.CheckParams{ID: pointer.ToInt(1000)})
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
 		assert.IsType(t, &MonitororError{}, err)
@@ -105,9 +105,9 @@ func TestPingdomUsecase_Check_Bulk(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetChecks", AnythingOfType("string")).
 		Return([]models.Check{
-			{Id: 1000, Status: "up", Name: "Check 1"},
-			{Id: 1100, Status: "down", Name: "Check 2"},
-			{Id: 1200, Status: "paused", Name: "Check 3"},
+			{ID: 1000, Status: "up", Name: "Check 1"},
+			{ID: 1100, Status: "down", Name: "Check 2"},
+			{ID: 1200, Status: "paused", Name: "Check 3"},
 		}, nil)
 
 	store := cache.NewGoCacheStore(time.Minute*5, time.Second)
@@ -116,9 +116,9 @@ func TestPingdomUsecase_Check_Bulk(t *testing.T) {
 	castedTu := pu.(*pingdomUsecase)
 
 	// Force cache
-	_ = castedTu.store.Set(castedTu.getTagsByIdStoreKey(1100), "", time.Minute)
+	_ = castedTu.store.Set(castedTu.getTagsByIDStoreKey(1100), "", time.Minute)
 
-	tile, err := pu.Check(&models.CheckParams{Id: pointer.ToInt(1100)})
+	tile, err := pu.Check(&models.CheckParams{ID: pointer.ToInt(1100)})
 	if assert.NoError(t, err) {
 		assert.NotNil(t, tile)
 		assert.Equal(t, FailedStatus, tile.Status)
@@ -139,17 +139,17 @@ func TestPingdomUsecase_Check_Bulk_WithCache(t *testing.T) {
 	// Force cache
 	key := castedTu.getChecksStoreKey("")
 
-	_ = castedTu.store.Set(castedTu.getTagsByIdStoreKey(1000), "", time.Minute)
+	_ = castedTu.store.Set(castedTu.getTagsByIDStoreKey(1000), "", time.Minute)
 	_ = castedTu.store.Set(key,
 		[]models.Check{
-			{Id: 1000, Status: "up", Name: "Check 1"},
-			{Id: 1100, Status: "down", Name: "Check 2"},
-			{Id: 1200, Status: "paused", Name: "Check 3"},
+			{ID: 1000, Status: "up", Name: "Check 1"},
+			{ID: 1100, Status: "down", Name: "Check 2"},
+			{ID: 1200, Status: "paused", Name: "Check 3"},
 		},
 		time.Second,
 	)
 
-	tile, err := pu.Check(&models.CheckParams{Id: pointer.ToInt(1000)})
+	tile, err := pu.Check(&models.CheckParams{ID: pointer.ToInt(1000)})
 	if assert.NoError(t, err) {
 		assert.NotNil(t, tile)
 		assert.Equal(t, SuccessStatus, tile.Status)
@@ -179,9 +179,9 @@ func TestPingdomUsecase_ListDynamicTile(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetChecks", AnythingOfType("string")).
 		Return([]models.Check{
-			{Id: 1000, Status: "up", Name: "Check 2"},
-			{Id: 1100, Status: "down", Name: "Check 1"},
-			{Id: 1200, Status: "paused", Name: "Check 3"},
+			{ID: 1000, Status: "up", Name: "Check 2"},
+			{ID: 1100, Status: "down", Name: "Check 1"},
+			{ID: 1200, Status: "paused", Name: "Check 3"},
 		}, nil)
 
 	store := cache.NewGoCacheStore(time.Minute*5, time.Second)

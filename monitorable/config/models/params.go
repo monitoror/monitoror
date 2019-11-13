@@ -2,14 +2,14 @@ package models
 
 type (
 	ConfigParams struct {
-		Url  string `json:"url" query:"url"`
+		URL  string `json:"url" query:"url"`
 		Path string `json:"path" query:"path"`
 	}
 )
 
 func (p *ConfigParams) IsValid() bool {
 	count := 0
-	if p.Url != "" {
+	if p.URL != "" {
 		count++
 	}
 	if p.Path != "" {

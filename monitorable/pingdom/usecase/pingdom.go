@@ -10,9 +10,9 @@ import (
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/monitoror/monitoror/config"
-	. "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/pingdom"
-	"github.com/monitoror/monitoror/monitorable/pingdom/models"
+	pingdomModels "github.com/monitoror/monitoror/monitorable/pingdom/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/builder"
 	uuid "github.com/satori/go.uuid"
 )
@@ -21,7 +21,7 @@ type (
 	pingdomUsecase struct {
 		repository pingdom.Repository
 		// Used to generate store key by repository
-		repositoryUid string
+		repositoryUID string
 
 		// Config
 		config *config.Pingdom
@@ -35,7 +35,7 @@ type (
 
 const (
 	PingdomChecksStoreKeyPrefix   = "monitoror.pingdom.checks.store"
-	PingdomTagsByIdStoreKeyPrefix = "monitoror.pingdom.tagsById.store"
+	PingdomTagsByIDStoreKeyPrefix = "monitoror.pingdom.tagsById.store"
 	PingdomCheckStoreKeyPrefix    = "monitoror.pingdom.check.store"
 
 	PausedStatus = "paused"
@@ -46,38 +46,38 @@ const (
 func NewPingdomUsecase(repository pingdom.Repository, config *config.Pingdom, store cache.Store) pingdom.Usecase {
 	return &pingdomUsecase{
 		repository:    repository,
-		repositoryUid: uuid.NewV4().String(),
+		repositoryUID: uuid.NewV4().String(),
 		config:        config,
 		store:         store,
 	}
 }
 
-func (pu *pingdomUsecase) Check(params *models.CheckParams) (*Tile, error) {
-	tile := NewTile(pingdom.PingdomCheckTileType)
+func (pu *pingdomUsecase) Check(params *pingdomModels.CheckParams) (*models.Tile, error) {
+	tile := models.NewTile(pingdom.PingdomCheckTileType)
 
-	checkId := *params.Id
-	var result models.Check
+	checkID := *params.ID
+	var result pingdomModels.Check
 	var tags string
 
 	// Lookup in store for bulk query for this ID, if found, use it
-	if err := pu.store.Get(pu.getTagsByIdStoreKey(checkId), &tags); err == nil {
+	if err := pu.store.Get(pu.getTagsByIDStoreKey(checkID), &tags); err == nil {
 		checks, err := pu.loadChecks(tags)
 		if err != nil {
-			return nil, &MonitororError{Err: err, Message: "unable to find checks"}
+			return nil, &models.MonitororError{Err: err, Message: "unable to find checks"}
 		}
 
 		// Find check in array
 		for _, tmpCheck := range checks {
-			if tmpCheck.Id == checkId {
+			if tmpCheck.ID == checkID {
 				result = tmpCheck
 				break
 			}
 		}
 	} else // Bulk not found, request single check
 	{
-		check, err := pu.loadCheck(checkId)
+		check, err := pu.loadCheck(checkID)
 		if err != nil {
-			return nil, &MonitororError{Err: err, Message: "unable to find check"}
+			return nil, &models.MonitororError{Err: err, Message: "unable to find check"}
 		}
 		result = *check
 	}
@@ -89,27 +89,28 @@ func (pu *pingdomUsecase) Check(params *models.CheckParams) (*Tile, error) {
 	return tile, nil
 }
 
-func (pu *pingdomUsecase) ListDynamicTile(params interface{}) (results []builder.Result, err error) {
-	lcParams := params.(*models.ChecksParams)
+func (pu *pingdomUsecase) ListDynamicTile(params interface{}) ([]builder.Result, error) {
+	lcParams := params.(*pingdomModels.ChecksParams)
 
 	checks, err := pu.loadChecks(lcParams.Tags)
 	if err != nil {
-		return nil, &MonitororError{Err: err, Message: "unable to list checks"}
+		return nil, &models.MonitororError{Err: err, Message: "unable to list checks"}
 	}
 
 	if lcParams.SortBy == "name" {
 		sort.SliceStable(checks, func(i, j int) bool { return checks[i].Name < checks[j].Name })
 	}
 
+	var results []builder.Result
 	for _, check := range checks {
 		// Adding id -> tags in the store for one minute. This value will be refresh each time we call this route
 		// This store will be use to find the best route to call for loading check result.
-		_ = pu.store.Set(pu.getTagsByIdStoreKey(check.Id), lcParams.Tags, time.Minute)
+		_ = pu.store.Set(pu.getTagsByIDStoreKey(check.ID), lcParams.Tags, time.Minute)
 
 		// Build results
 		if check.Status != PausedStatus {
 			p := make(map[string]interface{})
-			p["id"] = check.Id
+			p["id"] = check.ID
 
 			results = append(results, builder.Result{
 				TileType: pingdom.PingdomCheckTileType,
@@ -119,16 +120,16 @@ func (pu *pingdomUsecase) ListDynamicTile(params interface{}) (results []builder
 		}
 	}
 
-	return
+	return results, err
 }
 
-func (pu *pingdomUsecase) loadCheck(id int) (result *models.Check, err error) {
+func (pu *pingdomUsecase) loadCheck(id int) (result *pingdomModels.Check, err error) {
 	// Synchronize to avoid multi call on pingdom api
 	pu.Lock()
 	defer pu.Unlock()
 
 	// Lookup in cache
-	result = &models.Check{}
+	result = &pingdomModels.Check{}
 	key := pu.getCheckStoreKey(id)
 	if err = pu.store.Get(key, result); err == nil {
 		// Cache found, return
@@ -146,7 +147,7 @@ func (pu *pingdomUsecase) loadCheck(id int) (result *models.Check, err error) {
 	return
 }
 
-func (pu *pingdomUsecase) loadChecks(tags string) (results []models.Check, err error) {
+func (pu *pingdomUsecase) loadChecks(tags string) (results []pingdomModels.Check, err error) {
 	// Synchronize to avoid multi call on pingdom api
 	pu.Lock()
 	defer pu.Unlock()
@@ -170,26 +171,26 @@ func (pu *pingdomUsecase) loadChecks(tags string) (results []models.Check, err e
 }
 
 func (pu *pingdomUsecase) getChecksStoreKey(tags string) string {
-	return fmt.Sprintf("%s:%s-%s", PingdomChecksStoreKeyPrefix, pu.repositoryUid, tags)
+	return fmt.Sprintf("%s:%s-%s", PingdomChecksStoreKeyPrefix, pu.repositoryUID, tags)
 }
 
 func (pu *pingdomUsecase) getCheckStoreKey(id int) string {
-	return fmt.Sprintf("%s:%s-%d", PingdomCheckStoreKeyPrefix, pu.repositoryUid, id)
+	return fmt.Sprintf("%s:%s-%d", PingdomCheckStoreKeyPrefix, pu.repositoryUID, id)
 }
 
-func (pu *pingdomUsecase) getTagsByIdStoreKey(id int) string {
-	return fmt.Sprintf("%s:%s-%d", PingdomTagsByIdStoreKeyPrefix, pu.repositoryUid, id)
+func (pu *pingdomUsecase) getTagsByIDStoreKey(id int) string {
+	return fmt.Sprintf("%s:%s-%d", PingdomTagsByIDStoreKeyPrefix, pu.repositoryUID, id)
 }
 
-func parseStatus(status string) TileStatus {
+func parseStatus(status string) models.TileStatus {
 	switch status {
 	case UpStatus:
-		return SuccessStatus
+		return models.SuccessStatus
 	case DownStatus:
-		return FailedStatus
+		return models.FailedStatus
 	case PausedStatus:
-		return DisabledStatus
+		return models.DisabledStatus
 	default:
-		return UnknownStatus
+		return models.UnknownStatus
 	}
 }

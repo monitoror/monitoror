@@ -1,20 +1,19 @@
 package pingdom
 
 import (
-	. "github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/pingdom/models"
+	"github.com/monitoror/monitoror/models"
+	pingdomModels "github.com/monitoror/monitoror/monitorable/pingdom/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/builder"
 )
 
 const (
-	PingdomCheckTileType  TileType = "PINGDOM-CHECK"
-	PingdomChecksTileType TileType = "PINGDOM-CHECKS"
+	PingdomCheckTileType  models.TileType = "PINGDOM-CHECK"
+	PingdomChecksTileType models.TileType = "PINGDOM-CHECKS"
 )
 
-// Usecase represent the pingdom's usecases
 type (
 	Usecase interface {
-		Check(params *models.CheckParams) (*Tile, error)
+		Check(params *pingdomModels.CheckParams) (*models.Tile, error)
 		ListDynamicTile(params interface{}) ([]builder.Result, error)
 	}
 )

@@ -15,9 +15,9 @@ import (
 	. "github.com/stretchr/testify/mock"
 )
 
-func initRepository(t *testing.T, buildsApi pkgJenkins.Jenkins) *jenkinsRepository {
+func initRepository(t *testing.T, buildsAPI pkgJenkins.Jenkins) *jenkinsRepository {
 	conf := InitConfig()
-	conf.Monitorable.Jenkins[DefaultVariant].Url = "http://jenkins.test.com"
+	conf.Monitorable.Jenkins[DefaultVariant].URL = "http://jenkins.test.com"
 	conf.Monitorable.Jenkins[DefaultVariant].Login = "test"
 	conf.Monitorable.Jenkins[DefaultVariant].Token = "test"
 
@@ -25,7 +25,7 @@ func initRepository(t *testing.T, buildsApi pkgJenkins.Jenkins) *jenkinsReposito
 
 	apiJenkinsRepository, ok := repository.(*jenkinsRepository)
 	if assert.True(t, ok) {
-		apiJenkinsRepository.jenkinsApi = buildsApi
+		apiJenkinsRepository.jenkinsAPI = buildsAPI
 		return apiJenkinsRepository
 	}
 	return nil
@@ -190,7 +190,7 @@ func TestRepository_GetLastBuildStatus_Success(t *testing.T) {
 		FullName: jenkinsBuild.FullDisplayName,
 		Author: &models.Author{
 			Name:      jenkinsBuild.ChangeSets[0].Items[0].Author.FullName,
-			AvatarUrl: gravatar.GetGravatarUrl(jenkinsBuild.ChangeSets[0].Items[0].AuthorEmail),
+			AvatarURL: gravatar.GetGravatarURL(jenkinsBuild.ChangeSets[0].Items[0].AuthorEmail),
 		},
 
 		Building:  jenkinsBuild.Building,

@@ -5,27 +5,28 @@ import (
 	"encoding/json"
 	"net/http"
 
-	. "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/models"
+
 	"github.com/monitoror/monitoror/monitorable/config"
-	"github.com/monitoror/monitoror/monitorable/config/models"
+	configModels "github.com/monitoror/monitoror/monitorable/config/models"
 
 	"github.com/labstack/echo/v4"
 )
 
-type httpConfigDelivery struct {
+type ConfigDelivery struct {
 	configUsecase config.Usecase
 }
 
-func NewHttpConfigDelivery(cu config.Usecase) *httpConfigDelivery {
-	return &httpConfigDelivery{cu}
+func NewConfigDelivery(cu config.Usecase) *ConfigDelivery {
+	return &ConfigDelivery{cu}
 }
 
-func (h *httpConfigDelivery) GetConfig(c echo.Context) error {
+func (h *ConfigDelivery) GetConfig(c echo.Context) error {
 	// Bind / check Params
-	params := &models.ConfigParams{}
+	params := &configModels.ConfigParams{}
 	err := c.Bind(params)
 	if err != nil || !params.IsValid() {
-		return QueryParamsError
+		return models.QueryParamsError
 	}
 
 	config, err := h.configUsecase.GetConfig(params)

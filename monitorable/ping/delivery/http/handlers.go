@@ -3,27 +3,27 @@ package http
 import (
 	"net/http"
 
-	. "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/ping"
-	"github.com/monitoror/monitoror/monitorable/ping/models"
+	pingModels "github.com/monitoror/monitoror/monitorable/ping/models"
 
 	"github.com/labstack/echo/v4"
 )
 
-type httpPingDelivery struct {
+type PingDelivery struct {
 	pingUsecase ping.Usecase
 }
 
-func NewHttpPingDelivery(p ping.Usecase) *httpPingDelivery {
-	return &httpPingDelivery{p}
+func NewPingDelivery(p ping.Usecase) *PingDelivery {
+	return &PingDelivery{p}
 }
 
-func (h *httpPingDelivery) GetPing(c echo.Context) error {
+func (h *PingDelivery) GetPing(c echo.Context) error {
 	// Bind / Check Params
-	params := &models.PingParams{}
+	params := &pingModels.PingParams{}
 	err := c.Bind(params)
 	if err != nil || !params.IsValid() {
-		return QueryParamsError
+		return models.QueryParamsError
 	}
 
 	tile, err := h.pingUsecase.Ping(params)

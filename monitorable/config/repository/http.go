@@ -4,7 +4,7 @@ import (
 	"github.com/monitoror/monitoror/monitorable/config/models"
 )
 
-func (cr *configRepository) GetConfigFromUrl(url string) (config *models.Config, err error) {
+func (cr *configRepository) GetConfigFromURL(url string) (config *models.Config, err error) {
 	resp, err := cr.httpClient.Get(url)
 	if err != nil {
 		return

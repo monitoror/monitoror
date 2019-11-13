@@ -8,71 +8,71 @@ import (
 	"testing"
 
 	. "github.com/monitoror/monitoror/pkg/monitoror/utils"
+	"gopkg.in/yaml.v2"
 
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/yaml.v2"
 )
 
-func TestHttpParams_IsValid(t *testing.T) {
+func TestHTTPParams_IsValid(t *testing.T) {
 	for _, testcase := range []struct {
 		params   Validator
 		expected bool
 	}{
-		{&HttpAnyParams{}, false},
-		{&HttpAnyParams{Url: "toto"}, true},
-		{&HttpAnyParams{Url: "toto", StatusCodeMin: pointer.ToInt(300), StatusCodeMax: pointer.ToInt(299)}, false},
-		{&HttpAnyParams{Url: "toto", StatusCodeMin: pointer.ToInt(299), StatusCodeMax: pointer.ToInt(300)}, true},
+		{&HTTPAnyParams{}, false},
+		{&HTTPAnyParams{URL: "toto"}, true},
+		{&HTTPAnyParams{URL: "toto", StatusCodeMin: pointer.ToInt(300), StatusCodeMax: pointer.ToInt(299)}, false},
+		{&HTTPAnyParams{URL: "toto", StatusCodeMin: pointer.ToInt(299), StatusCodeMax: pointer.ToInt(300)}, true},
 
-		{&HttpRawParams{}, false},
-		{&HttpRawParams{Url: "toto"}, true},
-		{&HttpRawParams{Url: "toto", StatusCodeMin: pointer.ToInt(300), StatusCodeMax: pointer.ToInt(299)}, false},
-		{&HttpRawParams{Url: "toto", StatusCodeMin: pointer.ToInt(299), StatusCodeMax: pointer.ToInt(300)}, true},
-		{&HttpRawParams{Url: "toto", Regex: "("}, false},
-		{&HttpRawParams{Url: "toto", Regex: "(.*)"}, true},
+		{&HTTPRawParams{}, false},
+		{&HTTPRawParams{URL: "toto"}, true},
+		{&HTTPRawParams{URL: "toto", StatusCodeMin: pointer.ToInt(300), StatusCodeMax: pointer.ToInt(299)}, false},
+		{&HTTPRawParams{URL: "toto", StatusCodeMin: pointer.ToInt(299), StatusCodeMax: pointer.ToInt(300)}, true},
+		{&HTTPRawParams{URL: "toto", Regex: "("}, false},
+		{&HTTPRawParams{URL: "toto", Regex: "(.*)"}, true},
 
-		{&HttpJsonParams{}, false},
-		{&HttpJsonParams{Url: "toto"}, false},
-		{&HttpJsonParams{Url: "toto", Key: "."}, false},
-		{&HttpJsonParams{Url: "toto", Key: ".key"}, true},
-		{&HttpJsonParams{Url: "toto", Key: ".key", StatusCodeMin: pointer.ToInt(300), StatusCodeMax: pointer.ToInt(299)}, false},
-		{&HttpJsonParams{Url: "toto", Key: ".key", StatusCodeMin: pointer.ToInt(299), StatusCodeMax: pointer.ToInt(300)}, true},
-		{&HttpJsonParams{Url: "toto", Key: ".key", Regex: "("}, false},
-		{&HttpJsonParams{Url: "toto", Key: ".key", Regex: "(.*)"}, true},
+		{&HTTPJsonParams{}, false},
+		{&HTTPJsonParams{URL: "toto"}, false},
+		{&HTTPJsonParams{URL: "toto", Key: "."}, false},
+		{&HTTPJsonParams{URL: "toto", Key: ".key"}, true},
+		{&HTTPJsonParams{URL: "toto", Key: ".key", StatusCodeMin: pointer.ToInt(300), StatusCodeMax: pointer.ToInt(299)}, false},
+		{&HTTPJsonParams{URL: "toto", Key: ".key", StatusCodeMin: pointer.ToInt(299), StatusCodeMax: pointer.ToInt(300)}, true},
+		{&HTTPJsonParams{URL: "toto", Key: ".key", Regex: "("}, false},
+		{&HTTPJsonParams{URL: "toto", Key: ".key", Regex: "(.*)"}, true},
 
-		{&HttpYamlParams{}, false},
-		{&HttpYamlParams{Url: "toto"}, false},
-		{&HttpYamlParams{Url: "toto", Key: "."}, false},
-		{&HttpYamlParams{Url: "toto", Key: ".key"}, true},
-		{&HttpYamlParams{Url: "toto", Key: ".key", StatusCodeMin: pointer.ToInt(300), StatusCodeMax: pointer.ToInt(299)}, false},
-		{&HttpYamlParams{Url: "toto", Key: ".key", StatusCodeMin: pointer.ToInt(299), StatusCodeMax: pointer.ToInt(300)}, true},
-		{&HttpYamlParams{Url: "toto", Key: ".key", Regex: "("}, false},
-		{&HttpYamlParams{Url: "toto", Key: ".key", Regex: "(.*)"}, true},
+		{&HTTPYamlParams{}, false},
+		{&HTTPYamlParams{URL: "toto"}, false},
+		{&HTTPYamlParams{URL: "toto", Key: "."}, false},
+		{&HTTPYamlParams{URL: "toto", Key: ".key"}, true},
+		{&HTTPYamlParams{URL: "toto", Key: ".key", StatusCodeMin: pointer.ToInt(300), StatusCodeMax: pointer.ToInt(299)}, false},
+		{&HTTPYamlParams{URL: "toto", Key: ".key", StatusCodeMin: pointer.ToInt(299), StatusCodeMax: pointer.ToInt(300)}, true},
+		{&HTTPYamlParams{URL: "toto", Key: ".key", Regex: "("}, false},
+		{&HTTPYamlParams{URL: "toto", Key: ".key", Regex: "(.*)"}, true},
 	} {
 		assert.Equal(t, testcase.expected, testcase.params.IsValid())
 	}
 }
 
-func TestHttpParams_GetRegex(t *testing.T) {
+func TestHTTPParams_GetRegex(t *testing.T) {
 	for _, testcase := range []struct {
 		params         RegexProvider
 		expectedRegex  string
 		expectedRegexp *regexp.Regexp
 	}{
-		{&HttpRawParams{}, "", nil},
-		{&HttpRawParams{Regex: ""}, "", nil},
-		{&HttpRawParams{Regex: "("}, "(", nil},
-		{&HttpRawParams{Regex: "(.*)"}, "(.*)", regexp.MustCompile("(.*)")},
+		{&HTTPRawParams{}, "", nil},
+		{&HTTPRawParams{Regex: ""}, "", nil},
+		{&HTTPRawParams{Regex: "("}, "(", nil},
+		{&HTTPRawParams{Regex: "(.*)"}, "(.*)", regexp.MustCompile("(.*)")},
 
-		{&HttpJsonParams{}, "", nil},
-		{&HttpJsonParams{Regex: ""}, "", nil},
-		{&HttpJsonParams{Regex: "("}, "(", nil},
-		{&HttpJsonParams{Regex: "(.*)"}, "(.*)", regexp.MustCompile("(.*)")},
+		{&HTTPJsonParams{}, "", nil},
+		{&HTTPJsonParams{Regex: ""}, "", nil},
+		{&HTTPJsonParams{Regex: "("}, "(", nil},
+		{&HTTPJsonParams{Regex: "(.*)"}, "(.*)", regexp.MustCompile("(.*)")},
 
-		{&HttpYamlParams{}, "", nil},
-		{&HttpYamlParams{Regex: ""}, "", nil},
-		{&HttpYamlParams{Regex: "("}, "(", nil},
-		{&HttpYamlParams{Regex: "(.*)"}, "(.*)", regexp.MustCompile("(.*)")},
+		{&HTTPYamlParams{}, "", nil},
+		{&HTTPYamlParams{Regex: ""}, "", nil},
+		{&HTTPYamlParams{Regex: "("}, "(", nil},
+		{&HTTPYamlParams{Regex: "(.*)"}, "(.*)", regexp.MustCompile("(.*)")},
 	} {
 		assert.Equal(t, testcase.expectedRegex, testcase.params.GetRegex())
 		if isValidRegex(testcase.params) {
@@ -81,17 +81,17 @@ func TestHttpParams_GetRegex(t *testing.T) {
 	}
 }
 
-func TestHttpJsonParams_FormatedDataProvider(t *testing.T) {
+func TestHTTPSerializedDataFileParams_FormatedDataProvider(t *testing.T) {
 	for _, testcase := range []struct {
 		params               FormatedDataProvider
 		expectedKey          string
 		expectedUnmarshaller func(data []byte, v interface{}) error
 	}{
-		{&HttpJsonParams{}, "", json.Unmarshal},
-		{&HttpJsonParams{Key: ".key"}, ".key", json.Unmarshal},
+		{&HTTPJsonParams{}, "", json.Unmarshal},
+		{&HTTPJsonParams{Key: ".key"}, ".key", json.Unmarshal},
 
-		{&HttpYamlParams{}, "", yaml.Unmarshal},
-		{&HttpYamlParams{Key: ".key"}, ".key", yaml.Unmarshal},
+		{&HTTPYamlParams{}, "", yaml.Unmarshal},
+		{&HTTPYamlParams{Key: ".key"}, ".key", yaml.Unmarshal},
 	} {
 		assert.Equal(t, testcase.expectedKey, testcase.params.GetKey())
 

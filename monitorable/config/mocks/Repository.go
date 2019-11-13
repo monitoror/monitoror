@@ -35,8 +35,8 @@ func (_m *Repository) GetConfigFromPath(_a0 string) (*models.Config, error) {
 	return r0, r1
 }
 
-// GetConfigFromUrl provides a mock function with given fields: _a0
-func (_m *Repository) GetConfigFromUrl(_a0 string) (*models.Config, error) {
+// GetConfigFromURL provides a mock function with given fields: _a0
+func (_m *Repository) GetConfigFromURL(_a0 string) (*models.Config, error) {
 	ret := _m.Called(_a0)
 
 	var r0 *models.Config

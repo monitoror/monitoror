@@ -12,20 +12,20 @@ type Jenkins struct {
 	mock.Mock
 }
 
-// GetBuildByJobId provides a mock function with given fields: jobId, number
-func (_m *Jenkins) GetBuildByJobId(jobId string, number int) (gojenkins.Build, error) {
-	ret := _m.Called(jobId, number)
+// GetBuildByJobId provides a mock function with given fields: jobID, number
+func (_m *Jenkins) GetBuildByJobId(jobID string, number int) (gojenkins.Build, error) {
+	ret := _m.Called(jobID, number)
 
 	var r0 gojenkins.Build
 	if rf, ok := ret.Get(0).(func(string, int) gojenkins.Build); ok {
-		r0 = rf(jobId, number)
+		r0 = rf(jobID, number)
 	} else {
 		r0 = ret.Get(0).(gojenkins.Build)
 	}
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string, int) error); ok {
-		r1 = rf(jobId, number)
+		r1 = rf(jobID, number)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -54,20 +54,20 @@ func (_m *Jenkins) GetJob(jobName string) (gojenkins.Job, error) {
 	return r0, r1
 }
 
-// GetLastBuildByJobId provides a mock function with given fields: jobId
-func (_m *Jenkins) GetLastBuildByJobId(jobId string) (gojenkins.Build, error) {
-	ret := _m.Called(jobId)
+// GetLastBuildByJobId provides a mock function with given fields: jobID
+func (_m *Jenkins) GetLastBuildByJobId(jobID string) (gojenkins.Build, error) {
+	ret := _m.Called(jobID)
 
 	var r0 gojenkins.Build
 	if rf, ok := ret.Get(0).(func(string) gojenkins.Build); ok {
-		r0 = rf(jobId)
+		r0 = rf(jobID)
 	} else {
 		r0 = ret.Get(0).(gojenkins.Build)
 	}
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(jobId)
+		r1 = rf(jobID)
 	} else {
 		r1 = ret.Error(1)
 	}
