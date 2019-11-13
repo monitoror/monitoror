@@ -1,6 +1,6 @@
-# Installation on RaspberryPi
+# RaspberryPi
 ## Installation Prerequisites
-```bash
+```shell script
 # Chromium
 sudo apt-get update
 sudo apt-get install chromium-browser --yes
@@ -33,7 +33,7 @@ END
 ```
 
 ## Installation of Monitoror
-```bash
+```shell script
 # Installing binariy file
 sudo mkdir /opt/monitoror
 sudo wget https://github.com/monitoror/monitoror/releases/download/{VERSION}/monitoror-linux-arm -P /opt/monitoror
@@ -47,7 +47,7 @@ sudo nano /opt/monitoror/.env
 
 ## Starting Monitoror
 ### Manually
-```bash
+```shell script
 # Starting backend
 /opt/monitoror/monitoror-linux-arm
 
@@ -59,7 +59,7 @@ chromium-browser --kiosk --password-store=basic --disable-infobars \
 ### Automatically
 This part explain how to start Monitoror automatically on RaspberryPi startup
 
-```bash
+```shell script
 # Backend startup with systemd
 # Copy the entire block until END tag (included)
 sudo tee -a /lib/systemd/system/monitoror.service > /dev/null <<END
@@ -82,7 +82,7 @@ systemctl enable monitoror.service
 systemctl start monitoror.service
 ```
 
-```bash
+```shell script
 # rsyslog configuration
 # Copy the entire block until END tag (included)
 sudo tee -a /etc/rsyslog.d/99-monitoror.conf > /dev/null <<END
@@ -97,7 +97,7 @@ sudo chown syslog:adm /var/log/monitoror/monitoror.log
 sudo service rsyslog restart
 ```
 
-```bash
+```shell script
 # Frontend startup with autostart
 # :warning: you need to do this with user starting x server (usually pi)
 # Copy the entire block until END tag (included)

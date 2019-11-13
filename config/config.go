@@ -118,11 +118,10 @@ func InitConfig() *Config {
 	// --- HTTP Configuration ---
 	viper.SetDefault("Monitorable.HTTP.Timeout", 2000)
 	viper.SetDefault("Monitorable.HTTP.SSLVerify", true)
-	viper.SetDefault("Monitorable.HTTP.URL", "")
 
 	// --- Pingdom Configuration ---
 	for variant := range variants["Pingdom"] {
-		viper.SetDefault(fmt.Sprintf("Monitorable.Pingdom.%s.URL", variant), "")
+		viper.SetDefault(fmt.Sprintf("Monitorable.Pingdom.%s.URL", variant), "https://api.pingdom.com/api/3.1")
 		viper.SetDefault(fmt.Sprintf("Monitorable.Pingdom.%s.Token", variant), "")
 		viper.SetDefault(fmt.Sprintf("Monitorable.Pingdom.%s.Timeout", variant), 2000)
 		viper.SetDefault(fmt.Sprintf("Monitorable.Pingdom.%s.CacheExpiration", variant), 30000)

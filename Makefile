@@ -2,7 +2,7 @@
 # github.com/monitoror/monitoror
 #
 
-DEFAULT: build-cross
+DEFAULT: install build
 
 MAKEFLAGS = --silent
 
@@ -45,8 +45,8 @@ build: ## build executable for current environment
 	@./scripts/build/rice
 	@./scripts/build/build
 
-.PHONY: build-all
-build-all: ## build all executables
+.PHONY: build-cross
+build-cross: ## build all executables
 	@./scripts/build/rice
 	@./scripts/build/build linux
 	@./scripts/build/build windows

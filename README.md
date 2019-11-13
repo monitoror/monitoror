@@ -11,78 +11,23 @@
   <img src="https://img.shields.io/badge/NodeJS-10.0-blue.svg?style=for-the-badge" alt="NodeJS"/>
 </p>
 
-------------------------------------
+----
 
-TODO: Introduction, Documentation, Contributing
+Monitoring wall to health check services, servers, builds, ...
 
+----
 
+# Documentation
+
+For installing and configuring Monitoror, see our documentation: [docs/documentation.md](docs/documentation.md)
 
 ## Development
 
-### Requirements
+See our development documentation: [docs/development.md](./docs/development.md)
 
-- Go v1.13+
-- Nodejs v10+
-- Yarn v1.7+
-- GNU make
+# Contributing
 
+TODO
 
-### Installing Go tools
-
-Execute these commands either:
-- outside of Monitoror project
-- or use `go mod tidy` after them
-
-```bash
-# Generating mock for backend
-go get github.com/vektra/mockery/.../
-# Test utilities
-go get gotest.tools/gotestsum
-# Embed front dist into go binary
-go get github.com/GeertJohan/go.rice/rice
-```
-
-For installing Linter, see installation guide of https://github.com/golangci/golangci-lint
-
-### Running project
-```bash
-# Front
-cd front
-yarn
-yarn run serve
-```
-
-```bash
-# Back
-make install
-
-make run
-# Or
-make run-faker
-```
-
-
-### Building project
-```bash
-cd front
-yarn
-yarn run build
-cd ..
-make install
-make build
-```
-
-
-### Generating mocks
-```bash
-# For generating monitorable mocks
-make mock
-
-# For generating all mocks (only needed if golang net interface change)
-make mock-all
-```
-
-
-
-## License
+# License
 This project is under [MIT license](LICENSE).
