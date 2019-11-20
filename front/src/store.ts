@@ -30,6 +30,8 @@ export enum TileType {
   GitLab = 'GITLAB-BUILD',
   Travis = 'TRAVISCI-BUILD',
   Jenkins = 'JENKINS-BUILD',
+  AzureDevOpsBuild = 'AZUREDEVOPS-BUILD',
+  AzureDevOpsRelease = 'AZUREDEVOPS-RELEASE',
 
   Empty = 'EMPTY',
   Group = 'GROUP',
