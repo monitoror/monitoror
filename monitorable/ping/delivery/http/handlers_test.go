@@ -24,7 +24,7 @@ func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 	res = httptest.NewRecorder()
 	ctx = e.NewContext(req, res)
 
-	ctx.QueryParams().Set("hostname", "test.com")
+	ctx.QueryParams().Set("hostname", "monitoror.example.com")
 
 	return
 }
@@ -34,7 +34,7 @@ func TestDelivery_PingHandler_Success(t *testing.T) {
 	ctx, res := initEcho()
 
 	tile := models.NewTile(PingTileType)
-	tile.Label = "test.com"
+	tile.Label = "monitoror.example.com"
 	tile.Status = models.SuccessStatus
 	tile.Values = []float64{1000}
 	tile.Unit = models.MillisecondUnit

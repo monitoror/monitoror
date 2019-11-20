@@ -27,6 +27,6 @@ func TestConfigRepository_GetConfigFromURL(t *testing.T) {
 // TestConfigRepository_GetConfigFromURL test if http get works
 func TestConfigRepository_GetConfigFromURL_Error(t *testing.T) {
 	repository := NewConfigRepository()
-	_, err := repository.GetConfigFromURL("http://monitoror.test")
+	_, err := repository.GetConfigFromURL("http://monitoror.example.com")
 	assert.Error(t, err)
 }

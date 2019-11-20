@@ -29,7 +29,7 @@ func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 func TestDelivery_ConfigHandler_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
-	ctx.QueryParams().Set("url", "test.com")
+	ctx.QueryParams().Set("url", "monitoror.example.com")
 
 	config := &models.Config{
 		Columns: 2,
@@ -73,7 +73,7 @@ func TestDelivery_ConfigHandler_QueryParamsError(t *testing.T) {
 func TestDelivery_ConfigHandler_ErrorConfig(t *testing.T) {
 	// Init
 	ctx, _ := initEcho()
-	ctx.QueryParams().Set("url", "test.com")
+	ctx.QueryParams().Set("url", "monitoror.example.com")
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("GetConfig", Anything).Return(nil, errors.New("boom"))
@@ -89,7 +89,7 @@ func TestDelivery_ConfigHandler_ErrorConfig(t *testing.T) {
 func TestDelivery_ConfigHandler_ErrorVerify(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
-	ctx.QueryParams().Set("url", "test.com")
+	ctx.QueryParams().Set("url", "monitoror.example.com")
 
 	conf := &models.Config{
 		Columns: 2,
@@ -119,7 +119,7 @@ func TestDelivery_ConfigHandler_ErrorVerify(t *testing.T) {
 func TestDelivery_ConfigHandler_ErrorHydrate(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
-	ctx.QueryParams().Set("url", "test.com")
+	ctx.QueryParams().Set("url", "monitoror.example.com")
 
 	conf := &models.Config{
 		Columns: 2,

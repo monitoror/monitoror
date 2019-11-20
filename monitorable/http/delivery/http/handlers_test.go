@@ -92,7 +92,7 @@ func Test_httpHttpDelivery_GetHttp_Error(t *testing.T) {
 	// tests
 	for _, testcase := range testcases {
 		ctx, _ := initEcho()
-		ctx.QueryParams().Set("url", "http://monitoror.test")
+		ctx.QueryParams().Set("url", "http://monitoror.example.com")
 		ctx.QueryParams().Set("regex", "(.*)")
 		ctx.QueryParams().Set("key", ".key")
 
@@ -148,7 +148,7 @@ func Test_httpHttpDelivery_GetHttp(t *testing.T) {
 	// tests
 	for _, testcase := range testcases {
 		ctx, res := initEcho()
-		ctx.QueryParams().Set("url", "http://monitoror.test")
+		ctx.QueryParams().Set("url", "http://monitoror.example.com")
 		ctx.QueryParams().Set("regex", "(.*)")
 		ctx.QueryParams().Set("key", ".key")
 

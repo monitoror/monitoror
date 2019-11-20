@@ -22,7 +22,7 @@ import (
 
 func initRepository(t *testing.T, buildClient build.Client, releaseClient release.Client) *azureDevOpsRepository {
 	conf := InitConfig()
-	conf.Monitorable.AzureDevOps[DefaultVariant].URL = "http://azure.test.com"
+	conf.Monitorable.AzureDevOps[DefaultVariant].URL = "http://azure.example.com"
 	conf.Monitorable.AzureDevOps[DefaultVariant].Token = "test"
 
 	mockConnection := new(mocks.Connection)

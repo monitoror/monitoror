@@ -13,7 +13,7 @@ func TestInit_WithAllTile(t *testing.T) {
 	conf := InitConfig()
 	conf.Env = "Test"
 
-	conf.Monitorable.Jenkins["jenkins"] = &Jenkins{URL: "http://jenkins.test.com"}
+	conf.Monitorable.Jenkins["jenkins"] = &Jenkins{URL: "http://jenkins.example.com"}
 	conf.Monitorable.Pingdom["pingdom"] = &Pingdom{Token: "abcdef"}
 	conf.Monitorable.AzureDevOps["azure-devops"] = &AzureDevOps{URL: "https://dev.azure.com/test", Token: "abcdef"}
 
