@@ -53,6 +53,7 @@ func TestBuild_Error_NoBuild(t *testing.T) {
 	}
 }
 
+//nolint:dupl
 func TestBuild_Success(t *testing.T) {
 	build := buildResponse(branch, "passed", time.Now(), time.Now(), time.Second*100)
 
@@ -95,6 +96,7 @@ func TestBuild_Success(t *testing.T) {
 	}
 }
 
+//nolint:dupl
 func TestBuild_Failed(t *testing.T) {
 	build := buildResponse(branch, "failed", time.Now(), time.Now(), time.Second*100)
 
@@ -136,6 +138,7 @@ func TestBuild_Failed(t *testing.T) {
 	}
 }
 
+//nolint:dupl
 func TestBuild_Queued(t *testing.T) {
 	build := buildResponse(branch, "received", time.Now(), time.Time{}, 100)
 
@@ -216,6 +219,7 @@ func TestBuild_Running(t *testing.T) {
 	}
 }
 
+//nolint:dupl
 func TestBuild_Aborded(t *testing.T) {
 	build := buildResponse(branch, "canceled", time.Now(), time.Time{}, 100)
 
