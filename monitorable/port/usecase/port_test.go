@@ -22,7 +22,7 @@ func TestUsecase_CheckPort_Success(t *testing.T) {
 
 	// Params
 	param := &models.PortParams{
-		Hostname: "test.com",
+		Hostname: "monitoror.example.com",
 		Port:     1234,
 	}
 
@@ -49,7 +49,7 @@ func TestUsecase_CheckPort_Fail(t *testing.T) {
 
 	// Params
 	param := &models.PortParams{
-		Hostname: "test.com",
+		Hostname: "monitoror.example.com",
 		Port:     1234,
 	}
 

@@ -81,7 +81,7 @@ func TestRepository_GetLastBuildStatus_Success(t *testing.T) {
 		Commit: &travis.Commit{
 			Author: &travis.Author{
 				Name:      "test",
-				AvatarURL: "test.com",
+				AvatarURL: "monitoror.example.com",
 			},
 		},
 		State:         ToString("passed"),

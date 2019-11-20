@@ -73,7 +73,7 @@ func TestJenkins_IsValid(t *testing.T) {
 	config.Monitorable.Jenkins[DefaultVariant].URL = "url%url"
 	assert.False(t, config.Monitorable.Jenkins[DefaultVariant].IsValid())
 
-	config.Monitorable.Jenkins[DefaultVariant].URL = "http://jenkins.test.com"
+	config.Monitorable.Jenkins[DefaultVariant].URL = "http://jenkins.example.com"
 	assert.True(t, config.Monitorable.Jenkins[DefaultVariant].IsValid())
 }
 

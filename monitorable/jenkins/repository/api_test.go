@@ -17,7 +17,7 @@ import (
 
 func initRepository(t *testing.T, buildsAPI pkgJenkins.Jenkins) *jenkinsRepository {
 	conf := InitConfig()
-	conf.Monitorable.Jenkins[DefaultVariant].URL = "http://jenkins.test.com"
+	conf.Monitorable.Jenkins[DefaultVariant].URL = "http://jenkins.example.com"
 	conf.Monitorable.Jenkins[DefaultVariant].Login = "test"
 	conf.Monitorable.Jenkins[DefaultVariant].Token = "test"
 
@@ -117,7 +117,7 @@ func TestRepository_GetJob_SuccessWithBranch(t *testing.T) {
 	jenkinsJob := gojenkins.Job{
 		Jobs: []gojenkins.SubJobDescription{{
 			Name:  "master",
-			Url:   "http://jenkins.test.com/job/test/job/master",
+			Url:   "http://jenkins.example.com/job/test/job/master",
 			Color: "blue",
 		}},
 	}

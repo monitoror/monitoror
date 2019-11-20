@@ -23,7 +23,7 @@ func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 	res = httptest.NewRecorder()
 	ctx = e.NewContext(req, res)
 
-	ctx.QueryParams().Set("hostname", "test.com")
+	ctx.QueryParams().Set("hostname", "monitoror.example.com")
 	ctx.QueryParams().Set("port", "1234")
 
 	return
@@ -46,7 +46,7 @@ func TestDelivery_PortHandler_Success(t *testing.T) {
 	ctx, res := initEcho()
 
 	tile := models.NewTile(PortTileType)
-	tile.Label = "test.com:1234"
+	tile.Label = "monitoror.example.com:1234"
 	tile.Status = models.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)

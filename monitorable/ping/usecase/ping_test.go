@@ -25,7 +25,7 @@ func TestUsecase_Ping_Success(t *testing.T) {
 
 	// Params
 	param := &models.PingParams{
-		Hostname: "test.com",
+		Hostname: "monitoror.example.com",
 	}
 
 	// Expected
@@ -54,7 +54,7 @@ func TestUsecase_Ping_Fail(t *testing.T) {
 
 	// Params
 	param := &models.PingParams{
-		Hostname: "test.com",
+		Hostname: "monitoror.example.com",
 	}
 
 	// Expected
