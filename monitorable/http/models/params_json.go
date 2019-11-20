@@ -1,5 +1,6 @@
 //+build !faker
 
+//nolint:dupl
 package models
 
 import (

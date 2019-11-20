@@ -33,6 +33,7 @@ func TestInitConfig_WithEnv(t *testing.T) {
 	assert.Equal(t, "test", config.Monitorable.AzureDevOps[DefaultVariant].URL)
 }
 
+//nolint:dupl
 func TestPingdom_IsValid(t *testing.T) {
 	config := InitConfig()
 
@@ -77,6 +78,7 @@ func TestJenkins_IsValid(t *testing.T) {
 	assert.True(t, config.Monitorable.Jenkins[DefaultVariant].IsValid())
 }
 
+//nolint:dupl
 func TestAzureDevOps_IsValid(t *testing.T) {
 	config := InitConfig()
 
