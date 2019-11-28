@@ -67,7 +67,7 @@ func TestHtmlAll_WithoutErrors(t *testing.T) {
 			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
 				return usecase.HTTPRaw(&models.HTTPRawParams{URL: "toto", Regex: `errors: (\d*)`})
 			},
-			expectedStatus: FailedStatus, expectedLabel: "toto", expectedMessage: `pattern not found "errors: (\d*)"`,
+			expectedStatus: FailedStatus, expectedLabel: "toto", expectedMessage: `api call: 20`,
 		},
 		{
 			// HTTP Json
