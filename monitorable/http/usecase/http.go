@@ -98,11 +98,14 @@ func (hu *httpUsecase) httpAll(tileType models.TileType, url string, params inte
 
 	// Match regex
 	if regexProvider, ok := params.(httpModels.RegexProvider); ok {
-		if match, content = matchRegex(regexProvider, content); !match {
+		match, matchedContent := matchRegex(regexProvider, content)
+		if !match {
 			tile.Status = models.FailedStatus
-			tile.Message = fmt.Sprintf(`pattern not found "%s"`, regexProvider.GetRegex())
+			tile.Message = content
 			return tile, nil
 		}
+
+		content = matchedContent
 	}
 
 	if s, err := strconv.ParseFloat(content, 64); err == nil {
