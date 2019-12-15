@@ -6,21 +6,19 @@ fixes:
 
 coverage:
   status:
-    patch:
-      default:
-        enabled: no
+    patch: off
     project:
       default: off
-      front:
-        flags: front
-      back:
-        target: 70%
-        flags: back
+      ui:
+        flags: ui
+      core:
+        target: 90%
+        flags: core
 
 flags:
-  backe:
+  ui:
     paths:
       - front/
-  front:
+  core:
     paths:
       - !front/

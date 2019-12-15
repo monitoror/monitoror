@@ -8,6 +8,7 @@ vendor
 *.so
 *.dylib
 rice-box.go
+/binaries/monitoror*
 /output/monitoror*
 
 # Test binary, build with `go test -c`

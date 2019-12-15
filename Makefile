@@ -2,7 +2,7 @@
 # github.com/monitoror/monitoror
 #
 
-DEFAULT: build-cross
+DEFAULT: build
 
 MAKEFLAGS = --silent
 
@@ -94,7 +94,7 @@ release: ## publish version of monitoror
 # ============= TOOLING =============
 .PHONY: clean
 clean: ## remove build artifacts
-	rm -rf ./build/*
+	rm -rf ./binaries/*
 	@go clean ./...
 
 .PHONY: install
