@@ -25,11 +25,11 @@ fi
 
 # Define Target name
 if [[ $GOOS == "windows" ]]; then
-  TARGET="output/monitoror-$GOOS-$GOARCH.exe"
+  TARGET="binaries/monitoror-$GOOS-$GOARCH.exe"
 elif [[ $GOOS == "darwin" ]]; then
-  TARGET="output/monitoror-macos"
+  TARGET="binaries/monitoror-macos"
 else
-  TARGET="output/monitoror-$GOOS-$GOARCH"
+  TARGET="binaries/monitoror-$GOOS-$GOARCH"
 fi
 
 export LDFLAGS="\
