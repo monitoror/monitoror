@@ -67,7 +67,7 @@ func TestPingdomRepository_GetPingdomChecks_Success(t *testing.T) {
 	}, nil)
 
 	repository := initRepository(t, mock)
-	checks, err := repository.GetChecks("")
+	checks, err := repository.GetChecks("tests")
 	if assert.NoError(t, err) {
 		assert.Len(t, checks, 3)
 	}

@@ -59,7 +59,12 @@ func (r *pingdomRepository) GetCheck(id int) (result *models.Check, err error) {
 }
 
 func (r *pingdomRepository) GetChecks(tags string) (results []models.Check, err error) {
-	checks, err := r.pingdomCheckAPI.List()
+	params := make(map[string]string)
+	if tags != "" {
+		params["tags"] = tags
+	}
+
+	checks, err := r.pingdomCheckAPI.List(params)
 	if err != nil {
 		return
 	}
