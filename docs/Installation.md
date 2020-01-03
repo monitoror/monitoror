@@ -19,7 +19,7 @@ sudo chmod +x /usr/bin/screensaver_off.sh
 
 # :warning: you need to do this with user starting x server (usually pi)
 # Copy the entire block until END tag (included)
-tee -a ~/.config/autostart/chromium-browser.desktop > /dev/null <<END
+tee -a ~/.config/autostart/screensaver_off.desktop > /dev/null <<END
 [Desktop Entry]
 Type=Application
 Exec=/usr/bin/screensaver_off.sh
