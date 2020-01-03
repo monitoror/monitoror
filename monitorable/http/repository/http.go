@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/monitoror/monitoror/config"
-	ping "github.com/monitoror/monitoror/monitorable/http"
+	httpRepo "github.com/monitoror/monitoror/monitorable/http"
 	"github.com/monitoror/monitoror/monitorable/http/models"
 )
 
@@ -17,7 +17,7 @@ type (
 	}
 )
 
-func NewHTTPRepository(config *config.HTTP) ping.Repository {
+func NewHTTPRepository(config *config.HTTP) httpRepo.Repository {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: !config.SSLVerify},
 	}
