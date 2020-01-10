@@ -11,6 +11,7 @@ import (
 	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/http"
 	"github.com/monitoror/monitoror/monitorable/http/mocks"
+	httpModels "github.com/monitoror/monitoror/monitorable/http/models"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -38,10 +39,7 @@ func Test_httpHttpDelivery_GetHttp_MissingParams(t *testing.T) {
 			return handler.GetHTTPRaw
 		},
 		func(handler *HTTPDelivery) func(ctx echo.Context) error {
-			return handler.GetHTTPJson
-		},
-		func(handler *HTTPDelivery) func(ctx echo.Context) error {
-			return handler.GetHTTPYaml
+			return handler.GetHTTPFormatted
 		},
 	}
 
@@ -76,15 +74,9 @@ func Test_httpHttpDelivery_GetHttp_Error(t *testing.T) {
 			},
 		},
 		{
-			mockFuncName: "HTTPJson",
+			mockFuncName: "HTTPFormatted",
 			handlerFunc: func(handler *HTTPDelivery) func(ctx echo.Context) error {
-				return handler.GetHTTPJson
-			},
-		},
-		{
-			mockFuncName: "HTTPYaml",
-			handlerFunc: func(handler *HTTPDelivery) func(ctx echo.Context) error {
-				return handler.GetHTTPYaml
+				return handler.GetHTTPFormatted
 			},
 		},
 	}
@@ -93,6 +85,7 @@ func Test_httpHttpDelivery_GetHttp_Error(t *testing.T) {
 	for _, testcase := range testcases {
 		ctx, _ := initEcho()
 		ctx.QueryParams().Set("url", "http://monitoror.example.com")
+		ctx.QueryParams().Set("format", httpModels.JSONFormat)
 		ctx.QueryParams().Set("regex", "(.*)")
 		ctx.QueryParams().Set("key", ".key")
 
@@ -130,17 +123,10 @@ func Test_httpHttpDelivery_GetHttp(t *testing.T) {
 			},
 		},
 		{
-			tileType:     http.HTTPJsonTileType,
-			mockFuncName: "HTTPJson",
+			tileType:     http.HTTPFormattedTileType,
+			mockFuncName: "HTTPFormatted",
 			handlerFunc: func(handler *HTTPDelivery) func(ctx echo.Context) error {
-				return handler.GetHTTPJson
-			},
-		},
-		{
-			tileType:     http.HTTPYamlTileType,
-			mockFuncName: "HTTPYaml",
-			handlerFunc: func(handler *HTTPDelivery) func(ctx echo.Context) error {
-				return handler.GetHTTPYaml
+				return handler.GetHTTPFormatted
 			},
 		},
 	}
@@ -149,6 +135,7 @@ func Test_httpHttpDelivery_GetHttp(t *testing.T) {
 	for _, testcase := range testcases {
 		ctx, res := initEcho()
 		ctx.QueryParams().Set("url", "http://monitoror.example.com")
+		ctx.QueryParams().Set("format", "JSON")
 		ctx.QueryParams().Set("regex", "(.*)")
 		ctx.QueryParams().Set("key", ".key")
 

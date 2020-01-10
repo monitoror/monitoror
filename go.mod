@@ -5,9 +5,11 @@ go 1.13
 require (
 	github.com/AlekSi/pointer v1.0.0
 	github.com/GeertJohan/go.rice v1.0.0
+	github.com/basgys/goxml2json v1.1.0
 	github.com/bradfitz/gomemcache v0.0.0-20190329173943-551aad21a668 // indirect
 	github.com/dustin/go-humanize v1.0.0
 	github.com/fatih/structs v1.1.0
+	github.com/ghodss/yaml v1.0.0
 	github.com/google/go-querystring v1.0.0 // indirect
 	github.com/joho/godotenv v1.3.0
 	github.com/jsdidierlaurent/azure-devops-go-api/azuredevops v0.0.0-20191016103718-deea5b1446b8
@@ -24,7 +26,7 @@ require (
 	github.com/spf13/viper v1.4.0
 	github.com/stretchr/testify v1.3.0
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4 // indirect
-	golang.org/x/net v0.0.0-20190724013045-ca1201d0de80
+	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553
 	golang.org/x/sys v0.0.0-20190801041406-cbf593c0f2f3 // indirect
 	gopkg.in/yaml.v2 v2.2.2
 )

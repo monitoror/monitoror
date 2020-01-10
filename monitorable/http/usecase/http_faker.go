@@ -31,12 +31,8 @@ func (hu *httpUsecase) HTTPRaw(params *httpModels.HTTPRawParams) (tile *models.T
 	return hu.httpAll(http.HTTPRawTileType, params.URL, params)
 }
 
-func (hu *httpUsecase) HTTPJson(params *httpModels.HTTPJsonParams) (tile *models.Tile, err error) {
-	return hu.httpAll(http.HTTPJsonTileType, params.URL, params)
-}
-
-func (hu *httpUsecase) HTTPYaml(params *httpModels.HTTPYamlParams) (tile *models.Tile, err error) {
-	return hu.httpAll(http.HTTPYamlTileType, params.URL, params)
+func (hu *httpUsecase) HTTPFormatted(params *httpModels.HTTPFormattedParams) (tile *models.Tile, err error) {
+	return hu.httpAll(http.HTTPFormattedTileType, params.URL, params)
 }
 
 // httpAll handle all http usecase by checking if params match interfaces listed in models.params

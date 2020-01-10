@@ -103,14 +103,12 @@ func (s *Server) registerHTTP(variant string) {
 	httpGroup := s.api.Group("/http")
 	routeAny := httpGroup.GET("/any", delivery.GetHTTPAny)
 	routeRaw := httpGroup.GET("/raw", delivery.GetHTTPRaw)
-	routeJson := httpGroup.GET("/json", delivery.GetHTTPJson)
-	routeYaml := httpGroup.GET("/yaml", delivery.GetHTTPYaml)
+	routeJson := httpGroup.GET("/formatted", delivery.GetHTTPFormatted)
 
 	// Register data for config hydration
 	s.configHelper.RegisterTile(http.HTTPAnyTileType, &_httpModels.HTTPAnyParams{}, routeAny.Path)
 	s.configHelper.RegisterTile(http.HTTPRawTileType, &_httpModels.HTTPRawParams{}, routeRaw.Path)
-	s.configHelper.RegisterTile(http.HTTPJsonTileType, &_httpModels.HTTPJsonParams{}, routeJson.Path)
-	s.configHelper.RegisterTile(http.HTTPYamlTileType, &_httpModels.HTTPYamlParams{}, routeYaml.Path)
+	s.configHelper.RegisterTile(http.HTTPFormattedTileType, &_httpModels.HTTPFormattedParams{}, routeJson.Path)
 }
 
 func (s *Server) registerPingdom(variant string) {
