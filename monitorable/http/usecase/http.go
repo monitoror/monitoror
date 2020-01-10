@@ -159,7 +159,7 @@ func matchRegex(params httpModels.RegexProvider, str string) (bool, string) {
 	}
 
 	substrings := regex.FindAllStringSubmatch(str, -1)
-	if len(substrings[0]) < 2 {
+	if len(substrings[0]) == 1 {
 		return true, str
 	}
 
