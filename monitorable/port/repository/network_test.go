@@ -15,7 +15,7 @@ import (
 
 func initRepository(t *testing.T, dialer pkgNet.Dialer) *portRepository {
 	conf := InitConfig()
-	repository := NewPortRepository(&conf.Monitorable.Port)
+	repository := NewPortRepository(conf.Monitorable.Port[DefaultVariant])
 
 	systemPortRepository, ok := repository.(*portRepository)
 	if assert.True(t, ok) {

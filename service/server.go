@@ -3,19 +3,22 @@ package service
 import (
 	"fmt"
 	"net/http"
+	"reflect"
+	"runtime"
+	"strings"
 	"time"
 
-	"github.com/labstack/gommon/log"
-
-	"github.com/jsdidierlaurent/echo-middleware/cache"
-
-	rice "github.com/GeertJohan/go.rice"
-	"github.com/labstack/echo/v4"
-	echoMiddleware "github.com/labstack/echo/v4/middleware"
-	"github.com/labstack/gommon/color"
 	"github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/handlers"
 	"github.com/monitoror/monitoror/middlewares"
+	monitorableConfig "github.com/monitoror/monitoror/monitorable/config"
+
+	rice "github.com/GeertJohan/go.rice"
+	"github.com/jsdidierlaurent/echo-middleware/cache"
+	"github.com/labstack/echo/v4"
+	echoMiddleware "github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/gommon/color"
+	"github.com/labstack/gommon/log"
 )
 
 type (
@@ -23,16 +26,16 @@ type (
 		// Echo Server
 		*echo.Echo
 
-		// GetConfig
-		config *config.Config
-		store  cache.Store
+		// Config
+		store        cache.Store
+		config       *config.Config
+		configHelper monitorableConfig.Helper
 
 		// Middleware
 		cm *middlewares.CacheMiddleware
 
 		// Groups
 		api *echo.Group
-		v1  *echo.Group
 	}
 )
 
@@ -113,40 +116,25 @@ func (s *Server) initFront() {
 	s.GET("/img/*", echo.WrapHandler(http.StripPrefix("/", assetHandler)))
 }
 
-func (s *Server) initApis() {
-	// Api group definition
-	s.api = s.Group("/api")
+// registerTile is a decorator function to print enable/disable log and call handler when enabled
+func registerTile(handler func(string), variant string, enabled bool) {
+	var nameWithVariant string
+	name := runtime.FuncForPC(reflect.ValueOf(handler).Pointer()).Name()
+	name = name[strings.LastIndex(name, ".")+1:]
+	name = strings.Replace(name, "register", "", 1)
+	name = strings.Replace(name, "-fm", "", 1)
+	name = strings.ToUpper(name)
 
-	// V1
-	s.v1 = s.api.Group("/v1")
+	if variant != config.DefaultVariant && variant != "" {
+		nameWithVariant = fmt.Sprintf("%v (variant: %s)", name, variant)
+	} else {
+		nameWithVariant = fmt.Sprintf("%v", name)
+	}
 
-	// ------------- INFO ------------- //
-	infoDelivery := handlers.NewHTTPInfoDelivery()
-	s.v1.GET("/info", s.cm.UpstreamCacheHandlerWithExpiration(cache.NEVER, infoDelivery.GetInfo))
-
-	// ------------- CONFIG ------------- //
-	configHelper := s.registerConfig()
-
-	// ------------- PING ------------- //
-	s.registerPing(configHelper)
-
-	// ------------- PORT ------------- //
-	s.registerPort(configHelper)
-
-	// ------------- HTTP ------------- //
-	s.registerHTTP(configHelper)
-
-	// ------------- PINGDOM ------------- //
-	s.registerPingdom(configHelper)
-
-	// ------------- TRAVIS-CI ------------- //
-	s.registerTravisCI(configHelper)
-
-	// ------------- JENKINS ------------- //
-	s.registerJenkins(configHelper)
-
-	// ------------- AZURE DEVOPS ------------- //
-	s.registerAzureDevOps(configHelper)
+	logStatus(nameWithVariant, enabled)
+	if enabled {
+		handler(variant)
+	}
 }
 
 func logStatus(name interface{}, enabled bool) {
@@ -155,15 +143,4 @@ func logStatus(name interface{}, enabled bool) {
 		status = colorer.Red("disabled")
 	}
 	fmt.Printf("⇨ %s: %s\n", name, status)
-}
-
-func logStatusWithConfigVariant(name interface{}, variant string, enabled bool) {
-	var nameWithVariant string
-	if variant != config.DefaultVariant && variant != "" {
-		nameWithVariant = fmt.Sprintf("%v (variant: %s)", name, variant)
-	} else {
-		nameWithVariant = fmt.Sprintf("%v", name)
-	}
-
-	logStatus(nameWithVariant, enabled)
 }

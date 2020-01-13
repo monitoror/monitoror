@@ -29,14 +29,14 @@ type (
 	}
 
 	Monitorable struct {
-		Ping        Ping                    `json:"ping"`
-		Port        Port                    `json:"port"`
-		HTTP        HTTP                    `json:"http"`
-		Pingdom     map[string]*Pingdom     `json:"pingdom"`     // With variants
-		Github      map[string]*Github      `json:"github"`      // With variants
-		TravisCI    map[string]*TravisCI    `json:"travisCI"`    // With variants
-		Jenkins     map[string]*Jenkins     `json:"jenkins"`     // With variants
-		AzureDevOps map[string]*AzureDevOps `json:"azureDevOps"` // With variants
+		Ping        map[string]*Ping        `json:"ping"`
+		Port        map[string]*Port        `json:"port"`
+		HTTP        map[string]*HTTP        `json:"http"`
+		Pingdom     map[string]*Pingdom     `json:"pingdom"`
+		Github      map[string]*Github      `json:"github"`
+		TravisCI    map[string]*TravisCI    `json:"travisCI"`
+		Jenkins     map[string]*Jenkins     `json:"jenkins"`
+		AzureDevOps map[string]*AzureDevOps `json:"azureDevOps"`
 	}
 
 	Ping struct {
@@ -108,17 +108,23 @@ func InitConfig() *Config {
 	viper.SetDefault("DownstreamCacheExpiration", 120000)
 
 	// --- Ping Configuration ---
-	viper.SetDefault("Monitorable.Ping.Count", 2)
-	viper.SetDefault("Monitorable.Ping.Timeout", 1000)
-	viper.SetDefault("Monitorable.Ping.Interval", 100)
+	for variant := range variants["Ping"] {
+		viper.SetDefault(fmt.Sprintf("Monitorable.Ping.%s.Count", variant), 2)
+		viper.SetDefault(fmt.Sprintf("Monitorable.Ping.%s.Timeout", variant), 1000)
+		viper.SetDefault(fmt.Sprintf("Monitorable.Ping.%s.Interval", variant), 100)
+	}
 
 	// --- Port Configuration ---
-	viper.SetDefault("Monitorable.Port.Timeout", 2000)
+	for variant := range variants["Port"] {
+		viper.SetDefault(fmt.Sprintf("Monitorable.Port.%s.Timeout", variant), 2000)
+	}
 
 	// --- HTTP Configuration ---
-	viper.SetDefault("Monitorable.HTTP.Timeout", 2000)
-	viper.SetDefault("Monitorable.HTTP.SSLVerify", true)
-	viper.SetDefault("Monitorable.HTTP.URL", "")
+	for variant := range variants["HTTP"] {
+		viper.SetDefault(fmt.Sprintf("Monitorable.HTTP.%s.Timeout", variant), 2000)
+		viper.SetDefault(fmt.Sprintf("Monitorable.HTTP.%s.SSLVerify", variant), true)
+		viper.SetDefault(fmt.Sprintf("Monitorable.HTTP.%s.URL", variant), "")
+	}
 
 	// --- Pingdom Configuration ---
 	for variant := range variants["Pingdom"] {

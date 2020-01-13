@@ -3,11 +3,13 @@
 package service
 
 import (
+	"github.com/jsdidierlaurent/echo-middleware/cache"
+	. "github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/handlers"
 	"github.com/monitoror/monitoror/monitorable/azuredevops"
 	_azureDevOpsDelivery "github.com/monitoror/monitoror/monitorable/azuredevops/delivery/http"
 	_azureDevOpsModels "github.com/monitoror/monitoror/monitorable/azuredevops/models"
 	_azureDevOpsUsecase "github.com/monitoror/monitoror/monitorable/azuredevops/usecase"
-	"github.com/monitoror/monitoror/monitorable/config"
 	_configDelivery "github.com/monitoror/monitoror/monitorable/config/delivery/http"
 	_configRepository "github.com/monitoror/monitoror/monitorable/config/repository"
 	_configUsecase "github.com/monitoror/monitoror/monitorable/config/usecase"
@@ -37,116 +39,126 @@ import (
 	_travisciUsecase "github.com/monitoror/monitoror/monitorable/travisci/usecase"
 )
 
-func (s *Server) registerConfig() config.Helper {
+func (s *Server) initApis() {
+	// Api group definition
+	s.api = s.Group("/api/v1")
+
+	// ------------- INFO ------------- //
+	s.registerInfo()
+
+	// ------------- CONFIG ------------- //
+	s.registerConfig()
+
+	// ------------- TILES ------------- //
+	registerTile(s.registerPing, DefaultVariant, true)
+	registerTile(s.registerPort, DefaultVariant, true)
+	registerTile(s.registerHTTP, DefaultVariant, true)
+	registerTile(s.registerPingdom, DefaultVariant, true)
+	registerTile(s.registerTravisCI, DefaultVariant, true)
+	registerTile(s.registerJenkins, DefaultVariant, true)
+	registerTile(s.registerAzureDevOps, DefaultVariant, true)
+}
+
+func (s *Server) registerInfo() {
+	infoDelivery := handlers.NewHTTPInfoDelivery()
+	s.api.GET("/info", s.cm.UpstreamCacheHandlerWithExpiration(cache.NEVER, infoDelivery.GetInfo))
+}
+
+func (s *Server) registerConfig() {
 	repository := _configRepository.NewConfigRepository()
 	usecase := _configUsecase.NewConfigUsecase(repository, s.store, s.config.DownstreamCacheExpiration)
 	delivery := _configDelivery.NewConfigDelivery(usecase)
 
-	s.v1.GET("/config", delivery.GetConfig)
-
-	return usecase
+	s.api.GET("/config", delivery.GetConfig)
+	s.configHelper = usecase
 }
 
-func (s *Server) registerPing(configHelper config.Helper) {
-	defer logStatus(ping.PingTileType, true)
-
+func (s *Server) registerPing(variant string) {
 	usecase := _pingUsecase.NewPingUsecase()
 	delivery := _pingDelivery.NewPingDelivery(usecase)
 
 	// Register route to echo
-	route := s.v1.GET("/ping", delivery.GetPing)
+	route := s.api.GET("/ping", delivery.GetPing)
 
 	// Register param and path to config usecase
-	configHelper.RegisterTile(ping.PingTileType, &_pingModels.PingParams{}, route.Path)
+	s.configHelper.RegisterTile(ping.PingTileType, &_pingModels.PingParams{}, route.Path)
 }
 
-func (s *Server) registerPort(configHelper config.Helper) {
-	defer logStatus(port.PortTileType, true)
-
+func (s *Server) registerPort(variant string) {
 	usecase := _portUsecase.NewPortUsecase()
 	delivery := _portDelivery.NewPortDelivery(usecase)
 
 	// Register route to echo
-	route := s.v1.GET("/port", delivery.GetPort)
+	route := s.api.GET("/port", delivery.GetPort)
 
 	// Register param and path to config usecase
-	configHelper.RegisterTile(port.PortTileType, &_portModels.PortParams{}, route.Path)
+	s.configHelper.RegisterTile(port.PortTileType, &_portModels.PortParams{}, route.Path)
 }
 
-func (s *Server) registerHTTP(configHelper config.Helper) {
-	defer logStatus("HTTP", true)
-
+func (s *Server) registerHTTP(variant string) {
 	usecase := _httpUsecase.NewHTTPUsecase()
 	delivery := _httpDelivery.NewHTTPDelivery(usecase)
 
 	// Register route to echo
-	httpGroup := s.v1.Group("/http")
+	httpGroup := s.api.Group("/http")
 	routeAny := httpGroup.GET("/any", delivery.GetHTTPAny)
 	routeRaw := httpGroup.GET("/raw", delivery.GetHTTPRaw)
 	routeJson := httpGroup.GET("/json", delivery.GetHTTPJson)
 	routeYaml := httpGroup.GET("/yaml", delivery.GetHTTPYaml)
 
 	// Register data for config hydration
-	configHelper.RegisterTile(http.HTTPAnyTileType, &_httpModels.HTTPAnyParams{}, routeAny.Path)
-	configHelper.RegisterTile(http.HTTPRawTileType, &_httpModels.HTTPRawParams{}, routeRaw.Path)
-	configHelper.RegisterTile(http.HTTPJsonTileType, &_httpModels.HTTPJsonParams{}, routeJson.Path)
-	configHelper.RegisterTile(http.HTTPYamlTileType, &_httpModels.HTTPYamlParams{}, routeYaml.Path)
+	s.configHelper.RegisterTile(http.HTTPAnyTileType, &_httpModels.HTTPAnyParams{}, routeAny.Path)
+	s.configHelper.RegisterTile(http.HTTPRawTileType, &_httpModels.HTTPRawParams{}, routeRaw.Path)
+	s.configHelper.RegisterTile(http.HTTPJsonTileType, &_httpModels.HTTPJsonParams{}, routeJson.Path)
+	s.configHelper.RegisterTile(http.HTTPYamlTileType, &_httpModels.HTTPYamlParams{}, routeYaml.Path)
 }
 
-func (s *Server) registerPingdom(configHelper config.Helper) {
-	defer logStatus(pingdom.PingdomCheckTileType, true)
-
+func (s *Server) registerPingdom(variant string) {
 	usecase := _pingdomUsecase.NewPingdomUsecase()
 	delivery := _pingdomDelivery.NewPingdomDelivery(usecase)
 
 	// Register route to echo
-	pingdomGroup := s.v1.Group("/pingdom")
+	pingdomGroup := s.api.Group("/pingdom")
 	route := pingdomGroup.GET("/check", delivery.GetCheck)
 
 	// Register data for config hydration
-	configHelper.RegisterTile(pingdom.PingdomCheckTileType, &_pingdomModels.CheckParams{}, route.Path)
+	s.configHelper.RegisterTile(pingdom.PingdomCheckTileType, &_pingdomModels.CheckParams{}, route.Path)
 }
 
-func (s *Server) registerTravisCI(configHelper config.Helper) {
-	defer logStatus(travisci.TravisCIBuildTileType, true)
-
+func (s *Server) registerTravisCI(variant string) {
 	usecase := _travisciUsecase.NewTravisCIUsecase()
 	delivery := _travisciDelivery.NewTravisCIDelivery(usecase)
 
 	// Register route to echo
-	travisCIGroup := s.v1.Group("/travisci")
+	travisCIGroup := s.api.Group("/travisci")
 	route := travisCIGroup.GET("/build", delivery.GetBuild)
 
 	// Register param and path to config usecase
-	configHelper.RegisterTile(travisci.TravisCIBuildTileType, &_travisciModels.BuildParams{}, route.Path)
+	s.configHelper.RegisterTile(travisci.TravisCIBuildTileType, &_travisciModels.BuildParams{}, route.Path)
 }
 
-func (s *Server) registerJenkins(configHelper config.Helper) {
-	defer logStatus(jenkins.JenkinsBuildTileType, true)
-
+func (s *Server) registerJenkins(variant string) {
 	usecase := _jenkinsUsecase.NewJenkinsUsecase()
 	delivery := _jenkinsDelivery.NewJenkinsDelivery(usecase)
 
 	// Register route to echo
-	jenkinsGroup := s.v1.Group("/jenkins")
+	jenkinsGroup := s.api.Group("/jenkins")
 	route := jenkinsGroup.GET("/build", delivery.GetBuild)
 
 	// Register param and path to config usecase
-	configHelper.RegisterTile(jenkins.JenkinsBuildTileType, &_jenkinsModels.BuildParams{}, route.Path)
+	s.configHelper.RegisterTile(jenkins.JenkinsBuildTileType, &_jenkinsModels.BuildParams{}, route.Path)
 }
 
-func (s *Server) registerAzureDevOps(configHelper config.Helper) {
-	defer logStatus("AZURE-DEVOPS", true)
-
+func (s *Server) registerAzureDevOps(variant string) {
 	usecase := _azureDevOpsUsecase.NewAzureDevOpsUsecase()
 	delivery := _azureDevOpsDelivery.NewAzureDevOpsDelivery(usecase)
 
 	// Register route to echo
-	azureGroup := s.v1.Group("/azuredevops")
+	azureGroup := s.api.Group("/azuredevops")
 	routeBuild := azureGroup.GET("/build", s.cm.UpstreamCacheHandler(delivery.GetBuild))
 	routeRelease := azureGroup.GET("/release", s.cm.UpstreamCacheHandler(delivery.GetRelease))
 
 	// Register data for config hydration
-	configHelper.RegisterTile(azuredevops.AzureDevOpsBuildTileType, &_azureDevOpsModels.BuildParams{}, routeBuild.Path)
-	configHelper.RegisterTile(azuredevops.AzureDevOpsReleaseTileType, &_azureDevOpsModels.ReleaseParams{}, routeRelease.Path)
+	s.configHelper.RegisterTile(azuredevops.AzureDevOpsBuildTileType, &_azureDevOpsModels.BuildParams{}, routeBuild.Path)
+	s.configHelper.RegisterTile(azuredevops.AzureDevOpsReleaseTileType, &_azureDevOpsModels.ReleaseParams{}, routeRelease.Path)
 }
