@@ -30,7 +30,7 @@ func TestRepository_ReadConfig_Success(t *testing.T) {
 	config, err := ReadConfig(strings.NewReader(input))
 
 	assert.NoError(t, err)
-	assert.Equal(t, 4, config.Columns)
+	assert.Equal(t, 4, *config.Columns)
 }
 
 func TestRepository_ReadConfig_Error_WrongJson(t *testing.T) {

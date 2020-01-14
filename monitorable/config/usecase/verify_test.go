@@ -46,6 +46,20 @@ func TestUsecase_Verify_Success(t *testing.T) {
 	}
 }
 
+func TestUsecase_Verify_MissingVersion(t *testing.T) {
+	input := `{}`
+	reader := ioutil.NopCloser(strings.NewReader(input))
+	config, err := repository.ReadConfig(reader)
+
+	if assert.NoError(t, err) {
+		usecase := initConfigUsecase(nil, nil)
+		usecase.Verify(config)
+		if assert.Len(t, config.Errors, 1) {
+			assert.Contains(t, config.Errors[0], `Missing "version" field. Must be`)
+		}
+	}
+}
+
 func TestUsecase_Verify_UnknownVersion(t *testing.T) {
 	input := `
 {"version": 0}

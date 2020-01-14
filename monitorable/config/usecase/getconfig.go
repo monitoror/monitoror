@@ -18,11 +18,6 @@ func (cu *configUsecase) GetConfig(params *models.ConfigParams) (config *models.
 		return
 	}
 
-	// Set config to CurrentVersion if config isn't set
-	if config.Version == 0 {
-		config.Version = CurrentVersion
-	}
-
 	// Clean Errors / Warnings
 	config.Errors = []string{}
 	config.Warnings = []string{}

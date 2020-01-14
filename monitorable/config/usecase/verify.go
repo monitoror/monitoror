@@ -12,12 +12,17 @@ import (
 )
 
 func (cu *configUsecase) Verify(conf *models.Config) {
-	if exists := SupportedVersions[conf.Version]; !exists {
+	if conf.Version == nil {
+		conf.AddErrors(fmt.Sprintf(`Missing "version" field. Must be %s.`, keys(SupportedVersions)))
+		return
+	}
+
+	if exists := SupportedVersions[*conf.Version]; !exists {
 		conf.AddErrors(fmt.Sprintf(`Unsupported "version" field. Must be %s.`, keys(SupportedVersions)))
 		return
 	}
 
-	if conf.Columns <= 0 {
+	if conf.Columns == nil || *conf.Columns <= 0 {
 		conf.AddErrors(`Missing or invalid "columns" field. Must be a positive integer.`)
 	}
 

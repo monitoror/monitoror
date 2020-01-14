@@ -4,8 +4,6 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/jsdidierlaurent/echo-middleware/cache"
-
 	"github.com/monitoror/monitoror/monitorable/config"
 	"github.com/monitoror/monitoror/monitorable/config/mocks"
 	"github.com/monitoror/monitoror/monitorable/config/models"
@@ -16,6 +14,8 @@ import (
 	"github.com/monitoror/monitoror/monitorable/port"
 	_portModels "github.com/monitoror/monitoror/monitorable/port/models"
 
+	"github.com/AlekSi/pointer"
+	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"
 )
@@ -75,12 +75,12 @@ func TestUsecase_Load_Version(t *testing.T) {
 	usecase := initConfigUsecase(mockRepo, nil)
 
 	c, _ := usecase.GetConfig(&models.ConfigParams{Path: "test"})
-	assert.Equal(t, CurrentVersion, c.Version)
+	assert.Nil(t, c.Version)
 
 	mockRepo = new(mocks.Repository)
-	mockRepo.On("GetConfigFromPath", AnythingOfType("string")).Return(&models.Config{Version: 2}, nil)
+	mockRepo.On("GetConfigFromPath", AnythingOfType("string")).Return(&models.Config{Version: pointer.ToInt(2)}, nil)
 	usecase.repository = mockRepo
 
 	c, _ = usecase.GetConfig(&models.ConfigParams{Path: "test"})
-	assert.Equal(t, 2, c.Version)
+	assert.Equal(t, 2, *c.Version)
 }
