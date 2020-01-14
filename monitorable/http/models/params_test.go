@@ -30,12 +30,13 @@ func TestHTTPParams_IsValid(t *testing.T) {
 		{&HTTPFormattedParams{}, false},
 		{&HTTPFormattedParams{URL: "toto"}, false},
 		{&HTTPFormattedParams{URL: "toto", Format: "unknown"}, false},
+		{&HTTPFormattedParams{URL: "toto", Format: "JSON", Key: ""}, false},
 		{&HTTPFormattedParams{URL: "toto", Format: "JSON", Key: "."}, false},
-		{&HTTPFormattedParams{URL: "toto", Format: "JSON", Key: ".key"}, true},
-		{&HTTPFormattedParams{URL: "toto", Format: "JSON", Key: ".key", StatusCodeMin: pointer.ToInt(300), StatusCodeMax: pointer.ToInt(299)}, false},
-		{&HTTPFormattedParams{URL: "toto", Format: "JSON", Key: ".key", StatusCodeMin: pointer.ToInt(299), StatusCodeMax: pointer.ToInt(300)}, true},
-		{&HTTPFormattedParams{URL: "toto", Format: "JSON", Key: ".key", Regex: "("}, false},
-		{&HTTPFormattedParams{URL: "toto", Format: "JSON", Key: ".key", Regex: "(.*)"}, true},
+		{&HTTPFormattedParams{URL: "toto", Format: "JSON", Key: "key"}, true},
+		{&HTTPFormattedParams{URL: "toto", Format: "JSON", Key: "key", StatusCodeMin: pointer.ToInt(300), StatusCodeMax: pointer.ToInt(299)}, false},
+		{&HTTPFormattedParams{URL: "toto", Format: "JSON", Key: "key", StatusCodeMin: pointer.ToInt(299), StatusCodeMax: pointer.ToInt(300)}, true},
+		{&HTTPFormattedParams{URL: "toto", Format: "JSON", Key: "key", Regex: "("}, false},
+		{&HTTPFormattedParams{URL: "toto", Format: "JSON", Key: "key", Regex: "(.*)"}, true},
 	} {
 		assert.Equal(t, testcase.expected, testcase.params.IsValid())
 	}
@@ -72,8 +73,8 @@ func TestHTTPFormattedParams_FormatedDataProvider(t *testing.T) {
 	}{
 		{&HTTPFormattedParams{}, "", ""},
 		{&HTTPFormattedParams{Format: JSONFormat}, JSONFormat, ""},
-		{&HTTPFormattedParams{Format: YAMLFormat, Key: ".key"}, YAMLFormat, ".key"},
-		{&HTTPFormattedParams{Format: XMLFormat, Key: ".key"}, XMLFormat, ".key"},
+		{&HTTPFormattedParams{Format: YAMLFormat, Key: "key"}, YAMLFormat, "key"},
+		{&HTTPFormattedParams{Format: XMLFormat, Key: "key"}, XMLFormat, "key"},
 	} {
 		assert.Equal(t, testcase.expectedFormat, testcase.params.GetFormat())
 		assert.Equal(t, testcase.expectedKey, testcase.params.GetKey())
