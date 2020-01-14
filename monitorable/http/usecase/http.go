@@ -3,6 +3,8 @@
 package usecase
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -13,7 +15,9 @@ import (
 	"github.com/monitoror/monitoror/monitorable/http"
 	httpModels "github.com/monitoror/monitoror/monitorable/http/models"
 
+	xml2json "github.com/basgys/goxml2json"
 	"github.com/dustin/go-humanize"
+	"github.com/ghodss/yaml"
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 )
 
@@ -44,12 +48,8 @@ func (hu *httpUsecase) HTTPRaw(params *httpModels.HTTPRawParams) (*models.Tile, 
 	return hu.httpAll(http.HTTPRawTileType, params.URL, params)
 }
 
-func (hu *httpUsecase) HTTPJson(params *httpModels.HTTPJsonParams) (*models.Tile, error) {
-	return hu.httpAll(http.HTTPJsonTileType, params.URL, params)
-}
-
-func (hu *httpUsecase) HTTPYaml(params *httpModels.HTTPYamlParams) (*models.Tile, error) {
-	return hu.httpAll(http.HTTPYamlTileType, params.URL, params)
+func (hu *httpUsecase) HTTPFormatted(params *httpModels.HTTPFormattedParams) (*models.Tile, error) {
+	return hu.httpAll(http.HTTPFormattedTileType, params.URL, params)
 }
 
 // httpAll handle all http usecase by checking if params match interfaces listed in models.params
@@ -78,8 +78,28 @@ func (hu *httpUsecase) httpAll(tileType models.TileType, url string, params inte
 	var match bool
 
 	if formattedDataProvider, ok := params.(httpModels.FormatedDataProvider); ok {
-		var jsonData interface{}
-		err := formattedDataProvider.GetUnmarshaller()(response.Body, &jsonData)
+		// Convert XML to JSON if Format == XML
+		if formattedDataProvider.GetFormat() == httpModels.XMLFormat {
+			buffer, err := xml2json.Convert(bytes.NewReader(response.Body))
+			if err != nil || strings.TrimSuffix(buffer.String(), "\n") == `""` {
+				tile.Status = models.FailedStatus
+				tile.Message = fmt.Sprintf("unable to convert xml to json")
+				return tile, nil
+			}
+			response.Body = buffer.Bytes()
+		}
+
+		// Select Unmarshaller
+		var unmarshaller func(data []byte, v interface{}) error
+		if formattedDataProvider.GetFormat() == httpModels.JSONFormat ||
+			formattedDataProvider.GetFormat() == httpModels.XMLFormat {
+			unmarshaller = json.Unmarshal
+		} else {
+			unmarshaller = yaml.Unmarshal
+		}
+
+		var data interface{}
+		err := unmarshaller(response.Body, &data)
 		if err != nil {
 			tile.Status = models.FailedStatus
 			tile.Message = fmt.Sprintf("unable to unmarshal content")
@@ -87,7 +107,7 @@ func (hu *httpUsecase) httpAll(tileType models.TileType, url string, params inte
 		}
 
 		// Lookup a key
-		if match, content = lookupKey(formattedDataProvider, jsonData); !match {
+		if match, content = lookupKey(formattedDataProvider, data); !match {
 			tile.Status = models.FailedStatus
 			tile.Message = fmt.Sprintf(`unable to lookup for key "%s"`, formattedDataProvider.GetKey())
 			return tile, nil
@@ -158,12 +178,12 @@ func matchRegex(params httpModels.RegexProvider, str string) (bool, string) {
 		return false, ""
 	}
 
-	substrings := regex.FindAllStringSubmatch(str, -1)
-	if len(substrings[0]) == 1 {
+	substrings := regex.FindStringSubmatch(str)
+	if len(substrings) == 1 {
 		return true, str
 	}
 
-	return true, substrings[0][1]
+	return true, substrings[1]
 }
 
 // extractValue extract value from interface{} (json/yaml/...)
@@ -176,9 +196,9 @@ func lookupKey(params httpModels.FormatedDataProvider, data interface{}) (bool, 
 		keyPart := part[0]
 
 		// Lookup for array
-		r := ArrayKeyPartRegex.FindAllStringSubmatch(keyPart, 1)
-		if len(r) == 1 {
-			arrayIndex, _ := strconv.Atoi(r[0][1])
+		r := ArrayKeyPartRegex.FindStringSubmatch(keyPart)
+		if len(r) == 2 {
+			arrayIndex, _ := strconv.Atoi(r[1])
 			// Look if data type is array and check if index wasn't out of bounds
 			if array, ok := data.([]interface{}); ok && len(array) > arrayIndex && arrayIndex >= 0 {
 				data = array[arrayIndex]
@@ -189,6 +209,7 @@ func lookupKey(params httpModels.FormatedDataProvider, data interface{}) (bool, 
 
 		// Lookup for map
 		keyPart = strings.ReplaceAll(keyPart, `"`, ``)
+
 		// map[string]interface{} => JSON Style
 		if m, ok := data.(map[string]interface{}); ok {
 			// Check if keyPart is in map

@@ -51,31 +51,15 @@ func (h *HTTPDelivery) GetHTTPRaw(c echo.Context) error {
 	return c.JSON(netHttp.StatusOK, tile)
 }
 
-func (h *HTTPDelivery) GetHTTPJson(c echo.Context) error {
+func (h *HTTPDelivery) GetHTTPFormatted(c echo.Context) error {
 	// Bind / Check Params
-	params := &httpModels.HTTPJsonParams{}
+	params := &httpModels.HTTPFormattedParams{}
 	err := c.Bind(params)
 	if err != nil || !params.IsValid() {
 		return models.QueryParamsError
 	}
 
-	tile, err := h.httpUsecase.HTTPJson(params)
-	if err != nil {
-		return err
-	}
-
-	return c.JSON(netHttp.StatusOK, tile)
-}
-
-func (h *HTTPDelivery) GetHTTPYaml(c echo.Context) error {
-	// Bind / Check Params
-	params := &httpModels.HTTPYamlParams{}
-	err := c.Bind(params)
-	if err != nil || !params.IsValid() {
-		return models.QueryParamsError
-	}
-
-	tile, err := h.httpUsecase.HTTPYaml(params)
+	tile, err := h.httpUsecase.HTTPFormatted(params)
 	if err != nil {
 		return err
 	}

@@ -73,7 +73,7 @@ func TestHtmlAll_WithoutErrors(t *testing.T) {
 			// HTTP Json
 			body: `{"key": "value"}`,
 			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
-				return usecase.HTTPJson(&models.HTTPJsonParams{URL: "toto", Key: ".key"})
+				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.JSONFormat, Key: ".key"})
 			},
 			expectedStatus: SuccessStatus, expectedLabel: "toto", expectedMessage: "value",
 		},
@@ -81,7 +81,7 @@ func TestHtmlAll_WithoutErrors(t *testing.T) {
 			// HTTP Json with long float
 			body: `{"key": 123456789 }`,
 			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
-				return usecase.HTTPJson(&models.HTTPJsonParams{URL: "toto", Key: ".key"})
+				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.JSONFormat, Key: ".key"})
 			},
 			expectedStatus: SuccessStatus, expectedLabel: "toto", expectedValues: []float64{123456789},
 		},
@@ -89,7 +89,7 @@ func TestHtmlAll_WithoutErrors(t *testing.T) {
 			// HTTP Json missing key
 			body: `{"key": "value"}`,
 			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
-				return usecase.HTTPJson(&models.HTTPJsonParams{URL: "toto", Key: ".key2"})
+				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.JSONFormat, Key: ".key2"})
 			},
 			expectedStatus: FailedStatus, expectedLabel: "toto", expectedMessage: `unable to lookup for key ".key2"`,
 		},
@@ -97,15 +97,31 @@ func TestHtmlAll_WithoutErrors(t *testing.T) {
 			// HTTP Json unable to unmarshal
 			body: `{"key": "value`,
 			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
-				return usecase.HTTPJson(&models.HTTPJsonParams{URL: "toto", Key: ".key"})
+				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.JSONFormat, Key: ".key"})
 			},
 			expectedStatus: FailedStatus, expectedLabel: "toto", expectedMessage: `unable to unmarshal content`,
 		},
 		{
-			// HTTP Yaml
+			// HTTP XML
+			body: `<check><status test="2">OK</status></check>`,
+			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
+				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.XMLFormat, Key: ".check.status.#content"})
+			},
+			expectedStatus: SuccessStatus, expectedLabel: "toto", expectedMessage: "OK",
+		},
+		{
+			// HTTP XML unable to convert to json
+			body: `<check><status test="2">OK</stat`,
+			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
+				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.XMLFormat, Key: ".check.status.#content"})
+			},
+			expectedStatus: FailedStatus, expectedLabel: "toto", expectedMessage: "unable to convert xml to json",
+		},
+		{
+			// HTTP YAML
 			body: "key: value",
 			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
-				return usecase.HTTPYaml(&models.HTTPYamlParams{URL: "toto", Key: ".key"})
+				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.YAMLFormat, Key: ".key"})
 			},
 			expectedStatus: SuccessStatus, expectedLabel: "toto", expectedMessage: "value",
 		},
@@ -194,13 +210,13 @@ func TestHTTPUsecase_LookupKey_Json(t *testing.T) {
 	}
 }
 `
-	httpJSON := &models.HTTPJsonParams{}
-	httpJSON.Key = `.bloc1."bloc.2".[0].value`
+	httpFormatted := &models.HTTPFormattedParams{}
+	httpFormatted.Key = `.bloc1."bloc.2".[0].value`
 
 	var data interface{}
 	err := json.Unmarshal([]byte(input), &data)
 	if assert.NoError(t, err) {
-		found, value := lookupKey(httpJSON, data)
+		found, value := lookupKey(httpFormatted, data)
 		assert.True(t, found)
 		assert.Equal(t, "YEAH !!", value)
 	}
@@ -215,7 +231,7 @@ bloc1:
     - name: test2
       value: "NOOO !!"
 `
-	httpYaml := &models.HTTPJsonParams{}
+	httpYaml := &models.HTTPFormattedParams{}
 	httpYaml.Key = `.bloc1."bloc.2".[0].value`
 
 	var data interface{}
@@ -236,7 +252,7 @@ bloc1:
     - name: test2
       value: "NOOO !!"
 `
-	httpYaml := &models.HTTPJsonParams{}
+	httpYaml := &models.HTTPFormattedParams{}
 	httpYaml.Key = `.bloc1."bloc.2".[0].value2`
 
 	var data interface{}
