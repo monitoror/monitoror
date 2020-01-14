@@ -33,7 +33,7 @@ const (
 	XMLFormat  = "XML"
 )
 
-var availableFormats = []string{JSONFormat, YAMLFormat, XMLFormat}
+var supportedFormats = []string{JSONFormat, YAMLFormat, XMLFormat}
 
 func isValid(url string, statusCodesProvider StatusCodesProvider) bool {
 	if url == "" {
@@ -65,9 +65,9 @@ func isValidKey(formatedDataProvider FormatedDataProvider) bool {
 	return true
 }
 
-func isValidFormat(formatedDataProvider FormatedDataProvider) bool {
+func isSupportedFormat(formatedDataProvider FormatedDataProvider) bool {
 	format := formatedDataProvider.GetFormat()
-	if _, find := slice.Find(availableFormats, format); !find {
+	if _, find := slice.Find(supportedFormats, format); !find {
 		return false
 	}
 

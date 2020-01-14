@@ -28,7 +28,7 @@ func (p *HTTPFormattedParams) IsValid() bool {
 		return false
 	}
 
-	if !isValidFormat(p) {
+	if !isSupportedFormat(p) {
 		return false
 	}
 
