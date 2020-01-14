@@ -87,7 +87,7 @@ func Test_httpHttpDelivery_GetHttp_Error(t *testing.T) {
 		ctx.QueryParams().Set("url", "http://monitoror.example.com")
 		ctx.QueryParams().Set("format", httpModels.JSONFormat)
 		ctx.QueryParams().Set("regex", "(.*)")
-		ctx.QueryParams().Set("key", ".key")
+		ctx.QueryParams().Set("key", "key")
 
 		mockUsecase := new(mocks.Usecase)
 		mockUsecase.On(testcase.mockFuncName, Anything).Return(nil, errors.New("boom"))
@@ -137,7 +137,7 @@ func Test_httpHttpDelivery_GetHttp(t *testing.T) {
 		ctx.QueryParams().Set("url", "http://monitoror.example.com")
 		ctx.QueryParams().Set("format", "JSON")
 		ctx.QueryParams().Set("regex", "(.*)")
-		ctx.QueryParams().Set("key", ".key")
+		ctx.QueryParams().Set("key", "key")
 
 		tile := models.NewTile(testcase.tileType)
 		mockUsecase := new(mocks.Usecase)

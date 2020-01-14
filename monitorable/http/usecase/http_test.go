@@ -73,6 +73,14 @@ func TestHtmlAll_WithoutErrors(t *testing.T) {
 			// HTTP Json
 			body: `{"key": "value"}`,
 			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
+				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.JSONFormat, Key: "key"})
+			},
+			expectedStatus: SuccessStatus, expectedLabel: "toto", expectedMessage: "value",
+		},
+		{
+			// HTTP Json with key jq like
+			body: `{"key": "value"}`,
+			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
 				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.JSONFormat, Key: ".key"})
 			},
 			expectedStatus: SuccessStatus, expectedLabel: "toto", expectedMessage: "value",
@@ -81,7 +89,7 @@ func TestHtmlAll_WithoutErrors(t *testing.T) {
 			// HTTP Json with long float
 			body: `{"key": 123456789 }`,
 			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
-				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.JSONFormat, Key: ".key"})
+				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.JSONFormat, Key: "key"})
 			},
 			expectedStatus: SuccessStatus, expectedLabel: "toto", expectedValues: []float64{123456789},
 		},
@@ -89,15 +97,15 @@ func TestHtmlAll_WithoutErrors(t *testing.T) {
 			// HTTP Json missing key
 			body: `{"key": "value"}`,
 			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
-				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.JSONFormat, Key: ".key2"})
+				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.JSONFormat, Key: "key2"})
 			},
-			expectedStatus: FailedStatus, expectedLabel: "toto", expectedMessage: `unable to lookup for key ".key2"`,
+			expectedStatus: FailedStatus, expectedLabel: "toto", expectedMessage: `unable to lookup for key "key2"`,
 		},
 		{
 			// HTTP Json unable to unmarshal
 			body: `{"key": "value`,
 			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
-				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.JSONFormat, Key: ".key"})
+				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.JSONFormat, Key: "key"})
 			},
 			expectedStatus: FailedStatus, expectedLabel: "toto", expectedMessage: `unable to unmarshal content`,
 		},
@@ -105,7 +113,7 @@ func TestHtmlAll_WithoutErrors(t *testing.T) {
 			// HTTP XML
 			body: `<check><status test="2">OK</status></check>`,
 			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
-				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.XMLFormat, Key: ".check.status.#content"})
+				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.XMLFormat, Key: "check.status.#content"})
 			},
 			expectedStatus: SuccessStatus, expectedLabel: "toto", expectedMessage: "OK",
 		},
@@ -113,7 +121,7 @@ func TestHtmlAll_WithoutErrors(t *testing.T) {
 			// HTTP XML unable to convert to json
 			body: `<check><status test="2">OK</stat`,
 			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
-				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.XMLFormat, Key: ".check.status.#content"})
+				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.XMLFormat, Key: "check.status.#content"})
 			},
 			expectedStatus: FailedStatus, expectedLabel: "toto", expectedMessage: "unable to convert xml to json",
 		},
@@ -121,7 +129,7 @@ func TestHtmlAll_WithoutErrors(t *testing.T) {
 			// HTTP YAML
 			body: "key: value",
 			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
-				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.YAMLFormat, Key: ".key"})
+				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.YAMLFormat, Key: "key"})
 			},
 			expectedStatus: SuccessStatus, expectedLabel: "toto", expectedMessage: "value",
 		},
@@ -211,7 +219,7 @@ func TestHTTPUsecase_LookupKey_Json(t *testing.T) {
 }
 `
 	httpFormatted := &models.HTTPFormattedParams{}
-	httpFormatted.Key = `.bloc1."bloc.2".[0].value`
+	httpFormatted.Key = `bloc1."bloc.2".[0].value`
 
 	var data interface{}
 	err := json.Unmarshal([]byte(input), &data)
@@ -232,7 +240,7 @@ bloc1:
       value: "NOOO !!"
 `
 	httpYaml := &models.HTTPFormattedParams{}
-	httpYaml.Key = `.bloc1."bloc.2".[0].value`
+	httpYaml.Key = `bloc1."bloc.2".[0].value`
 
 	var data interface{}
 	err := yaml.Unmarshal([]byte(input), &data)
@@ -253,7 +261,7 @@ bloc1:
       value: "NOOO !!"
 `
 	httpYaml := &models.HTTPFormattedParams{}
-	httpYaml.Key = `.bloc1."bloc.2".[0].value2`
+	httpYaml.Key = `bloc1."bloc.2".[0].value2`
 
 	var data interface{}
 	err := yaml.Unmarshal([]byte(input), &data)
