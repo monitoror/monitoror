@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"strings"
 	"testing"
@@ -27,15 +28,16 @@ func initTile(t *testing.T, input string) (tiles *models.Tile) {
 }
 
 func TestUsecase_Verify_Success(t *testing.T) {
-	input := `
+	input := fmt.Sprintf(`
 {
-	"version" : 3,
+	"version" : %d,
   "columns": 4,
   "tiles": [
 		{ "type": "EMPTY" }
   ]
 }
-`
+`, CurrentVersion)
+
 	reader := ioutil.NopCloser(strings.NewReader(input))
 	config, err := repository.ReadConfig(reader)
 
@@ -43,6 +45,20 @@ func TestUsecase_Verify_Success(t *testing.T) {
 		usecase := initConfigUsecase(nil, nil)
 		usecase.Verify(config)
 		assert.Len(t, config.Errors, 0)
+	}
+}
+
+func TestUsecase_Verify_MissingVersion(t *testing.T) {
+	input := `{}`
+	reader := ioutil.NopCloser(strings.NewReader(input))
+	config, err := repository.ReadConfig(reader)
+
+	if assert.NoError(t, err) {
+		usecase := initConfigUsecase(nil, nil)
+		usecase.Verify(config)
+		if assert.Len(t, config.Errors, 1) {
+			assert.Contains(t, config.Errors[0], `Missing "version" field. Must be`)
+		}
 	}
 }
 
@@ -63,9 +79,10 @@ func TestUsecase_Verify_UnknownVersion(t *testing.T) {
 }
 
 func TestUsecase_Verify_Failed(t *testing.T) {
-	input := `
-{"version": 3}
-`
+	input := fmt.Sprintf(`
+{"version": %d}
+`, CurrentVersion)
+
 	reader := ioutil.NopCloser(strings.NewReader(input))
 	config, err := repository.ReadConfig(reader)
 

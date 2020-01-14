@@ -12,6 +12,7 @@ import (
 	"github.com/monitoror/monitoror/monitorable/config/mocks"
 	"github.com/monitoror/monitoror/monitorable/config/models"
 
+	"github.com/AlekSi/pointer"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"
@@ -32,7 +33,7 @@ func TestDelivery_ConfigHandler_Success(t *testing.T) {
 	ctx.QueryParams().Set("url", "monitoror.example.com")
 
 	config := &models.Config{
-		Columns: 2,
+		Columns: pointer.ToInt(2),
 	}
 
 	mockUsecase := new(mocks.Usecase)
@@ -92,7 +93,7 @@ func TestDelivery_ConfigHandler_ErrorVerify(t *testing.T) {
 	ctx.QueryParams().Set("url", "monitoror.example.com")
 
 	conf := &models.Config{
-		Columns: 2,
+		Columns: pointer.ToInt(2),
 		Errors:  []string{},
 	}
 	conf.AddErrors("boom")
@@ -122,7 +123,7 @@ func TestDelivery_ConfigHandler_ErrorHydrate(t *testing.T) {
 	ctx.QueryParams().Set("url", "monitoror.example.com")
 
 	conf := &models.Config{
-		Columns: 2,
+		Columns: pointer.ToInt(2),
 		Errors:  []string{},
 	}
 	conf.AddWarnings("boom")
