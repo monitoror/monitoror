@@ -6,6 +6,8 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/monitoror/monitoror/pkg/monitoror/faker"
+
 	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/http"
 	httpModels "github.com/monitoror/monitoror/monitorable/http/models"
@@ -14,11 +16,17 @@ import (
 
 type (
 	httpUsecase struct {
+		timeRefByUrl map[string]time.Time
 	}
 )
 
+var availableStatuses = faker.Statuses{
+	{models.SuccessStatus, time.Second * 30},
+	{models.FailedStatus, time.Second * 30},
+}
+
 func NewHTTPUsecase() http.Usecase {
-	return &httpUsecase{}
+	return &httpUsecase{make(map[string]time.Time)}
 }
 
 // HTTPAny only check status code
@@ -40,10 +48,7 @@ func (hu *httpUsecase) httpAll(tileType models.TileType, url string, params http
 	tile = models.NewTile(tileType)
 	tile.Label = url
 
-	// Init random generator
-	rand.Seed(time.Now().UnixNano())
-
-	tile.Status = nonempty.Struct(params.GetStatus(), randomStatus()).(models.TileStatus)
+	tile.Status = nonempty.Struct(params.GetStatus(), hu.computeStatus(url)).(models.TileStatus)
 	if tile.Status == models.SuccessStatus && tileType != http.HTTPAnyTileType {
 		if len(params.GetValues()) != 0 {
 			tile.Values = params.GetValues()
@@ -51,7 +56,7 @@ func (hu *httpUsecase) httpAll(tileType models.TileType, url string, params http
 			tile.Message = params.GetMessage()
 		} else {
 			if rand.Intn(2) == 0 {
-				tile.Values = []float64{float64(rand.Intn(10000))}
+				tile.Values = []float64{10000 * rand.Float64()}
 			} else {
 				tile.Message = "random message"
 			}
@@ -66,10 +71,11 @@ func (hu *httpUsecase) httpAll(tileType models.TileType, url string, params http
 	return
 }
 
-func randomStatus() models.TileStatus {
-	if rand.Intn(2) == 0 {
-		return models.SuccessStatus
-	} else {
-		return models.FailedStatus
+func (hu *httpUsecase) computeStatus(url string) models.TileStatus {
+	value, ok := hu.timeRefByUrl[url]
+	if !ok {
+		hu.timeRefByUrl[url] = faker.GetRefTime()
 	}
+
+	return faker.ComputeStatus(value, availableStatuses)
 }

@@ -126,6 +126,13 @@ func TestTime(t *testing.T) {
 	assert.Equal(t, d, Time(c, d))
 }
 
+func TestDuration(t *testing.T) {
+	var a, b, c, d time.Duration
+	a, b, d = time.Second, time.Minute, time.Hour
+	assert.Equal(t, a, Duration(a, b))
+	assert.Equal(t, d, Duration(c, d))
+}
+
 type Data struct {
 	a string
 	b int

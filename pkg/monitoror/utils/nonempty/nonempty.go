@@ -141,6 +141,14 @@ func Time(value, def time.Time) time.Time {
 	return value
 }
 
+// Duration if value == time.Duration zero value, return def otherwise return value
+func Duration(value, def time.Duration) time.Duration {
+	if isZero(value) {
+		return def
+	}
+	return value
+}
+
 // Struct if value == struct zero value, return def otherwise return value
 func Struct(value, def interface{}) interface{} {
 	if isZero(value) {

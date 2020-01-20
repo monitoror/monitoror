@@ -7,6 +7,8 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/monitoror/monitoror/pkg/monitoror/faker"
+
 	"github.com/AlekSi/pointer"
 
 	"github.com/monitoror/monitoror/models"
@@ -16,55 +18,42 @@ import (
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
 )
 
-var AvailableBuildStatus = []models.TileStatus{
-	models.SuccessStatus,
-	models.FailedStatus,
-	models.AbortedStatus,
-	models.RunningStatus,
-	models.QueuedStatus,
-	models.WarningStatus,
-}
-var AvailableReleaseStatus = []models.TileStatus{
-	models.SuccessStatus,
-	models.FailedStatus,
-	models.RunningStatus,
-	models.WarningStatus,
-}
-var AvailablePreviousStatus = []models.TileStatus{
-	models.SuccessStatus,
-	models.FailedStatus,
-	models.WarningStatus,
-	models.UnknownStatus,
-}
-
 type (
 	azureDevOpsUsecase struct {
-		cachedRunningValue map[string]*durations
-	}
-
-	durations struct {
-		duration          int64
-		estimatedDuration int64
+		timeRefByProject map[string]time.Time
 	}
 )
 
+var availableBuildStatus = faker.Statuses{
+	{models.SuccessStatus, time.Second * 30},
+	{models.FailedStatus, time.Second * 30},
+	{models.AbortedStatus, time.Second * 20},
+	{models.RunningStatus, time.Second * 60},
+	{models.QueuedStatus, time.Second * 30},
+	{models.WarningStatus, time.Second * 20},
+}
+
+var availableReleaseStatus = faker.Statuses{
+	{models.SuccessStatus, time.Second * 30},
+	{models.FailedStatus, time.Second * 30},
+	{models.RunningStatus, time.Second * 60},
+	{models.WarningStatus, time.Second * 20},
+}
+
 func NewAzureDevOpsUsecase() azuredevops.Usecase {
-	return &azureDevOpsUsecase{make(map[string]*durations)}
+	return &azureDevOpsUsecase{make(map[string]time.Time)}
 }
 
 func (tu *azureDevOpsUsecase) Build(params *azureModels.BuildParams) (tile *models.Tile, err error) {
 	tile = models.NewTile(azuredevops.AzureDevOpsBuildTileType)
 	tile.Label = fmt.Sprintf("%s | %d", params.Project, *params.Definition)
 
-	// Init random generator
-	rand.Seed(time.Now().UnixNano())
-
 	branch := "master"
 	if params.Branch != nil {
 		branch = *params.Branch
 	}
 	tile.Message = fmt.Sprintf("%s - %d", git.HumanizeBranch(branch), rand.Intn(100))
-	tile.Status = nonempty.Struct(params.Status, randomStatus(AvailableBuildStatus)).(models.TileStatus)
+	tile.Status = nonempty.Struct(params.Status, tu.computeStatus(params.Project, params.Definition, availableBuildStatus)).(models.TileStatus)
 
 	if tile.Status == models.WarningStatus {
 		// Warning can be Unstable Build
@@ -74,7 +63,7 @@ func (tu *azureDevOpsUsecase) Build(params *azureModels.BuildParams) (tile *mode
 		}
 	}
 
-	tile.PreviousStatus = nonempty.Struct(params.PreviousStatus, randomStatus(AvailablePreviousStatus)).(models.TileStatus)
+	tile.PreviousStatus = nonempty.Struct(params.PreviousStatus, models.SuccessStatus).(models.TileStatus)
 
 	// Author
 	if tile.Status != models.QueuedStatus {
@@ -98,28 +87,11 @@ func (tu *azureDevOpsUsecase) Build(params *azureModels.BuildParams) (tile *mode
 
 	// Duration / EstimatedDuration
 	if tile.Status == models.RunningStatus {
-		// Creating cache for duration
-		dur, ok := tu.cachedRunningValue[tile.Label]
-		if !ok {
-			dur = &durations{}
-			tu.cachedRunningValue[tile.Label] = dur
-		}
-
-		// Test if there is cached value or if user force value with param
-		if dur.estimatedDuration == 0 || params.EstimatedDuration != 0 {
-			dur.estimatedDuration = nonempty.Int64(params.EstimatedDuration, rand.Int63n(340)+10)
-		}
-
-		// Increment cached Duration
-		dur.duration += 10
-		if dur.duration > dur.estimatedDuration {
-			dur.duration = 0
-		}
-
-		tile.Duration = pointer.ToInt64(nonempty.Int64(params.Duration, dur.duration))
+		estimatedDuration := nonempty.Duration(time.Duration(params.EstimatedDuration), time.Second*300)
+		tile.Duration = pointer.ToInt64(nonempty.Int64(params.Duration, int64(tu.computeDuration(params.Project, params.Definition, estimatedDuration).Seconds())))
 
 		if tile.PreviousStatus != models.UnknownStatus {
-			tile.EstimatedDuration = pointer.ToInt64(dur.estimatedDuration)
+			tile.EstimatedDuration = pointer.ToInt64(int64(estimatedDuration.Seconds()))
 		} else {
 			tile.EstimatedDuration = pointer.ToInt64(0)
 		}
@@ -132,10 +104,7 @@ func (tu *azureDevOpsUsecase) Release(params *azureModels.ReleaseParams) (tile *
 	tile = models.NewTile(azuredevops.AzureDevOpsReleaseTileType)
 	tile.Label = fmt.Sprintf("%s | %d", params.Project, *params.Definition)
 
-	// Init random generator
-	rand.Seed(time.Now().UnixNano())
-
-	tile.Status = nonempty.Struct(params.Status, randomStatus(AvailableReleaseStatus)).(models.TileStatus)
+	tile.Status = nonempty.Struct(params.Status, tu.computeStatus(params.Project, params.Definition, availableReleaseStatus)).(models.TileStatus)
 
 	if tile.Status == models.WarningStatus {
 		// Warning can be Unstable Build
@@ -145,7 +114,7 @@ func (tu *azureDevOpsUsecase) Release(params *azureModels.ReleaseParams) (tile *
 		}
 	}
 
-	tile.PreviousStatus = nonempty.Struct(params.PreviousStatus, randomStatus(AvailablePreviousStatus)).(models.TileStatus)
+	tile.PreviousStatus = nonempty.Struct(params.PreviousStatus, models.SuccessStatus).(models.TileStatus)
 
 	// Author
 	tile.Author = &models.Author{}
@@ -167,28 +136,11 @@ func (tu *azureDevOpsUsecase) Release(params *azureModels.ReleaseParams) (tile *
 
 	// Duration / EstimatedDuration
 	if tile.Status == models.RunningStatus {
-		// Creating cache for duration
-		dur, ok := tu.cachedRunningValue[tile.Label]
-		if !ok {
-			dur = &durations{}
-			tu.cachedRunningValue[tile.Label] = dur
-		}
-
-		// Test if there is cached value or if user force value with param
-		if dur.estimatedDuration == 0 || params.EstimatedDuration != 0 {
-			dur.estimatedDuration = nonempty.Int64(params.EstimatedDuration, rand.Int63n(340)+10)
-		}
-
-		// Increment cached Duration
-		dur.duration += 10
-		if dur.duration > dur.estimatedDuration {
-			dur.duration = 0
-		}
-
-		tile.Duration = pointer.ToInt64(nonempty.Int64(params.Duration, dur.duration))
+		estimatedDuration := nonempty.Duration(time.Duration(params.EstimatedDuration), time.Second*300)
+		tile.Duration = pointer.ToInt64(nonempty.Int64(params.Duration, int64(tu.computeDuration(params.Project, params.Definition, estimatedDuration).Seconds())))
 
 		if tile.PreviousStatus != models.UnknownStatus {
-			tile.EstimatedDuration = pointer.ToInt64(dur.estimatedDuration)
+			tile.EstimatedDuration = pointer.ToInt64(int64(estimatedDuration.Seconds()))
 		} else {
 			tile.EstimatedDuration = pointer.ToInt64(0)
 		}
@@ -197,6 +149,22 @@ func (tu *azureDevOpsUsecase) Release(params *azureModels.ReleaseParams) (tile *
 	return
 }
 
-func randomStatus(status []models.TileStatus) models.TileStatus {
-	return status[rand.Intn(len(status))]
+func (tu *azureDevOpsUsecase) computeStatus(project string, definition *int, statuses faker.Statuses) models.TileStatus {
+	projectID := fmt.Sprintf("%s-%d", project, *definition)
+	value, ok := tu.timeRefByProject[projectID]
+	if !ok {
+		tu.timeRefByProject[projectID] = faker.GetRefTime()
+	}
+
+	return faker.ComputeStatus(value, statuses)
+}
+
+func (tu *azureDevOpsUsecase) computeDuration(project string, definition *int, duration time.Duration) time.Duration {
+	projectID := fmt.Sprintf("%s-%d", project, *definition)
+	value, ok := tu.timeRefByProject[projectID]
+	if !ok {
+		tu.timeRefByProject[projectID] = faker.GetRefTime()
+	}
+
+	return faker.ComputeDuration(value, duration)
 }

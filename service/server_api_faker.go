@@ -3,6 +3,9 @@
 package service
 
 import (
+	"math/rand"
+	"time"
+
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 	. "github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/handlers"
@@ -38,6 +41,10 @@ import (
 	_travisciModels "github.com/monitoror/monitoror/monitorable/travisci/models"
 	_travisciUsecase "github.com/monitoror/monitoror/monitorable/travisci/usecase"
 )
+
+func init() {
+	rand.Seed(time.Now().UnixNano())
+}
 
 func (s *Server) initApis() {
 	// Api group definition
