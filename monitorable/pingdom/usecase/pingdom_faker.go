@@ -4,8 +4,9 @@ package usecase
 
 import (
 	"fmt"
-	"math/rand"
 	"time"
+
+	"github.com/monitoror/monitoror/pkg/monitoror/faker"
 
 	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/pingdom"
@@ -16,10 +17,15 @@ import (
 
 type (
 	pingdomUsecase struct {
+		timeRefByCheck map[int]time.Time
 	}
 )
 
-var AvailableStatus = []models.TileStatus{models.SuccessStatus, models.FailedStatus, models.DisabledStatus}
+var availableStatuses = faker.Statuses{
+	{models.SuccessStatus, time.Second * 30},
+	{models.FailedStatus, time.Second * 30},
+	{models.DisabledStatus, time.Second * 10},
+}
 
 func NewPingdomUsecase() pingdom.Usecase {
 	return &pingdomUsecase{}
@@ -27,17 +33,23 @@ func NewPingdomUsecase() pingdom.Usecase {
 
 func (pu *pingdomUsecase) Check(params *pingdomModels.CheckParams) (tile *models.Tile, error error) {
 	tile = models.NewTile(pingdom.PingdomCheckTileType)
-	tile.Label = fmt.Sprintf("Check 1")
-
-	// Init random generator
-	rand.Seed(time.Now().UnixNano())
+	tile.Label = fmt.Sprintf(fmt.Sprintf("Check %d", *params.Id))
 
 	// Code
-	tile.Status = nonempty.Struct(params.Status, AvailableStatus[rand.Intn(len(AvailableStatus))]).(models.TileStatus)
+	tile.Status = nonempty.Struct(params.Status, pu.computeStatus(params)).(models.TileStatus)
 
 	return
 }
 
 func (pu *pingdomUsecase) ListDynamicTile(params interface{}) ([]builder.Result, error) {
 	panic("unimplemented")
+}
+
+func (pu *pingdomUsecase) computeStatus(params *pingdomModels.CheckParams) models.TileStatus {
+	value, ok := pu.timeRefByCheck[*params.Id]
+	if !ok {
+		pu.timeRefByCheck[*params.Id] = faker.GetRefTime()
+	}
+
+	return faker.ComputeStatus(value, availableStatuses)
 }

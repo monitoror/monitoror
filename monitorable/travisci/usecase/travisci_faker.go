@@ -3,8 +3,11 @@
 package usecase
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
+
+	"github.com/monitoror/monitoror/pkg/monitoror/faker"
 
 	"github.com/AlekSi/pointer"
 
@@ -15,33 +18,23 @@ import (
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
 )
 
-var AvailableStatus = []models.TileStatus{
-	models.SuccessStatus,
-	models.FailedStatus,
-	models.AbortedStatus,
-	models.RunningStatus,
-	models.QueuedStatus,
-	models.WarningStatus,
-}
-var AvailablePreviousStatus = []models.TileStatus{
-	models.SuccessStatus,
-	models.FailedStatus,
-	models.UnknownStatus,
-}
-
 type (
 	travisCIUsecase struct {
-		cachedRunningValue map[string]*durations
-	}
-
-	durations struct {
-		duration          int64
-		estimatedDuration int64
+		timeRefByProject map[string]time.Time
 	}
 )
 
+var availableBuildStatus = faker.Statuses{
+	{models.SuccessStatus, time.Second * 30},
+	{models.FailedStatus, time.Second * 30},
+	{models.AbortedStatus, time.Second * 20},
+	{models.RunningStatus, time.Second * 60},
+	{models.QueuedStatus, time.Second * 30},
+	{models.WarningStatus, time.Second * 20},
+}
+
 func NewTravisCIUsecase() travisci.Usecase {
-	return &travisCIUsecase{make(map[string]*durations)}
+	return &travisCIUsecase{make(map[string]time.Time)}
 }
 
 func (tu *travisCIUsecase) Build(params *travisCIModels.BuildParams) (tile *models.Tile, err error) {
@@ -49,17 +42,14 @@ func (tu *travisCIUsecase) Build(params *travisCIModels.BuildParams) (tile *mode
 	tile.Label = params.Repository
 	tile.Message = git.HumanizeBranch(params.Branch)
 
-	// Init random generator
-	rand.Seed(time.Now().UnixNano())
-
-	tile.Status = nonempty.Struct(params.Status, randomStatus(AvailableStatus)).(models.TileStatus)
+	tile.Status = nonempty.Struct(params.Status, tu.computeStatus(params)).(models.TileStatus)
 
 	if tile.Status == models.WarningStatus {
 		tile.Message = "random error message"
 		return
 	}
 
-	tile.PreviousStatus = nonempty.Struct(params.PreviousStatus, randomStatus(AvailablePreviousStatus)).(models.TileStatus)
+	tile.PreviousStatus = nonempty.Struct(params.PreviousStatus, models.SuccessStatus).(models.TileStatus)
 
 	tile.Author = &models.Author{}
 	tile.Author.Name = nonempty.String(params.AuthorName, "Faker")
@@ -79,28 +69,11 @@ func (tu *travisCIUsecase) Build(params *travisCIModels.BuildParams) (tile *mode
 	}
 
 	if tile.Status == models.RunningStatus {
-		// Creating cache for duration
-		dur, ok := tu.cachedRunningValue[tile.Label]
-		if !ok {
-			dur = &durations{}
-			tu.cachedRunningValue[tile.Label] = dur
-		}
-
-		// Test if there is cached value or if user force value with param
-		if dur.estimatedDuration == 0 || params.EstimatedDuration != 0 {
-			dur.estimatedDuration = nonempty.Int64(params.EstimatedDuration, rand.Int63n(340)+10)
-		}
-
-		// Increment cached Duration
-		dur.duration += 10
-		if dur.duration > dur.estimatedDuration {
-			dur.duration = 0
-		}
-
-		tile.Duration = pointer.ToInt64(nonempty.Int64(params.Duration, dur.duration))
+		estimatedDuration := nonempty.Duration(time.Duration(params.EstimatedDuration), time.Second*300)
+		tile.Duration = pointer.ToInt64(nonempty.Int64(params.Duration, int64(tu.computeDuration(params, estimatedDuration).Seconds())))
 
 		if tile.PreviousStatus != models.UnknownStatus {
-			tile.EstimatedDuration = pointer.ToInt64(dur.estimatedDuration)
+			tile.EstimatedDuration = pointer.ToInt64(int64(estimatedDuration.Seconds()))
 		} else {
 			tile.EstimatedDuration = pointer.ToInt64(0)
 		}
@@ -109,6 +82,22 @@ func (tu *travisCIUsecase) Build(params *travisCIModels.BuildParams) (tile *mode
 	return
 }
 
-func randomStatus(status []models.TileStatus) models.TileStatus {
-	return status[rand.Intn(len(status))]
+func (tu *travisCIUsecase) computeStatus(params *travisCIModels.BuildParams) models.TileStatus {
+	projectID := fmt.Sprintf("%s-%s-%s", params.Group, params.Repository, params.Branch)
+	value, ok := tu.timeRefByProject[projectID]
+	if !ok {
+		tu.timeRefByProject[projectID] = faker.GetRefTime()
+	}
+
+	return faker.ComputeStatus(value, availableBuildStatus)
+}
+
+func (tu *travisCIUsecase) computeDuration(params *travisCIModels.BuildParams, duration time.Duration) time.Duration {
+	projectID := fmt.Sprintf("%s-%s-%s", params.Group, params.Repository, params.Branch)
+	value, ok := tu.timeRefByProject[projectID]
+	if !ok {
+		tu.timeRefByProject[projectID] = faker.GetRefTime()
+	}
+
+	return faker.ComputeDuration(value, duration)
 }
