@@ -25,17 +25,17 @@ Supported platforms:
 - macOS
 - Windows (64bits)
 
-[Visit the Monitoror website for more details](https://monitoror.github.io/monitoror/)
+[Visit the Monitoror website for more details](https://monitoror.com/)
 
 
 ## Documentation
 
-All details about installation and configuration are on [our documentation](https://monitoror.github.io/monitoror/documentation/)
+All details about installation and configuration are on [our documentation](https://monitoror.com/documentation/)
 
 
 ## Development
 
-See our [development guide](https://monitoror.github.io/monitoror/guides/#development)
+See our [development guide](https://monitoror.com/guides/#development)
 
 
 ## Stay in touch
