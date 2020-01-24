@@ -138,8 +138,8 @@ SyslogIdentifier=monitoror
 WantedBy=multi-user.target
 END
 
-systemctl enable monitoror.service
-systemctl start monitoror.service
+sudo systemctl enable monitoror.service
+sudo systemctl start monitoror.service
 
 # rsyslog configuration
 sudo cat > /etc/rsyslog.d/99-monitoror.conf &lt;&lt;END
