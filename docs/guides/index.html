@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1" name="viewport">
+  <title>Guides — Monitoror, the unified monitoring wallboard</title>
+  <link href="../favicon.png" rel="icon" type="image/png">
+  <link href="../favicon.ico" rel="icon">
+  <link href="../assets/styles/main.css" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600" rel="stylesheet" type="text/css">
+</head>
+<body class="m-documentation">
+<div class="m-sidebar">
+  <header class="m-documentation--header">
+    <a href="..">
+      <img alt="Monitoror" class="m-documentation--logo" src="../assets/images/logo.svg">
+    </a>
+    <h1 class="m-documentation--header-title">
+      Guides
+    </h1>
+  </header>
+
+  <aside class="m-documentation--menu">
+    <ul>
+      <li>
+        <a href="#installation-by-platform">Installation by platform</a>
+        <ul>
+          <li><a href="#installation-raspberrypi">Raspberry Pi</a></li>
+        </ul>
+      </li>
+      <li>
+        <a href="#development">Development</a>
+        <ul>
+          <li><a href="#requirements">Requirements</a></li>
+          <li><a href="#install-go-tools">Install Go tools</a></li>
+          <li><a href="#run-project">Run project</a></li>
+        </ul>
+      </li>
+    </ul>
+  </aside>
+</div>
+
+<main class="m-documentation--content">
+  <section class="m-documentation--section" id="installation-by-platform">
+    <h2 class="m-documentation--section-title">Installation by&nbsp;platform</h2>
+
+    <div class="m-documentation--block">
+      <svg class="m-documentation--tile-icon" clip-rule="evenodd" fill-rule="evenodd"
+           stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 720 720" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M233.38 1.656c-3.619.113-7.517 1.45-11.938 4.938-10.83-4.177-21.33-5.627-30.72 2.875-14.5-1.881-19.212 2-22.782 6.531-3.183-.066-23.819-3.272-33.282 10.844-23.781-2.814-31.297 13.988-22.781 29.656-4.857 7.519-9.889 14.947 1.469 29.281-4.018 7.984-1.528 16.644 7.937 27.125-2.498 11.223 2.412 19.141 11.219 25.312-1.647 15.358 14.084 24.287 18.781 27.469 1.804 8.949 5.563 17.393 23.531 22.062 2.964 13.336 13.762 15.639 24.219 18.438-34.562 20.09-64.201 46.523-64 111.38l-5.062 9.031c-39.63 24.1-75.285 101.56-19.53 164.52 3.642 19.708 9.749 33.864 15.188 49.531 8.134 63.131 61.218 92.692 75.219 96.188 20.517 15.628 42.368 30.457 71.938 40.844 27.875 28.749 58.074 39.706 88.438 39.688.445 0 .898.005 1.344 0 30.364.019 60.562-10.938 88.438-39.688 29.569-10.387 51.421-25.216 71.938-40.844 14.001-3.496 67.085-33.057 75.219-96.188 5.438-15.667 11.546-29.823 15.188-49.531 55.754-62.965 20.1-140.43-19.531-164.53l-5.07-9.03c.2-64.852-29.438-91.285-64-111.38 10.457-2.798 21.256-5.101 24.219-18.438 17.968-4.67 21.728-13.114 23.531-22.062 4.697-3.181 20.428-12.111 18.781-27.469 8.806-6.171 13.717-14.09 11.219-25.312 9.465-10.481 11.956-19.141 7.937-27.125 11.36-14.328 6.32-21.756 1.47-29.275 8.51-15.668 1-32.47-22.79-29.656-9.46-14.116-30.09-10.91-33.28-10.844-3.57-4.531-8.28-8.412-22.78-6.531-9.39-8.502-19.89-7.051-30.72-2.875-12.86-10.148-21.37-2.013-31.09 1.062-15.57-5.087-19.13 1.881-26.78 4.719-16.98-3.588-22.14 4.224-30.28 12.469l-9.469-.187c-25.611 15.093-38.334 45.826-42.844 61.625-4.512-15.802-17.206-46.535-42.812-61.625l-9.469.187c-8.15-8.245-13.31-16.057-30.29-12.469-7.649-2.838-11.199-9.806-26.779-4.719-6.38-2.018-12.248-6.214-19.156-6l.012.003zM363.91 619.12c-32.494-.813-82.324 13.019-81.719 30.735-.519 12.083 39.123 46.943 79.55 45.199 39.036.673 79.369-34.133 78.826-49.538-.086-15.864-43.96-27.823-76.657-26.396zm116.11-102.91c-25.187 29.502-39.212 83.31-20.838 100.64 17.568 13.464 64.729 11.582 99.566-36.756 25.296-32.465 16.82-86.682 2.371-101.08-21.464-16.602-52.277 4.645-81.099 37.188v.008zm-236.88 8.89c23.279 28.046 33.891 77.319 14.464 91.844-18.379 11.088-63.012 6.522-94.736-39.052-21.395-38.242-18.638-77.157-3.616-88.589 22.464-13.684 57.173 4.799 83.889 35.797h-.001zm201.801-4.738l.001.395c0 41.172-36.74 75.052-81.39 75.052-44.649 0-81.39-33.88-81.39-75.052l.002-.395-.002-.396c0-41.172 36.741-75.051 81.39-75.051 44.65 0 81.39 33.879 81.39 75.051l-.001.396zM147.91 342.09c-60.416 34.5-49.92 111.26-17.333 137.47 29.625 13.16 53.743-147.23 17.333-137.47zm420.77-2c-36.414-9.757-12.292 150.64 17.333 137.48 32.587-26.213 43.083-102.98-17.333-137.48zm-252.222-34.123c33.498 21.946 39.628 72.443 13.579 111.862s-75.049 53.797-108.547 31.85c-33.498-21.947-39.627-72.443-13.578-111.862 26.049-39.419 75.048-53.797 108.546-31.85zm91.024-4c-33.498 21.946-39.628 72.443-13.579 111.862s75.049 53.797 108.547 31.85c33.498-21.947 39.627-72.443 13.579-111.862-26.049-39.419-75.049-53.797-108.547-31.85zm37.488-81.317c-23.148 3.891 110.943 120.979 113.01 94.858 2.11-68.136-50.175-105.468-113.01-94.858zm-173.61-2c-62.84-10.61-115.12 26.73-113.01 94.86 2.067 26.12 136.158-90.968 113.01-94.86zm90.26-15.89c-37.503-.975-73.495 27.834-73.582 44.544-.105 20.304 29.651 41.093 73.837 41.62 45.123.323 73.916-16.64 74.061-37.594.165-23.74-41.039-48.937-74.317-48.571l.001.001zM542.907 68.063c-67.932 35.031-107.428 63.359-129.067 87.497 11.082 44.418 68.896 46.445 90.036 45.199-4.328-2.015-7.94-4.428-9.221-8.136 5.305-3.77 24.113-.397 37.244-7.774-5.044-1.045-7.403-2.063-9.762-5.785 12.406-3.957 25.769-7.367 33.628-13.921-4.242.052-8.202.948-13.74-2.893 11.112-5.988 22.969-10.734 32.181-19.887-5.746-.141-11.939-.057-13.74-2.17 10.17-6.3 18.751-13.308 25.854-20.972-8.04.971-11.435.135-13.379-1.265 7.687-7.874 17.418-14.523 22.057-24.226-5.97 2.057-11.431 2.845-15.368-.181 2.612-5.893 13.805-9.37 20.249-23.142-6.285.609-12.95 1.371-14.283 0 2.922-11.889 7.927-18.57 12.836-25.492-13.45-.2-33.828.052-32.905-1.085l8.316-8.497c-13.138-3.537-26.581.568-36.34 3.616-4.382-3.458.078-7.83 5.424-12.294-11.165 1.49-21.254 4.057-30.373 7.593-4.873-4.399 3.164-8.798 7.051-13.198-17.249 3.273-24.557 7.871-31.82 12.475-5.27-5.051-.302-9.343 3.254-13.74-13.006 4.817-19.705 11.036-26.758 17.175-2.391-3.227-6.075-5.592-1.627-13.379-9.234 5.323-16.189 11.595-21.334 18.622-5.713-3.638-3.404-8.613-3.435-13.198-9.597 7.807-15.687 16.114-23.142 24.226-1.502-1.093-2.817-4.801-3.978-10.667-22.895 22.212-55.246 78.158-8.316 100.34 39.913-32.942 87.603-56.881 140.458-74.841l.013-.007.009-.001-.022.008zm-360.437.035c67.903 35.014 107.38 63.338 129.01 87.462-11.082 44.418-68.896 46.445-90.036 45.199 4.328-2.015 7.94-4.428 9.22-8.136-5.304-3.77-24.113-.397-37.244-7.774 5.045-1.045 7.404-2.063 9.763-5.785-12.406-3.957-25.769-7.367-33.628-13.921 4.242.052 8.202.948 13.74-2.893-11.112-5.988-22.969-10.734-32.181-19.887 5.746-.141 11.939-.057 13.74-2.17-10.17-6.3-18.751-13.308-25.854-20.972 8.04.971 11.435.135 13.379-1.265-7.687-7.874-17.418-14.523-22.057-24.226 5.97 2.057 11.431 2.845 15.368-.181-2.612-5.893-13.805-9.37-20.249-23.142 6.285.609 12.95 1.371 14.283 0-2.917-11.884-7.922-18.565-12.831-25.487 13.45-.2 33.828.052 32.905-1.085l-8.316-8.497c13.138-3.537 26.581.568 36.34 3.616 4.382-3.458-.078-7.83-5.424-12.294 11.165 1.49 21.254 4.057 30.373 7.593 4.872-4.399-3.164-8.799-7.051-13.198 17.249 3.273 24.557 7.871 31.82 12.475 5.269-5.051.302-9.343-3.254-13.74 13.006 4.817 19.705 11.036 26.758 17.175 2.391-3.227 6.075-5.592 1.627-13.379 9.234 5.323 16.189 11.595 21.334 18.622 5.713-3.638 3.404-8.613 3.435-13.198 9.597 7.807 15.687 16.114 23.142 24.226 1.502-1.093 2.817-4.802 3.978-10.667 22.895 22.212 55.246 78.158 8.316 100.34-39.916-32.92-87.583-56.854-140.406-74.811l-.08-.042-.014.009.094.033z"/>
+      </svg>
+
+      <h3 id="installation-raspberrypi">Raspberry Pi</h3>
+
+      <h4>Prerequisites</h4>
+
+      <pre><code class="language-bash">
+# Chromium
+sudo apt-get update
+sudo apt-get install chromium-browser --yes
+
+# Disabling screen saver
+sudo cat > /usr/bin/screensaver_off.sh &lt;&lt;END
+#!/bin/bash
+sleep 10 &&
+sudo xset s 0 0
+sudo xset s off
+exit 0
+END
+
+sudo chmod +x /usr/bin/screensaver_off.sh
+
+# /!\ Must be run with user which start x server, usually pi
+cat > ~/.config/autostart/screensaver_off.desktop &lt;&lt;END
+[Desktop Entry]
+Type=Application
+Exec=/usr/bin/screensaver_off.sh
+Hidden=false
+X-MATE-Autostart-enabled=true
+Name[fr_FR]=screensaver_off
+Name=screensaver_off
+Comment[fr_FR]=
+  Comment=
+END
+      </code></pre>
+
+
+      <h4>Install Monitoror</h4>
+
+      <pre><code class="language-bash">
+# Download binary file and make it executable
+sudo mkdir /opt/monitoror
+sudo curl -s -o /opt/monitoror/monitoror \
+  https://github.com/monitoror/monitoror/releases/latest/download/monitoror-linux-arm
+sudo chmod +x /opt/monitoror/monitoror
+
+# Create backend configuration file
+touch /opt/monitoror/.env
+      </code></pre>
+
+      <p class="note">
+        <span class="tag">Tip:</span>
+        To run monitoror with another user, change binary owner.
+      </p>
+
+
+      <h4>Starting Monitoror</h4>
+
+      <h5 class="m-documentation--configuration-side-title">Manually</h5>
+
+      <pre><code class="language-bash">
+# Starting backend
+/opt/monitoror/monitoror
+
+# Starting frontend
+chromium-browser --kiosk --password-store=basic --disable-infobars \
+  --app=http://localhost:8080/?configUrl={CONFIG_URL}
+      </code></pre>
+
+      <h5 class="m-documentation--configuration-side-title">Automatically</h5>
+
+      <pre><code class="language-bash">
+# Backend startup with systemd
+sudo cat > /lib/systemd/system/monitoror.service &lt;&lt;END
+[Unit]
+Description=Monitoror
+After=multi-user.target
+
+[Service]
+Type=idle
+ExecStart=/opt/monitoror/monitoror
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=monitoror
+
+[Install]
+WantedBy=multi-user.target
+END
+
+systemctl enable monitoror.service
+systemctl start monitoror.service
+
+# rsyslog configuration
+sudo cat > /etc/rsyslog.d/99-monitoror.conf &lt;&lt;END
+if \$programname == 'monitoror' then /var/log/monitoror/monitoror.log
+& stop
+END
+
+sudo mkdir /var/log/monitoror/
+sudo touch /var/log/monitoror/monitoror.log
+sudo chown syslog:adm /var/log/monitoror/monitoror.log
+
+sudo service rsyslog restart
+
+# Frontend startup with autostart
+# /!\ Must be run with user which start x server, usually pi
+cat > ~/.config/autostart/chromium-browser.desktop &lt;&lt;END
+  [Desktop Entry]
+  Type=Application
+  Exec=chromium-browser --kiosk --password-store=basic --disable-infobars --app=http://localhost:8080/?configUrl={CONFIG_URL}
+  Hidden=false
+  X-MATE-Autostart-enabled=true
+  Name[fr_FR]=chromium-browse
+  Name=chromium-browser
+  Comment[fr_FR]=
+    Comment=
+  END
+      </code></pre>
+    </div>
+  </section>
+
+  <section class="m-documentation--section" id="development">
+    <h2 class="m-documentation--section-title">Development</h2>
+
+    <div class="m-documentation--block">
+      <p class="alert-block">
+        <svg fill="currentColor" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+          <path
+            d="M505.403 406.394L295.389 58.102c-8.274-13.721-23.367-22.245-39.39-22.245s-31.116 8.524-39.391 22.246L6.595 406.394c-8.551 14.182-8.804 31.95-.661 46.37 8.145 14.42 23.491 23.378 40.051 23.378h420.028c16.56 0 31.907-8.958 40.052-23.379 8.143-14.421 7.89-32.189-.662-46.369zm-28.364 29.978a12.684 12.684 0 01-11.026 6.436H45.985a12.68 12.68 0 01-11.025-6.435 12.683 12.683 0 01.181-12.765L245.156 75.316A12.732 12.732 0 01256 69.192c4.41 0 8.565 2.347 10.843 6.124l210.013 348.292a12.677 12.677 0 01.183 12.764z"/>
+          <path
+            d="M256.154 173.005c-12.68 0-22.576 6.804-22.576 18.866 0 36.802 4.329 89.686 4.329 126.489.001 9.587 8.352 13.607 18.248 13.607 7.422 0 17.937-4.02 17.937-13.607 0-36.802 4.329-89.686 4.329-126.489 0-12.061-10.205-18.866-22.267-18.866zM256.465 353.306c-13.607 0-23.814 10.824-23.814 23.814 0 12.68 10.206 23.814 23.814 23.814 12.68 0 23.505-11.134 23.505-23.814 0-12.99-10.826-23.814-23.505-23.814z"/>
+        </svg>
+        This section is for development purposes only. <br>
+        Those tools are not necessary to run Monitoror from binaries.
+      </p>
+
+      <h3 id="requirements">Requirements</h3>
+
+      <ul>
+        <li>Go v1.13+</li>
+        <li>Nodejs v10+</li>
+        <li>Yarn v1.7+</li>
+      </ul>
+    </div>
+
+    <div class="m-documentation--block">
+      <svg class="m-documentation--tile-icon" fill="currentColor" clip-rule="evenodd" fill-rule="evenodd"
+           stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 207 207" xmlns="http://www.w3.org/2000/svg">
+        <path
+          d="M16.2 88.6c-.4 0-.5-.2-.3-.5l2.1-2.7c.2-.3.7-.5 1.1-.5h35.7c.4 0 .5.3.3.6l-1.7 2.6c-.2.3-.7.6-1 .6l-36.2-.1zM1.1 97.8c-.4 0-.5-.2-.3-.5l2.1-2.7c.2-.3.7-.5 1.1-.5h45.6c.4 0 .6.3.5.6l-.8 2.4c-.1.4-.5.6-.9.6l-47.3.1zm24.2 9.2c-.4 0-.5-.3-.3-.6l1.4-2.5c.2-.3.6-.6 1-.6h20c.4 0 .6.3.6.7l-.2 2.4c0 .4-.4.7-.7.7l-21.8-.1zm103.8-20.2c-6.3 1.6-10.6 2.8-16.8 4.4-1.5.4-1.6.5-2.9-1-1.5-1.7-2.6-2.8-4.7-3.8-6.3-3.1-12.4-2.2-18.1 1.5-6.8 4.4-10.3 10.9-10.2 19 .1 8 5.6 14.6 13.5 15.7 6.8.9 12.5-1.5 17-6.6.9-1.1 1.7-2.3 2.7-3.7H90.3c-2.1 0-2.6-1.3-1.9-3 1.3-3.1 3.7-8.3 5.1-10.9.3-.6 1-1.6 2.5-1.6h36.4c-.2 2.7-.2 5.4-.6 8.1-1.1 7.2-3.8 13.8-8.2 19.6-7.2 9.5-16.6 15.4-28.5 17-9.8 1.3-18.9-.6-26.9-6.6-7.4-5.6-11.6-13-12.7-22.2-1.3-10.9 1.9-20.7 8.5-29.3 7.1-9.3 16.5-15.2 28-17.3 9.4-1.7 18.4-.6 26.5 4.9 5.3 3.5 9.1 8.3 11.6 14.1.6.9.2 1.4-1 1.7z"/>
+        <path
+          d="M162.2 142.1c-9.1-.2-17.4-2.8-24.4-8.8-5.9-5.1-9.6-11.6-10.8-19.3-1.8-11.3 1.3-21.3 8.1-30.2 7.3-9.6 16.1-14.6 28-16.7 10.2-1.8 19.8-.8 28.5 5.1 7.9 5.4 12.8 12.7 14.1 22.3 1.7 13.5-2.2 24.5-11.5 33.9-6.6 6.7-14.7 10.9-24 12.8-2.7.5-5.4.6-8 .9zm23.8-40.4c-.1-1.3-.1-2.3-.3-3.3-1.8-9.9-10.9-15.5-20.4-13.3-9.3 2.1-15.3 8-17.5 17.4-1.8 7.8 2 15.7 9.2 18.9 5.5 2.4 11 2.1 16.3-.6 7.9-4.1 12.2-10.5 12.7-19.1z"
+          fill-rule="nonzero"/>
+      </svg>
+
+      <h3 id="install-go-tools">Install Go tools</h3>
+
+      <p>
+        Execute these commands either:
+      </p>
+      <ul>
+        <li>outside of Monitoror project</li>
+        <li>or use <code>go mod tidy</code> after them</li>
+      </ul>
+
+      <pre class="language-bash"><code>
+# Generating mock for backend
+go get -u github.com/vektra/mockery/.../
+
+# Test utilities
+go get -u gotest.tools/gotestsum
+
+# Embed front dist into go binary
+go get -u github.com/GeertJohan/go.rice/rice
+      </code></pre>
+
+      <p>
+        See <a href="https://github.com/golangci/golangci-lint#install">golangci-lint</a>
+        installation guide to install linter.
+      </p>
+    </div>
+
+    <div class="m-documentation--block">
+      <h3 id="run-project">Run project</h3>
+
+      <h5 class="m-documentation--configuration-side-title">Start project</h5>
+      <pre class="language-bash"><code>
+# Core
+make install
+make run
+      </code></pre>
+      <pre class="language-bash"><code>
+# UI
+cd front
+yarn
+yarn serve
+      </code></pre>
+
+      <h5 class="m-documentation--configuration-side-title">Build project</h5>
+      <pre class="language-bash"><code>
+cd front
+yarn
+yarn run build
+cd ..
+make install
+make build
+      </code></pre>
+
+      <h5 class="m-documentation--configuration-side-title">Run tests and lint</h5>
+      <pre class="language-bash"><code>
+make test
+make lint
+      </code></pre>
+
+
+      <h5 class="m-documentation--configuration-side-title">List all the available targets</h5>
+      <pre class="language-bash"><code>
+make help
+      </code></pre>
+    </div>
+  </section>
+</main>
+<script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.17.1/build/highlight.min.js"></script>
+<script src="../js/main.js"></script>
+</body>
+</html>

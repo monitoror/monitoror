@@ -1,5 +1,5 @@
 <p align="center">
-    <h2>Monitoror</h2>
+  <img src=".assets/monitoror-logo-and-text.svg" alt="" width="70%">
 </p>
 
 <p align="center">
@@ -11,78 +11,37 @@
   <img src="https://img.shields.io/badge/NodeJS-10.0-blue.svg?style=for-the-badge" alt="NodeJS"/>
 </p>
 
-------------------------------------
+-----
 
-TODO: Introduction, Documentation, Contributing
+## Introduction
 
+Monitoror is a unified monitoring wallboard to check services, servers, builds, ...
+
+Supported platforms:
+
+- Linux (64bits, ARM)
+- macOS
+- Windows (64bits)
+
+
+## Documentation
+
+For installing and configuring Monitoror, see our documentation: [docs/documentation.md](docs/documentation.md)
 
 
 ## Development
 
-### Requirements
-
-- Go v1.13+
-- Nodejs v10+
-- Yarn v1.7+
-- GNU make
+See our development documentation: [docs/development.md](docs/development.md)
 
 
-### Installing Go tools
+## Stay in touch
 
-Execute these commands either:
-- outside of Monitoror project
-- or use `go mod tidy` after them
-
-```bash
-# Generating mock for backend
-go get github.com/vektra/mockery/.../
-# Test utilities
-go get gotest.tools/gotestsum
-# Embed front dist into go binary
-go get github.com/GeertJohan/go.rice/rice
-```
-
-For installing Linter, see installation guide of https://github.com/golangci/golangci-lint
-
-### Running project
-```bash
-# Front
-cd front
-yarn
-yarn run serve
-```
-
-```bash
-# Back
-make install
-
-make run
-# Or
-make run-faker
-```
-
-
-### Building project
-```bash
-cd front
-yarn
-yarn run build
-cd ..
-make install
-make build
-```
-
-
-### Generating mocks
-```bash
-# For generating monitorable mocks
-make mock
-
-# For generating all mocks (only needed if golang net interface change)
-make mock-all
-```
-
+- Twitter/[@Akhiro](https://twitter.com/Akhiro) (jsdidierlaurent)
+- Twitter/[@AlexandreDemode](https://twitter.com/AlexandreDemode) (Alex-D)
 
 
 ## License
+
 This project is under [MIT license](LICENSE).
+
+Copyright (c) 2017-2019 Alexandre Demode (Alex-D) and Jean-Sébastien Didierlaurent (jsdidierlaurent)
