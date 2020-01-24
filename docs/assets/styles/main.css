@@ -1311,22 +1311,6 @@ input {
   margin-top: 50px;
 }
 
-.m-documentation--content pre code {
-  display: block;
-  overflow: auto;
-}
-
-.m-documentation--content pre code::after {
-  content: "";
-  position: absolute;
-  display: block;
-  top: 0;
-  right: 0;
-  bottom: 15px;
-  width: 10px;
-  background: linear-gradient(to left, var(--color-code-background), transparent);
-}
-
 .m-documentation--section-title {
   font-size: 50px;
   text-align: center;
