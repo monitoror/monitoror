@@ -111,7 +111,7 @@ jobs:
         run: |
           # https://github.com/actions/setup-go/issues/14
           export PATH=${PATH}:`go env GOPATH`/bin
-          make build-all
+          make build-cross
 
       - uses: actions/upload-artifact@v1
         with:
