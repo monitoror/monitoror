@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <a href="https://travis-ci.org/monitoror/monitoror/branches"><img src="https://img.shields.io/travis/monitoror/monitoror/master.svg?style=for-the-badge" alt="Build"/></a>
+  <a href="https://github.com/monitoror/monitoror/actions?query=workflow%3Acontinuous-integration"><img src="https://img.shields.io/github/workflow/status/monitoror/monitoror/continuous-integration?style=for-the-badge" alt="Build"/></a>
   <a href="https://codecov.io/gh/monitoror/monitoror"><img src="https://img.shields.io/codecov/c/gh/monitoror/monitoror/master.svg?style=for-the-badge" alt="Code Coverage"/></a>
   <a href="https://github.com/monitoror/monitoror/releases"><img src="https://img.shields.io/github/release/monitoror/monitoror.svg?style=for-the-badge" alt="Releases"/></a>
   <br>
