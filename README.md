@@ -1,5 +1,7 @@
 <p align="center">
-  <img src=".assets/monitoror-logo-and-text.svg" alt="" width="70%">
+  <a href="https://monitoror.github.io/monitoror"> 
+    <img src=".assets/monitoror-logo-and-text.svg" alt="" width="70%">
+  </a>
 </p>
 
 <p align="center">
@@ -23,15 +25,17 @@ Supported platforms:
 - macOS
 - Windows (64bits)
 
+[Visit the Monitoror website for more details](https://monitoror.github.io/monitoror/)
+
 
 ## Documentation
 
-For installing and configuring Monitoror, see our documentation: [docs/documentation.md](docs/documentation.md)
+All details about installation and configuration are on [our documentation](https://monitoror.github.io/monitoror/documentation/)
 
 
 ## Development
 
-See our development documentation: [docs/development.md](docs/development.md)
+See our [development guide](https://monitoror.github.io/monitoror/guides/#development)
 
 
 ## Stay in touch
