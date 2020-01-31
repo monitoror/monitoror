@@ -76,8 +76,7 @@
       return [
         TileType.HttpAny,
         TileType.HttpRaw,
-        TileType.HttpJson,
-        TileType.HttpYaml,
+        TileType.HttpFormatted,
       ].includes(this.tileType)
     }
 

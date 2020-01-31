@@ -25,6 +25,6 @@
     { "type": "HTTP-ANY", "params": { "url": "http://monitoror.test" } },
     { "type": "HTTP-ANY", "params": { "url": "http://monitoror.test", "status": "SUCCESS"} },
     { "type": "HTTP-ANY", "params": { "url": "http://monitoror.test", "status": "FAILURE", "message": "status code 404"} },
-    { "type": "HTTP-JSON", "params": { "url": "http://monitoror.test", "key": ".key", "status": "SUCCESS", "values": [1337, 1337] } }
+    { "type": "HTTP-FORMATTED", "params": { "format": "JSON", "url": "http://monitoror.test", "key": ".key", "status": "SUCCESS", "values": [1337, 1337] } }
   ]
 }
