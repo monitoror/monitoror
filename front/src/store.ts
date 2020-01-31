@@ -111,6 +111,7 @@ interface RootState {
   online: boolean,
 }
 
+// Helpers
 function getQueryParamValue(
   queryParamName: string,
   defaultValue: string = '',
@@ -126,6 +127,28 @@ function getQueryParamValue(
   }
 
   return value
+}
+
+function timeout(delay: number = 0) {
+  return new Promise(resolve => setTimeout(resolve, delay))
+}
+
+function getSubTilePreviousOrStatus(subTileState?: TileState): TileStatus {
+  if (subTileState === undefined) {
+    return TileStatus.Unknown
+  }
+
+  let subTileStatus = subTileState.status
+
+  if ([TileStatus.Queued, TileStatus.Running].includes(subTileState.status)) {
+    subTileStatus = subTileState.previousStatus as TileStatus
+  }
+
+  return subTileStatus
+}
+
+function mostImportantStatus(status1: TileStatus, status2: TileStatus): TileStatus {
+  return ORDERED_TILE_STATUS.indexOf(status1) < ORDERED_TILE_STATUS.indexOf(status2) ? status2 : status1
 }
 
 const store: StoreOptions<RootState> = {
@@ -243,69 +266,7 @@ const store: StoreOptions<RootState> = {
           commit('setConfig', config)
         })
     },
-    refreshTiles({commit, state}) {
-      function timeout(delay: number = 0) {
-        return new Promise(resolve => setTimeout(resolve, delay))
-      }
-
-      function refreshTile(tile: TileConfig): Promise<void> {
-        if (!tile.url) {
-          return Promise.resolve()
-        }
-
-        return VueInstance.$http.get(tile.url)
-          .then(async (data) => {
-            const tileState = await data.json()
-
-            commit('setTileState', {tileStateKey: tile.stateKey, tileState})
-          }) as Promise<void>
-      }
-
-      function refreshGroup(groupTile: TileConfig) {
-        if (!groupTile.tiles) {
-          return
-        }
-
-        const groupSubTilesState = groupTile.tiles
-          .map((subTile) => subTile.stateKey)
-          .map((subTileStateKey) => state.tilesState[subTileStateKey])
-
-        const groupStatus = groupSubTilesState.reduce((worstSubTileStatus, subTileState) => {
-          const subTileStatus = subTileState !== undefined ? getPreviousOrStatus(subTileState) : TileStatus.Unknown
-
-          return mostImportantStatus(worstSubTileStatus, subTileStatus)
-        }, TileStatus.Unknown)
-
-        const groupNonDisplayedSubTiles = groupSubTilesState.filter((subTileState) => {
-          const subTileStatus = subTileState !== undefined ? getPreviousOrStatus(subTileState) : TileStatus.Unknown
-
-          return !DISPLAYABLE_SUBTILE_STATUS.includes(subTileStatus)
-        })
-
-        const groupMessage = `${groupNonDisplayedSubTiles.length} / ${groupTile.tiles.length}`
-
-        const groupState = {
-          status: groupStatus,
-          message: groupMessage,
-        }
-
-        commit('setTileState', {tileStateKey: groupTile.stateKey, tileState: groupState})
-      }
-
-      function getPreviousOrStatus(subTileState: TileState): TileStatus {
-        let subTileStatus = subTileState.status
-
-        if ([TileStatus.Queued, TileStatus.Running].includes(subTileState.status)) {
-          subTileStatus = subTileState.previousStatus as TileStatus
-        }
-
-        return subTileStatus
-      }
-
-      function mostImportantStatus(status1: TileStatus, status2: TileStatus): TileStatus {
-        return ORDERED_TILE_STATUS.indexOf(status1) < ORDERED_TILE_STATUS.indexOf(status2) ? status2 : status1
-      }
-
+    refreshTiles({state, dispatch}) {
       // Classic tiles (all except empty and group types)
       state.tiles
         .filter((tile) => !!tile.url)
@@ -313,25 +274,67 @@ const store: StoreOptions<RootState> = {
           // Randomize delay for each tile to avoid DoS back-end services
           await timeout(Math.random() * 10000)
 
-          await refreshTile(tile)
+          await dispatch('refreshTile', tile)
         })
 
       // Group subTiles
-      state.tiles.forEach(async (tile) => {
-        if (!tile.tiles) {
+      state.tiles.forEach(async (groupTile) => {
+        if (!groupTile.tiles) {
           return
         }
 
         // Randomize delay for each group to avoid DoS back-end services
         await timeout(Math.random() * 10000)
 
-        const throttledRefreshGroup = throttle(refreshGroup, 150)
-        tile.tiles.map(async (subTile) => {
-          await refreshTile(subTile).then(() => {
-            throttledRefreshGroup(tile)
+        const throttledDispatch = throttle(dispatch, 150)
+        groupTile.tiles.map(async (subTile) => {
+          await dispatch('refreshTile', subTile).then(() => {
+            throttledDispatch('refreshGroup', groupTile)
           })
         })
       })
+    },
+    refreshTile({commit}, tile: TileConfig): Promise<void> {
+      if (!tile.url) {
+        return Promise.resolve()
+      }
+
+      return VueInstance.$http.get(tile.url)
+        .then(async (data) => {
+          const tileState = await data.json()
+
+          commit('setTileState', {tileStateKey: tile.stateKey, tileState})
+        }) as Promise<void>
+    },
+    refreshGroup({state, commit}, groupTile: TileConfig) {
+      if (!groupTile.tiles) {
+        return
+      }
+
+      const groupSubTilesState = groupTile.tiles
+        .map((subTile) => subTile.stateKey)
+        .map((subTileStateKey) => state.tilesState[subTileStateKey])
+
+      const groupStatus = groupSubTilesState.reduce((worstSubTileStatus, subTileState) => {
+        const subTileStatus = getSubTilePreviousOrStatus(subTileState)
+
+        return mostImportantStatus(worstSubTileStatus, subTileStatus)
+      }, TileStatus.Unknown)
+
+      const groupNonDisplayedSubTiles = groupSubTilesState.filter((subTileState) => {
+        const subTileStatus = getSubTilePreviousOrStatus(subTileState)
+
+        return !DISPLAYABLE_SUBTILE_STATUS.includes(subTileStatus)
+      })
+
+      const groupMessage = `${groupNonDisplayedSubTiles.length} / ${groupTile.tiles.length}`
+
+      const groupState = {
+        status: groupStatus,
+        message: groupMessage,
+      }
+
+      commit('setTileState', {tileStateKey: groupTile.stateKey, tileState: groupState})
     },
     increaseTilesDuration({commit, state}) {
       Object.keys(state.tilesState).forEach((tileStateKey) => {
