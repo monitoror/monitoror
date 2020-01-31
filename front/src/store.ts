@@ -22,8 +22,7 @@ export enum TileValueUnit {
 export enum TileType {
   HttpAny = 'HTTP-ANY',
   HttpRaw = 'HTTP-RAW',
-  HttpJson = 'HTTP-JSON',
-  HttpYaml = 'HTTP-YAML',
+  HttpFormatted = 'HTTP-FORMATTED',
   Ping = 'PING',
   Port = 'PORT',
   Pingdom = 'PINGDOM-CHECK',
