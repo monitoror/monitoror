@@ -28,7 +28,7 @@ var availableStatuses = faker.Statuses{
 }
 
 func NewPingdomUsecase() pingdom.Usecase {
-	return &pingdomUsecase{}
+	return &pingdomUsecase{make(map[int]time.Time)}
 }
 
 func (pu *pingdomUsecase) Check(params *pingdomModels.CheckParams) (tile *models.Tile, error error) {
