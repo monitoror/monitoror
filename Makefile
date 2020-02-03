@@ -73,6 +73,39 @@ build-raspberrypi: ## build executable for Raspberry Pi
 	@./scripts/build/rice
 	@./scripts/build/build raspberrypi
 
+.PHONY: build-faker
+build-faker: ## build faker executable for current environment
+	@./scripts/build/rice
+	@./scripts/build/faker
+
+.PHONY: build-faker-cross
+build-faker-cross: ## build all faker executables
+	@./scripts/build/rice
+	@./scripts/build/faker linux
+	@./scripts/build/faker windows
+	@./scripts/build/faker macos
+	@./scripts/build/faker raspberrypi
+
+.PHONY: build-faker-linux
+build-faker-linux: ## build faker executable for Linux
+	@./scripts/build/rice
+	@./scripts/build/faker linux
+
+.PHONY: build-faker-windows
+build-faker-windows: ## build faker executable for Windows
+	@./scripts/build/rice
+	@./scripts/build/faker windows
+
+.PHONY: build-faker-macos
+build-faker-macos: ## build faker executable for MacOs
+	@./scripts/build/rice
+	@./scripts/build/faker macos
+
+.PHONY: build-faker-raspberrypi
+build-faker-raspberrypi: ## build faker executable for Raspberry Pi
+	@./scripts/build/rice
+	@./scripts/build/faker raspberrypi
+
 # ============= RUN =============
 .PHONY: run
 run: ## run monitoror
