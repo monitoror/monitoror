@@ -105,7 +105,7 @@ func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (*models.Tile
 	}
 
 	// Set Author
-	if build.Author != nil {
+	if tile.Status == models.FailedStatus && build.Author != nil {
 		tile.Author = &models.Author{
 			Name:      build.Author.Name,
 			AvatarURL: build.Author.AvatarURL,

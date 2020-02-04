@@ -102,9 +102,12 @@ func CheckBuild(t *testing.T, result string) {
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(repositoryBuild.StartedAt)
 		expected.FinishedAt = ToTime(repositoryBuild.StartedAt.Add(repositoryBuild.Duration))
-		expected.Author = &Author{
-			Name:      repositoryBuild.Author.Name,
-			AvatarURL: repositoryBuild.Author.AvatarURL,
+
+		if result == "FAILURE" {
+			expected.Author = &Author{
+				Name:      repositoryBuild.Author.Name,
+				AvatarURL: repositoryBuild.Author.AvatarURL,
+			}
 		}
 
 		// Add cache for previousStatus
@@ -192,10 +195,6 @@ func TestBuild_Running(t *testing.T) {
 		expected.StartedAt = ToTime(repositoryBuild.StartedAt)
 		expected.Duration = ToInt64(int64(0))
 		expected.EstimatedDuration = ToInt64(int64(0))
-		expected.Author = &Author{
-			Name:      repositoryBuild.Author.Name,
-			AvatarURL: repositoryBuild.Author.AvatarURL,
-		}
 
 		params := &models.BuildParams{Job: job, Branch: branch}
 		tile, err := ju.Build(params)

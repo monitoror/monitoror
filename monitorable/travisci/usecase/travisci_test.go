@@ -72,10 +72,6 @@ func TestBuild_Success(t *testing.T) {
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(build.StartedAt)
 		expected.FinishedAt = ToTime(build.FinishedAt)
-		expected.Author = &Author{
-			Name:      build.Author.Name,
-			AvatarURL: build.Author.AvatarURL,
-		}
 
 		// Tests
 		params := &models.BuildParams{Group: group, Repository: repo, Branch: branch}
@@ -154,10 +150,6 @@ func TestBuild_Queued(t *testing.T) {
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(build.StartedAt)
-		expected.Author = &Author{
-			Name:      build.Author.Name,
-			AvatarURL: build.Author.AvatarURL,
-		}
 
 		// Without Estimated Duration
 		params := &models.BuildParams{Group: group, Repository: repo, Branch: branch}
@@ -188,10 +180,6 @@ func TestBuild_Running(t *testing.T) {
 		expected.Duration = ToInt64(int64(build.Duration / time.Second))
 		expected.EstimatedDuration = ToInt64(int64(0))
 		expected.StartedAt = ToTime(build.StartedAt)
-		expected.Author = &Author{
-			Name:      build.Author.Name,
-			AvatarURL: build.Author.AvatarURL,
-		}
 
 		// Without Previous Build
 		params := &models.BuildParams{Group: group, Repository: repo, Branch: branch}
@@ -233,10 +221,6 @@ func TestBuild_Aborded(t *testing.T) {
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(build.StartedAt)
-		expected.Author = &Author{
-			Name:      build.Author.Name,
-			AvatarURL: build.Author.AvatarURL,
-		}
 
 		// Without Estimated Duration
 		params := &models.BuildParams{Group: group, Repository: repo, Branch: branch}

@@ -68,11 +68,50 @@ func TestAzureDevOpsUsecase_Build_Success(t *testing.T) {
 	expected := NewTile(azuredevops.AzureDevOpsBuildTileType)
 	expected.Label = "test (definitionName)\n@master - #1"
 
+	expected.Status = SuccessStatus
+	expected.PreviousStatus = UnknownStatus
+	expected.StartedAt = &now
+	expected.FinishedAt = &now
+
+	params := &models.BuildParams{Project: "test", Definition: ToInt(1), Branch: ToString("master")}
+
+	usecase := NewAzureDevOpsUsecase(mockRepository)
+	tile, err := usecase.Build(params)
+	if assert.NoError(t, err) {
+		assert.NotNil(t, tile)
+		assert.Equal(t, expected, tile)
+		mockRepository.AssertNumberOfCalls(t, "GetBuild", 1)
+		mockRepository.AssertExpectations(t)
+	}
+}
+
+func TestAzureDevOpsUsecase_Build_Failed(t *testing.T) {
+	now := time.Now()
+
+	build := &models.Build{
+		BuildNumber:    "1",
+		DefinitionName: "definitionName",
+		Branch:         "master",
+		Author: &models.Author{
+			Name:      "test",
+			AvatarURL: "monitoror.example.com",
+		},
+		Status:     "completed",
+		Result:     "failed",
+		FinishedAt: &now,
+		StartedAt:  &now,
+	}
+
+	mockRepository := new(mocks.Repository)
+	mockRepository.On("GetBuild", mock.Anything, mock.Anything, mock.Anything).Return(build, nil)
+
+	expected := NewTile(azuredevops.AzureDevOpsBuildTileType)
+	expected.Label = "test (definitionName)\n@master - #1"
 	expected.Author = &Author{
 		Name:      "test",
 		AvatarURL: "monitoror.example.com",
 	}
-	expected.Status = SuccessStatus
+	expected.Status = FailedStatus
 	expected.PreviousStatus = UnknownStatus
 	expected.StartedAt = &now
 	expected.FinishedAt = &now
@@ -222,11 +261,48 @@ func TestAzureDevOpsUsecase_Release_Success(t *testing.T) {
 	expected := NewTile(azuredevops.AzureDevOpsReleaseTileType)
 	expected.Label = "test (definitionName)\n#1"
 
+	expected.Status = SuccessStatus
+	expected.PreviousStatus = UnknownStatus
+	expected.StartedAt = &now
+	expected.FinishedAt = &now
+
+	params := &models.ReleaseParams{Project: "test", Definition: ToInt(1)}
+
+	usecase := NewAzureDevOpsUsecase(mockRepository)
+	tile, err := usecase.Release(params)
+	if assert.NoError(t, err) {
+		assert.NotNil(t, tile)
+		assert.Equal(t, expected, tile)
+		mockRepository.AssertNumberOfCalls(t, "GetRelease", 1)
+		mockRepository.AssertExpectations(t)
+	}
+}
+
+func TestAzureDevOpsUsecase_Release_Failed(t *testing.T) {
+	now := time.Now()
+
+	release := &models.Release{
+		ReleaseNumber:  "1",
+		DefinitionName: "definitionName",
+		Author: &models.Author{
+			Name:      "test",
+			AvatarURL: "monitoror.example.com",
+		},
+		Status:     "failed",
+		FinishedAt: &now,
+		StartedAt:  &now,
+	}
+
+	mockRepository := new(mocks.Repository)
+	mockRepository.On("GetRelease", mock.Anything, mock.Anything).Return(release, nil)
+
+	expected := NewTile(azuredevops.AzureDevOpsReleaseTileType)
+	expected.Label = "test (definitionName)\n#1"
 	expected.Author = &Author{
 		Name:      "test",
 		AvatarURL: "monitoror.example.com",
 	}
-	expected.Status = SuccessStatus
+	expected.Status = FailedStatus
 	expected.PreviousStatus = UnknownStatus
 	expected.StartedAt = &now
 	expected.FinishedAt = &now

@@ -62,7 +62,7 @@ func (au *azureDevOpsUsecase) Build(params *azureModels.BuildParams) (*models.Ti
 	}
 
 	// Author
-	if build.Author != nil {
+	if tile.Status == models.FailedStatus && build.Author != nil {
 		tile.Author = &models.Author{
 			Name:      build.Author.Name,
 			AvatarURL: build.Author.AvatarURL,
@@ -129,7 +129,7 @@ func (au *azureDevOpsUsecase) Release(params *azureModels.ReleaseParams) (*model
 	}
 
 	// Author
-	if release.Author != nil {
+	if tile.Status == models.FailedStatus && release.Author != nil {
 		tile.Author = &models.Author{
 			Name:      release.Author.Name,
 			AvatarURL: release.Author.AvatarURL,

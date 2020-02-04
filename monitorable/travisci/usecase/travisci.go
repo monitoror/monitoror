@@ -77,7 +77,7 @@ func (tu *travisCIUsecase) Build(params *travisCIModels.BuildParams) (*models.Ti
 	}
 
 	// Set Author
-	if build.Author.Name != "" || build.Author.AvatarURL != "" {
+	if tile.Status == models.FailedStatus && (build.Author.Name != "" || build.Author.AvatarURL != "") {
 		tile.Author = &models.Author{
 			Name:      build.Author.Name,
 			AvatarURL: build.Author.AvatarURL,
