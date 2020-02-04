@@ -138,7 +138,7 @@ func (tu *jenkinsUsecase) ListDynamicTile(params interface{}) ([]builder.Result,
 		return nil, err
 	}
 
-	results := []builder.Result{}
+	var results []builder.Result
 	for _, branch := range job.Branches {
 		branchToFilter, _ := url.QueryUnescape(branch)
 		if !matcher.MatchString(branchToFilter) ||
