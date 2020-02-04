@@ -39,8 +39,7 @@ func NewTravisCIUsecase() travisci.Usecase {
 
 func (tu *travisCIUsecase) Build(params *travisCIModels.BuildParams) (tile *models.Tile, err error) {
 	tile = models.NewTile(travisci.TravisCIBuildTileType)
-	tile.Label = params.Repository
-	tile.Message = git.HumanizeBranch(params.Branch)
+	tile.Label = fmt.Sprintf("%s\n%s", params.Repository, git.HumanizeBranch(params.Branch))
 
 	tile.Status = nonempty.Struct(params.Status, tu.computeStatus(params)).(models.TileStatus)
 

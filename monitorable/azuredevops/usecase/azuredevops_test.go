@@ -66,8 +66,8 @@ func TestAzureDevOpsUsecase_Build_Success(t *testing.T) {
 	mockRepository.On("GetBuild", mock.Anything, mock.Anything, mock.Anything).Return(build, nil)
 
 	expected := NewTile(azuredevops.AzureDevOpsBuildTileType)
-	expected.Label = "test | definitionName"
-	expected.Message = "#master - 1"
+	expected.Label = "test (definitionName)\n@master - #1"
+
 	expected.Author = &Author{
 		Name:      "test",
 		AvatarURL: "monitoror.example.com",
@@ -109,8 +109,7 @@ func TestAzureDevOpsUsecase_Build_Running(t *testing.T) {
 	aUsecase, ok := au.(*azureDevOpsUsecase)
 	if assert.True(t, ok, "enable to case au into azureDevOpsUsecase") {
 		expected := NewTile(azuredevops.AzureDevOpsBuildTileType)
-		expected.Label = "test | definitionName"
-		expected.Message = "#master - 1"
+		expected.Label = "test (definitionName)\n@master - #1"
 		expected.Status = RunningStatus
 		expected.PreviousStatus = UnknownStatus
 		expected.StartedAt = &now
@@ -157,8 +156,7 @@ func TestAzureDevOpsUsecase_Build_Queued(t *testing.T) {
 
 	au := NewAzureDevOpsUsecase(mockRepository)
 	expected := NewTile(azuredevops.AzureDevOpsBuildTileType)
-	expected.Label = "test | definitionName"
-	expected.Message = "#master - 1"
+	expected.Label = "test (definitionName)\n@master - #1"
 	expected.Status = QueuedStatus
 	expected.PreviousStatus = UnknownStatus
 	expected.StartedAt = &now
@@ -222,8 +220,8 @@ func TestAzureDevOpsUsecase_Release_Success(t *testing.T) {
 	mockRepository.On("GetRelease", mock.Anything, mock.Anything).Return(release, nil)
 
 	expected := NewTile(azuredevops.AzureDevOpsReleaseTileType)
-	expected.Label = "test | definitionName"
-	expected.Message = "1"
+	expected.Label = "test (definitionName)\n#1"
+
 	expected.Author = &Author{
 		Name:      "test",
 		AvatarURL: "monitoror.example.com",
@@ -263,8 +261,7 @@ func TestAzureDevOpsUsecase_Release_Running(t *testing.T) {
 	aUsecase, ok := au.(*azureDevOpsUsecase)
 	if assert.True(t, ok, "enable to case au into azureDevOpsUsecase") {
 		expected := NewTile(azuredevops.AzureDevOpsReleaseTileType)
-		expected.Label = "test | definitionName"
-		expected.Message = "1"
+		expected.Label = "test (definitionName)\n#1"
 		expected.Status = RunningStatus
 		expected.PreviousStatus = UnknownStatus
 		expected.StartedAt = &now

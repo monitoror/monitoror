@@ -33,8 +33,7 @@ func NewTravisCIUsecase(repository travisci.Repository) travisci.Usecase {
 
 func (tu *travisCIUsecase) Build(params *travisCIModels.BuildParams) (*models.Tile, error) {
 	tile := models.NewTile(travisci.TravisCIBuildTileType)
-	tile.Label = params.Repository
-	tile.Message = git.HumanizeBranch(params.Branch)
+	tile.Label = fmt.Sprintf("%s\n%s", params.Repository, git.HumanizeBranch(params.Branch))
 
 	// Request
 	build, err := tu.repository.GetLastBuildStatus(params.Group, params.Repository, params.Branch)

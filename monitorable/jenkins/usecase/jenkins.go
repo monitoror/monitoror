@@ -3,6 +3,7 @@
 package usecase
 
 import (
+	"fmt"
 	"net/url"
 	"regexp"
 	"time"
@@ -39,11 +40,12 @@ func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (*models.Tile
 	tile := models.NewTile(jenkins.JenkinsBuildTileType)
 
 	jobLabel, _ := url.QueryUnescape(params.Job)
-	tile.Label = jobLabel
-
 	branchLabel, _ := url.QueryUnescape(params.Branch)
-	if params.Branch != "" {
-		tile.Message = git.HumanizeBranch(branchLabel)
+
+	if params.Branch == "" {
+		tile.Label = jobLabel
+	} else {
+		tile.Label = fmt.Sprintf("%s\n%s", jobLabel, git.HumanizeBranch(branchLabel))
 	}
 
 	job, err := tu.repository.GetJob(params.Job, params.Branch)
@@ -58,7 +60,7 @@ func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (*models.Tile
 	}
 
 	// Set Previous Status
-	previousStatus := tu.buildsCache.GetPreviousStatus(params, "null")
+	previousStatus := tu.buildsCache.GetPreviousStatus(params, "null") // null because we don't habe build number yet, but i'ts not important in jenkins
 	if previousStatus != nil {
 		tile.PreviousStatus = *previousStatus
 	} else {

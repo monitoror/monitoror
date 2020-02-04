@@ -48,8 +48,7 @@ func (au *azureDevOpsUsecase) Build(params *azureModels.BuildParams) (*models.Ti
 	}
 
 	// Title and Message
-	tile.Label = fmt.Sprintf("%s | %s", params.Project, build.DefinitionName)
-	tile.Message = fmt.Sprintf("%s - %s", git.HumanizeBranch(build.Branch), build.BuildNumber)
+	tile.Label = fmt.Sprintf("%s (%s)\n%s - #%s", params.Project, build.DefinitionName, git.HumanizeBranch(build.Branch), build.BuildNumber)
 
 	// Status
 	tile.Status = parseBuildResult(build.Status, build.Result)
@@ -116,8 +115,7 @@ func (au *azureDevOpsUsecase) Release(params *azureModels.ReleaseParams) (*model
 	}
 
 	// Label
-	tile.Label = fmt.Sprintf("%s | %s", params.Project, release.DefinitionName)
-	tile.Message = release.ReleaseNumber
+	tile.Label = fmt.Sprintf("%s (%s)\n#%s", params.Project, release.DefinitionName, release.ReleaseNumber)
 
 	// Status
 	tile.Status = parseReleaseStatus(release.Status)

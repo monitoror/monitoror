@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -96,8 +97,7 @@ func CheckBuild(t *testing.T, result string) {
 	tUsecase, ok := tu.(*jenkinsUsecase)
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		expected := NewTile(jenkins.JenkinsBuildTileType)
-		expected.Label = job
-		expected.Message = git.HumanizeBranch(branch)
+		expected.Label = fmt.Sprintf("%s\n%s", job, git.HumanizeBranch(branch))
 		expected.Status = parseResult(repositoryBuild.Result)
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(repositoryBuild.StartedAt)
@@ -151,8 +151,7 @@ func TestBuild_Queued(t *testing.T) {
 	tUsecase, ok := tu.(*jenkinsUsecase)
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		expected := NewTile(jenkins.JenkinsBuildTileType)
-		expected.Label = job
-		expected.Message = git.HumanizeBranch(branch)
+		expected.Label = fmt.Sprintf("%s\n%s", job, git.HumanizeBranch(branch))
 		expected.Status = QueuedStatus
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = repositoryJob.QueuedAt
@@ -187,8 +186,7 @@ func TestBuild_Running(t *testing.T) {
 	if assert.True(t, ok, "enable to case ju into jenkinsUsecase") {
 		// Without cached build
 		expected := NewTile(jenkins.JenkinsBuildTileType)
-		expected.Label = job
-		expected.Message = git.HumanizeBranch(branch)
+		expected.Label = fmt.Sprintf("%s\n%s", job, git.HumanizeBranch(branch))
 		expected.Status = RunningStatus
 		expected.PreviousStatus = UnknownStatus
 		expected.StartedAt = ToTime(repositoryBuild.StartedAt)

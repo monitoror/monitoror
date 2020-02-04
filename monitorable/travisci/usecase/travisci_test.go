@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -66,8 +67,7 @@ func TestBuild_Success(t *testing.T) {
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		// Expected
 		expected := NewTile(travisci.TravisCIBuildTileType)
-		expected.Label = repo
-		expected.Message = git.HumanizeBranch(branch)
+		expected.Label = fmt.Sprintf("%s\n%s", repo, git.HumanizeBranch(branch))
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(build.StartedAt)
@@ -109,8 +109,7 @@ func TestBuild_Failed(t *testing.T) {
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		// Expected
 		expected := NewTile(travisci.TravisCIBuildTileType)
-		expected.Label = repo
-		expected.Message = git.HumanizeBranch(branch)
+		expected.Label = fmt.Sprintf("%s\n%s", repo, git.HumanizeBranch(branch))
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(build.StartedAt)
@@ -151,8 +150,7 @@ func TestBuild_Queued(t *testing.T) {
 	if assert.True(t, ok) {
 		// Expected
 		expected := NewTile(travisci.TravisCIBuildTileType)
-		expected.Label = repo
-		expected.Message = git.HumanizeBranch(branch)
+		expected.Label = fmt.Sprintf("%s\n%s", repo, git.HumanizeBranch(branch))
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(build.StartedAt)
@@ -184,8 +182,7 @@ func TestBuild_Running(t *testing.T) {
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		// Expected
 		expected := NewTile(travisci.TravisCIBuildTileType)
-		expected.Label = repo
-		expected.Message = git.HumanizeBranch(branch)
+		expected.Label = fmt.Sprintf("%s\n%s", repo, git.HumanizeBranch(branch))
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = UnknownStatus
 		expected.Duration = ToInt64(int64(build.Duration / time.Second))
@@ -232,8 +229,7 @@ func TestBuild_Aborded(t *testing.T) {
 	if assert.True(t, ok) {
 		// Expected
 		expected := NewTile(travisci.TravisCIBuildTileType)
-		expected.Label = repo
-		expected.Message = git.HumanizeBranch(branch)
+		expected.Label = fmt.Sprintf("%s\n%s", repo, git.HumanizeBranch(branch))
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(build.StartedAt)

@@ -46,13 +46,13 @@ func NewAzureDevOpsUsecase() azuredevops.Usecase {
 
 func (tu *azureDevOpsUsecase) Build(params *azureModels.BuildParams) (tile *models.Tile, err error) {
 	tile = models.NewTile(azuredevops.AzureDevOpsBuildTileType)
-	tile.Label = fmt.Sprintf("%s | %d", params.Project, *params.Definition)
 
 	branch := "master"
 	if params.Branch != nil {
 		branch = *params.Branch
 	}
-	tile.Message = fmt.Sprintf("%s - %d", git.HumanizeBranch(branch), rand.Intn(100))
+	tile.Label = fmt.Sprintf("%s (%d)\n%s - #12", params.Project, *params.Definition, git.HumanizeBranch(branch))
+
 	tile.Status = nonempty.Struct(params.Status, tu.computeStatus(params.Project, params.Definition, availableBuildStatus)).(models.TileStatus)
 
 	if tile.Status == models.WarningStatus {
@@ -102,7 +102,7 @@ func (tu *azureDevOpsUsecase) Build(params *azureModels.BuildParams) (tile *mode
 
 func (tu *azureDevOpsUsecase) Release(params *azureModels.ReleaseParams) (tile *models.Tile, err error) {
 	tile = models.NewTile(azuredevops.AzureDevOpsReleaseTileType)
-	tile.Label = fmt.Sprintf("%s | %d", params.Project, *params.Definition)
+	tile.Label = fmt.Sprintf("%s | %d\n#12", params.Project, *params.Definition)
 
 	tile.Status = nonempty.Struct(params.Status, tu.computeStatus(params.Project, params.Definition, availableReleaseStatus)).(models.TileStatus)
 

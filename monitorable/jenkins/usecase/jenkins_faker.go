@@ -42,9 +42,11 @@ func NewJenkinsUsecase() jenkins.Usecase {
 
 func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (tile *models.Tile, err error) {
 	tile = models.NewTile(jenkins.JenkinsBuildTileType)
-	tile.Label = params.Job
-	if params.Branch != "" {
-		tile.Message = git.HumanizeBranch(params.Branch)
+
+	if params.Branch == "" {
+		tile.Label = params.Job
+	} else {
+		tile.Label = fmt.Sprintf("%s\n%s", params.Job, git.HumanizeBranch(params.Branch))
 	}
 
 	tile.Status = nonempty.Struct(params.Status, tu.computeStatus(params)).(models.TileStatus)
