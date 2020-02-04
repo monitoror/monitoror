@@ -111,7 +111,7 @@ touch /opt/monitoror/.env
 # Starting backend
 /opt/monitoror/monitoror
 
-# Starting frontend
+# Starting UI
 chromium-browser --kiosk --password-store=basic --disable-infobars \
   --app=http://localhost:8080/?configUrl={CONFIG_URL}
       </code></pre>
@@ -151,7 +151,7 @@ sudo chown syslog:adm /var/log/monitoror/monitoror.log
 
 sudo service rsyslog restart
 
-# Frontend startup with autostart
+# UI startup with autostart
 # /!\ Must be run with user which start x server, usually pi
 cat > ~/.config/autostart/chromium-browser.desktop &lt;&lt;END
   [Desktop Entry]
@@ -219,7 +219,7 @@ go get -u github.com/vektra/mockery/.../
 # Test utilities
 go get -u gotest.tools/gotestsum
 
-# Embed front dist into go binary
+# Embed UI dist into go binary
 go get -u github.com/GeertJohan/go.rice/rice
       </code></pre>
 
@@ -240,14 +240,14 @@ make run
       </code></pre>
       <pre class="language-bash"><code>
 # UI
-cd front
+cd ui
 yarn
 yarn serve
       </code></pre>
 
       <h5 class="m-documentation--configuration-side-title">Build project</h5>
       <pre class="language-bash"><code>
-cd front
+cd ui
 yarn
 yarn run build
 cd ..

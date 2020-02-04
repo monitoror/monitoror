@@ -46,7 +46,7 @@ func (h *ConfigDelivery) GetConfig(c echo.Context) error {
 	}
 
 	// By default, Marshall function escape <, > and & according https://golang.org/src/encoding/json/encode.go?s=6456:6499#L48
-	// In Chromium on arm the front code do not parse escaping character correctly
+	// In Chromium on arm the UI code do not parse escaping character correctly
 	encoded, _ := JSONMarshal(config) // Ignoring error, assuming there is no function or chanel inside this struct
 
 	return c.Blob(http.StatusOK, echo.MIMEApplicationJSONCharsetUTF8, encoded)
