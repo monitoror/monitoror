@@ -138,8 +138,7 @@ func (au *azureDevOpsUsecase) Release(params *azureModels.ReleaseParams) (*model
 
 	// StartedAt / FinishedAt
 	tile.StartedAt = release.StartedAt
-	tile.StartedAt = release.StartedAt
-	if tile.Status != models.RunningStatus {
+	if tile.Status != models.RunningStatus && tile.Status != models.QueuedStatus {
 		tile.FinishedAt = release.FinishedAt
 	}
 	// Duration
@@ -155,7 +154,7 @@ func (au *azureDevOpsUsecase) Release(params *azureModels.ReleaseParams) (*model
 	}
 
 	// Cache Duration when success / failed
-	if tile.Status == models.SuccessStatus || tile.Status == models.FailedStatus {
+	if tile.Status == models.SuccessStatus || tile.Status == models.FailedStatus || tile.Status == models.WarningStatus {
 		au.buildsCache.Add(params, release.ReleaseNumber, tile.Status, tile.FinishedAt.Sub(*tile.StartedAt))
 	}
 
