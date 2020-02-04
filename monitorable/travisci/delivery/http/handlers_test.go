@@ -24,7 +24,7 @@ func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 	res = httptest.NewRecorder()
 	ctx = e.NewContext(req, res)
 
-	ctx.QueryParams().Set("group", "test")
+	ctx.QueryParams().Set("owner", "test")
 	ctx.QueryParams().Set("repository", "test")
 	ctx.QueryParams().Set("branch", "master")
 
@@ -70,7 +70,7 @@ func TestDelivery_GetBuild_Success(t *testing.T) {
 }
 
 func TestDelivery_GetBuild_QueryParamsError_MissingGroup(t *testing.T) {
-	missingParam(t, "group")
+	missingParam(t, "owner")
 }
 
 func TestDelivery_GetBuild_QueryParamsError_MissingRepository(t *testing.T) {

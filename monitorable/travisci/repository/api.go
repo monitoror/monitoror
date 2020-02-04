@@ -41,9 +41,9 @@ func NewTravisCIRepository(config *config.TravisCI, githubConfig *config.Github)
 }
 
 // GetBuildStatus fetch build information from travis-ci
-func (r *travisCIRepository) GetLastBuildStatus(group, repository, branch string) (*models.Build, error) {
+func (r *travisCIRepository) GetLastBuildStatus(owner, repository, branch string) (*models.Build, error) {
 	// GetConfig
-	repoSlug := fmt.Sprintf("%s/%s", group, repository)
+	repoSlug := fmt.Sprintf("%s/%s", owner, repository)
 	options := &travis.BuildsByRepoOption{
 		BranchName: []string{branch},
 		Limit:      1,

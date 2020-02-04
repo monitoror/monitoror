@@ -6,17 +6,17 @@ import "fmt"
 
 type (
 	BuildParams struct {
-		Group      string `json:"group" query:"group"`
+		Owner      string `json:"owner" query:"owner"`
 		Repository string `json:"repository" query:"repository"`
 		Branch     string `json:"branch" query:"branch"`
 	}
 )
 
 func (p *BuildParams) IsValid() bool {
-	return p.Group != "" && p.Repository != "" && p.Branch != ""
+	return p.Owner != "" && p.Repository != "" && p.Branch != ""
 }
 
 // Used by cache as identifier
 func (p *BuildParams) String() string {
-	return fmt.Sprintf("BUILD-%s-%s-%s", p.Group, p.Repository, p.Branch)
+	return fmt.Sprintf("BUILD-%s-%s-%s", p.Owner, p.Repository, p.Branch)
 }

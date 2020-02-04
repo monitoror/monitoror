@@ -14,12 +14,13 @@ import (
 
 // Versions
 const (
-	CurrentVersion = Version4
+	CurrentVersion = Version5
 
 	Version1 = 1
 	Version2 = 2
 	Version3 = 3
 	Version4 = 4
+	Version5 = 5
 )
 
 const (
@@ -30,7 +31,7 @@ const (
 )
 
 var SupportedVersions = map[int]bool{
-	Version4: true,
+	Version5: true,
 }
 
 type (

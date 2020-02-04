@@ -6,6 +6,6 @@ import (
 
 type (
 	Repository interface {
-		GetLastBuildStatus(group, repository, branch string) (*models.Build, error)
+		GetLastBuildStatus(owner, repository, branch string) (*models.Build, error)
 	}
 )

@@ -14,13 +14,13 @@ type Repository struct {
 	mock.Mock
 }
 
-// GetLastBuildStatus provides a mock function with given fields: group, repository, branch
-func (_m *Repository) GetLastBuildStatus(group string, repository string, branch string) (*models.Build, error) {
-	ret := _m.Called(group, repository, branch)
+// GetLastBuildStatus provides a mock function with given fields: owner, repository, branch
+func (_m *Repository) GetLastBuildStatus(owner string, repository string, branch string) (*models.Build, error) {
+	ret := _m.Called(owner, repository, branch)
 
 	var r0 *models.Build
 	if rf, ok := ret.Get(0).(func(string, string, string) *models.Build); ok {
-		r0 = rf(group, repository, branch)
+		r0 = rf(owner, repository, branch)
 	} else {
 		if ret.Get(0) != nil {
 			r0 = ret.Get(0).(*models.Build)
@@ -29,7 +29,7 @@ func (_m *Repository) GetLastBuildStatus(group string, repository string, branch
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string, string, string) error); ok {
-		r1 = rf(group, repository, branch)
+		r1 = rf(owner, repository, branch)
 	} else {
 		r1 = ret.Error(1)
 	}

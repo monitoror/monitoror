@@ -17,7 +17,7 @@ import (
 	. "github.com/stretchr/testify/mock"
 )
 
-var group, repo, branch = "test", "test", "master"
+var owner, repo, branch = "test", "test", "master"
 
 func TestBuild_Error(t *testing.T) {
 	mockRepository := new(mocks.Repository)
@@ -26,7 +26,7 @@ func TestBuild_Error(t *testing.T) {
 
 	tu := NewTravisCIUsecase(mockRepository)
 
-	tile, err := tu.Build(&models.BuildParams{Group: group, Repository: repo, Branch: branch})
+	tile, err := tu.Build(&models.BuildParams{Owner: owner, Repository: repo, Branch: branch})
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
 		assert.IsType(t, &MonitororError{}, err)
@@ -43,7 +43,7 @@ func TestBuild_Error_NoBuild(t *testing.T) {
 
 	tu := NewTravisCIUsecase(mockRepository)
 
-	tile, err := tu.Build(&models.BuildParams{Group: group, Repository: repo, Branch: branch})
+	tile, err := tu.Build(&models.BuildParams{Owner: owner, Repository: repo, Branch: branch})
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
 		assert.IsType(t, &MonitororError{}, err)
@@ -74,7 +74,7 @@ func TestBuild_Success(t *testing.T) {
 		expected.FinishedAt = ToTime(build.FinishedAt)
 
 		// Tests
-		params := &models.BuildParams{Group: group, Repository: repo, Branch: branch}
+		params := &models.BuildParams{Owner: owner, Repository: repo, Branch: branch}
 		tUsecase.buildsCache.Add(params, "0", SuccessStatus, time.Second*120)
 		tile, err := tu.Build(params)
 		if assert.NotNil(t, tile) {
@@ -115,7 +115,7 @@ func TestBuild_Failed(t *testing.T) {
 			AvatarURL: build.Author.AvatarURL,
 		}
 
-		params := &models.BuildParams{Group: group, Repository: repo, Branch: branch}
+		params := &models.BuildParams{Owner: owner, Repository: repo, Branch: branch}
 		tUsecase.buildsCache.Add(params, "0", SuccessStatus, time.Second*120)
 		tile, err := tu.Build(params)
 		if assert.NotNil(t, tile) {
@@ -152,7 +152,7 @@ func TestBuild_Queued(t *testing.T) {
 		expected.StartedAt = ToTime(build.StartedAt)
 
 		// Without Estimated Duration
-		params := &models.BuildParams{Group: group, Repository: repo, Branch: branch}
+		params := &models.BuildParams{Owner: owner, Repository: repo, Branch: branch}
 		tUsecase.buildsCache.Add(params, "0", SuccessStatus, time.Second*10)
 		tile, err := tu.Build(params)
 		if assert.NotNil(t, tile) {
@@ -182,7 +182,7 @@ func TestBuild_Running(t *testing.T) {
 		expected.StartedAt = ToTime(build.StartedAt)
 
 		// Without Previous Build
-		params := &models.BuildParams{Group: group, Repository: repo, Branch: branch}
+		params := &models.BuildParams{Owner: owner, Repository: repo, Branch: branch}
 		tile, err := tu.Build(params)
 		if assert.NotNil(t, tile) {
 			assert.NoError(t, err)
@@ -223,7 +223,7 @@ func TestBuild_Aborded(t *testing.T) {
 		expected.StartedAt = ToTime(build.StartedAt)
 
 		// Without Estimated Duration
-		params := &models.BuildParams{Group: group, Repository: repo, Branch: branch}
+		params := &models.BuildParams{Owner: owner, Repository: repo, Branch: branch}
 		tUsecase.buildsCache.Add(params, "0", SuccessStatus, time.Second*10)
 		tile, err := tu.Build(params)
 		if assert.NotNil(t, tile) {
