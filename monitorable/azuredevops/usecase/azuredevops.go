@@ -179,13 +179,11 @@ func parseBuildResult(status, result string) models.TileStatus {
 		case "failed":
 			return models.FailedStatus
 		case "canceled":
-			return models.AbortedStatus
-		default:
-			return models.UnknownStatus
+			return models.CanceledStatus
 		}
-	default:
-		return models.UnknownStatus
 	}
+
+	return models.UnknownStatus
 }
 
 func parseReleaseStatus(status string) models.TileStatus {
@@ -198,7 +196,8 @@ func parseReleaseStatus(status string) models.TileStatus {
 		return models.WarningStatus
 	case "inProgress":
 		return models.RunningStatus
-	default: // all / notDeployed
-		return models.UnknownStatus
 	}
+
+	// all / notDeployed
+	return models.UnknownStatus
 }

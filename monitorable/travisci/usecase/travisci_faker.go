@@ -27,7 +27,7 @@ type (
 var availableBuildStatus = faker.Statuses{
 	{models.SuccessStatus, time.Second * 30},
 	{models.FailedStatus, time.Second * 30},
-	{models.AbortedStatus, time.Second * 20},
+	{models.CanceledStatus, time.Second * 20},
 	{models.RunningStatus, time.Second * 60},
 	{models.QueuedStatus, time.Second * 30},
 	{models.WarningStatus, time.Second * 20},
@@ -54,7 +54,7 @@ func (tu *travisCIUsecase) Build(params *travisCIModels.BuildParams) (tile *mode
 	tile.Author.Name = nonempty.String(params.AuthorName, "Faker")
 	tile.Author.AvatarURL = nonempty.String(params.AuthorAvatarURL, "https://www.gravatar.com/avatar/00000000000000000000000000000000")
 
-	if tile.Status == models.SuccessStatus || tile.Status == models.FailedStatus || tile.Status == models.AbortedStatus {
+	if tile.Status == models.SuccessStatus || tile.Status == models.FailedStatus || tile.Status == models.CanceledStatus {
 		min := time.Now().Unix() - int64(time.Hour.Seconds()*24*30) - 3600
 		max := time.Now().Unix() - 3600
 		delta := max - min

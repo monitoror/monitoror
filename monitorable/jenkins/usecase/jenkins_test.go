@@ -298,7 +298,7 @@ func TestParseResult(t *testing.T) {
 	assert.Equal(t, SuccessStatus, parseResult("SUCCESS"))
 	assert.Equal(t, WarningStatus, parseResult("UNSTABLE"))
 	assert.Equal(t, FailedStatus, parseResult("FAILURE"))
-	assert.Equal(t, AbortedStatus, parseResult("ABORTED"))
+	assert.Equal(t, CanceledStatus, parseResult("ABORTED"))
 	assert.Equal(t, UnknownStatus, parseResult(""))
 }
 

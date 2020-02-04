@@ -168,7 +168,7 @@ func parseResult(result string) models.TileStatus {
 	case "FAILURE":
 		return models.FailedStatus
 	case "ABORTED":
-		return models.AbortedStatus
+		return models.CanceledStatus
 	default:
 		return models.UnknownStatus
 	}

@@ -297,7 +297,7 @@ func Test_parseBuildResult(t *testing.T) {
 	assert.Equal(t, SuccessStatus, parseBuildResult("completed", "succeeded"))
 	assert.Equal(t, WarningStatus, parseBuildResult("completed", "partiallySucceeded"))
 	assert.Equal(t, FailedStatus, parseBuildResult("completed", "failed"))
-	assert.Equal(t, AbortedStatus, parseBuildResult("completed", "canceled"))
+	assert.Equal(t, CanceledStatus, parseBuildResult("completed", "canceled"))
 	assert.Equal(t, UnknownStatus, parseBuildResult("completed", ""))
 	assert.Equal(t, UnknownStatus, parseBuildResult("", ""))
 }

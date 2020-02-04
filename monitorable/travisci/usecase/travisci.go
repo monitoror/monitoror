@@ -107,7 +107,7 @@ func parseState(state string) models.TileStatus {
 	case "errored":
 		return models.FailedStatus
 	case "canceled":
-		return models.AbortedStatus
+		return models.CanceledStatus
 	default:
 		return models.UnknownStatus
 	}
