@@ -3,105 +3,23 @@ import {Md5 as md5} from 'ts-md5/dist/md5'
 import Vue from 'vue'
 import Vuex, {StoreOptions} from 'vuex'
 
-import VueInstance from './main'
+import DISPLAYABLE_SUBTILE_STATUS from '@/constants/displayableSubtileStatus'
+import Theme from '@/enums/theme'
+import TileStatus from '@/enums/tileStatus'
+import getQueryParamValue from '@/helpers/getQueryParamValue'
+import getSubTilePreviousOrStatus from '@/helpers/getSubTilePreviousOrStatus'
+import mostImportantStatus from '@/helpers/mostImportantStatus'
+import timeout from '@/helpers/timeout'
+import Config from '@/interfaces/config'
+import Info from '@/interfaces/info'
+import TileConfig from '@/interfaces/tileConfig'
+import TileState from '@/interfaces/tileState'
+import vueInstance from '@/main'
 
 Vue.use(Vuex)
 
 const API_BASE_PATH = '/api/v1'
 const INFO_URL = '/info'
-
-export interface InfoInterface {
-  version: string,
-}
-
-export enum TileValueUnit {
-  Millisecond = 'MILLISECOND',
-  Default = '',
-}
-
-export enum TileType {
-  HttpAny = 'HTTP-ANY',
-  HttpRaw = 'HTTP-RAW',
-  HttpFormatted = 'HTTP-FORMATTED',
-  Ping = 'PING',
-  Port = 'PORT',
-  Pingdom = 'PINGDOM-CHECK',
-  GitLab = 'GITLAB-BUILD',
-  Travis = 'TRAVISCI-BUILD',
-  Jenkins = 'JENKINS-BUILD',
-  AzureDevOpsBuild = 'AZUREDEVOPS-BUILD',
-  AzureDevOpsRelease = 'AZUREDEVOPS-RELEASE',
-
-  Empty = 'EMPTY',
-  Group = 'GROUP',
-}
-
-export enum TileStatus {
-  Success = 'SUCCESS',
-  Failed = 'FAILURE',
-  Warning = 'WARNING',
-  Running = 'RUNNING',
-  Queued = 'QUEUED',
-  Canceled = 'CANCELED',
-  Unknown = 'UNKNOWN',
-}
-
-const ORDERED_TILE_STATUS = [
-  TileStatus.Unknown,
-  TileStatus.Success,
-  TileStatus.Canceled,
-  TileStatus.Warning,
-  TileStatus.Failed,
-  TileStatus.Queued,
-  TileStatus.Running,
-]
-
-export const DISPLAYABLE_SUBTILE_STATUS = [
-  TileStatus.Canceled,
-  TileStatus.Warning,
-  TileStatus.Failed,
-  TileStatus.Queued,
-  TileStatus.Running,
-]
-
-export enum Theme {
-  Default = 'DEFAULT',
-  Dark = 'DARK',
-}
-
-interface ConfigInterface {
-  columns: number,
-  tiles: TileConfig[],
-}
-
-export interface TileConfig {
-  type: TileType,
-  label?: string,
-  columnSpan?: number,
-  rowSpan?: number,
-  url?: string,
-  stateKey: string,
-  tiles?: TileConfig[],
-}
-
-export interface TileAuthor {
-  name: string,
-  avatarUrl: string,
-}
-
-export interface TileState {
-  label?: string,
-  status: TileStatus,
-  previousStatus?: TileStatus,
-  message?: string,
-  values?: number[],
-  unit?: TileValueUnit,
-  author?: TileAuthor,
-  duration?: number,
-  estimatedDuration?: number,
-  startedAt?: number,
-  finishedAt?: number,
-}
 
 interface RootState {
   version: string | undefined,
@@ -109,46 +27,6 @@ interface RootState {
   tiles: TileConfig[],
   tilesState: { [key: string]: TileState },
   online: boolean,
-}
-
-// Helpers
-function getQueryParamValue(
-  queryParamName: string,
-  defaultValue: string = '',
-): string {
-  const queryParams = window.location.search.substr(1).split('&')
-
-  let value = defaultValue
-  const valueQueryParam = queryParams.find((queryParam: string) => {
-    return new RegExp(`^${queryParamName}=`).test(queryParam)
-  })
-  if (valueQueryParam) {
-    value = valueQueryParam.substr(valueQueryParam.indexOf('=') + 1)
-  }
-
-  return value
-}
-
-function timeout(delay: number = 0) {
-  return new Promise(resolve => setTimeout(resolve, delay))
-}
-
-function getSubTilePreviousOrStatus(subTileState?: TileState): TileStatus {
-  if (subTileState === undefined) {
-    return TileStatus.Unknown
-  }
-
-  let subTileStatus = subTileState.status
-
-  if ([TileStatus.Queued, TileStatus.Running].includes(subTileState.status)) {
-    subTileStatus = subTileState.previousStatus as TileStatus
-  }
-
-  return subTileStatus
-}
-
-function mostImportantStatus(status1: TileStatus, status2: TileStatus): TileStatus {
-  return ORDERED_TILE_STATUS.indexOf(status1) < ORDERED_TILE_STATUS.indexOf(status2) ? status2 : status1
 }
 
 const store: StoreOptions<RootState> = {
@@ -206,7 +84,7 @@ const store: StoreOptions<RootState> = {
     setVersion(state, payload: string): void {
       state.version = payload
     },
-    setConfig(state, payload: ConfigInterface): void {
+    setConfig(state, payload: Config): void {
       state.columns = payload.columns
       state.tiles = payload.tiles
     },
@@ -225,9 +103,9 @@ const store: StoreOptions<RootState> = {
     autoUpdate({commit, state, getters}) {
       const infoUrl = getters.apiBaseUrl + API_BASE_PATH + INFO_URL
 
-      return VueInstance.$http.get(infoUrl)
+      return vueInstance.$http.get(infoUrl)
         .then(async (data) => {
-          const info: InfoInterface = await data.json()
+          const info: Info = await data.json()
 
           if (state.version === undefined) {
             commit('setVersion', info.version)
@@ -257,9 +135,9 @@ const store: StoreOptions<RootState> = {
         return tile
       }
 
-      return VueInstance.$http.get(getters.proxyfiedConfigUrl)
+      return vueInstance.$http.get(getters.proxyfiedConfigUrl)
         .then(async (data) => {
-          const config: ConfigInterface = await data.json()
+          const config: Config = await data.json()
 
           config.tiles = config.tiles.map(hydrateTile)
 
@@ -299,7 +177,7 @@ const store: StoreOptions<RootState> = {
         return Promise.resolve()
       }
 
-      return VueInstance.$http.get(tile.url)
+      return vueInstance.$http.get(tile.url)
         .then(async (data) => {
           const tileState = await data.json()
 
