@@ -32,13 +32,6 @@ jobs:
           go get -u gotest.tools/gotestsum
           make install
 
-      - name: lint
-        uses: reviewdog/action-golangci-lint@v1
-        with:
-          github_token: ${{ secrets.github_token }}
-          golangci_lint_flags: "--config=.golangci.yml"
-          tool_name: report - lint - core
-
       - name: tests
         run: |
           # https://github.com/actions/setup-go/issues/14
@@ -51,6 +44,17 @@ jobs:
           token: ${{ secrets.codecov_token }}
           yml: .github/.codecov.yml
           flags: core
+  lint-core:
+    name: lint / core
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - uses: reviewdog/action-golangci-lint@v1
+        with:
+          github_token: ${{ secrets.github_token }}
+          golangci_lint_flags: "--config=.golangci.yml"
+          tool_name: report - lint - core
 
   test-ui:
     name: test / ui
@@ -80,7 +84,7 @@ jobs:
 
   build:
     name: build
-    needs: [test-core, test-ui]
+    needs: [test-core, lint-core, test-ui]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-node@v1
