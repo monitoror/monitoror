@@ -110,6 +110,7 @@ func (s *Server) initUi() {
 
 	assetHandler := http.FileServer(uiAssets.HTTPBox())
 	s.GET("/", echo.WrapHandler(assetHandler))
+	s.GET("/favicon*", echo.WrapHandler(assetHandler))
 	s.GET("/css/*", echo.WrapHandler(http.StripPrefix("/", assetHandler)))
 	s.GET("/js/*", echo.WrapHandler(http.StripPrefix("/", assetHandler)))
 	s.GET("/fonts/*", echo.WrapHandler(http.StripPrefix("/", assetHandler)))
