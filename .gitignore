@@ -18,10 +18,6 @@ rice-box.go
 coverage.txt
 coverage.html
 
-# Intellij
-.idea
-*.iml
-
 # Other
 .DS_Store
 
