@@ -85,7 +85,6 @@ jobs:
 
   build:
     name: Build
-    needs: [core-test, core-lint, ui-test]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/setup-node@v1
