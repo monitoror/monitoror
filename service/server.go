@@ -49,7 +49,7 @@ func Init(config *config.Config) *Server {
 
 	server.initEcho()
 	server.initMiddleware()
-	server.initUi()
+	server.initUI()
 	server.initApis()
 
 	return server
@@ -94,22 +94,27 @@ func (s *Server) initMiddleware() {
 	}))
 }
 
-func (s *Server) initUi() {
-	loadUi := s.config.Env == "production"
-	defer logStatus("UI", loadUi)
+func (s *Server) initUI() {
+	loadUI := s.config.Env == "production"
+	defer logStatus("UI", loadUI)
 
-	if !loadUi {
+	if !loadUI {
 		return
 	}
 
+	// Remove LocateAppend and LocateFS because we don't use it and it cause tests issue
+	riceConfig := rice.Config{
+		LocateOrder: []rice.LocateMethod{rice.LocateEmbedded},
+	}
 	// Never use constant or variable according to docs : https://github.com/GeertJohan/go.rice#calling-findbox-and-mustfindbox
-	uiAssets, err := rice.FindBox("../ui/dist")
+	uiAssets, err := riceConfig.FindBox("../ui/dist")
 	if err != nil {
 		panic("static ui/dist not found. GetBuildStatus them with `cd ui && yarn build` first.")
 	}
 
 	assetHandler := http.FileServer(uiAssets.HTTPBox())
 	s.GET("/", echo.WrapHandler(assetHandler))
+	s.GET("/favicon*", echo.WrapHandler(assetHandler))
 	s.GET("/css/*", echo.WrapHandler(http.StripPrefix("/", assetHandler)))
 	s.GET("/js/*", echo.WrapHandler(http.StripPrefix("/", assetHandler)))
 	s.GET("/fonts/*", echo.WrapHandler(http.StripPrefix("/", assetHandler)))
