@@ -41,7 +41,7 @@ type (
 
 var colorer = color.New()
 
-// Init create echo server with middlewares, front, routes
+// Init create echo server with middlewares, ui, routes
 func Init(config *config.Config) *Server {
 	server := &Server{
 		config: config,
@@ -49,7 +49,7 @@ func Init(config *config.Config) *Server {
 
 	server.initEcho()
 	server.initMiddleware()
-	server.initFront()
+	server.initUi()
 	server.initApis()
 
 	return server
@@ -94,21 +94,21 @@ func (s *Server) initMiddleware() {
 	}))
 }
 
-func (s *Server) initFront() {
-	loadFront := s.config.Env == "production"
-	defer logStatus("FRONT", loadFront)
+func (s *Server) initUi() {
+	loadUi := s.config.Env == "production"
+	defer logStatus("UI", loadUi)
 
-	if !loadFront {
+	if !loadUi {
 		return
 	}
 
 	// Never use constant or variable according to docs : https://github.com/GeertJohan/go.rice#calling-findbox-and-mustfindbox
-	frontAssets, err := rice.FindBox("../front/dist")
+	uiAssets, err := rice.FindBox("../ui/dist")
 	if err != nil {
-		panic("static front/dist not found. GetBuildStatus them with `cd front && yarn run build` first.")
+		panic("static ui/dist not found. GetBuildStatus them with `cd ui && yarn build` first.")
 	}
 
-	assetHandler := http.FileServer(frontAssets.HTTPBox())
+	assetHandler := http.FileServer(uiAssets.HTTPBox())
 	s.GET("/", echo.WrapHandler(assetHandler))
 	s.GET("/css/*", echo.WrapHandler(http.StripPrefix("/", assetHandler)))
 	s.GET("/js/*", echo.WrapHandler(http.StripPrefix("/", assetHandler)))

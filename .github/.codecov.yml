@@ -18,7 +18,7 @@ coverage:
 flags:
   ui:
     paths:
-      - front/
+      - "ui/"
   core:
     paths:
-      - !front/
+      - "!ui/"

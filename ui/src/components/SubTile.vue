@@ -30,8 +30,12 @@
   import Vue from 'vue'
   import {Component, Prop} from 'vue-property-decorator'
 
+  import TileStatus from '@/enums/tileStatus'
+  import TileType from '@/enums/tileType'
+  import TileConfig from '@/interfaces/tileConfig'
+  import TileState from '@/interfaces/tileState'
+
   import MonitororTileIcon from '@/components/TileIcon.vue'
-  import {TileConfig, TileState, TileStatus, TileType} from '@/store'
 
   @Component({
     components: {

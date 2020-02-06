@@ -63,8 +63,9 @@
 <script lang="ts">
   import {Component, Vue} from 'vue-property-decorator'
 
-  import {TileConfig} from '@/store'
-  import MonitororTile from './components/Tile.vue'
+  import TileConfig from '@/interfaces/tileConfig'
+
+  import MonitororTile from '@/components/Tile.vue'
 
   @Component({
     components: {

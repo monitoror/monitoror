@@ -22,7 +22,7 @@ type (
 		Tiles []Tile `json:"tiles,omitempty"`
 		URL   string `json:"url,omitempty"`
 
-		// Used by config.hydrate only (will be remove before returning config to front)
+		// Used by config.hydrate only (will be remove before returning config to UI)
 		ConfigVariant string `json:"configVariant,omitempty"`
 	}
 )

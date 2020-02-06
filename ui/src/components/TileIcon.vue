@@ -53,7 +53,7 @@
   import Vue from 'vue'
   import {Component, Prop} from 'vue-property-decorator'
 
-  import {TileType} from '@/store'
+  import TileType from '@/enums/tileType'
 
   @Component
   export default class MonitororTileIcon extends Vue {

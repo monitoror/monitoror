@@ -63,11 +63,11 @@ jobs:
       - uses: actions/checkout@v1
 
       - name: install
-        working-directory: front
+        working-directory: ui
         run: yarn install
 
       - name: tests
-        working-directory: front
+        working-directory: ui
         run: yarn run test
 
       - name: coverage
@@ -75,7 +75,7 @@ jobs:
         with:
           token: ${{ secrets.codecov_token }}
           yml: .github/.codecov.yml
-          file: front/tests/coverage/*
+          file: ui/tests/coverage/*
           flags: ui
 
   build:
@@ -95,7 +95,7 @@ jobs:
       - uses: actions/checkout@v1
 
       - name: install-ui
-        working-directory: front
+        working-directory: ui
         run: yarn install
 
       - name: install-core
@@ -104,7 +104,7 @@ jobs:
           make install
 
       - name: build-ui
-        working-directory: front
+        working-directory: ui
         run: yarn run build
 
       - name: build-core

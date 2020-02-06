@@ -1,4 +1,3 @@
-import { TileValueUnit } from '@/store'
 <template>
   <div class="c-monitoror-tile" :class="classes" :style="styles">
     <div class="c-monitoror-tile--content" v-if="!isEmpty">
@@ -51,17 +50,16 @@ import { TileValueUnit } from '@/store'
   import Vue from 'vue'
   import {Component, Prop} from 'vue-property-decorator'
 
+  import DISPLAYABLE_SUBTILE_STATUS from '@/constants/displayableSubtileStatus'
+  import TileStatus from '@/enums/tileStatus'
+  import TileType from '@/enums/tileType'
+  import TileValueUnit from '@/enums/tileValueUnit'
+  import TileAuthor from '@/interfaces/tileAuthor'
+  import TileConfig from '@/interfaces/tileConfig'
+  import TileState from '@/interfaces/tileState'
+
   import MonitororSubTile from '@/components/SubTile.vue'
   import MonitororTileIcon from '@/components/TileIcon.vue'
-  import {
-      DISPLAYABLE_SUBTILE_STATUS,
-      TileAuthor,
-      TileConfig,
-      TileState,
-      TileStatus,
-      TileType,
-      TileValueUnit,
-  } from '@/store'
 
   @Component({
     components: {
