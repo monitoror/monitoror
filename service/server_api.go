@@ -4,6 +4,7 @@ package service
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/system"
 
@@ -16,6 +17,11 @@ import (
 	_configDelivery "github.com/monitoror/monitoror/monitorable/config/delivery/http"
 	_configRepository "github.com/monitoror/monitoror/monitorable/config/repository"
 	_configUsecase "github.com/monitoror/monitoror/monitorable/config/usecase"
+	"github.com/monitoror/monitoror/monitorable/github"
+	_githubDelivery "github.com/monitoror/monitoror/monitorable/github/delivery/http"
+	_githubModels "github.com/monitoror/monitoror/monitorable/github/models"
+	_githubRepository "github.com/monitoror/monitoror/monitorable/github/repository"
+	_githubUsecase "github.com/monitoror/monitoror/monitorable/github/usecase"
 	"github.com/monitoror/monitoror/monitorable/http"
 	_httpDelivery "github.com/monitoror/monitoror/monitorable/http/delivery/http"
 	_httpModels "github.com/monitoror/monitoror/monitorable/http/models"
@@ -81,6 +87,9 @@ func (s *Server) initApis() {
 	}
 	for variant, conf := range s.config.Monitorable.AzureDevOps {
 		registerTile(s.registerAzureDevOps, variant, conf.IsValid())
+	}
+	for variant, conf := range s.config.Monitorable.Github {
+		registerTile(s.registerGithub, variant, conf.IsValid())
 	}
 }
 
@@ -166,9 +175,8 @@ func (s *Server) registerPingdom(variant string) {
 
 func (s *Server) registerTravisCI(variant string) {
 	travisCIConfig := s.config.Monitorable.TravisCI[variant]
-	githubConfig := s.config.Monitorable.Github[variant]
 
-	repository := _travisciRepository.NewTravisCIRepository(travisCIConfig, githubConfig)
+	repository := _travisciRepository.NewTravisCIRepository(travisCIConfig)
 	usecase := _travisciUsecase.NewTravisCIUsecase(repository)
 	delivery := _travisciDelivery.NewTravisCIDelivery(usecase)
 
@@ -215,4 +223,27 @@ func (s *Server) registerAzureDevOps(variant string) {
 		variant, &_azureDevOpsModels.BuildParams{}, routeBuild.Path)
 	s.configHelper.RegisterTileWithConfigVariant(azuredevops.AzureDevOpsReleaseTileType,
 		variant, &_azureDevOpsModels.ReleaseParams{}, routeRelease.Path)
+}
+
+func (s *Server) registerGithub(variant string) {
+	githubConfig := s.config.Monitorable.Github[variant]
+	// Custom UpstreamCacheExpiration only for Issues because github has no-cache for this query and the rate limit is 30req/Minutes
+	issueCacheExpiration := time.Millisecond * time.Duration(githubConfig.IssueCacheExpiration)
+
+	repository := _githubRepository.NewGithubRepository(githubConfig)
+	usecase := _githubUsecase.NewGithubUsecase(repository)
+	delivery := _githubDelivery.NewGithubDelivery(usecase)
+
+	// Register route to echo
+	azureGroup := s.api.Group(fmt.Sprintf("/github/%s", variant))
+	routeIssues := azureGroup.GET("/issues", s.cm.UpstreamCacheHandlerWithExpiration(issueCacheExpiration, delivery.GetIssues))
+	routeChecks := azureGroup.GET("/checks", s.cm.UpstreamCacheHandler(delivery.GetChecks))
+
+	// Register data for config hydration
+	s.configHelper.RegisterTileWithConfigVariant(github.GithubIssuesTileType,
+		variant, &_githubModels.IssuesParams{}, routeIssues.Path)
+	s.configHelper.RegisterTileWithConfigVariant(github.GithubChecksTileType,
+		variant, &_githubModels.ChecksParams{}, routeChecks.Path)
+	s.configHelper.RegisterDynamicTileWithConfigVariant(github.GithubPullRequestTileType,
+		variant, &_githubModels.PullRequestParams{}, usecase)
 }

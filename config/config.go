@@ -15,74 +15,77 @@ type (
 	// Config contain backend Configuration
 	Config struct {
 		// --- General Configuration ---
-		Port int    `json:"port"` // Default: 8080
-		Env  string `json:"env"`  // Default: production
+		Port int    // Default: 8080
+		Env  string // Default: production
 
 		// --- Cache Configuration ---
 		// UpstreamCacheExpiration is used to respond before executing the request. Avoid overloading services.
-		UpstreamCacheExpiration int `json:"upstreamCacheExpiration"`
+		UpstreamCacheExpiration int
 		// DownstreamCacheExpiration is used to respond after executing the request in case of timeout error.
-		DownstreamCacheExpiration int `json:"downstreamCacheExpiration"`
+		DownstreamCacheExpiration int
 
 		// Monitorable Config
-		Monitorable Monitorable `json:"monitorable"`
+		Monitorable Monitorable
 	}
 
 	Monitorable struct {
-		Ping        map[string]*Ping        `json:"ping"`
-		Port        map[string]*Port        `json:"port"`
-		HTTP        map[string]*HTTP        `json:"http"`
-		Pingdom     map[string]*Pingdom     `json:"pingdom"`
-		Github      map[string]*Github      `json:"github"`
-		TravisCI    map[string]*TravisCI    `json:"travisCI"`
-		Jenkins     map[string]*Jenkins     `json:"jenkins"`
-		AzureDevOps map[string]*AzureDevOps `json:"azureDevOps"`
+		Ping        map[string]*Ping
+		Port        map[string]*Port
+		HTTP        map[string]*HTTP
+		Pingdom     map[string]*Pingdom
+		TravisCI    map[string]*TravisCI
+		Jenkins     map[string]*Jenkins
+		AzureDevOps map[string]*AzureDevOps
+		Github      map[string]*Github
 	}
 
 	Ping struct {
-		Count    int `json:"count"`
-		Timeout  int `json:"timeout"`  // In Millisecond
-		Interval int `json:"interval"` // In Millisecond
+		Count    int
+		Timeout  int // In Millisecond
+		Interval int // In Millisecond
 	}
 
 	Port struct {
-		Timeout int `json:"timeout"` // In Millisecond
+		Timeout int // In Millisecond
 	}
 
 	HTTP struct {
-		Timeout   int  `json:"timeout"` // In Millisecond
-		SSLVerify bool `json:"sslVerify"`
+		Timeout   int // In Millisecond
+		SSLVerify bool
 	}
 
 	Pingdom struct {
-		URL             string `json:"url"`
-		Token           string `json:"token"`
-		Timeout         int    `json:"timeout"`         // In Millisecond
-		CacheExpiration int    `json:"cacheExpiration"` // In Millisecond
-	}
-
-	Github struct {
-		Token string `json:"token"`
+		URL             string
+		Token           string
+		Timeout         int // In Millisecond
+		CacheExpiration int // In Millisecond
 	}
 
 	TravisCI struct {
-		URL     string `json:"url"`
-		Timeout int    `json:"timeout"` // In Millisecond
-		Token   string `json:"token"`
+		URL         string
+		Timeout     int // In Millisecond
+		Token       string
+		GithubToken string
 	}
 
 	Jenkins struct {
-		URL       string `json:"url"`
-		Timeout   int    `json:"timeout"` // In Millisecond
-		SSLVerify bool   `json:"sslVerify"`
-		Login     string `json:"login"`
-		Token     string `json:"token"`
+		URL       string
+		Timeout   int // In Millisecond
+		SSLVerify bool
+		Login     string
+		Token     string
 	}
 
 	AzureDevOps struct {
-		URL     string `json:"url"`
-		Timeout int    `json:"timeout"` // In Millisecond
-		Token   string `json:"token"`
+		URL     string
+		Timeout int // In Millisecond
+		Token   string
+	}
+
+	Github struct {
+		Timeout              int // In Millisecond
+		Token                string
+		IssueCacheExpiration int // In Millisecond
 	}
 )
 
@@ -134,11 +137,6 @@ func InitConfig() *Config {
 		viper.SetDefault(fmt.Sprintf("Monitorable.Pingdom.%s.CacheExpiration", variant), 30000)
 	}
 
-	// --- Github Configuration ---
-	for variant := range variants["Github"] {
-		viper.SetDefault(fmt.Sprintf("Monitorable.Github.%s.Token", variant), "")
-	}
-
 	// --- TravisCI Configuration ---
 	for variant := range variants["TravisCI"] {
 		viper.SetDefault(fmt.Sprintf("Monitorable.TravisCI.%s.URL", variant), "https://api.travis-ci.org/")
@@ -160,6 +158,12 @@ func InitConfig() *Config {
 		viper.SetDefault(fmt.Sprintf("Monitorable.AzureDevOps.%s.URL", variant), "")
 		viper.SetDefault(fmt.Sprintf("Monitorable.AzureDevOps.%s.Timeout", variant), 4000)
 		viper.SetDefault(fmt.Sprintf("Monitorable.AzureDevOps.%s.Token", variant), "")
+	}
+
+	// --- Github Configuration ---
+	for variant := range variants["Github"] {
+		viper.SetDefault(fmt.Sprintf("Monitorable.Github.%s.Timeout", variant), 5000)
+		viper.SetDefault(fmt.Sprintf("Monitorable.Github.%s.Token", variant), "")
 	}
 
 	_ = viper.Unmarshal(&config)
@@ -212,4 +216,8 @@ func (t *AzureDevOps) IsValid() bool {
 	}
 
 	return t.Token != ""
+}
+
+func (g *Github) IsValid() bool {
+	return g.Token != ""
 }
