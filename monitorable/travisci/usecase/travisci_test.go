@@ -2,6 +2,7 @@ package usecase
 
 import (
 	"errors"
+	"fmt"
 	"testing"
 	"time"
 
@@ -66,16 +67,11 @@ func TestBuild_Success(t *testing.T) {
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		// Expected
 		expected := NewTile(travisci.TravisCIBuildTileType)
-		expected.Label = repo
-		expected.Message = git.HumanizeBranch(branch)
+		expected.Label = fmt.Sprintf("%s\n%s", repo, git.HumanizeBranch(branch))
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(build.StartedAt)
 		expected.FinishedAt = ToTime(build.FinishedAt)
-		expected.Author = &Author{
-			Name:      build.Author.Name,
-			AvatarURL: build.Author.AvatarURL,
-		}
 
 		// Tests
 		params := &models.BuildParams{Group: group, Repository: repo, Branch: branch}
@@ -109,8 +105,7 @@ func TestBuild_Failed(t *testing.T) {
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		// Expected
 		expected := NewTile(travisci.TravisCIBuildTileType)
-		expected.Label = repo
-		expected.Message = git.HumanizeBranch(branch)
+		expected.Label = fmt.Sprintf("%s\n%s", repo, git.HumanizeBranch(branch))
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(build.StartedAt)
@@ -151,15 +146,10 @@ func TestBuild_Queued(t *testing.T) {
 	if assert.True(t, ok) {
 		// Expected
 		expected := NewTile(travisci.TravisCIBuildTileType)
-		expected.Label = repo
-		expected.Message = git.HumanizeBranch(branch)
+		expected.Label = fmt.Sprintf("%s\n%s", repo, git.HumanizeBranch(branch))
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(build.StartedAt)
-		expected.Author = &Author{
-			Name:      build.Author.Name,
-			AvatarURL: build.Author.AvatarURL,
-		}
 
 		// Without Estimated Duration
 		params := &models.BuildParams{Group: group, Repository: repo, Branch: branch}
@@ -184,17 +174,12 @@ func TestBuild_Running(t *testing.T) {
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
 		// Expected
 		expected := NewTile(travisci.TravisCIBuildTileType)
-		expected.Label = repo
-		expected.Message = git.HumanizeBranch(branch)
+		expected.Label = fmt.Sprintf("%s\n%s", repo, git.HumanizeBranch(branch))
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = UnknownStatus
 		expected.Duration = ToInt64(int64(build.Duration / time.Second))
 		expected.EstimatedDuration = ToInt64(int64(0))
 		expected.StartedAt = ToTime(build.StartedAt)
-		expected.Author = &Author{
-			Name:      build.Author.Name,
-			AvatarURL: build.Author.AvatarURL,
-		}
 
 		// Without Previous Build
 		params := &models.BuildParams{Group: group, Repository: repo, Branch: branch}
@@ -232,15 +217,10 @@ func TestBuild_Aborded(t *testing.T) {
 	if assert.True(t, ok) {
 		// Expected
 		expected := NewTile(travisci.TravisCIBuildTileType)
-		expected.Label = repo
-		expected.Message = git.HumanizeBranch(branch)
+		expected.Label = fmt.Sprintf("%s\n%s", repo, git.HumanizeBranch(branch))
 		expected.Status = parseState(build.State)
 		expected.PreviousStatus = SuccessStatus
 		expected.StartedAt = ToTime(build.StartedAt)
-		expected.Author = &Author{
-			Name:      build.Author.Name,
-			AvatarURL: build.Author.AvatarURL,
-		}
 
 		// Without Estimated Duration
 		params := &models.BuildParams{Group: group, Repository: repo, Branch: branch}
@@ -260,7 +240,7 @@ func TestParseState(t *testing.T) {
 	assert.Equal(t, SuccessStatus, parseState("passed"))
 	assert.Equal(t, FailedStatus, parseState("failed"))
 	assert.Equal(t, FailedStatus, parseState("errored"))
-	assert.Equal(t, AbortedStatus, parseState("canceled"))
+	assert.Equal(t, CanceledStatus, parseState("canceled"))
 	assert.Equal(t, UnknownStatus, parseState(""))
 }
 

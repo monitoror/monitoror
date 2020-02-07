@@ -48,8 +48,7 @@ func (au *azureDevOpsUsecase) Build(params *azureModels.BuildParams) (*models.Ti
 	}
 
 	// Title and Message
-	tile.Label = fmt.Sprintf("%s | %s", params.Project, build.DefinitionName)
-	tile.Message = fmt.Sprintf("%s - %s", git.HumanizeBranch(build.Branch), build.BuildNumber)
+	tile.Label = fmt.Sprintf("%s (%s)\n%s - #%s", params.Project, build.DefinitionName, git.HumanizeBranch(build.Branch), build.BuildNumber)
 
 	// Status
 	tile.Status = parseBuildResult(build.Status, build.Result)
@@ -63,7 +62,7 @@ func (au *azureDevOpsUsecase) Build(params *azureModels.BuildParams) (*models.Ti
 	}
 
 	// Author
-	if build.Author != nil {
+	if tile.Status == models.FailedStatus && build.Author != nil {
 		tile.Author = &models.Author{
 			Name:      build.Author.Name,
 			AvatarURL: build.Author.AvatarURL,
@@ -116,8 +115,7 @@ func (au *azureDevOpsUsecase) Release(params *azureModels.ReleaseParams) (*model
 	}
 
 	// Label
-	tile.Label = fmt.Sprintf("%s | %s", params.Project, release.DefinitionName)
-	tile.Message = release.ReleaseNumber
+	tile.Label = fmt.Sprintf("%s (%s)\n#%s", params.Project, release.DefinitionName, release.ReleaseNumber)
 
 	// Status
 	tile.Status = parseReleaseStatus(release.Status)
@@ -131,7 +129,7 @@ func (au *azureDevOpsUsecase) Release(params *azureModels.ReleaseParams) (*model
 	}
 
 	// Author
-	if release.Author != nil {
+	if tile.Status == models.FailedStatus && release.Author != nil {
 		tile.Author = &models.Author{
 			Name:      release.Author.Name,
 			AvatarURL: release.Author.AvatarURL,
@@ -181,13 +179,11 @@ func parseBuildResult(status, result string) models.TileStatus {
 		case "failed":
 			return models.FailedStatus
 		case "canceled":
-			return models.AbortedStatus
-		default:
-			return models.UnknownStatus
+			return models.CanceledStatus
 		}
-	default:
-		return models.UnknownStatus
 	}
+
+	return models.UnknownStatus
 }
 
 func parseReleaseStatus(status string) models.TileStatus {
@@ -200,7 +196,8 @@ func parseReleaseStatus(status string) models.TileStatus {
 		return models.WarningStatus
 	case "inProgress":
 		return models.RunningStatus
-	default: // all / notDeployed
-		return models.UnknownStatus
 	}
+
+	// all / notDeployed
+	return models.UnknownStatus
 }

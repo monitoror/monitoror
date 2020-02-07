@@ -38,7 +38,7 @@ const (
 	RunningStatus  TileStatus = "RUNNING"
 	QueuedStatus   TileStatus = "QUEUED"
 	DisabledStatus TileStatus = "DISABLED"
-	AbortedStatus  TileStatus = "ABORTED"
+	CanceledStatus TileStatus = "CANCELED"
 	WarningStatus  TileStatus = "WARNING"
 	UnknownStatus  TileStatus = "UNKNOWN"
 )

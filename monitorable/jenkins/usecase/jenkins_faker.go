@@ -29,7 +29,7 @@ type (
 var availableBuildStatus = faker.Statuses{
 	{models.SuccessStatus, time.Second * 30},
 	{models.FailedStatus, time.Second * 30},
-	{models.AbortedStatus, time.Second * 20},
+	{models.CanceledStatus, time.Second * 20},
 	{models.RunningStatus, time.Second * 60},
 	{models.QueuedStatus, time.Second * 30},
 	{models.WarningStatus, time.Second * 20},
@@ -42,9 +42,11 @@ func NewJenkinsUsecase() jenkins.Usecase {
 
 func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (tile *models.Tile, err error) {
 	tile = models.NewTile(jenkins.JenkinsBuildTileType)
-	tile.Label = params.Job
-	if params.Branch != "" {
-		tile.Message = git.HumanizeBranch(params.Branch)
+
+	if params.Branch == "" {
+		tile.Label = params.Job
+	} else {
+		tile.Label = fmt.Sprintf("%s\n%s", params.Job, git.HumanizeBranch(params.Branch))
 	}
 
 	tile.Status = nonempty.Struct(params.Status, tu.computeStatus(params)).(models.TileStatus)
@@ -71,7 +73,7 @@ func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (tile *models
 	}
 
 	// StartedAt / FinishedAt
-	if tile.Status == models.SuccessStatus || tile.Status == models.FailedStatus || tile.Status == models.WarningStatus || tile.Status == models.AbortedStatus {
+	if tile.Status == models.SuccessStatus || tile.Status == models.FailedStatus || tile.Status == models.WarningStatus || tile.Status == models.CanceledStatus {
 		min := time.Now().Unix() - int64(time.Hour.Seconds()*24*30) - 3600
 		max := time.Now().Unix() - 3600
 		delta := max - min

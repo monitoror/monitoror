@@ -33,8 +33,7 @@ func NewTravisCIUsecase(repository travisci.Repository) travisci.Usecase {
 
 func (tu *travisCIUsecase) Build(params *travisCIModels.BuildParams) (*models.Tile, error) {
 	tile := models.NewTile(travisci.TravisCIBuildTileType)
-	tile.Label = params.Repository
-	tile.Message = git.HumanizeBranch(params.Branch)
+	tile.Label = fmt.Sprintf("%s\n%s", params.Repository, git.HumanizeBranch(params.Branch))
 
 	// Request
 	build, err := tu.repository.GetLastBuildStatus(params.Group, params.Repository, params.Branch)
@@ -78,7 +77,7 @@ func (tu *travisCIUsecase) Build(params *travisCIModels.BuildParams) (*models.Ti
 	}
 
 	// Set Author
-	if build.Author.Name != "" || build.Author.AvatarURL != "" {
+	if tile.Status == models.FailedStatus && (build.Author.Name != "" || build.Author.AvatarURL != "") {
 		tile.Author = &models.Author{
 			Name:      build.Author.Name,
 			AvatarURL: build.Author.AvatarURL,
@@ -108,7 +107,7 @@ func parseState(state string) models.TileStatus {
 	case "errored":
 		return models.FailedStatus
 	case "canceled":
-		return models.AbortedStatus
+		return models.CanceledStatus
 	default:
 		return models.UnknownStatus
 	}
