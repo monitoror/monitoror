@@ -9,9 +9,8 @@ import (
 	"testing"
 
 	"github.com/monitoror/monitoror/models"
-
+	"github.com/monitoror/monitoror/monitorable/jenkins"
 	"github.com/monitoror/monitoror/monitorable/jenkins/mocks"
-	"github.com/monitoror/monitoror/monitorable/travisci"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -34,7 +33,7 @@ func TestDelivery_GetBuild_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
-	tile := models.NewTile(travisci.TravisCIBuildTileType)
+	tile := models.NewTile(jenkins.JenkinsBuildTileType)
 	tile.Status = models.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)
