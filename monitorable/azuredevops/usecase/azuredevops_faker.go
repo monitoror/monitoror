@@ -102,7 +102,7 @@ func (tu *azureDevOpsUsecase) Build(params *azureModels.BuildParams) (tile *mode
 
 func (tu *azureDevOpsUsecase) Release(params *azureModels.ReleaseParams) (tile *models.Tile, err error) {
 	tile = models.NewTile(azuredevops.AzureDevOpsReleaseTileType)
-	tile.Label = fmt.Sprintf("%s | %d\n#12", params.Project, *params.Definition)
+	tile.Label = fmt.Sprintf("%s (%d)\n#12", params.Project, *params.Definition)
 
 	tile.Status = nonempty.Struct(params.Status, tu.computeStatus(params.Project, params.Definition, availableReleaseStatus)).(models.TileStatus)
 
@@ -117,21 +117,10 @@ func (tu *azureDevOpsUsecase) Release(params *azureModels.ReleaseParams) (tile *
 	tile.PreviousStatus = nonempty.Struct(params.PreviousStatus, models.SuccessStatus).(models.TileStatus)
 
 	// Author
-	tile.Author = &models.Author{}
-	tile.Author.Name = nonempty.String(params.AuthorName, "Faker")
-	tile.Author.AvatarURL = nonempty.String(params.AuthorAvatarURL, "https://www.gravatar.com/avatar/00000000000000000000000000000000")
-
-	// StartedAt / FinishedAt
-	if tile.Status == models.SuccessStatus || tile.Status == models.FailedStatus || tile.Status == models.WarningStatus || tile.Status == models.CanceledStatus {
-		min := time.Now().Unix() - int64(time.Hour.Seconds()*24*30) - 3600
-		max := time.Now().Unix() - 3600
-		delta := max - min
-
-		tile.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Unix(rand.Int63n(delta)+min, 0)))
-		tile.FinishedAt = pointer.ToTime(nonempty.Time(params.FinishedAt, tile.StartedAt.Add(time.Second*time.Duration(rand.Int63n(3600)))))
-	}
-	if tile.Status == models.RunningStatus {
-		tile.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Now().Add(-time.Second*time.Duration(rand.Int63n(3600)))))
+	if tile.Status == models.FailedStatus {
+		tile.Author = &models.Author{}
+		tile.Author.Name = nonempty.String(params.AuthorName, "Faker")
+		tile.Author.AvatarURL = nonempty.String(params.AuthorAvatarURL, "https://www.gravatar.com/avatar/00000000000000000000000000000000")
 	}
 
 	// Duration / EstimatedDuration
@@ -144,6 +133,17 @@ func (tu *azureDevOpsUsecase) Release(params *azureModels.ReleaseParams) (tile *
 		} else {
 			tile.EstimatedDuration = pointer.ToInt64(0)
 		}
+	}
+
+	// StartedAt / FinishedAt
+	if tile.Duration == nil {
+		tile.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Now().Add(-time.Minute*10)))
+	} else {
+		tile.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Now().Add(-time.Second*time.Duration(*tile.Duration))))
+	}
+
+	if tile.Status != models.QueuedStatus && tile.Status != models.RunningStatus {
+		tile.FinishedAt = pointer.ToTime(nonempty.Time(params.FinishedAt, tile.StartedAt.Add(time.Minute*5)))
 	}
 
 	return

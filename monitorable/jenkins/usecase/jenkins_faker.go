@@ -7,17 +7,15 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/monitoror/monitoror/pkg/monitoror/faker"
-
-	"github.com/AlekSi/pointer"
-
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
-
 	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
 	jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/builder"
+	"github.com/monitoror/monitoror/pkg/monitoror/faker"
+	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
+
+	"github.com/AlekSi/pointer"
 )
 
 type (
@@ -66,23 +64,10 @@ func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (tile *models
 	tile.PreviousStatus = nonempty.Struct(params.PreviousStatus, models.SuccessStatus).(models.TileStatus)
 
 	// Author
-	if tile.Status != models.QueuedStatus {
+	if tile.Status == models.FailedStatus {
 		tile.Author = &models.Author{}
 		tile.Author.Name = nonempty.String(params.AuthorName, "Faker")
 		tile.Author.AvatarURL = nonempty.String(params.AuthorAvatarURL, "https://www.gravatar.com/avatar/00000000000000000000000000000000")
-	}
-
-	// StartedAt / FinishedAt
-	if tile.Status == models.SuccessStatus || tile.Status == models.FailedStatus || tile.Status == models.WarningStatus || tile.Status == models.CanceledStatus {
-		min := time.Now().Unix() - int64(time.Hour.Seconds()*24*30) - 3600
-		max := time.Now().Unix() - 3600
-		delta := max - min
-
-		tile.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Unix(rand.Int63n(delta)+min, 0)))
-		tile.FinishedAt = pointer.ToTime(nonempty.Time(params.FinishedAt, tile.StartedAt.Add(time.Second*time.Duration(rand.Int63n(3600)))))
-	}
-	if tile.Status == models.QueuedStatus || tile.Status == models.RunningStatus {
-		tile.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Now().Add(-time.Second*time.Duration(rand.Int63n(3600)))))
 	}
 
 	// Duration / EstimatedDuration
@@ -95,6 +80,17 @@ func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (tile *models
 		} else {
 			tile.EstimatedDuration = pointer.ToInt64(0)
 		}
+	}
+
+	// StartedAt / FinishedAt
+	if tile.Duration == nil {
+		tile.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Now().Add(-time.Minute*10)))
+	} else {
+		tile.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Now().Add(-time.Second*time.Duration(*tile.Duration))))
+	}
+
+	if tile.Status != models.QueuedStatus && tile.Status != models.RunningStatus {
+		tile.FinishedAt = pointer.ToTime(nonempty.Time(params.FinishedAt, tile.StartedAt.Add(time.Minute*5)))
 	}
 
 	return

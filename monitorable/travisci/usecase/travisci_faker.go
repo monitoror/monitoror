@@ -4,7 +4,6 @@ package usecase
 
 import (
 	"fmt"
-	"math/rand"
 	"time"
 
 	"github.com/monitoror/monitoror/pkg/monitoror/faker"
@@ -50,21 +49,11 @@ func (tu *travisCIUsecase) Build(params *travisCIModels.BuildParams) (tile *mode
 
 	tile.PreviousStatus = nonempty.Struct(params.PreviousStatus, models.SuccessStatus).(models.TileStatus)
 
-	tile.Author = &models.Author{}
-	tile.Author.Name = nonempty.String(params.AuthorName, "Faker")
-	tile.Author.AvatarURL = nonempty.String(params.AuthorAvatarURL, "https://www.gravatar.com/avatar/00000000000000000000000000000000")
-
-	if tile.Status == models.SuccessStatus || tile.Status == models.FailedStatus || tile.Status == models.CanceledStatus {
-		min := time.Now().Unix() - int64(time.Hour.Seconds()*24*30) - 3600
-		max := time.Now().Unix() - 3600
-		delta := max - min
-
-		tile.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Unix(rand.Int63n(delta)+min, 0)))
-		tile.FinishedAt = pointer.ToTime(nonempty.Time(params.FinishedAt, tile.StartedAt.Add(time.Second*time.Duration(rand.Int63n(3600)))))
-	}
-
-	if tile.Status == models.QueuedStatus || tile.Status == models.RunningStatus {
-		tile.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Now().Add(-time.Second*time.Duration(rand.Int63n(3600)))))
+	// Author
+	if tile.Status == models.FailedStatus {
+		tile.Author = &models.Author{}
+		tile.Author.Name = nonempty.String(params.AuthorName, "Faker")
+		tile.Author.AvatarURL = nonempty.String(params.AuthorAvatarURL, "https://www.gravatar.com/avatar/00000000000000000000000000000000")
 	}
 
 	if tile.Status == models.RunningStatus {
@@ -78,11 +67,22 @@ func (tu *travisCIUsecase) Build(params *travisCIModels.BuildParams) (tile *mode
 		}
 	}
 
+	// StartedAt / FinishedAt
+	if tile.Duration == nil {
+		tile.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Now().Add(-time.Minute*10)))
+	} else {
+		tile.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Now().Add(-time.Second*time.Duration(*tile.Duration))))
+	}
+
+	if tile.Status != models.QueuedStatus && tile.Status != models.RunningStatus {
+		tile.FinishedAt = pointer.ToTime(nonempty.Time(params.FinishedAt, tile.StartedAt.Add(time.Minute*5)))
+	}
+
 	return
 }
 
 func (tu *travisCIUsecase) computeStatus(params *travisCIModels.BuildParams) models.TileStatus {
-	projectID := fmt.Sprintf("%s-%s-%s", params.Group, params.Repository, params.Branch)
+	projectID := fmt.Sprintf("%s-%s-%s", params.Owner, params.Repository, params.Branch)
 	value, ok := tu.timeRefByProject[projectID]
 	if !ok {
 		tu.timeRefByProject[projectID] = faker.GetRefTime()
@@ -92,7 +92,7 @@ func (tu *travisCIUsecase) computeStatus(params *travisCIModels.BuildParams) mod
 }
 
 func (tu *travisCIUsecase) computeDuration(params *travisCIModels.BuildParams, duration time.Duration) time.Duration {
-	projectID := fmt.Sprintf("%s-%s-%s", params.Group, params.Repository, params.Branch)
+	projectID := fmt.Sprintf("%s-%s-%s", params.Owner, params.Repository, params.Branch)
 	value, ok := tu.timeRefByProject[projectID]
 	if !ok {
 		tu.timeRefByProject[projectID] = faker.GetRefTime()
