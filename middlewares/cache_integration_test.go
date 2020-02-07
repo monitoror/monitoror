@@ -30,8 +30,8 @@ func TestCacheMiddleware(t *testing.T) {
 	e.HideBanner = true
 	e.HTTPErrorHandler = handlers.HTTPErrorHandler
 
-	store := cache.NewGoCacheStore(time.Minute*5, time.Millisecond*10)
-	cacheMiddleware := NewCacheMiddleware(store, time.Second, time.Millisecond*10)
+	store := cache.NewGoCacheStore(time.Minute*5, time.Millisecond*20)
+	cacheMiddleware := NewCacheMiddleware(store, time.Second, time.Millisecond*20)
 	e.Use(cacheMiddleware.DownstreamStoreMiddleware())
 
 	e.GET("/test", cacheMiddleware.UpstreamCacheHandler(func(c echo.Context) error {
@@ -71,7 +71,7 @@ func TestCacheMiddleware(t *testing.T) {
 	}
 
 	// Wait until upstream cache was clean
-	time.Sleep(time.Millisecond * 15)
+	time.Sleep(time.Millisecond * 25)
 
 	timeout = true
 	resp, err = http.Get(url)
