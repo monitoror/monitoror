@@ -24,6 +24,9 @@
     { "type": "AZUREDEVOPS-BUILD", "params": { "project": "monitoror", "definition": 1, "branch": "master", "status": "QUEUED" } },
     { "type": "AZUREDEVOPS-BUILD", "params": { "project": "monitoror", "definition": 1, "branch": "master", "status": "RUNNING" } },
     { "type": "AZUREDEVOPS-RELEASE", "params": { "project": "monitoror", "definition": 1, "status": "SUCCESS" } },
-    { "type": "AZUREDEVOPS-RELEASE", "params": { "project": "monitoror", "definition": 1, "status": "RUNNING" } }
+    { "type": "AZUREDEVOPS-RELEASE", "params": { "project": "monitoror", "definition": 1, "status": "RUNNING" } },
+    { "type": "GITHUB-CHECKS", "params": { "owner": "monitoror", "repository": "monitoror", "ref": "master" } },
+    { "type": "GITHUB-CHECKS", "params": { "owner": "monitoror", "repository": "monitoror", "ref": "master", "status": "QUEUED" } },
+    { "type": "GITHUB-CHECKS", "params": { "owner": "monitoror", "repository": "monitoror", "ref": "master", "status": "RUNNING" } }
   ]
 }
