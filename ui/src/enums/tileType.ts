@@ -5,6 +5,8 @@ export enum TileType {
   Ping = 'PING',
   Port = 'PORT',
   Pingdom = 'PINGDOM-CHECK',
+  GitHubChecks = 'GITHUB-CHECKS',
+  GitHubIssues = 'GITHUB-ISSUES',
   GitLab = 'GITLAB-BUILD',
   Travis = 'TRAVISCI-BUILD',
   Jenkins = 'JENKINS-BUILD',

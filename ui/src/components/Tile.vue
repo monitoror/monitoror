@@ -91,6 +91,7 @@
         'c-monitoror-tile__status-running': this.isRunning,
         'c-monitoror-tile__status-queued': this.isQueued,
         'c-monitoror-tile__status-canceled': this.status === TileStatus.Canceled,
+        'c-monitoror-tile__status-action-required': this.status === TileStatus.ActionRequired,
       }
     }
 
@@ -394,8 +395,12 @@
       --tile-background: var(--color-warning);
     }
 
-    &__status-cancel {
-      --tile-background: var(--color-warning); // TODO: yellow
+    &__status-canceled {
+      --tile-background: var(--color-canceled);
+    }
+
+    &__status-action-required {
+      --tile-background: var(--color-action-required);
     }
   }
 

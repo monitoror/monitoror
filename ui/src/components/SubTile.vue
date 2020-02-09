@@ -63,6 +63,7 @@
         'c-monitoror-sub-tile__status-running': this.isRunning,
         'c-monitoror-sub-tile__status-queued': this.isQueued,
         'c-monitoror-sub-tile__status-canceled': this.status === TileStatus.Canceled,
+        'c-monitoror-sub-tile__status-action-required': this.status === TileStatus.ActionRequired,
       }
     }
 
@@ -239,8 +240,12 @@
       --sub-tile-status-color: var(--color-warning);
     }
 
-    &__status-cancel {
-      --sub-tile-status-color: var(--color-warning); // TODO: yellow
+    &__status-canceled {
+      --sub-tile-status-color: var(--color-canceled);
+    }
+
+    &__status-action-required {
+      --sub-tile-status-color: var(--color-action-required);
     }
   }
 
