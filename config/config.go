@@ -85,7 +85,7 @@ type (
 	Github struct {
 		Timeout              int // In Millisecond
 		Token                string
-		IssueCacheExpiration int // In Millisecond
+		CountCacheExpiration int // In Millisecond
 	}
 )
 
@@ -164,6 +164,7 @@ func InitConfig() *Config {
 	for variant := range variants["Github"] {
 		viper.SetDefault(fmt.Sprintf("Monitorable.Github.%s.Timeout", variant), 5000)
 		viper.SetDefault(fmt.Sprintf("Monitorable.Github.%s.Token", variant), "")
+		viper.SetDefault(fmt.Sprintf("Monitorable.Github.%s.CountCacheExpiration", variant), 30000)
 	}
 
 	_ = viper.Unmarshal(&config)

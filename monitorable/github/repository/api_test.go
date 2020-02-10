@@ -30,7 +30,7 @@ func initRepository(t *testing.T) *githubRepository {
 	return nil
 }
 
-func TestRepository_GetIssuesCount_Error(t *testing.T) {
+func TestRepository_GetSearchCount_Error(t *testing.T) {
 	githubErr := errors.New("github error")
 
 	mocksSearchService := new(mocks.SearchService)
@@ -41,7 +41,7 @@ func TestRepository_GetIssuesCount_Error(t *testing.T) {
 	if repository != nil {
 		repository.searchService = mocksSearchService
 
-		_, err := repository.GetIssuesCount("test")
+		_, err := repository.GetCount("test")
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "github error")
 			mocksSearchService.AssertNumberOfCalls(t, "Issues", 1)
@@ -50,7 +50,7 @@ func TestRepository_GetIssuesCount_Error(t *testing.T) {
 	}
 }
 
-func TestRepository_GetIssuesCount_Success(t *testing.T) {
+func TestRepository_GetSearchCount_Success(t *testing.T) {
 	mocksSearchService := new(mocks.SearchService)
 	mocksSearchService.On("Issues", Anything, AnythingOfType("string"), Anything).
 		Return(&github.IssuesSearchResult{Total: ToInt(42)}, nil, nil)
@@ -59,7 +59,7 @@ func TestRepository_GetIssuesCount_Success(t *testing.T) {
 	if repository != nil {
 		repository.searchService = mocksSearchService
 
-		value, err := repository.GetIssuesCount("test")
+		value, err := repository.GetCount("test")
 		if assert.NoError(t, err) {
 			assert.Equal(t, 42, value)
 			mocksSearchService.AssertNumberOfCalls(t, "Issues", 1)

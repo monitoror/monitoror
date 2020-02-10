@@ -6,10 +6,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestIssuesParams_IsValid(t *testing.T) {
-	p := IssuesParams{Query: "test"}
+func TestCountParams_IsValid(t *testing.T) {
+	p := CountParams{Query: "test"}
 	assert.True(t, p.IsValid())
 
-	p = IssuesParams{}
+	p = CountParams{}
 	assert.False(t, p.IsValid())
 }

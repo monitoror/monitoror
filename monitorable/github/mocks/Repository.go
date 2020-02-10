@@ -60,27 +60,6 @@ func (_m *Repository) GetCommit(owner string, repository string, sha string) (*m
 	return r0, r1
 }
 
-// GetIssuesCount provides a mock function with given fields: query
-func (_m *Repository) GetIssuesCount(query string) (int, error) {
-	ret := _m.Called(query)
-
-	var r0 int
-	if rf, ok := ret.Get(0).(func(string) int); ok {
-		r0 = rf(query)
-	} else {
-		r0 = ret.Get(0).(int)
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(string) error); ok {
-		r1 = rf(query)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // GetPullRequests provides a mock function with given fields: owner, repository
 func (_m *Repository) GetPullRequests(owner string, repository string) ([]models.PullRequest, error) {
 	ret := _m.Called(owner, repository)
@@ -97,6 +76,27 @@ func (_m *Repository) GetPullRequests(owner string, repository string) ([]models
 	var r1 error
 	if rf, ok := ret.Get(1).(func(string, string) error); ok {
 		r1 = rf(owner, repository)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetCount provides a mock function with given fields: query
+func (_m *Repository) GetCount(query string) (int, error) {
+	ret := _m.Called(query)
+
+	var r0 int
+	if rf, ok := ret.Get(0).(func(string) int); ok {
+		r0 = rf(query)
+	} else {
+		r0 = ret.Get(0).(int)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(query)
 	} else {
 		r1 = ret.Error(1)
 	}

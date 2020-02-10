@@ -180,10 +180,10 @@ func (s *Server) registerGithub(variant string) {
 
 	// Register route to echo
 	azureGroup := s.api.Group("/github")
-	routeIssues := azureGroup.GET("/issues", s.cm.UpstreamCacheHandler(delivery.GetIssues))
+	routeCount := azureGroup.GET("/count", s.cm.UpstreamCacheHandler(delivery.GetCount))
 	routeChecks := azureGroup.GET("/checks", s.cm.UpstreamCacheHandler(delivery.GetChecks))
 
 	// Register data for config hydration
-	s.configHelper.RegisterTile(github.GithubIssuesTileType, &_githubModels.IssuesParams{}, routeIssues.Path)
+	s.configHelper.RegisterTile(github.GithubCountTileType, &_githubModels.CountParams{}, routeCount.Path)
 	s.configHelper.RegisterTile(github.GithubChecksTileType, &_githubModels.ChecksParams{}, routeChecks.Path)
 }

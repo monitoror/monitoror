@@ -38,8 +38,8 @@ func NewGithubUsecase() github.Usecase {
 	return &githubUsecase{make(map[string]time.Time)}
 }
 
-func (gu *githubUsecase) Issues(params *githubModels.IssuesParams) (*models.Tile, error) {
-	tile := models.NewTile(github.GithubIssuesTileType)
+func (gu *githubUsecase) Count(params *githubModels.CountParams) (*models.Tile, error) {
+	tile := models.NewTile(github.GithubCountTileType)
 	tile.Label = params.Query
 
 	tile.Status = models.SuccessStatus

@@ -27,17 +27,17 @@ func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 	return
 }
 
-func TestDelivery_GetIssues_Success(t *testing.T) {
+func TestDelivery_GetCount_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
 	ctx.QueryParams().Set("query", "test")
 
-	tile := models.NewTile(github.GithubIssuesTileType)
+	tile := models.NewTile(github.GithubCountTileType)
 	tile.Status = models.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("Issues", Anything).Return(tile, nil)
+	mockUsecase.On("Count", Anything).Return(tile, nil)
 	handler := NewGithubDelivery(mockUsecase)
 
 	// Expected
@@ -45,15 +45,15 @@ func TestDelivery_GetIssues_Success(t *testing.T) {
 	assert.NoError(t, err, "unable to marshal tile")
 
 	// Test
-	if assert.NoError(t, handler.GetIssues(ctx)) {
+	if assert.NoError(t, handler.GetCount(ctx)) {
 		assert.Equal(t, http.StatusOK, res.Code)
 		assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
-		mockUsecase.AssertNumberOfCalls(t, "Issues", 1)
+		mockUsecase.AssertNumberOfCalls(t, "Count", 1)
 		mockUsecase.AssertExpectations(t)
 	}
 }
 
-func TestDelivery_GetIssues_MissingParams(t *testing.T) {
+func TestDelivery_GetCount_MissingParams(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
@@ -61,30 +61,30 @@ func TestDelivery_GetIssues_MissingParams(t *testing.T) {
 	handler := NewGithubDelivery(mockUsecase)
 
 	// Test
-	err := handler.GetIssues(ctx)
+	err := handler.GetCount(ctx)
 	if assert.Error(t, err) {
 		assert.Equal(t, http.StatusOK, res.Code)
 		assert.IsType(t, &models.MonitororError{}, err)
-		mockUsecase.AssertNumberOfCalls(t, "Issues", 0)
+		mockUsecase.AssertNumberOfCalls(t, "Count", 0)
 		mockUsecase.AssertExpectations(t)
 	}
 }
 
-func TestDelivery_GetIssues_Error(t *testing.T) {
+func TestDelivery_GetCount_Error(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
 	ctx.QueryParams().Set("query", "test")
 
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("Issues", Anything).Return(nil, errors.New("build error"))
+	mockUsecase.On("Count", Anything).Return(nil, errors.New("build error"))
 	handler := NewGithubDelivery(mockUsecase)
 
 	// Test
-	err := handler.GetIssues(ctx)
+	err := handler.GetCount(ctx)
 	if assert.Error(t, err) {
 		assert.Equal(t, http.StatusOK, res.Code)
-		mockUsecase.AssertNumberOfCalls(t, "Issues", 1)
+		mockUsecase.AssertNumberOfCalls(t, "Count", 1)
 		mockUsecase.AssertExpectations(t)
 	}
 }

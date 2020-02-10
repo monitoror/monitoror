@@ -227,8 +227,8 @@ func (s *Server) registerAzureDevOps(variant string) {
 
 func (s *Server) registerGithub(variant string) {
 	githubConfig := s.config.Monitorable.Github[variant]
-	// Custom UpstreamCacheExpiration only for Issues because github has no-cache for this query and the rate limit is 30req/Minutes
-	issueCacheExpiration := time.Millisecond * time.Duration(githubConfig.IssueCacheExpiration)
+	// Custom UpstreamCacheExpiration only for count because github has no-cache for this query and the rate limit is 30req/Hour
+	countCacheExpiration := time.Millisecond * time.Duration(githubConfig.CountCacheExpiration)
 
 	repository := _githubRepository.NewGithubRepository(githubConfig)
 	usecase := _githubUsecase.NewGithubUsecase(repository)
@@ -236,12 +236,12 @@ func (s *Server) registerGithub(variant string) {
 
 	// Register route to echo
 	azureGroup := s.api.Group(fmt.Sprintf("/github/%s", variant))
-	routeIssues := azureGroup.GET("/issues", s.cm.UpstreamCacheHandlerWithExpiration(issueCacheExpiration, delivery.GetIssues))
+	routeCount := azureGroup.GET("/count", s.cm.UpstreamCacheHandlerWithExpiration(countCacheExpiration, delivery.GetCount))
 	routeChecks := azureGroup.GET("/checks", s.cm.UpstreamCacheHandler(delivery.GetChecks))
 
 	// Register data for config hydration
-	s.configHelper.RegisterTileWithConfigVariant(github.GithubIssuesTileType,
-		variant, &_githubModels.IssuesParams{}, routeIssues.Path)
+	s.configHelper.RegisterTileWithConfigVariant(github.GithubCountTileType,
+		variant, &_githubModels.CountParams{}, routeCount.Path)
 	s.configHelper.RegisterTileWithConfigVariant(github.GithubChecksTileType,
 		variant, &_githubModels.ChecksParams{}, routeChecks.Path)
 	s.configHelper.RegisterDynamicTileWithConfigVariant(github.GithubPullRequestTileType,

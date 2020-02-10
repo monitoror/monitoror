@@ -56,7 +56,7 @@ func NewGithubRepository(config *config.Github) github.Repository {
 	}
 }
 
-func (gr *githubRepository) GetIssuesCount(query string) (int, error) {
+func (gr *githubRepository) GetCount(query string) (int, error) {
 	issuesResult, _, err := gr.searchService.Issues(context.TODO(), query, nil)
 	if err != nil {
 		return 0, err

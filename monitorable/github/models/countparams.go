@@ -3,11 +3,11 @@
 package models
 
 type (
-	IssuesParams struct {
+	CountParams struct {
 		Query string `json:"query" query:"query"`
 	}
 )
 
-func (p *IssuesParams) IsValid() bool {
+func (p *CountParams) IsValid() bool {
 	return p.Query != ""
 }
