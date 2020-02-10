@@ -18,15 +18,15 @@ func NewGithubDelivery(p github.Usecase) *GithubDelivery {
 	return &GithubDelivery{p}
 }
 
-func (h *GithubDelivery) GetIssues(c echo.Context) error {
+func (h *GithubDelivery) GetCount(c echo.Context) error {
 	// Bind / check Params
-	params := &githubModels.IssuesParams{}
+	params := &githubModels.CountParams{}
 	err := c.Bind(params)
 	if err != nil || !params.IsValid() {
 		return models.QueryParamsError
 	}
 
-	tile, err := h.githubUsecase.Issues(params)
+	tile, err := h.githubUsecase.Count(params)
 	if err != nil {
 		return err
 	}

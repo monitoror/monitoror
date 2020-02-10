@@ -17,41 +17,41 @@ import (
 	. "github.com/stretchr/testify/mock"
 )
 
-func TestIssues_Error(t *testing.T) {
+func TestCount_Error(t *testing.T) {
 	mockRepository := new(mocks.Repository)
-	mockRepository.On("GetIssuesCount", AnythingOfType("string")).
+	mockRepository.On("GetCount", AnythingOfType("string")).
 		Return(0, errors.New("boom"))
 
 	gu := NewGithubUsecase(mockRepository)
 
-	tile, err := gu.Issues(&models.IssuesParams{Query: "test"})
+	tile, err := gu.Count(&models.CountParams{Query: "test"})
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
 		assert.IsType(t, &MonitororError{}, err)
-		assert.Equal(t, "unable to find issues count or wrong query", err.Error())
-		mockRepository.AssertNumberOfCalls(t, "GetIssuesCount", 1)
+		assert.Equal(t, "unable to find count or wrong query", err.Error())
+		mockRepository.AssertNumberOfCalls(t, "GetCount", 1)
 		mockRepository.AssertExpectations(t)
 	}
 }
 
-func TestIssues_Success(t *testing.T) {
+func TestCount_Success(t *testing.T) {
 	mockRepository := new(mocks.Repository)
-	mockRepository.On("GetIssuesCount", AnythingOfType("string")).
+	mockRepository.On("GetCount", AnythingOfType("string")).
 		Return(10, nil)
 
 	gu := NewGithubUsecase(mockRepository)
 
-	expected := NewTile(github.GithubIssuesTileType)
+	expected := NewTile(github.GithubCountTileType)
 	expected.Label = "test"
 	expected.Status = SuccessStatus
 	expected.Values = []float64{10}
 
-	tile, err := gu.Issues(&models.IssuesParams{Query: "test"})
+	tile, err := gu.Count(&models.CountParams{Query: "test"})
 	if assert.NoError(t, err) {
 		assert.NotNil(t, tile)
 		assert.Equal(t, expected, tile)
 
-		mockRepository.AssertNumberOfCalls(t, "GetIssuesCount", 1)
+		mockRepository.AssertNumberOfCalls(t, "GetCount", 1)
 		mockRepository.AssertExpectations(t)
 	}
 }

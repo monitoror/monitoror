@@ -7,14 +7,14 @@ import (
 )
 
 const (
-	GithubIssuesTileType      models.TileType = "GITHUB-ISSUES"
+	GithubCountTileType       models.TileType = "GITHUB-COUNT"
 	GithubChecksTileType      models.TileType = "GITHUB-CHECKS"
 	GithubPullRequestTileType models.TileType = "GITHUB-PULLREQUESTS"
 )
 
 type (
 	Usecase interface {
-		Issues(params *githubModels.IssuesParams) (*models.Tile, error)
+		Count(params *githubModels.CountParams) (*models.Tile, error)
 		Checks(params *githubModels.ChecksParams) (*models.Tile, error)
 		ListDynamicTile(params interface{}) ([]builder.Result, error)
 	}

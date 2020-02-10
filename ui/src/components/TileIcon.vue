@@ -99,7 +99,7 @@
     get isGitHub(): boolean {
       return [
         TileType.GitHubChecks,
-        TileType.GitHubIssues,
+        TileType.GitHubCount,
       ].includes(this.tileType)
     }
 

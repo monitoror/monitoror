@@ -49,13 +49,13 @@ func NewGithubUsecase(repository github.Repository) github.Usecase {
 	}
 }
 
-func (gu *githubUsecase) Issues(params *githubModels.IssuesParams) (*models.Tile, error) {
-	tile := models.NewTile(github.GithubIssuesTileType)
+func (gu *githubUsecase) Count(params *githubModels.CountParams) (*models.Tile, error) {
+	tile := models.NewTile(github.GithubCountTileType)
 	tile.Label = params.Query
 
-	count, err := gu.repository.GetIssuesCount(params.Query)
+	count, err := gu.repository.GetCount(params.Query)
 	if err != nil {
-		return nil, &models.MonitororError{Err: err, Tile: tile, Message: "unable to find issues count or wrong query"}
+		return nil, &models.MonitororError{Err: err, Tile: tile, Message: "unable to find count or wrong query"}
 	}
 
 	tile.Status = models.SuccessStatus
