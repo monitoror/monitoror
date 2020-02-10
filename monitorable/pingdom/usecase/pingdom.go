@@ -14,6 +14,7 @@ import (
 	"github.com/monitoror/monitoror/monitorable/pingdom"
 	pingdomModels "github.com/monitoror/monitoror/monitorable/pingdom/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/builder"
+
 	uuid "github.com/satori/go.uuid"
 )
 

@@ -3,14 +3,14 @@
 package usecase
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
-
-	"github.com/monitoror/monitoror/pkg/monitoror/faker"
 
 	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/ping"
 	pingModels "github.com/monitoror/monitoror/monitorable/ping/models"
+	"github.com/monitoror/monitoror/pkg/monitoror/faker"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
 )
 
@@ -38,12 +38,11 @@ func (pu *pingUsecase) Ping(params *pingModels.PingParams) (tile *models.Tile, e
 
 	// Message
 	if tile.Status == models.SuccessStatus {
-		tile.Unit = models.MillisecondUnit
-
-		if len(params.Values) != 0 {
-			tile.Values = params.Values
+		tile.WithValue(models.MillisecondUnit)
+		if len(params.ValueValues) != 0 {
+			tile.Value.Values = params.ValueValues
 		} else {
-			tile.Values = []float64{300 * rand.Float64()}
+			tile.Value.Values = append(tile.Value.Values, fmt.Sprintf("%d", rand.Int31n(300)))
 		}
 	}
 

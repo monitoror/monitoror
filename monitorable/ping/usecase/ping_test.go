@@ -5,10 +5,11 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/models"
 	. "github.com/monitoror/monitoror/monitorable/ping"
 	"github.com/monitoror/monitoror/monitorable/ping/mocks"
-	"github.com/monitoror/monitoror/monitorable/ping/models"
+	pingModels "github.com/monitoror/monitoror/monitorable/ping/models"
+
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"
 )
@@ -16,7 +17,7 @@ import (
 func TestUsecase_Ping_Success(t *testing.T) {
 	// Init
 	mockRepo := new(mocks.Repository)
-	mockRepo.On("ExecutePing", AnythingOfType("string")).Return(&models.Ping{
+	mockRepo.On("ExecutePing", AnythingOfType("string")).Return(&pingModels.Ping{
 		Average: time.Second,
 		Min:     time.Second,
 		Max:     time.Second,
@@ -24,16 +25,15 @@ func TestUsecase_Ping_Success(t *testing.T) {
 	usecase := NewPingUsecase(mockRepo)
 
 	// Params
-	param := &models.PingParams{
+	param := &pingModels.PingParams{
 		Hostname: "monitoror.example.com",
 	}
 
 	// Expected
-	eTile := NewTile(PingTileType)
-	eTile.Unit = MillisecondUnit
+	eTile := models.NewTile(PingTileType).WithValue(models.MillisecondUnit)
 	eTile.Label = param.Hostname
-	eTile.Status = SuccessStatus
-	eTile.Values = []float64{1000}
+	eTile.Status = models.SuccessStatus
+	eTile.Value.Values = append(eTile.Value.Values, "1000")
 
 	// Test
 	rTile, err := usecase.Ping(param)
@@ -53,14 +53,14 @@ func TestUsecase_Ping_Fail(t *testing.T) {
 	usecase := NewPingUsecase(mockRepo)
 
 	// Params
-	param := &models.PingParams{
+	param := &pingModels.PingParams{
 		Hostname: "monitoror.example.com",
 	}
 
 	// Expected
-	eTile := NewTile(PingTileType)
+	eTile := models.NewTile(PingTileType)
 	eTile.Label = param.Hostname
-	eTile.Status = FailedStatus
+	eTile.Status = models.FailedStatus
 
 	// Test
 	rTile, err := usecase.Ping(param)

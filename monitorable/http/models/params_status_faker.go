@@ -12,7 +12,6 @@ type (
 
 		Status  models.TileStatus `json:"status" query:"status"`
 		Message string            `json:"message" query:"message"`
-		Values  []float64         `json:"values" query:"values"`
 	}
 )
 
@@ -26,4 +25,4 @@ func (p *HTTPStatusParams) GetStatusCodes() (min int, max int) {
 
 func (p *HTTPStatusParams) GetStatus() models.TileStatus { return p.Status }
 func (p *HTTPStatusParams) GetMessage() string           { return p.Message }
-func (p *HTTPStatusParams) GetValues() []float64         { return p.Values }
+func (p *HTTPStatusParams) GetValueValues() []string     { panic("unimplemented") }

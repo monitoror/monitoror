@@ -8,10 +8,11 @@ import (
 
 	"github.com/AlekSi/pointer"
 	"github.com/jsdidierlaurent/echo-middleware/cache"
-	. "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/http"
 	"github.com/monitoror/monitoror/monitorable/http/mocks"
-	"github.com/monitoror/monitoror/monitorable/http/models"
+	. "github.com/monitoror/monitoror/monitorable/http/models"
+
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"
 	"gopkg.in/yaml.v2"
@@ -22,7 +23,7 @@ func TestHTTPStatus_WithError(t *testing.T) {
 	mockRepository.On("Get", AnythingOfType("string")).Return(nil, context.DeadlineExceeded)
 	tu := NewHTTPUsecase(mockRepository, cache.NewGoCacheStore(time.Minute*5, time.Second), 2000)
 
-	tile, err := tu.HTTPStatus(&models.HTTPStatusParams{URL: "toto"})
+	tile, err := tu.HTTPStatus(&HTTPStatusParams{URL: "toto"})
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
 		mockRepository.AssertNumberOfCalls(t, "Get", 1)
@@ -32,111 +33,112 @@ func TestHTTPStatus_WithError(t *testing.T) {
 
 func TestHtmlAll_WithoutErrors(t *testing.T) {
 	for _, testcase := range []struct {
-		body            string
-		usecaseFunc     func(usecase http.Usecase) (*Tile, error)
-		expectedStatus  TileStatus
-		expectedLabel   string
-		expectedMessage string
-		expectedValues  []float64
+		body                string
+		usecaseFunc         func(usecase http.Usecase) (*models.Tile, error)
+		expectedStatus      models.TileStatus
+		expectedLabel       string
+		expectedMessage     string
+		expectedValueUnit   models.TileValuesUnit
+		expectedValueValues []string
 	}{
 		{
-			// HTTP Any
-			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
-				return usecase.HTTPStatus(&models.HTTPStatusParams{URL: "toto"})
+			// HTTP Status
+			usecaseFunc: func(usecase http.Usecase) (*models.Tile, error) {
+				return usecase.HTTPStatus(&HTTPStatusParams{URL: "toto"})
 			},
-			expectedStatus: SuccessStatus, expectedLabel: "toto",
+			expectedStatus: models.SuccessStatus, expectedLabel: "toto",
 		},
 		{
-			// HTTP Any with wrong status
-			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
-				return usecase.HTTPStatus(&models.HTTPStatusParams{URL: "toto", StatusCodeMin: pointer.ToInt(400), StatusCodeMax: pointer.ToInt(499)})
+			// HTTP Status with wrong status
+			usecaseFunc: func(usecase http.Usecase) (*models.Tile, error) {
+				return usecase.HTTPStatus(&HTTPStatusParams{URL: "toto", StatusCodeMin: pointer.ToInt(400), StatusCodeMax: pointer.ToInt(499)})
 			},
-			expectedStatus: FailedStatus, expectedLabel: "toto", expectedMessage: "status code 200",
+			expectedStatus: models.FailedStatus, expectedLabel: "toto", expectedMessage: "status code 200",
 		},
 		{
 			// HTTP Raw with matched regex
 			body: "errors: 28",
-			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
-				return usecase.HTTPRaw(&models.HTTPRawParams{URL: "toto", Regex: `errors: (\d*)`})
+			usecaseFunc: func(usecase http.Usecase) (*models.Tile, error) {
+				return usecase.HTTPRaw(&HTTPRawParams{URL: "toto", Regex: `errors: (\d*)`})
 			},
-			expectedStatus: SuccessStatus, expectedLabel: "toto", expectedValues: []float64{28},
+			expectedStatus: models.SuccessStatus, expectedLabel: "toto", expectedValueUnit: models.NumberUnit, expectedValueValues: []string{"28"},
 		},
 		{
 			// HTTP Raw without matched regex
 			body: "api call: 20",
-			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
-				return usecase.HTTPRaw(&models.HTTPRawParams{URL: "toto", Regex: `errors: (\d*)`})
+			usecaseFunc: func(usecase http.Usecase) (*models.Tile, error) {
+				return usecase.HTTPRaw(&HTTPRawParams{URL: "toto", Regex: `errors: (\d*)`})
 			},
-			expectedStatus: FailedStatus, expectedLabel: "toto", expectedMessage: `api call: 20`,
+			expectedStatus: models.FailedStatus, expectedLabel: "toto", expectedValueUnit: models.RawUnit, expectedValueValues: []string{`api call: 20`},
 		},
 		{
 			// HTTP Json
 			body: `{"key": "value"}`,
-			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
-				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.JSONFormat, Key: "key"})
+			usecaseFunc: func(usecase http.Usecase) (*models.Tile, error) {
+				return usecase.HTTPFormatted(&HTTPFormattedParams{URL: "toto", Format: JSONFormat, Key: "key"})
 			},
-			expectedStatus: SuccessStatus, expectedLabel: "toto", expectedMessage: "value",
+			expectedStatus: models.SuccessStatus, expectedLabel: "toto", expectedValueUnit: models.RawUnit, expectedValueValues: []string{"value"},
 		},
 		{
 			// HTTP Json with key jq like
 			body: `{"key": "value"}`,
-			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
-				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.JSONFormat, Key: ".key"})
+			usecaseFunc: func(usecase http.Usecase) (*models.Tile, error) {
+				return usecase.HTTPFormatted(&HTTPFormattedParams{URL: "toto", Format: JSONFormat, Key: ".key"})
 			},
-			expectedStatus: SuccessStatus, expectedLabel: "toto", expectedMessage: "value",
+			expectedStatus: models.SuccessStatus, expectedLabel: "toto", expectedValueUnit: models.RawUnit, expectedValueValues: []string{"value"},
 		},
 		{
 			// HTTP Json with long float
 			body: `{"key": 123456789 }`,
-			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
-				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.JSONFormat, Key: "key"})
+			usecaseFunc: func(usecase http.Usecase) (*models.Tile, error) {
+				return usecase.HTTPFormatted(&HTTPFormattedParams{URL: "toto", Format: JSONFormat, Key: "key"})
 			},
-			expectedStatus: SuccessStatus, expectedLabel: "toto", expectedValues: []float64{123456789},
+			expectedStatus: models.SuccessStatus, expectedLabel: "toto", expectedValueUnit: models.NumberUnit, expectedValueValues: []string{"123456789"},
 		},
 		{
 			// HTTP Json missing key
 			body: `{"key": "value"}`,
-			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
-				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.JSONFormat, Key: "key2"})
+			usecaseFunc: func(usecase http.Usecase) (*models.Tile, error) {
+				return usecase.HTTPFormatted(&HTTPFormattedParams{URL: "toto", Format: JSONFormat, Key: "key2"})
 			},
-			expectedStatus: FailedStatus, expectedLabel: "toto", expectedMessage: `unable to lookup for key "key2"`,
+			expectedStatus: models.FailedStatus, expectedLabel: "toto", expectedMessage: `unable to lookup for key "key2"`,
 		},
 		{
 			// HTTP Json unable to unmarshal
 			body: `{"key": "value`,
-			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
-				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.JSONFormat, Key: "key"})
+			usecaseFunc: func(usecase http.Usecase) (*models.Tile, error) {
+				return usecase.HTTPFormatted(&HTTPFormattedParams{URL: "toto", Format: JSONFormat, Key: "key"})
 			},
-			expectedStatus: FailedStatus, expectedLabel: "toto", expectedMessage: `unable to unmarshal content`,
+			expectedStatus: models.FailedStatus, expectedLabel: "toto", expectedMessage: `unable to unmarshal content`,
 		},
 		{
 			// HTTP XML
 			body: `<check><status test="2">OK</status></check>`,
-			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
-				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.XMLFormat, Key: "check.status.#content"})
+			usecaseFunc: func(usecase http.Usecase) (*models.Tile, error) {
+				return usecase.HTTPFormatted(&HTTPFormattedParams{URL: "toto", Format: XMLFormat, Key: "check.status.#content"})
 			},
-			expectedStatus: SuccessStatus, expectedLabel: "toto", expectedMessage: "OK",
+			expectedStatus: models.SuccessStatus, expectedLabel: "toto", expectedValueUnit: models.RawUnit, expectedValueValues: []string{"OK"},
 		},
 		{
 			// HTTP XML unable to convert to json
 			body: `<check><status test="2">OK</stat`,
-			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
-				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.XMLFormat, Key: "check.status.#content"})
+			usecaseFunc: func(usecase http.Usecase) (*models.Tile, error) {
+				return usecase.HTTPFormatted(&HTTPFormattedParams{URL: "toto", Format: XMLFormat, Key: "check.status.#content"})
 			},
-			expectedStatus: FailedStatus, expectedLabel: "toto", expectedMessage: "unable to convert xml to json",
+			expectedStatus: models.FailedStatus, expectedLabel: "toto", expectedMessage: "unable to convert xml to json",
 		},
 		{
 			// HTTP YAML
 			body: "key: value",
-			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
-				return usecase.HTTPFormatted(&models.HTTPFormattedParams{URL: "toto", Format: models.YAMLFormat, Key: "key"})
+			usecaseFunc: func(usecase http.Usecase) (*models.Tile, error) {
+				return usecase.HTTPFormatted(&HTTPFormattedParams{URL: "toto", Format: YAMLFormat, Key: "key"})
 			},
-			expectedStatus: SuccessStatus, expectedLabel: "toto", expectedMessage: "value",
+			expectedStatus: models.SuccessStatus, expectedLabel: "toto", expectedValueUnit: models.RawUnit, expectedValueValues: []string{"value"},
 		},
 	} {
 		mockRepository := new(mocks.Repository)
 		mockRepository.On("Get", AnythingOfType("string")).
-			Return(&models.Response{StatusCode: 200, Body: []byte(testcase.body)}, nil)
+			Return(&Response{StatusCode: 200, Body: []byte(testcase.body)}, nil)
 		tu := NewHTTPUsecase(mockRepository, cache.NewGoCacheStore(time.Minute*5, time.Second), 2000)
 
 		tile, err := testcase.usecaseFunc(tu)
@@ -144,7 +146,10 @@ func TestHtmlAll_WithoutErrors(t *testing.T) {
 			assert.Equal(t, testcase.expectedStatus, tile.Status)
 			assert.Equal(t, testcase.expectedLabel, tile.Label)
 			assert.Equal(t, testcase.expectedMessage, tile.Message)
-			assert.Equal(t, testcase.expectedValues, tile.Values)
+			if tile.Value != nil {
+				assert.Equal(t, testcase.expectedValueUnit, tile.Value.Unit)
+				assert.Equal(t, testcase.expectedValueValues, tile.Value.Values)
+			}
 			mockRepository.AssertNumberOfCalls(t, "Get", 1)
 			mockRepository.AssertExpectations(t)
 		}
@@ -154,27 +159,27 @@ func TestHtmlAll_WithoutErrors(t *testing.T) {
 func TestHTTPStatus_WithCache(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("Get", AnythingOfType("string")).
-		Return(&models.Response{StatusCode: 200, Body: []byte("test with cache")}, nil)
+		Return(&Response{StatusCode: 200, Body: []byte("test with cache")}, nil)
 
 	tu := NewHTTPUsecase(mockRepository, cache.NewGoCacheStore(time.Minute*5, time.Second), 2000)
 
-	tile, err := tu.HTTPRaw(&models.HTTPRawParams{URL: "toto"})
+	tile, err := tu.HTTPRaw(&HTTPRawParams{URL: "toto"})
 	if assert.NoError(t, err) {
 		assert.Equal(t, "toto", tile.Label)
-		assert.Equal(t, "test with cache", tile.Message)
+		assert.Equal(t, "test with cache", tile.Value.Values[0])
 	}
 
-	tile, err = tu.HTTPRaw(&models.HTTPRawParams{URL: "toto"})
+	tile, err = tu.HTTPRaw(&HTTPRawParams{URL: "toto"})
 	if assert.NoError(t, err) {
 		assert.Equal(t, "toto", tile.Label)
-		assert.Equal(t, "test with cache", tile.Message)
+		assert.Equal(t, "test with cache", tile.Value.Values[0])
 	}
 	mockRepository.AssertNumberOfCalls(t, "Get", 1)
 	mockRepository.AssertExpectations(t)
 }
 
 func TestHTTPUsecase_CheckStatusCode(t *testing.T) {
-	httpAny := &models.HTTPStatusParams{}
+	httpAny := &HTTPStatusParams{}
 	assert.True(t, checkStatusCode(httpAny, 301))
 	assert.False(t, checkStatusCode(httpAny, 404))
 
@@ -185,7 +190,7 @@ func TestHTTPUsecase_CheckStatusCode(t *testing.T) {
 }
 
 func TestHTTPUsecase_Match(t *testing.T) {
-	httpRaw := &models.HTTPRawParams{}
+	httpRaw := &HTTPRawParams{}
 	match, substring := matchRegex(httpRaw, "test")
 	assert.True(t, match)
 	assert.Equal(t, "test", substring)
@@ -218,7 +223,7 @@ func TestHTTPUsecase_LookupKey_Json(t *testing.T) {
 	}
 }
 `
-	httpFormatted := &models.HTTPFormattedParams{}
+	httpFormatted := &HTTPFormattedParams{}
 	httpFormatted.Key = `bloc1."bloc.2".[0].value`
 
 	var data interface{}
@@ -239,7 +244,7 @@ bloc1:
     - name: test2
       value: "NOOO !!"
 `
-	httpYaml := &models.HTTPFormattedParams{}
+	httpYaml := &HTTPFormattedParams{}
 	httpYaml.Key = `bloc1."bloc.2".[0].value`
 
 	var data interface{}
@@ -260,7 +265,7 @@ bloc1:
     - name: test2
       value: "NOOO !!"
 `
-	httpYaml := &models.HTTPFormattedParams{}
+	httpYaml := &HTTPFormattedParams{}
 	httpYaml.Key = `bloc1."bloc.2".[0].value2`
 
 	var data interface{}

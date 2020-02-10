@@ -1,56 +1,33 @@
 package models
 
-import "time"
-
 type (
 	Tile struct {
 		Type   TileType   `json:"type"`
 		Status TileStatus `json:"status"`
 
-		Label   string        `json:"label,omitempty"`
-		Message string        `json:"message,omitempty"`
-		Values  []float64     `json:"values,omitempty"`
-		Unit    TileValueUnit `json:"unit,omitempty"`
+		Label   string `json:"label,omitempty"`
+		Message string `json:"message,omitempty"`
 
-		Author *Author `json:"author,omitempty"`
-
-		PreviousStatus    TileStatus `json:"previousStatus,omitempty"`
-		StartedAt         *time.Time `json:"startedAt,omitempty"`
-		FinishedAt        *time.Time `json:"finishedAt,omitempty"`
-		Duration          *int64     `json:"duration,omitempty"`          // In Seconds
-		EstimatedDuration *int64     `json:"estimatedDuration,omitempty"` // In Seconds
+		Value *TileValue `json:"value,omitempty"`
+		Build *TileBuild `json:"build,omitempty"`
 	}
 
-	TileType      string // PING, JENKINS_BUILD, ...
-	TileStatus    string // SUCCESS, FAILURE, ...
-	TileValueUnit string // MILLISECOND, NONE, ...
-
-	Author struct {
-		Name      string `json:"name,omitempty"`
-		AvatarURL string `json:"avatarUrl,omitempty"`
-	}
+	TileType   string //PING, PORT, ... (defined in usecase.go for each monitorable)
+	TileStatus string
 )
 
-// List of all Status Code
 const (
-	SuccessStatus        TileStatus = "SUCCESS"
-	FailedStatus         TileStatus = "FAILURE"
-	RunningStatus        TileStatus = "RUNNING"
-	QueuedStatus         TileStatus = "QUEUED"
-	DisabledStatus       TileStatus = "DISABLED"
-	CanceledStatus       TileStatus = "CANCELED"
-	WarningStatus        TileStatus = "WARNING"
-	UnknownStatus        TileStatus = "UNKNOWN"
 	ActionRequiredStatus TileStatus = "ACTION_REQUIRED"
-)
-
-const (
-	MillisecondUnit TileValueUnit = "MILLISECOND"
-	DefaultUnit     TileValueUnit = ""
+	CanceledStatus       TileStatus = "CANCELED"
+	DisabledStatus       TileStatus = "DISABLED"
+	FailedStatus         TileStatus = "FAILURE"
+	QueuedStatus         TileStatus = "QUEUED"
+	RunningStatus        TileStatus = "RUNNING"
+	SuccessStatus        TileStatus = "SUCCESS"
+	UnknownStatus        TileStatus = "UNKNOWN"
+	WarningStatus        TileStatus = "WARNING"
 )
 
 func NewTile(t TileType) *Tile {
-	return &Tile{
-		Type: t,
-	}
+	return &Tile{Type: t}
 }

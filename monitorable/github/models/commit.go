@@ -1,13 +1,10 @@
 package models
 
+import "github.com/monitoror/monitoror/models"
+
 type (
 	Commit struct {
 		SHA    string
-		Author *Author
-	}
-
-	Author struct {
-		Name      string
-		AvatarURL string
+		Author *models.Author
 	}
 )

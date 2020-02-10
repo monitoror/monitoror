@@ -6,12 +6,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
-
 	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/travisci"
-	travisCIModels "github.com/monitoror/monitoror/monitorable/travisci/models"
+	travisModels "github.com/monitoror/monitoror/monitorable/travisci/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/cache"
+	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
 
 	"github.com/AlekSi/pointer"
 )
@@ -31,9 +30,10 @@ func NewTravisCIUsecase(repository travisci.Repository) travisci.Usecase {
 	return &travisCIUsecase{repository, cache.NewBuildCache(cacheSize)}
 }
 
-func (tu *travisCIUsecase) Build(params *travisCIModels.BuildParams) (*models.Tile, error) {
-	tile := models.NewTile(travisci.TravisCIBuildTileType)
-	tile.Label = fmt.Sprintf("%s\n%s", params.Repository, git.HumanizeBranch(params.Branch))
+func (tu *travisCIUsecase) Build(params *travisModels.BuildParams) (*models.Tile, error) {
+	tile := models.NewTile(travisci.TravisCIBuildTileType).WithBuild()
+	tile.Label = params.Repository
+	tile.Build.Branch = pointer.ToString(git.HumanizeBranch(params.Branch))
 
 	// Request
 	build, err := tu.repository.GetLastBuildStatus(params.Owner, params.Repository, params.Branch)
@@ -45,40 +45,42 @@ func (tu *travisCIUsecase) Build(params *travisCIModels.BuildParams) (*models.Ti
 		return nil, &models.MonitororError{Tile: tile, Message: "no build found", ErrorStatus: models.UnknownStatus}
 	}
 
+	tile.Build.ID = pointer.ToString(fmt.Sprintf("%d", build.ID))
+
 	// Set Status
 	tile.Status = parseState(build.State)
 
 	// Set Previous Status
-	previousStatus := tu.buildsCache.GetPreviousStatus(params, fmt.Sprintf("%d", build.ID))
+	previousStatus := tu.buildsCache.GetPreviousStatus(params, *tile.Build.ID)
 	if previousStatus != nil {
-		tile.PreviousStatus = *previousStatus
+		tile.Build.PreviousStatus = *previousStatus
 	} else {
-		tile.PreviousStatus = models.UnknownStatus
+		tile.Build.PreviousStatus = models.UnknownStatus
 	}
 
 	// Set StartedAt
 	if !build.StartedAt.IsZero() {
-		tile.StartedAt = pointer.ToTime(build.StartedAt)
+		tile.Build.StartedAt = pointer.ToTime(build.StartedAt)
 	}
 	// Set FinishedAt
 	if !build.FinishedAt.IsZero() {
-		tile.FinishedAt = pointer.ToTime(build.FinishedAt)
+		tile.Build.FinishedAt = pointer.ToTime(build.FinishedAt)
 	}
 
 	if tile.Status == models.RunningStatus {
-		tile.Duration = pointer.ToInt64(int64(time.Since(build.StartedAt).Seconds()))
+		tile.Build.Duration = pointer.ToInt64(int64(time.Since(build.StartedAt).Seconds()))
 
 		estimatedDuration := tu.buildsCache.GetEstimatedDuration(params)
 		if estimatedDuration != nil {
-			tile.EstimatedDuration = pointer.ToInt64(int64(estimatedDuration.Seconds()))
+			tile.Build.EstimatedDuration = pointer.ToInt64(int64(estimatedDuration.Seconds()))
 		} else {
-			tile.EstimatedDuration = pointer.ToInt64(int64(0))
+			tile.Build.EstimatedDuration = pointer.ToInt64(int64(0))
 		}
 	}
 
 	// Set Author
 	if tile.Status == models.FailedStatus && (build.Author.Name != "" || build.Author.AvatarURL != "") {
-		tile.Author = &models.Author{
+		tile.Build.Author = &models.Author{
 			Name:      build.Author.Name,
 			AvatarURL: build.Author.AvatarURL,
 		}
@@ -86,7 +88,7 @@ func (tu *travisCIUsecase) Build(params *travisCIModels.BuildParams) (*models.Ti
 
 	// Cache Duration when success / failed
 	if tile.Status == models.SuccessStatus || tile.Status == models.FailedStatus {
-		tu.buildsCache.Add(params, fmt.Sprintf("%d", build.ID), tile.Status, build.Duration)
+		tu.buildsCache.Add(params, *tile.Build.ID, tile.Status, build.Duration)
 	}
 
 	return tile, nil

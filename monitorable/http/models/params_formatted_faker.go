@@ -17,9 +17,9 @@ type (
 		StatusCodeMin *int   `json:"statusCodeMin" query:"statusCodeMin"`
 		StatusCodeMax *int   `json:"statusCodeMax" query:"statusCodeMax"`
 
-		Status  models.TileStatus `json:"status" query:"status"`
-		Message string            `json:"message" query:"message"`
-		Values  []float64         `json:"values" query:"values"`
+		Status      models.TileStatus `json:"status" query:"status"`
+		Message     string            `json:"message" query:"message"`
+		ValueValues []string          `json:"valueValues" query:"valueValues"`
 	}
 )
 
@@ -51,4 +51,4 @@ func (p *HTTPFormattedParams) GetFormat() string { return p.Format }
 
 func (p *HTTPFormattedParams) GetStatus() models.TileStatus { return p.Status }
 func (p *HTTPFormattedParams) GetMessage() string           { return p.Message }
-func (p *HTTPFormattedParams) GetValues() []float64         { return p.Values }
+func (p *HTTPFormattedParams) GetValueValues() []string     { return p.ValueValues }

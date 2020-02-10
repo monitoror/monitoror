@@ -2,14 +2,13 @@ package usecase
 
 import (
 	"errors"
-	"fmt"
 	"testing"
 	"time"
 
-	. "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
 	"github.com/monitoror/monitoror/monitorable/jenkins/mocks"
-	"github.com/monitoror/monitoror/monitorable/jenkins/models"
+	jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
 
 	. "github.com/AlekSi/pointer"
@@ -26,10 +25,10 @@ func TestBuild_Error(t *testing.T) {
 
 	tu := NewJenkinsUsecase(mockRepository)
 
-	tile, err := tu.Build(&models.BuildParams{Job: job, Branch: branch})
+	tile, err := tu.Build(&jenkinsModels.BuildParams{Job: job, Branch: branch})
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
-		assert.IsType(t, &MonitororError{}, err)
+		assert.IsType(t, &models.MonitororError{}, err)
 		assert.Equal(t, "unable to find job", err.Error())
 		mockRepository.AssertNumberOfCalls(t, "GetJob", 1)
 		mockRepository.AssertExpectations(t)
@@ -37,7 +36,7 @@ func TestBuild_Error(t *testing.T) {
 }
 
 func TestBuild_DisabledBuild(t *testing.T) {
-	repositoryJob := &models.Job{
+	repositoryJob := &jenkinsModels.Job{
 		Buildable: false,
 	}
 
@@ -47,17 +46,17 @@ func TestBuild_DisabledBuild(t *testing.T) {
 
 	tu := NewJenkinsUsecase(mockRepository)
 
-	tile, err := tu.Build(&models.BuildParams{Job: job})
+	tile, err := tu.Build(&jenkinsModels.BuildParams{Job: job})
 	if assert.NoError(t, err) {
 		assert.Equal(t, job, tile.Label)
-		assert.Equal(t, DisabledStatus, tile.Status)
+		assert.Equal(t, models.DisabledStatus, tile.Status)
 		mockRepository.AssertNumberOfCalls(t, "GetJob", 1)
 		mockRepository.AssertExpectations(t)
 	}
 }
 
 func TestBuild_Error_NoBuild(t *testing.T) {
-	repositoryJob := &models.Job{
+	repositoryJob := &jenkinsModels.Job{
 		Buildable: true,
 	}
 
@@ -69,12 +68,12 @@ func TestBuild_Error_NoBuild(t *testing.T) {
 
 	tu := NewJenkinsUsecase(mockRepository)
 
-	tile, err := tu.Build(&models.BuildParams{Job: job, Branch: branch})
+	tile, err := tu.Build(&jenkinsModels.BuildParams{Job: job, Branch: branch})
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
-		assert.IsType(t, &MonitororError{}, err)
+		assert.IsType(t, &models.MonitororError{}, err)
 		assert.Equal(t, "no build found", err.Error())
-		assert.Equal(t, UnknownStatus, err.(*MonitororError).ErrorStatus)
+		assert.Equal(t, models.UnknownStatus, err.(*models.MonitororError).ErrorStatus)
 		mockRepository.AssertNumberOfCalls(t, "GetJob", 1)
 		mockRepository.AssertNumberOfCalls(t, "GetLastBuildStatus", 1)
 		mockRepository.AssertExpectations(t)
@@ -82,7 +81,7 @@ func TestBuild_Error_NoBuild(t *testing.T) {
 }
 
 func CheckBuild(t *testing.T, result string) {
-	repositoryJob := &models.Job{
+	repositoryJob := &jenkinsModels.Job{
 		Buildable: true,
 	}
 	repositoryBuild := buildResponse(result, time.Date(2000, 01, 01, 10, 00, 00, 00, time.UTC), time.Minute)
@@ -96,23 +95,26 @@ func CheckBuild(t *testing.T, result string) {
 	tu := NewJenkinsUsecase(mockRepository)
 	tUsecase, ok := tu.(*jenkinsUsecase)
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
-		expected := NewTile(jenkins.JenkinsBuildTileType)
-		expected.Label = fmt.Sprintf("%s\n%s", job, git.HumanizeBranch(branch))
+		expected := models.NewTile(jenkins.JenkinsBuildTileType).WithBuild()
+		expected.Label = job
+		expected.Build.ID = ToString("1")
+		expected.Build.Branch = ToString(git.HumanizeBranch(branch))
+
 		expected.Status = parseResult(repositoryBuild.Result)
-		expected.PreviousStatus = SuccessStatus
-		expected.StartedAt = ToTime(repositoryBuild.StartedAt)
-		expected.FinishedAt = ToTime(repositoryBuild.StartedAt.Add(repositoryBuild.Duration))
+		expected.Build.PreviousStatus = models.SuccessStatus
+		expected.Build.StartedAt = ToTime(repositoryBuild.StartedAt)
+		expected.Build.FinishedAt = ToTime(repositoryBuild.StartedAt.Add(repositoryBuild.Duration))
 
 		if result == "FAILURE" {
-			expected.Author = &Author{
+			expected.Build.Author = &models.Author{
 				Name:      repositoryBuild.Author.Name,
 				AvatarURL: repositoryBuild.Author.AvatarURL,
 			}
 		}
 
 		// Add cache for previousStatus
-		params := &models.BuildParams{Job: job, Branch: branch}
-		tUsecase.buildsCache.Add(params, "0", SuccessStatus, time.Second*120)
+		params := &jenkinsModels.BuildParams{Job: job, Branch: branch}
+		tUsecase.buildsCache.Add(params, "0", models.SuccessStatus, time.Second*120)
 		tile, err := tu.Build(params)
 		if assert.NoError(t, err) {
 			assert.Equal(t, expected, tile)
@@ -140,7 +142,7 @@ func TestBuild_Aborted(t *testing.T) {
 }
 
 func TestBuild_Queued(t *testing.T) {
-	repositoryJob := &models.Job{
+	repositoryJob := &jenkinsModels.Job{
 		Buildable: true,
 		InQueue:   true,
 		QueuedAt:  ToTime(time.Date(2000, 01, 01, 10, 00, 00, 00, time.UTC)),
@@ -153,15 +155,17 @@ func TestBuild_Queued(t *testing.T) {
 	tu := NewJenkinsUsecase(mockRepository)
 	tUsecase, ok := tu.(*jenkinsUsecase)
 	if assert.True(t, ok, "enable to case tu into travisCIUsecase") {
-		expected := NewTile(jenkins.JenkinsBuildTileType)
-		expected.Label = fmt.Sprintf("%s\n%s", job, git.HumanizeBranch(branch))
-		expected.Status = QueuedStatus
-		expected.PreviousStatus = SuccessStatus
-		expected.StartedAt = repositoryJob.QueuedAt
+		expected := models.NewTile(jenkins.JenkinsBuildTileType).WithBuild()
+		expected.Label = job
+		expected.Build.Branch = ToString(git.HumanizeBranch(branch))
+
+		expected.Status = models.QueuedStatus
+		expected.Build.PreviousStatus = models.SuccessStatus
+		expected.Build.StartedAt = repositoryJob.QueuedAt
 
 		// Add cache for previousStatus
-		params := &models.BuildParams{Job: job, Branch: branch}
-		tUsecase.buildsCache.Add(params, "0", SuccessStatus, time.Second*120)
+		params := &jenkinsModels.BuildParams{Job: job, Branch: branch}
+		tUsecase.buildsCache.Add(params, "0", models.SuccessStatus, time.Second*120)
 		tile, err := tu.Build(params)
 		if assert.NoError(t, err) {
 			assert.Equal(t, expected, tile)
@@ -172,7 +176,7 @@ func TestBuild_Queued(t *testing.T) {
 }
 
 func TestBuild_Running(t *testing.T) {
-	repositoryJob := &models.Job{
+	repositoryJob := &jenkinsModels.Job{
 		Buildable: true,
 	}
 	repositoryBuild := buildResponse("null", time.Now(), 0)
@@ -188,25 +192,28 @@ func TestBuild_Running(t *testing.T) {
 	jUsecase, ok := ju.(*jenkinsUsecase)
 	if assert.True(t, ok, "enable to case ju into jenkinsUsecase") {
 		// Without cached build
-		expected := NewTile(jenkins.JenkinsBuildTileType)
-		expected.Label = fmt.Sprintf("%s\n%s", job, git.HumanizeBranch(branch))
-		expected.Status = RunningStatus
-		expected.PreviousStatus = UnknownStatus
-		expected.StartedAt = ToTime(repositoryBuild.StartedAt)
-		expected.Duration = ToInt64(int64(0))
-		expected.EstimatedDuration = ToInt64(int64(0))
+		expected := models.NewTile(jenkins.JenkinsBuildTileType).WithBuild()
+		expected.Label = job
+		expected.Build.ID = ToString("1")
+		expected.Build.Branch = ToString(git.HumanizeBranch(branch))
 
-		params := &models.BuildParams{Job: job, Branch: branch}
+		expected.Status = models.RunningStatus
+		expected.Build.PreviousStatus = models.UnknownStatus
+		expected.Build.StartedAt = ToTime(repositoryBuild.StartedAt)
+		expected.Build.Duration = ToInt64(int64(0))
+		expected.Build.EstimatedDuration = ToInt64(int64(0))
+
+		params := &jenkinsModels.BuildParams{Job: job, Branch: branch}
 		tile, err := ju.Build(params)
 		if assert.NoError(t, err) {
 			assert.Equal(t, expected, tile)
 		}
 
 		// With cached build
-		jUsecase.buildsCache.Add(params, "0", SuccessStatus, time.Second*120)
+		jUsecase.buildsCache.Add(params, "0", models.SuccessStatus, time.Second*120)
 
-		expected.PreviousStatus = SuccessStatus
-		expected.EstimatedDuration = ToInt64(int64(120))
+		expected.Build.PreviousStatus = models.SuccessStatus
+		expected.Build.EstimatedDuration = ToInt64(int64(120))
 
 		tile, err = ju.Build(params)
 		if assert.NoError(t, err) {
@@ -220,7 +227,7 @@ func TestBuild_Running(t *testing.T) {
 }
 
 func TestListDynamicTile_Success(t *testing.T) {
-	repositoryJob := &models.Job{
+	repositoryJob := &jenkinsModels.Job{
 		ID:        job,
 		Buildable: false,
 		InQueue:   false,
@@ -233,7 +240,7 @@ func TestListDynamicTile_Success(t *testing.T) {
 
 	tu := NewJenkinsUsecase(mockRepository)
 
-	tiles, err := tu.ListDynamicTile(&models.MultiBranchParams{Job: job})
+	tiles, err := tu.ListDynamicTile(&jenkinsModels.MultiBranchParams{Job: job})
 	if assert.NoError(t, err) {
 		assert.Len(t, tiles, 3)
 		assert.Equal(t, jenkins.JenkinsBuildTileType, tiles[0].TileType)
@@ -247,7 +254,7 @@ func TestListDynamicTile_Success(t *testing.T) {
 		assert.Equal(t, "feat%2Ftest-deploy", tiles[2].Params["branch"])
 	}
 
-	tiles, err = tu.ListDynamicTile(&models.MultiBranchParams{Job: job, Match: "feat/*"})
+	tiles, err = tu.ListDynamicTile(&jenkinsModels.MultiBranchParams{Job: job, Match: "feat/*"})
 	if assert.NoError(t, err) {
 		assert.Len(t, tiles, 1)
 		assert.Equal(t, jenkins.JenkinsBuildTileType, tiles[0].TileType)
@@ -266,7 +273,7 @@ func TestListDynamicTile_Error(t *testing.T) {
 
 	tu := NewJenkinsUsecase(mockRepository)
 
-	_, err := tu.ListDynamicTile(&models.MultiBranchParams{Job: "test"})
+	_, err := tu.ListDynamicTile(&jenkinsModels.MultiBranchParams{Job: "test"})
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "unable to find job")
 
@@ -281,11 +288,11 @@ func TestListDynamicTile_ErrorWithRegex(t *testing.T) {
 
 	tu := NewJenkinsUsecase(mockRepository)
 
-	_, err := tu.ListDynamicTile(&models.MultiBranchParams{Job: "test", Match: "("})
+	_, err := tu.ListDynamicTile(&jenkinsModels.MultiBranchParams{Job: "test", Match: "("})
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "error parsing regexp")
 
-	_, err = tu.ListDynamicTile(&models.MultiBranchParams{Job: "test", Unmatch: "("})
+	_, err = tu.ListDynamicTile(&jenkinsModels.MultiBranchParams{Job: "test", Unmatch: "("})
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "error parsing regexp")
 
@@ -294,15 +301,15 @@ func TestListDynamicTile_ErrorWithRegex(t *testing.T) {
 }
 
 func TestParseResult(t *testing.T) {
-	assert.Equal(t, SuccessStatus, parseResult("SUCCESS"))
-	assert.Equal(t, WarningStatus, parseResult("UNSTABLE"))
-	assert.Equal(t, FailedStatus, parseResult("FAILURE"))
-	assert.Equal(t, CanceledStatus, parseResult("ABORTED"))
-	assert.Equal(t, UnknownStatus, parseResult(""))
+	assert.Equal(t, models.SuccessStatus, parseResult("SUCCESS"))
+	assert.Equal(t, models.WarningStatus, parseResult("UNSTABLE"))
+	assert.Equal(t, models.FailedStatus, parseResult("FAILURE"))
+	assert.Equal(t, models.CanceledStatus, parseResult("ABORTED"))
+	assert.Equal(t, models.UnknownStatus, parseResult(""))
 }
 
-func buildResponse(result string, startedAt time.Time, duration time.Duration) *models.Build {
-	repositoryBuild := &models.Build{
+func buildResponse(result string, startedAt time.Time, duration time.Duration) *jenkinsModels.Build {
+	repositoryBuild := &jenkinsModels.Build{
 		Number:    "1",
 		FullName:  "Test-Build",
 		Result:    result,

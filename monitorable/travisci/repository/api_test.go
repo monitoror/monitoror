@@ -5,7 +5,8 @@ import (
 	"testing"
 
 	. "github.com/monitoror/monitoror/config"
-	"github.com/monitoror/monitoror/monitorable/travisci/models"
+	"github.com/monitoror/monitoror/models"
+	travisModels "github.com/monitoror/monitoror/monitorable/travisci/models"
 	pkgTravis "github.com/monitoror/monitoror/pkg/gotravis"
 	"github.com/monitoror/monitoror/pkg/gotravis/mocks"
 
@@ -96,7 +97,7 @@ func TestRepository_GetLastBuildStatus_Success(t *testing.T) {
 		Return([]*travis.Build{travisBuild}, nil, nil)
 
 	// Expected
-	expectedBuild := &models.Build{
+	expectedBuild := &travisModels.Build{
 		ID:     1,
 		Branch: *travisBuild.Branch.Name,
 		Author: models.Author{

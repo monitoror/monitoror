@@ -6,10 +6,10 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/github"
 	"github.com/monitoror/monitoror/monitorable/github/mocks"
-	"github.com/monitoror/monitoror/monitorable/github/models"
+	. "github.com/monitoror/monitoror/monitorable/github/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/hash"
 
 	. "github.com/AlekSi/pointer"
@@ -24,10 +24,10 @@ func TestCount_Error(t *testing.T) {
 
 	gu := NewGithubUsecase(mockRepository)
 
-	tile, err := gu.Count(&models.CountParams{Query: "test"})
+	tile, err := gu.Count(&CountParams{Query: "test"})
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
-		assert.IsType(t, &MonitororError{}, err)
+		assert.IsType(t, &models.MonitororError{}, err)
 		assert.Equal(t, "unable to find count or wrong query", err.Error())
 		mockRepository.AssertNumberOfCalls(t, "GetCount", 1)
 		mockRepository.AssertExpectations(t)
@@ -41,12 +41,12 @@ func TestCount_Success(t *testing.T) {
 
 	gu := NewGithubUsecase(mockRepository)
 
-	expected := NewTile(github.GithubCountTileType)
+	expected := models.NewTile(github.GithubCountTileType).WithValue(models.NumberUnit)
 	expected.Label = "test"
-	expected.Status = SuccessStatus
-	expected.Values = []float64{10}
+	expected.Status = models.SuccessStatus
+	expected.Value.Values = []string{"10"}
 
-	tile, err := gu.Count(&models.CountParams{Query: "test"})
+	tile, err := gu.Count(&CountParams{Query: "test"})
 	if assert.NoError(t, err) {
 		assert.NotNil(t, tile)
 		assert.Equal(t, expected, tile)
@@ -63,10 +63,10 @@ func TestChecks_Error(t *testing.T) {
 
 	gu := NewGithubUsecase(mockRepository)
 
-	tile, err := gu.Checks(&models.ChecksParams{Owner: "test", Repository: "test", Ref: "master"})
+	tile, err := gu.Checks(&ChecksParams{Owner: "test", Repository: "test", Ref: "master"})
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
-		assert.IsType(t, &MonitororError{}, err)
+		assert.IsType(t, &models.MonitororError{}, err)
 		assert.Equal(t, "unable to find ref checks", err.Error())
 		mockRepository.AssertNumberOfCalls(t, "GetChecks", 1)
 		mockRepository.AssertExpectations(t)
@@ -76,14 +76,14 @@ func TestChecks_Error(t *testing.T) {
 func TestChecks_NoChecks(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetChecks", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
-		Return(&models.Checks{}, nil)
+		Return(&Checks{}, nil)
 
 	gu := NewGithubUsecase(mockRepository)
 
-	tile, err := gu.Checks(&models.ChecksParams{Owner: "test", Repository: "test", Ref: "master"})
+	tile, err := gu.Checks(&ChecksParams{Owner: "test", Repository: "test", Ref: "master"})
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
-		assert.IsType(t, &MonitororError{}, err)
+		assert.IsType(t, &models.MonitororError{}, err)
 		assert.Equal(t, "no ref checks found", err.Error())
 		mockRepository.AssertNumberOfCalls(t, "GetChecks", 1)
 		mockRepository.AssertExpectations(t)
@@ -97,8 +97,8 @@ func TestChecks_Success(t *testing.T) {
 
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetChecks", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
-		Return(&models.Checks{
-			Runs: []models.Run{
+		Return(&Checks{
+			Runs: []Run{
 				{
 					ID:          10,
 					Status:      "completed",
@@ -111,14 +111,16 @@ func TestChecks_Success(t *testing.T) {
 
 	gu := NewGithubUsecase(mockRepository)
 
-	expected := NewTile(github.GithubChecksTileType)
-	expected.Label = "test\n@master"
-	expected.Status = SuccessStatus
-	expected.PreviousStatus = UnknownStatus
-	expected.StartedAt = ToTime(startedAt)
-	expected.FinishedAt = ToTime(finishedAt)
+	expected := models.NewTile(github.GithubChecksTileType).WithBuild()
+	expected.Label = "test"
+	expected.Build.Branch = ToString("master")
 
-	tile, err := gu.Checks(&models.ChecksParams{Owner: "test", Repository: "test", Ref: "master"})
+	expected.Status = models.SuccessStatus
+	expected.Build.PreviousStatus = models.UnknownStatus
+	expected.Build.StartedAt = ToTime(startedAt)
+	expected.Build.FinishedAt = ToTime(finishedAt)
+
+	tile, err := gu.Checks(&ChecksParams{Owner: "test", Repository: "test", Ref: "master"})
 	if assert.NoError(t, err) {
 		assert.NotNil(t, tile)
 		assert.Equal(t, expected, tile)
@@ -133,9 +135,9 @@ func TestChecks_Failure(t *testing.T) {
 
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetChecks", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
-		Return(&models.Checks{
+		Return(&Checks{
 			HeadCommit: ToString("sha"),
-			Runs: []models.Run{
+			Runs: []Run{
 				{
 					ID:          10,
 					Status:      "completed",
@@ -146,7 +148,7 @@ func TestChecks_Failure(t *testing.T) {
 			},
 		}, nil)
 	mockRepository.On("GetCommit", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
-		Return(&models.Commit{
+		Return(&Commit{
 			Author: &models.Author{
 				Name:      "test",
 				AvatarURL: "https://test.example.com",
@@ -155,18 +157,20 @@ func TestChecks_Failure(t *testing.T) {
 
 	gu := NewGithubUsecase(mockRepository)
 
-	expected := NewTile(github.GithubChecksTileType)
-	expected.Label = "test\n@master"
-	expected.Status = FailedStatus
-	expected.PreviousStatus = UnknownStatus
-	expected.StartedAt = ToTime(refTime.Add(-time.Second * 30))
-	expected.FinishedAt = ToTime(refTime.Add(-time.Second * 15))
-	expected.Author = &Author{
+	expected := models.NewTile(github.GithubChecksTileType).WithBuild()
+	expected.Label = "test"
+	expected.Build.Branch = ToString("master")
+
+	expected.Status = models.FailedStatus
+	expected.Build.PreviousStatus = models.UnknownStatus
+	expected.Build.StartedAt = ToTime(refTime.Add(-time.Second * 30))
+	expected.Build.FinishedAt = ToTime(refTime.Add(-time.Second * 15))
+	expected.Build.Author = &models.Author{
 		Name:      "test",
 		AvatarURL: "https://test.example.com",
 	}
 
-	tile, err := gu.Checks(&models.ChecksParams{Owner: "test", Repository: "test", Ref: "master"})
+	tile, err := gu.Checks(&ChecksParams{Owner: "test", Repository: "test", Ref: "master"})
 	if assert.NoError(t, err) {
 		assert.NotNil(t, tile)
 		assert.Equal(t, expected, tile)
@@ -182,9 +186,9 @@ func TestChecks_Queued(t *testing.T) {
 
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetChecks", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
-		Return(&models.Checks{
+		Return(&Checks{
 			HeadCommit: ToString("sha"),
-			Runs: []models.Run{
+			Runs: []Run{
 				{
 					ID:        10,
 					Status:    "queued",
@@ -195,13 +199,15 @@ func TestChecks_Queued(t *testing.T) {
 
 	gu := NewGithubUsecase(mockRepository)
 
-	expected := NewTile(github.GithubChecksTileType)
-	expected.Label = "test\n@master"
-	expected.Status = QueuedStatus
-	expected.PreviousStatus = UnknownStatus
-	expected.StartedAt = ToTime(refTime.Add(-time.Second * 30))
+	expected := models.NewTile(github.GithubChecksTileType).WithBuild()
+	expected.Label = "test"
+	expected.Build.Branch = ToString("master")
 
-	tile, err := gu.Checks(&models.ChecksParams{Owner: "test", Repository: "test", Ref: "master"})
+	expected.Status = models.QueuedStatus
+	expected.Build.PreviousStatus = models.UnknownStatus
+	expected.Build.StartedAt = ToTime(refTime.Add(-time.Second * 30))
+
+	tile, err := gu.Checks(&ChecksParams{Owner: "test", Repository: "test", Ref: "master"})
 	if assert.NoError(t, err) {
 		assert.NotNil(t, tile)
 		assert.Equal(t, expected, tile)
@@ -216,9 +222,9 @@ func TestChecks_Running(t *testing.T) {
 
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetChecks", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
-		Return(&models.Checks{
+		Return(&Checks{
 			HeadCommit: ToString("sha"),
-			Runs: []models.Run{
+			Runs: []Run{
 				{
 					ID:        10,
 					Status:    "in_progress",
@@ -230,27 +236,29 @@ func TestChecks_Running(t *testing.T) {
 	gu := NewGithubUsecase(mockRepository)
 	gUsecase, ok := gu.(*githubUsecase)
 	if assert.True(t, ok) {
-		expected := NewTile(github.GithubChecksTileType)
-		expected.Label = "test\n@master"
-		expected.Status = RunningStatus
-		expected.PreviousStatus = UnknownStatus
-		expected.StartedAt = ToTime(refTime.Add(-time.Second * 30))
-		expected.Duration = ToInt64(int64(30))
-		expected.EstimatedDuration = ToInt64(int64(0))
+		expected := models.NewTile(github.GithubChecksTileType).WithBuild()
+		expected.Label = "test"
+		expected.Build.Branch = ToString("master")
 
-		tile, err := gUsecase.Checks(&models.ChecksParams{Owner: "test", Repository: "test", Ref: "master"})
+		expected.Status = models.RunningStatus
+		expected.Build.PreviousStatus = models.UnknownStatus
+		expected.Build.StartedAt = ToTime(refTime.Add(-time.Second * 30))
+		expected.Build.Duration = ToInt64(int64(30))
+		expected.Build.EstimatedDuration = ToInt64(int64(0))
+
+		tile, err := gUsecase.Checks(&ChecksParams{Owner: "test", Repository: "test", Ref: "master"})
 		if assert.NoError(t, err) {
 			assert.NotNil(t, tile)
 			assert.Equal(t, expected, tile)
 		}
 
-		params := &models.ChecksParams{Owner: "test", Repository: "test", Ref: "master"}
-		gUsecase.buildsCache.Add(params, hash.GetMD5Hash("10"), SuccessStatus, time.Second*120)
+		params := &ChecksParams{Owner: "test", Repository: "test", Ref: "master"}
+		gUsecase.buildsCache.Add(params, hash.GetMD5Hash("10"), models.SuccessStatus, time.Second*120)
 
-		expected.PreviousStatus = SuccessStatus
-		expected.EstimatedDuration = ToInt64(int64(120))
+		expected.Build.PreviousStatus = models.SuccessStatus
+		expected.Build.EstimatedDuration = ToInt64(int64(120))
 
-		tile, err = gUsecase.Checks(&models.ChecksParams{Owner: "test", Repository: "test", Ref: "master"})
+		tile, err = gUsecase.Checks(&ChecksParams{Owner: "test", Repository: "test", Ref: "master"})
 		if assert.NoError(t, err) {
 			assert.NotNil(t, tile)
 			assert.Equal(t, expected, tile)
@@ -268,10 +276,10 @@ func TestListDynamicTile_Error(t *testing.T) {
 
 	gu := NewGithubUsecase(mockRepository)
 
-	results, err := gu.ListDynamicTile(&models.PullRequestParams{Owner: "test", Repository: "test"})
+	results, err := gu.ListDynamicTile(&PullRequestParams{Owner: "test", Repository: "test"})
 	if assert.Error(t, err) {
 		assert.Nil(t, results)
-		assert.IsType(t, &MonitororError{}, err)
+		assert.IsType(t, &models.MonitororError{}, err)
 		assert.Equal(t, "unable to find pull request", err.Error())
 		mockRepository.AssertNumberOfCalls(t, "GetPullRequests", 1)
 		mockRepository.AssertExpectations(t)
@@ -281,7 +289,7 @@ func TestListDynamicTile_Error(t *testing.T) {
 func TestListDynamicTile_Success(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetPullRequests", AnythingOfType("string"), AnythingOfType("string")).
-		Return([]models.PullRequest{
+		Return([]PullRequest{
 			{
 				Title:      "PR#2 - TEST",
 				Owner:      "test",
@@ -292,7 +300,7 @@ func TestListDynamicTile_Success(t *testing.T) {
 
 	gu := NewGithubUsecase(mockRepository)
 
-	results, err := gu.ListDynamicTile(&models.PullRequestParams{Owner: "test", Repository: "test"})
+	results, err := gu.ListDynamicTile(&PullRequestParams{Owner: "test", Repository: "test"})
 	if assert.NoError(t, err) {
 		assert.NotNil(t, results)
 		assert.Len(t, results, 1)
@@ -309,132 +317,132 @@ func TestListDynamicTile_Success(t *testing.T) {
 
 func TestComputeRefStatus_Status(t *testing.T) {
 	for index, testcase := range []struct {
-		runs           []models.Run
-		statuses       []models.Status
-		expectedStatus TileStatus
+		runs           []Run
+		statuses       []Status
+		expectedStatus models.TileStatus
 	}{
 		{
-			runs:           []models.Run{},
-			statuses:       []models.Status{},
-			expectedStatus: UnknownStatus,
+			runs:           []Run{},
+			statuses:       []Status{},
+			expectedStatus: models.UnknownStatus,
 		},
 		{
-			runs: []models.Run{
+			runs: []Run{
 				{Status: "completed", Conclusion: "success"},
 			},
-			statuses: []models.Status{
+			statuses: []Status{
 				{State: "success"},
 			},
-			expectedStatus: SuccessStatus,
+			expectedStatus: models.SuccessStatus,
 		},
 		{
-			runs: []models.Run{
+			runs: []Run{
 				{Status: "completed", Conclusion: "success"},
 			},
-			statuses: []models.Status{
+			statuses: []Status{
 				{Title: "test1", State: "success"},
 				{Title: "test2", State: "failure", CreatedAt: time.Now()},
 				{Title: "test2", State: "pending", CreatedAt: time.Now().Add(-time.Minute)}, // will be removed because title is duplicated
 			},
-			expectedStatus: FailedStatus,
+			expectedStatus: models.FailedStatus,
 		},
 		{
-			runs: []models.Run{
+			runs: []Run{
 				{Status: "completed", Conclusion: "success"},
 				{Status: "in_progress"},
 			},
-			statuses: []models.Status{
+			statuses: []Status{
 				{State: "success"},
 				{State: "success"},
 			},
-			expectedStatus: RunningStatus,
+			expectedStatus: models.RunningStatus,
 		},
 		{
-			runs: []models.Run{
+			runs: []Run{
 				{Status: "completed", Conclusion: "success"},
 			},
-			statuses: []models.Status{
+			statuses: []Status{
 				{Title: "test1", State: "success"},
 				{Title: "test2", State: "pending"},
 			},
-			expectedStatus: RunningStatus,
+			expectedStatus: models.RunningStatus,
 		},
 		{
-			runs: []models.Run{
+			runs: []Run{
 				{Status: "queued"},
 			},
-			statuses: []models.Status{
+			statuses: []Status{
 				{State: "success"},
 			},
-			expectedStatus: QueuedStatus,
+			expectedStatus: models.QueuedStatus,
 		},
 		{
-			runs: []models.Run{
+			runs: []Run{
 				{Status: "queued"},
 			},
-			statuses: []models.Status{
+			statuses: []Status{
 				{State: "error"},
 			},
-			expectedStatus: FailedStatus,
+			expectedStatus: models.FailedStatus,
 		},
 		{
-			runs: []models.Run{
+			runs: []Run{
 				{Status: "queued"},
 				{Status: "completed", Conclusion: "success"},
 			},
-			statuses: []models.Status{
+			statuses: []Status{
 				{State: "pending"},
 			},
-			expectedStatus: RunningStatus,
+			expectedStatus: models.RunningStatus,
 		},
 		{
-			runs: []models.Run{
+			runs: []Run{
 				{Status: "completed", Conclusion: "timed_out"},
 			},
-			statuses: []models.Status{
+			statuses: []Status{
 				{State: "success"},
 			},
-			expectedStatus: FailedStatus,
+			expectedStatus: models.FailedStatus,
 		},
 		{
-			runs: []models.Run{
+			runs: []Run{
 				{Status: "completed", Conclusion: "failure"},
 			},
-			statuses: []models.Status{
+			statuses: []Status{
 				{Title: "test1", State: "success"},
 				{Title: "test2", State: "pending"},
 			},
-			expectedStatus: RunningStatus,
+			expectedStatus: models.RunningStatus,
 		},
 		{
-			runs: []models.Run{
+			runs: []Run{
 				{Status: "completed", Conclusion: "cancelled"},
 			},
-			statuses: []models.Status{
+			statuses: []Status{
 				{State: "success"},
 			},
-			expectedStatus: CanceledStatus,
+			expectedStatus: models.CanceledStatus,
 		},
 		{
-			runs: []models.Run{
+			runs: []Run{
 				{Status: "completed", Conclusion: "neutral"},
 			},
-			statuses: []models.Status{
+			statuses: []Status{
 				{State: "success"},
 			},
-			expectedStatus: WarningStatus,
+			expectedStatus: models.WarningStatus,
 		},
 		{
-			runs: []models.Run{
+			runs: []Run{
 				{Status: "completed", Conclusion: "action_required"},
 			},
-			statuses: []models.Status{
+			statuses: []Status{
 				{State: "success"},
 			},
-			expectedStatus: ActionRequiredStatus,
+			expectedStatus: models.ActionRequiredStatus,
 		},
 	} {
-		status, _, _, _ := computeChecks(&models.Checks{Runs: testcase.runs, Statuses: testcase.statuses})
+		status, _, _, _ := computeChecks(&Checks{Runs: testcase.runs, Statuses: testcase.statuses})
 		assert.Equal(t, testcase.expectedStatus, status, fmt.Sprintf("test %d failed", index))
 	}
 }
@@ -443,12 +451,12 @@ func TestComputeRefStatus_Time(t *testing.T) {
 	expectedStartedAt := time.Now().Add(-time.Minute * 2)
 	expectedFinishedAt := time.Now().Add(+time.Minute * 2)
 
-	refStatus := &models.Checks{
-		Runs: []models.Run{
+	refStatus := &Checks{
+		Runs: []Run{
 			{StartedAt: ToTime(time.Now()), CompletedAt: ToTime(time.Now())},
 			{StartedAt: ToTime(time.Now().Add(-time.Minute * 1)), CompletedAt: ToTime(time.Now().Add(+time.Minute * 1))},
 		},
-		Statuses: []models.Status{
+		Statuses: []Status{
 			{CreatedAt: expectedStartedAt, UpdatedAt: expectedFinishedAt},
 		},
 	}
@@ -460,12 +468,12 @@ func TestComputeRefStatus_Time(t *testing.T) {
 
 func TestComputeRefStatus_ID(t *testing.T) {
 
-	refStatus := &models.Checks{
-		Runs: []models.Run{
+	refStatus := &Checks{
+		Runs: []Run{
 			{ID: 12},
 			{ID: 13},
 		},
-		Statuses: []models.Status{
+		Statuses: []Status{
 			{ID: 137},
 		},
 	}

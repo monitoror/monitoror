@@ -32,5 +32,6 @@ require (
 	golang.org/x/net v0.0.0-20191209160850-c0dbc17a3553
 	golang.org/x/oauth2 v0.0.0-20180821212333-d2e6202438be
 	golang.org/x/sys v0.0.0-20190801041406-cbf593c0f2f3 // indirect
+	golang.org/x/tools v0.0.0-20190608022120-eacb66d2a7c3
 	gopkg.in/yaml.v2 v2.2.2
 )

@@ -50,7 +50,7 @@ func NewGithubUsecase(repository github.Repository) github.Usecase {
 }
 
 func (gu *githubUsecase) Count(params *githubModels.CountParams) (*models.Tile, error) {
-	tile := models.NewTile(github.GithubCountTileType)
+	tile := models.NewTile(github.GithubCountTileType).WithValue(models.NumberUnit)
 	tile.Label = params.Query
 
 	count, err := gu.repository.GetCount(params.Query)
@@ -59,14 +59,15 @@ func (gu *githubUsecase) Count(params *githubModels.CountParams) (*models.Tile, 
 	}
 
 	tile.Status = models.SuccessStatus
-	tile.Values = []float64{float64(count)}
+	tile.Value.Values = append(tile.Value.Values, fmt.Sprintf("%d", count))
 
 	return tile, nil
 }
 
 func (gu *githubUsecase) Checks(params *githubModels.ChecksParams) (*models.Tile, error) {
-	tile := models.NewTile(github.GithubChecksTileType)
-	tile.Label = fmt.Sprintf("%s\n%s", params.Repository, git.HumanizeBranch(params.Ref))
+	tile := models.NewTile(github.GithubChecksTileType).WithBuild()
+	tile.Label = params.Repository
+	tile.Build.Branch = pointer.ToString(git.HumanizeBranch(params.Ref))
 
 	// Request
 	checks, err := gu.repository.GetChecks(params.Owner, params.Repository, params.Ref)
@@ -85,16 +86,16 @@ func (gu *githubUsecase) Checks(params *githubModels.ChecksParams) (*models.Tile
 	// Set Previous Status
 	previousStatus := gu.buildsCache.GetPreviousStatus(params, id)
 	if previousStatus != nil {
-		tile.PreviousStatus = *previousStatus
+		tile.Build.PreviousStatus = *previousStatus
 	} else {
-		tile.PreviousStatus = models.UnknownStatus
+		tile.Build.PreviousStatus = models.UnknownStatus
 	}
 
 	// Author
 	if tile.Status == models.FailedStatus && checks.HeadCommit != nil {
 		commit, err := gu.repository.GetCommit(params.Owner, params.Repository, *checks.HeadCommit)
 		if err == nil {
-			tile.Author = &models.Author{
+			tile.Build.Author = &models.Author{
 				Name:      commit.Author.Name,
 				AvatarURL: commit.Author.AvatarURL,
 			}
@@ -102,26 +103,26 @@ func (gu *githubUsecase) Checks(params *githubModels.ChecksParams) (*models.Tile
 	}
 
 	// StartedAt / FinishedAt
-	tile.StartedAt = startedAt
+	tile.Build.StartedAt = startedAt
 	if tile.Status != models.RunningStatus && tile.Status != models.QueuedStatus {
-		tile.FinishedAt = finishedAt
+		tile.Build.FinishedAt = finishedAt
 	}
 
 	// Duration
 	if tile.Status == models.RunningStatus {
-		tile.Duration = pointer.ToInt64(int64(time.Since(*tile.StartedAt).Seconds()))
+		tile.Build.Duration = pointer.ToInt64(int64(time.Since(*tile.Build.StartedAt).Seconds()))
 
 		estimatedDuration := gu.buildsCache.GetEstimatedDuration(params)
 		if estimatedDuration != nil {
-			tile.EstimatedDuration = pointer.ToInt64(int64(estimatedDuration.Seconds()))
+			tile.Build.EstimatedDuration = pointer.ToInt64(int64(estimatedDuration.Seconds()))
 		} else {
-			tile.EstimatedDuration = pointer.ToInt64(int64(0))
+			tile.Build.EstimatedDuration = pointer.ToInt64(int64(0))
 		}
 	}
 
 	// Cache Duration when success / failed
 	if tile.Status == models.SuccessStatus || tile.Status == models.FailedStatus || tile.Status == models.WarningStatus {
-		gu.buildsCache.Add(params, id, tile.Status, tile.FinishedAt.Sub(*tile.StartedAt))
+		gu.buildsCache.Add(params, id, tile.Status, tile.Build.FinishedAt.Sub(*tile.Build.StartedAt))
 	}
 
 	return tile, nil

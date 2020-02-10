@@ -34,10 +34,7 @@ func TestDelivery_PingHandler_Success(t *testing.T) {
 	ctx, res := initEcho()
 
 	tile := models.NewTile(PingTileType)
-	tile.Label = "monitoror.example.com"
 	tile.Status = models.SuccessStatus
-	tile.Values = []float64{1000}
-	tile.Unit = models.MillisecondUnit
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Ping", Anything).Return(tile, nil)

@@ -15,9 +15,9 @@ type (
 		StatusCodeMax *int   `json:"statusCodeMax" query:"statusCodeMax"`
 		Regex         string `json:"regex" query:"regex"`
 
-		Status  models.TileStatus `json:"status" query:"status"`
-		Message string            `json:"message" query:"message"`
-		Values  []float64         `json:"values" query:"values"`
+		Status      models.TileStatus `json:"status" query:"status"`
+		Message     string            `json:"message" query:"message"`
+		ValueValues []string          `json:"valueValues" query:"valueValues"`
 	}
 )
 
@@ -38,4 +38,4 @@ func (p *HTTPRawParams) GetRegexp() *regexp.Regexp { return getRegexp(p.GetRegex
 
 func (p *HTTPRawParams) GetStatus() models.TileStatus { return p.Status }
 func (p *HTTPRawParams) GetMessage() string           { return p.Message }
-func (p *HTTPRawParams) GetValues() []float64         { return p.Values }
+func (p *HTTPRawParams) GetValueValues() []string     { return p.ValueValues }

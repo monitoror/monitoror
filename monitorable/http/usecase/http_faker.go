@@ -4,6 +4,7 @@ package usecase
 
 import (
 	"math/rand"
+	"strconv"
 	"time"
 
 	"github.com/monitoror/monitoror/pkg/monitoror/faker"
@@ -50,18 +51,25 @@ func (hu *httpUsecase) httpAll(tileType models.TileType, url string, params http
 
 	tile.Status = nonempty.Struct(params.GetStatus(), hu.computeStatus(url)).(models.TileStatus)
 	if tile.Status == models.SuccessStatus && tileType != http.HTTPStatusTileType {
-		if len(params.GetValues()) != 0 {
-			tile.Values = params.GetValues()
-		} else if params.GetMessage() != "" {
-			tile.Message = params.GetMessage()
-		} else {
+		var values []string
+		if len(params.GetValueValues()) != 0 {
+			values = params.GetValueValues()
+		}
+
+		if len(values) == 0 {
 			if rand.Intn(2) == 0 {
-				tile.Values = []float64{1000}
+				values = append(values, "1000")
 			} else {
-				tile.Message = "random message"
+				values = append(values, "random message")
 			}
 		}
 
+		if _, err := strconv.ParseFloat(values[0], 64); err == nil {
+			tile.WithValue(models.NumberUnit)
+		} else {
+			tile.WithValue(models.RawUnit)
+		}
+		tile.Value.Values = values
 	}
 
 	if tile.Status == models.FailedStatus {
