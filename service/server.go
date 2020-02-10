@@ -109,7 +109,7 @@ func (s *Server) initUI() {
 	// Never use constant or variable according to docs : https://github.com/GeertJohan/go.rice#calling-findbox-and-mustfindbox
 	uiAssets, err := riceConfig.FindBox("../ui/dist")
 	if err != nil {
-		panic("static ui/dist not found. GetBuildStatus them with `cd ui && yarn build` first.")
+		panic("static ui/dist not found. Build them with `cd ui && yarn build` first.")
 	}
 
 	assetHandler := http.FileServer(uiAssets.HTTPBox())

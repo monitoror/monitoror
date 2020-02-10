@@ -36,7 +36,7 @@ func (tu *travisCIUsecase) Build(params *travisCIModels.BuildParams) (*models.Ti
 	tile.Label = fmt.Sprintf("%s\n%s", params.Repository, git.HumanizeBranch(params.Branch))
 
 	// Request
-	build, err := tu.repository.GetLastBuildStatus(params.Group, params.Repository, params.Branch)
+	build, err := tu.repository.GetLastBuildStatus(params.Owner, params.Repository, params.Branch)
 	if err != nil {
 		return nil, &models.MonitororError{Err: err, Tile: tile, Message: "unable to find build"}
 	}

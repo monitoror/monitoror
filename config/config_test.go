@@ -100,3 +100,13 @@ func TestAzureDevOps_IsValid(t *testing.T) {
 	config.Monitorable.AzureDevOps[DefaultVariant].Token = "abcde"
 	assert.True(t, config.Monitorable.AzureDevOps[DefaultVariant].IsValid())
 }
+
+func TestGithub_IsValid(t *testing.T) {
+	config := InitConfig()
+
+	config.Monitorable.Github[DefaultVariant].Token = ""
+	assert.False(t, config.Monitorable.Github[DefaultVariant].IsValid())
+
+	config.Monitorable.Github[DefaultVariant].Token = "abcde"
+	assert.True(t, config.Monitorable.Github[DefaultVariant].IsValid())
+}

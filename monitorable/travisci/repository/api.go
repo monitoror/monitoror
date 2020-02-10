@@ -22,13 +22,13 @@ type (
 	}
 )
 
-func NewTravisCIRepository(config *config.TravisCI, githubConfig *config.Github) travisci.Repository {
+func NewTravisCIRepository(config *config.TravisCI) travisci.Repository {
 	client := travis.NewClient(config.URL, config.Token)
 
 	// Using Github token if exist
 	// TODO: Change this to use Lazy load
-	if githubConfig.Token != "" {
-		_, _, err := client.Authentication.UsingGithubToken(context.Background(), githubConfig.Token)
+	if config.GithubToken != "" {
+		_, _, err := client.Authentication.UsingGithubToken(context.Background(), config.GithubToken)
 		if err != nil {
 			panic(fmt.Sprintf("unable to connect to TravisCI Using Github Token\n. %v\n", err))
 		}
@@ -41,9 +41,9 @@ func NewTravisCIRepository(config *config.TravisCI, githubConfig *config.Github)
 }
 
 // GetBuildStatus fetch build information from travis-ci
-func (r *travisCIRepository) GetLastBuildStatus(group, repository, branch string) (*models.Build, error) {
+func (r *travisCIRepository) GetLastBuildStatus(owner, repository, branch string) (*models.Build, error) {
 	// GetConfig
-	repoSlug := fmt.Sprintf("%s/%s", group, repository)
+	repoSlug := fmt.Sprintf("%s/%s", owner, repository)
 	options := &travis.BuildsByRepoOption{
 		BranchName: []string{branch},
 		Limit:      1,

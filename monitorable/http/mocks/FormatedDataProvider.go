@@ -38,19 +38,3 @@ func (_m *FormatedDataProvider) GetKey() string {
 
 	return r0
 }
-
-// GetUnmarshaller provides a mock function with given fields:
-func (_m *FormatedDataProvider) GetUnmarshaller() func([]byte, interface{}) error {
-	ret := _m.Called()
-
-	var r0 func([]byte, interface{}) error
-	if rf, ok := ret.Get(0).(func() func([]byte, interface{}) error); ok {
-		r0 = rf()
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(func([]byte, interface{}) error)
-		}
-	}
-
-	return r0
-}

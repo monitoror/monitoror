@@ -33,14 +33,15 @@ type (
 
 // List of all Status Code
 const (
-	SuccessStatus  TileStatus = "SUCCESS"
-	FailedStatus   TileStatus = "FAILURE"
-	RunningStatus  TileStatus = "RUNNING"
-	QueuedStatus   TileStatus = "QUEUED"
-	DisabledStatus TileStatus = "DISABLED"
-	CanceledStatus TileStatus = "CANCELED"
-	WarningStatus  TileStatus = "WARNING"
-	UnknownStatus  TileStatus = "UNKNOWN"
+	SuccessStatus        TileStatus = "SUCCESS"
+	FailedStatus         TileStatus = "FAILURE"
+	RunningStatus        TileStatus = "RUNNING"
+	QueuedStatus         TileStatus = "QUEUED"
+	DisabledStatus       TileStatus = "DISABLED"
+	CanceledStatus       TileStatus = "CANCELED"
+	WarningStatus        TileStatus = "WARNING"
+	UnknownStatus        TileStatus = "UNKNOWN"
+	ActionRequiredStatus TileStatus = "ACTION_REQUIRED"
 )
 
 const (

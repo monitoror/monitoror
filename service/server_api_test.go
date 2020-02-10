@@ -52,3 +52,8 @@ func TestRegisterAzureDevOps(t *testing.T) {
 	server := initServer()
 	server.registerAzureDevOps(config.DefaultVariant)
 }
+
+func TestRegisterGithub(t *testing.T) {
+	server := initServer()
+	server.registerGithub(config.DefaultVariant)
+}

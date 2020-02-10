@@ -56,7 +56,7 @@ func (hu *httpUsecase) httpAll(tileType models.TileType, url string, params http
 			tile.Message = params.GetMessage()
 		} else {
 			if rand.Intn(2) == 0 {
-				tile.Values = []float64{10000 * rand.Float64()}
+				tile.Values = []float64{1000}
 			} else {
 				tile.Message = "random message"
 			}

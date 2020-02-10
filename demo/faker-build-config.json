@@ -1,29 +1,32 @@
 {
-  "version": 4,
+  "version": 5,
   "columns": 4,
   "tiles": [
     { "type": "GROUP", "rowSpan": 2 ,"label": "Group With Build", "tiles": [
-      { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "previousStatus": "SUCCESS" } },
+      { "type": "TRAVISCI-BUILD", "params": { "owner": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "previousStatus": "SUCCESS" } },
       { "type": "JENKINS-BUILD", "params": { "job":  "monitoror", "branch":  "master", "status": "RUNNING", "previousStatus": "SUCCESS" } },
       { "type": "AZUREDEVOPS-BUILD", "params": { "project":  "monitoror", "definition": 1, "branch":  "master", "status": "RUNNING", "previousStatus": "SUCCESS" } },
       { "type": "AZUREDEVOPS-RELEASE", "params": { "project": "monitoror", "definition": 1, "status": "RUNNING", "previousStatus": "SUCCESS" } }
     ]},
-    { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "SUCCESS" } },
-    { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "FAILURE" } },
-    { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "QUEUED", "previousStatus": "SUCCESS" } },
-    { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "QUEUED", "previousStatus": "FAILURE" } },
-    { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "previousStatus": "SUCCESS" } },
-    { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "previousStatus": "FAILURE" } },
-    { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "estimatedDuration": 200 } },
-    { "type": "TRAVISCI-BUILD", "params": { "group": "tools", "repository": "monitoror", "branch": "master", "status": "WARNING" } },
+    { "type": "TRAVISCI-BUILD", "params": { "owner": "tools", "repository": "monitoror", "branch": "master", "status": "SUCCESS" } },
+    { "type": "TRAVISCI-BUILD", "params": { "owner": "tools", "repository": "monitoror", "branch": "master", "status": "FAILURE" } },
+    { "type": "TRAVISCI-BUILD", "params": { "owner": "tools", "repository": "monitoror", "branch": "master", "status": "QUEUED", "previousStatus": "SUCCESS" } },
+    { "type": "TRAVISCI-BUILD", "params": { "owner": "tools", "repository": "monitoror", "branch": "master", "status": "QUEUED", "previousStatus": "FAILURE" } },
+    { "type": "TRAVISCI-BUILD", "params": { "owner": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "previousStatus": "SUCCESS" } },
+    { "type": "TRAVISCI-BUILD", "params": { "owner": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "previousStatus": "FAILURE" } },
+    { "type": "TRAVISCI-BUILD", "params": { "owner": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "estimatedDuration": 200 } },
+    { "type": "TRAVISCI-BUILD", "params": { "owner": "tools", "repository": "monitoror", "branch": "master", "status": "WARNING" } },
     { "type": "JENKINS-BUILD", "params": { "job": "monitoror", "branch": "master", "status": "SUCCESS" } },
-    { "type": "JENKINS-BUILD", "params": { "job": "monitoror", "branch":  "master", "status": "WARNING" } },
+    { "type": "JENKINS-BUILD", "params": { "job": "monitoror", "branch":  "master", "status": "CANCELED" } },
     { "type": "JENKINS-BUILD", "params": { "job": "monitoror", "branch": "master", "status": "QUEUED" } },
     { "type": "JENKINS-BUILD", "params": { "job": "monitoror", "branch": "master", "status": "RUNNING" } },
     { "type": "AZUREDEVOPS-BUILD", "params": { "project": "monitoror", "definition": 1, "branch": "master", "status": "SUCCESS" } },
     { "type": "AZUREDEVOPS-BUILD", "params": { "project": "monitoror", "definition": 1, "branch": "master", "status": "QUEUED" } },
     { "type": "AZUREDEVOPS-BUILD", "params": { "project": "monitoror", "definition": 1, "branch": "master", "status": "RUNNING" } },
     { "type": "AZUREDEVOPS-RELEASE", "params": { "project": "monitoror", "definition": 1, "status": "SUCCESS" } },
-    { "type": "AZUREDEVOPS-RELEASE", "params": { "project": "monitoror", "definition": 1, "status": "RUNNING" } }
+    { "type": "AZUREDEVOPS-RELEASE", "params": { "project": "monitoror", "definition": 1, "status": "RUNNING" } },
+    { "type": "GITHUB-CHECKS", "params": { "owner": "monitoror", "repository": "monitoror", "ref": "master" } },
+    { "type": "GITHUB-CHECKS", "params": { "owner": "monitoror", "repository": "monitoror", "ref": "master", "status": "ACTION_REQUIRED" } },
+    { "type": "GITHUB-CHECKS", "params": { "owner": "monitoror", "repository": "monitoror", "ref": "master", "status": "RUNNING" } }
   ]
 }

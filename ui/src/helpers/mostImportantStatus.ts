@@ -3,6 +3,7 @@ import TileStatus from '@/enums/tileStatus'
 const ORDERED_TILE_STATUS = [
   TileStatus.Unknown,
   TileStatus.Success,
+  TileStatus.ActionRequired,
   TileStatus.Canceled,
   TileStatus.Warning,
   TileStatus.Failed,

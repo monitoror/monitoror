@@ -10,7 +10,7 @@ import (
 
 type (
 	BuildParams struct {
-		Group      string `json:"group" query:"group"`
+		Owner      string `json:"owner" query:"owner"`
 		Repository string `json:"repository" query:"repository"`
 		Branch     string `json:"branch" query:"branch"`
 
@@ -27,5 +27,5 @@ type (
 )
 
 func (p *BuildParams) IsValid() bool {
-	return p.Group != "" && p.Repository != "" && p.Branch != ""
+	return p.Owner != "" && p.Repository != "" && p.Branch != ""
 }

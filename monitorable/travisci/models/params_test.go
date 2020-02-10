@@ -14,14 +14,14 @@ func TestBuildParams_IsValid(t *testing.T) {
 	param = &BuildParams{Repository: "test"}
 	assert.False(t, param.IsValid())
 
-	param = &BuildParams{Repository: "test", Group: "test"}
+	param = &BuildParams{Repository: "test", Owner: "test"}
 	assert.False(t, param.IsValid())
 
-	param = &BuildParams{Repository: "test", Group: "test", Branch: "test"}
+	param = &BuildParams{Repository: "test", Owner: "test", Branch: "test"}
 	assert.True(t, param.IsValid())
 }
 
 func TestBuildParams_String(t *testing.T) {
-	param := &BuildParams{Repository: "test", Group: "test", Branch: "test"}
+	param := &BuildParams{Repository: "test", Owner: "test", Branch: "test"}
 	assert.Equal(t, "BUILD-test-test-test", fmt.Sprint(param))
 }

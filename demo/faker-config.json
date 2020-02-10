@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "columns": 4,
   "tiles": [
     { "type": "PING", "columnSpan": 2, "label": "test1" ,"params": { "hostname": "example.com", "status": "SUCCESS" } },
@@ -22,9 +22,9 @@
       { "type": "PORT", "params": { "hostname": "bserver.com", "port": 22, "status": "FAILURE" } }
     ]},
     { "type": "PINGDOM-CHECK", "params": { "id": 1000 } },
+    { "type": "GITHUB-ISSUES", "label": "Monitoror open issues", "params": { "query": "is:open is:issue repo:monitoror/monitoror", "values": [10] } },
     { "type": "HTTP-ANY", "params": { "url": "http://monitoror.test" } },
     { "type": "HTTP-ANY", "params": { "url": "http://monitoror.test", "status": "SUCCESS"} },
-    { "type": "HTTP-ANY", "params": { "url": "http://monitoror.test", "status": "FAILURE", "message": "status code 404"} },
     { "type": "HTTP-FORMATTED", "params": { "format": "JSON", "url": "http://monitoror.test", "key": ".key", "status": "SUCCESS", "values": [1337, 1337] } }
   ]
 }

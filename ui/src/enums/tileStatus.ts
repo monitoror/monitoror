@@ -6,6 +6,7 @@ export enum TileStatus {
   Queued = 'QUEUED',
   Canceled = 'CANCELED',
   Unknown = 'UNKNOWN',
+  ActionRequired = 'ACTION_REQUIRED',
 }
 
 export default TileStatus

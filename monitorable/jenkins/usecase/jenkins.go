@@ -60,7 +60,7 @@ func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (*models.Tile
 	}
 
 	// Set Previous Status
-	previousStatus := tu.buildsCache.GetPreviousStatus(params, "null") // null because we don't habe build number yet, but i'ts not important in jenkins
+	previousStatus := tu.buildsCache.GetPreviousStatus(params, "null") // null because we don't have build number yet, but it's not important in jenkins
 	if previousStatus != nil {
 		tile.PreviousStatus = *previousStatus
 	} else {
@@ -138,7 +138,7 @@ func (tu *jenkinsUsecase) ListDynamicTile(params interface{}) ([]builder.Result,
 		return nil, err
 	}
 
-	results := []builder.Result{}
+	var results []builder.Result
 	for _, branch := range job.Branches {
 		branchToFilter, _ := url.QueryUnescape(branch)
 		if !matcher.MatchString(branchToFilter) ||

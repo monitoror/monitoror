@@ -6,6 +6,8 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/monitoror/monitoror/monitorable/github"
+
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 	. "github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/handlers"
@@ -16,6 +18,9 @@ import (
 	_configDelivery "github.com/monitoror/monitoror/monitorable/config/delivery/http"
 	_configRepository "github.com/monitoror/monitoror/monitorable/config/repository"
 	_configUsecase "github.com/monitoror/monitoror/monitorable/config/usecase"
+	_githubDelivery "github.com/monitoror/monitoror/monitorable/github/delivery/http"
+	_githubModels "github.com/monitoror/monitoror/monitorable/github/models"
+	_githubUsecase "github.com/monitoror/monitoror/monitorable/github/usecase"
 	"github.com/monitoror/monitoror/monitorable/http"
 	_httpDelivery "github.com/monitoror/monitoror/monitorable/http/delivery/http"
 	_httpModels "github.com/monitoror/monitoror/monitorable/http/models"
@@ -64,6 +69,7 @@ func (s *Server) initApis() {
 	registerTile(s.registerTravisCI, DefaultVariant, true)
 	registerTile(s.registerJenkins, DefaultVariant, true)
 	registerTile(s.registerAzureDevOps, DefaultVariant, true)
+	registerTile(s.registerGithub, DefaultVariant, true)
 }
 
 func (s *Server) registerInfo() {
@@ -166,4 +172,18 @@ func (s *Server) registerAzureDevOps(variant string) {
 	// Register data for config hydration
 	s.configHelper.RegisterTile(azuredevops.AzureDevOpsBuildTileType, &_azureDevOpsModels.BuildParams{}, routeBuild.Path)
 	s.configHelper.RegisterTile(azuredevops.AzureDevOpsReleaseTileType, &_azureDevOpsModels.ReleaseParams{}, routeRelease.Path)
+}
+
+func (s *Server) registerGithub(variant string) {
+	usecase := _githubUsecase.NewGithubUsecase()
+	delivery := _githubDelivery.NewGithubDelivery(usecase)
+
+	// Register route to echo
+	azureGroup := s.api.Group("/github")
+	routeIssues := azureGroup.GET("/issues", s.cm.UpstreamCacheHandler(delivery.GetIssues))
+	routeChecks := azureGroup.GET("/checks", s.cm.UpstreamCacheHandler(delivery.GetChecks))
+
+	// Register data for config hydration
+	s.configHelper.RegisterTile(github.GithubIssuesTileType, &_githubModels.IssuesParams{}, routeIssues.Path)
+	s.configHelper.RegisterTile(github.GithubChecksTileType, &_githubModels.ChecksParams{}, routeChecks.Path)
 }

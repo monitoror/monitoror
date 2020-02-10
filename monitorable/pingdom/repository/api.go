@@ -5,11 +5,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/monitoror/monitoror/pkg/gopingdom"
-
 	"github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/monitorable/pingdom"
 	"github.com/monitoror/monitoror/monitorable/pingdom/models"
+	"github.com/monitoror/monitoror/pkg/gopingdom"
 
 	pingdomAPI "github.com/jsdidierlaurent/go-pingdom/pingdom"
 )
