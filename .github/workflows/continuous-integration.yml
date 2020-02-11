@@ -83,6 +83,27 @@ jobs:
           file: ui/tests/coverage/*
           flags: ui
 
+  chmod:
+    name: Check chmods
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: check
+        run: |
+          # All files, except scripts, should not be executable (644)
+          wrongChmodFiles="$(find . -type f -not -path '*/\.git/*' -not -path './scripts/*' -not -perm 0644)"
+
+          # All scripts should be executable (755)
+          wrongChmodScripts="$(find ./scripts -type f -not -path '*/\.git/*' -not -perm 0755)"
+
+          # Print file with wrong chmod
+          echo "" # Blank line
+          [[ -n "$wrongChmodFiles" ]] && (echo "Chmod should be 644 on those files:" && echo "$wrongChmodFiles" && echo "")
+          [[ -n "$wrongChmodScripts" ]] && (echo "Chmod should be 755 on those files:" && echo "$wrongChmodScripts" && echo "")
+
+          [[ -z "$wrongChmodFiles$wrongChmodScripts" ]]
+
   build:
     name: Build
     runs-on: ubuntu-latest
