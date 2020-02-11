@@ -3,7 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1" name="viewport">
-  <title>Monitoror — The unified monitoring wallboard</title>
+  <title>Monitoror — Unified monitoring wallboard</title>
+  <meta content="Monitoror is a wallboard monitoring app to monitor server status; monitor CI builds progress or even display critical values"
+        name="description">
   <link href="./favicon.png" rel="icon" type="image/png">
   <link href="./favicon.ico" rel="icon">
   <link href="./assets/styles/main.css" rel="stylesheet" type="text/css">
@@ -19,7 +21,8 @@
               d="M409.132 114.573c-19.608-33.596-46.205-60.194-79.798-79.8C295.736 15.166 259.057 5.365 219.27 5.365c-39.78 0-76.47 9.804-110.062 29.408-33.596 19.605-60.192 46.204-79.8 79.8C9.803 148.168 0 184.853 0 224.63c0 47.78 13.94 90.745 41.827 128.906 27.884 38.164 63.906 64.572 108.063 79.227 5.14.954 8.945.283 11.42-1.996 2.474-2.282 3.71-5.14 3.71-8.562 0-.57-.05-5.708-.144-15.417-.098-9.71-.144-18.18-.144-25.406l-6.567 1.136c-4.187.767-9.47 1.092-15.846 1-6.375-.09-12.992-.757-19.843-2-6.854-1.23-13.23-4.085-19.13-8.558-5.898-4.473-10.085-10.328-12.56-17.556l-2.855-6.57c-1.903-4.374-4.9-9.233-8.992-14.56-4.093-5.33-8.232-8.944-12.42-10.847l-1.998-1.43c-1.332-.952-2.568-2.1-3.71-3.43-1.143-1.33-1.998-2.663-2.57-3.997-.57-1.335-.097-2.43 1.428-3.29 1.525-.858 4.28-1.275 8.28-1.275l5.708.853c3.807.763 8.516 3.042 14.133 6.85 5.615 3.807 10.23 8.755 13.847 14.843 4.38 7.807 9.657 13.755 15.846 17.848 6.184 4.093 12.42 6.136 18.7 6.136 6.28 0 11.703-.476 16.273-1.423 4.565-.95 8.848-2.382 12.847-4.284 1.713-12.758 6.377-22.56 13.988-29.41-10.847-1.14-20.6-2.857-29.263-5.14-8.658-2.286-17.605-5.996-26.835-11.14-9.235-5.137-16.896-11.516-22.985-19.126-6.09-7.614-11.088-17.61-14.987-29.98-3.9-12.373-5.852-26.647-5.852-42.825 0-23.035 7.52-42.637 22.557-58.817-7.044-17.318-6.38-36.732 1.997-58.24 5.52-1.715 13.706-.428 24.554 3.853 10.85 4.284 18.794 7.953 23.84 10.995 5.046 3.04 9.09 5.618 12.135 7.708 17.706-4.947 35.977-7.42 54.82-7.42s37.116 2.473 54.822 7.42l10.85-6.85c7.418-4.57 16.18-8.757 26.26-12.564 10.09-3.806 17.803-4.854 23.135-3.14 8.562 21.51 9.325 40.923 2.28 58.24 15.035 16.18 22.558 35.788 22.558 58.818 0 16.178-1.958 30.497-5.853 42.966-3.9 12.47-8.94 22.457-15.125 29.98-6.19 7.52-13.9 13.85-23.13 18.985-9.233 5.14-18.183 8.85-26.84 11.135-8.663 2.286-18.416 4.004-29.264 5.146 9.894 8.563 14.842 22.078 14.842 40.54v60.237c0 3.422 1.19 6.28 3.572 8.562 2.38 2.278 6.136 2.95 11.276 1.994 44.163-14.653 80.185-41.062 108.068-79.226 27.88-38.16 41.826-81.126 41.826-128.906-.01-39.77-9.818-76.454-29.414-110.05z"
               fill="currentColor"></path>
           </svg>
-          View project on GitHub — <span id="star-count">6</span> <span class="star">★</span>
+          View <span class="hide-on-mobile">Monitoror</span> on GitHub —
+          <span id="star-count">10</span> <span class="star">★</span>
         </a>
       </li>
       <li>
@@ -33,7 +36,7 @@
         </a>
       </li>
       <li>
-        <a class="c-underlined" href="">
+        <a class="c-underlined" href="https://demo.monitoror.com/">
           Demo
         </a>
       </li>
@@ -43,16 +46,17 @@
     <img alt="Monitoror" class="m-header--logo-image" src="assets/images/animated-logo.svg">
   </h1>
   <h2 class="m-header--baseline">
-    The unified monitoring wallboard
+    Unified monitoring wallboard
   </h2>
   <p class="m-header--description">
-    Light, ergonomic and reliable <br>
-    Because wallboards should be dependable and clear
+    Light, ergonomic and reliable monitoring for anything, <br class="hide-on-mobile">
+    because you deserve dependable and clean wallboard.
   </p>
 
+
   <div class="m-header--buttons">
-    <a class="c-button c-button--ghost" href="">Live demo</a>
     <a class="c-button c-button--plain" href="./documentation/">Get started</a>
+    <a class="c-button c-button--clear" href="https://demo.monitoror.com/">Live demo</a>
   </div>
 </header>
 
@@ -61,20 +65,32 @@
     <div class="m-home--wrapper">
       <div class="m-home--column">
         <div class="m-home--column-wrapper">
-          <h4 class="m-home--title">Unified</h4>
+          <div class="m-home--sup-title">
+            Unified
+          </div>
+          <h3 class="m-home--title">Monitor all your tools in&nbsp;one&nbsp;place, one&nbsp;screen</h3>
           <div class="m-home--content">
             <p>
-              All your tools monitored in one place, one&nbsp;screen.
-              Or&nbsp;more&nbsp;screens. Even on your computer in your favorite modern browser... that's your choice!
+              Monitor <strong>server status</strong> by pinging them,
+              check a port to ensure that something is listening behind,
+              <strong>display your CI state</strong>, and follow its progress live.
+            </p>
+            <p>
+              Most <strong>popular services</strong> like Jenkins, GitHub, Azure&nbsp;DevOps, Travis&nbsp;CI, ...
+              are <strong>already supported</strong>.
+              Feel free to
+              <a class="c-underlined" href="https://github.com/monitoror/monitoror/issues">request new features</a>.
             </p>
             <p>
               <a class="c-button c-button--ghost" href="./documentation/#tile-definitions">
-                See all available tiles
-                <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M31.2 14L18.7 1.6c-1.1-1.1-3-1.1-4.1 0-1.1 1.1-1.1 2.9 0 4.1L25 16 14.6 26.3c-1.1 1.1-1.1 2.9 0 4.1 1.1 1.1 3 1.1 4.1 0L31.2 18c.6-.6.9-1.3.8-2 0-.7-.3-1.5-.8-2z"
-                        fill="currentColor"/>
-                  <path d="M2.3 13h22.9c1.3 0 2.3 1 2.3 2.3v1.5c0 1.3-1 2.3-2.3 2.3H2.3c-1.3 0-2.3-1-2.3-2.3v-1.5C0 14.1 1 13 2.3 13z"
-                        fill="currentColor"/>
+                Discover all tiles types
+                <svg class="hide-on-mobile" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M31.2 14L18.7 1.6c-1.1-1.1-3-1.1-4.1 0-1.1 1.1-1.1 2.9 0 4.1L25 16 14.6 26.3c-1.1 1.1-1.1 2.9 0 4.1 1.1 1.1 3 1.1 4.1 0L31.2 18c.6-.6.9-1.3.8-2 0-.7-.3-1.5-.8-2z"
+                    fill="currentColor"/>
+                  <path
+                    d="M2.3 13h22.9c1.3 0 2.3 1 2.3 2.3v1.5c0 1.3-1 2.3-2.3 2.3H2.3c-1.3 0-2.3-1-2.3-2.3v-1.5C0 14.1 1 13 2.3 13z"
+                    fill="currentColor"/>
                 </svg>
               </a>
             </p>
@@ -83,14 +99,6 @@
       </div>
       <div class="m-home--column">
         <ul class="m-features--list" data-show-on-scroll>
-          <!--        <li class="m-features&#45;&#45;feature">-->
-          <!--          <span class="m-features&#45;&#45;feature-icon">-->
-          <!--            <svg fill="currentColor" viewBox="0 0 56 52" xmlns="http://www.w3.org/2000/svg">-->
-          <!--              <path-->
-          <!--                d="M52.71 30.572L35.68 43.007l4.566-5.885 10.561-13.605 2.091 6.459a.53.53 0 0 1-.187.596m-49.49 0a.532.532 0 0 1-.19-.595l2.093-6.461 15.13 19.497-17.03-12.441M11.395 4.1l4.772 14.745H6.639L11.395 4.1m24.26 17.745l-7.682 23.769-7.684-23.769h15.366m8.887-17.744l4.765 14.744h-9.53l4.765-14.744M32.029 42.82l6.777-20.964H48.3L32.471 42.251l-.442.569M17.132 21.856l6.775 20.959L7.646 21.856h9.486m38.623 7.197l-2.944-9.09c-.006-.022-.006-.044-.013-.066l-5.872-18.17C46.58.692 45.579-.031 44.525.007a2.505 2.505 0 0 0-2.373 1.736l-5.527 17.11H19.318L13.78 1.743A2.502 2.502 0 0 0 11.409.008c-1.113-.041-2.054.686-2.407 1.737l-5.85 18.14-.007.015-2.967 9.16a3.53 3.53 0 0 0 1.273 3.941L27.075 51.72c.054.039.115.056.171.087l.016.01.01.007a1.464 1.464 0 0 0 .342.13l.002.001.05.009c.027.006.055.007.082.011.07.01.14.033.211.033.158 0 .315-.032.467-.081l.011-.003.009-.003c.055-.019.109-.041.162-.066.017-.008.033-.019.05-.027l.003-.002.005-.002.003-.002a1.6 1.6 0 0 0 .168-.102l.02-.01.002-.001L54.484 33a3.528 3.528 0 0 0 1.271-3.941"/>-->
-          <!--            </svg>-->
-          <!--          </span>-->
-          <!--        </li>-->
           <li class="m-features--feature">
             <span class="m-features--feature-icon">
               <svg viewBox="0 0 64 48" xmlns="http://www.w3.org/2000/svg">
@@ -163,14 +171,30 @@
     <div class="m-home--wrapper">
       <div class="m-home--column">
         <div class="m-home--column-wrapper">
-          <h4 class="m-home--title">Clear UI</h4>
+          <div class="m-home--sup-title">
+            Clear UI
+          </div>
+          <h3 class="m-home--title">Make your eyes comfortable</h3>
           <div class="m-home--content">
             <p>
-              With its colorful UI, Monitoror offers you a clear and readable overview of your monitored things.
-              There is also a dark mode for those who like living in the dark.
+              With its colorful UI, Monitoror offers you a <strong>clear and readable overview</strong>,
+              allowing you to spot any issue at a glance.
             </p>
             <p>
-              <a class="c-button c-button--clear" href="">See it live!</a>
+              There is also a <strong>dark theme</strong> for those who like living in&nbsp;the&nbsp;dark.
+            </p>
+            <p>
+              <a class="c-button c-button--clear" href="https://demo.monitoror.com/">
+                See it live
+                <svg class="hide-on-mobile" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M31.2 14L18.7 1.6c-1.1-1.1-3-1.1-4.1 0-1.1 1.1-1.1 2.9 0 4.1L25 16 14.6 26.3c-1.1 1.1-1.1 2.9 0 4.1 1.1 1.1 3 1.1 4.1 0L31.2 18c.6-.6.9-1.3.8-2 0-.7-.3-1.5-.8-2z"
+                    fill="currentColor"/>
+                  <path
+                    d="M2.3 13h22.9c1.3 0 2.3 1 2.3 2.3v1.5c0 1.3-1 2.3-2.3 2.3H2.3c-1.3 0-2.3-1-2.3-2.3v-1.5C0 14.1 1 13 2.3 13z"
+                    fill="currentColor"/>
+                </svg>
+              </a>
             </p>
           </div>
         </div>
@@ -211,7 +235,10 @@
     <div class="m-home--wrapper">
       <div class="m-home--column">
         <div class="m-home--column-wrapper">
-          <h4 class="m-home--title">Customizable</h4>
+          <div class="m-home--sup-title">
+            Customizable
+          </div>
+          <h3 class="m-home--title">Shape the wallboard <br> how it fits you the&nbsp;most</h3>
           <div class="m-home--content">
             <ul>
               <li>
@@ -237,12 +264,14 @@
             </ul>
             <p>
               <a class="c-button c-button--ghost" href="./documentation">
-                See documentation
-                <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M31.2 14L18.7 1.6c-1.1-1.1-3-1.1-4.1 0-1.1 1.1-1.1 2.9 0 4.1L25 16 14.6 26.3c-1.1 1.1-1.1 2.9 0 4.1 1.1 1.1 3 1.1 4.1 0L31.2 18c.6-.6.9-1.3.8-2 0-.7-.3-1.5-.8-2z"
-                        fill="currentColor"/>
-                  <path d="M2.3 13h22.9c1.3 0 2.3 1 2.3 2.3v1.5c0 1.3-1 2.3-2.3 2.3H2.3c-1.3 0-2.3-1-2.3-2.3v-1.5C0 14.1 1 13 2.3 13z"
-                        fill="currentColor"/>
+                Go to documentation
+                <svg class="hide-on-mobile" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+                  <path
+                    d="M31.2 14L18.7 1.6c-1.1-1.1-3-1.1-4.1 0-1.1 1.1-1.1 2.9 0 4.1L25 16 14.6 26.3c-1.1 1.1-1.1 2.9 0 4.1 1.1 1.1 3 1.1 4.1 0L31.2 18c.6-.6.9-1.3.8-2 0-.7-.3-1.5-.8-2z"
+                    fill="currentColor"/>
+                  <path
+                    d="M2.3 13h22.9c1.3 0 2.3 1 2.3 2.3v1.5c0 1.3-1 2.3-2.3 2.3H2.3c-1.3 0-2.3-1-2.3-2.3v-1.5C0 14.1 1 13 2.3 13z"
+                    fill="currentColor"/>
                 </svg>
               </a>
             </p>
@@ -258,12 +287,16 @@
     {
       "type": "PING",
       "label": "Am I on fire?",
-      "params": { "hostname": "127.0.0.1" }
+      "params": {
+        "hostname": "127.0.0.1"
+      }
     },
     {
       "type": "HTTP-ANY",
       "label": "SSL certificate is valid",
-      "params": { "url": "https://example.com" }
+      "params": {
+        "url": "https://monitoror.com"
+      }
     }
   ]
 }
@@ -284,8 +317,9 @@
               <stop offset="100%" stop-color="#87d7af"/>
             </linearGradient>
             <mask id="monitoror-text-line-mask">
-              <path d="M1190.18 188.973l2.522 12h-49.334v-12h46.812zm-79.771 21.881l-14.452 31.169-1.094 1.609c-1.578 1.196-3.466 2.099-5.342 1.785-1.912-.321-3.346-1.756-4.467-3.429l-18.692-41.015h-25.556c-1.233-1.172-2.334-2.533-3.326-4.066a36.452 36.452 0 01-3.844-7.934h36.585l1.692.243c.518.237 1.075.402 1.554.711 1.3.836 1.405 1.297 2.214 2.558l14.879 32.649 15.155-32.685.926-1.425c.43-.369.811-.803 1.289-1.108 1.294-.827 1.754-.732 3.229-.943h14.173v12h-10.342l-3.044 6.565-1.537.264v3.052zm-95.192-21.881c1.205 4.333 2.915 8.338 5.166 12H974.46v-12h40.757zm-58.793 12h-2.119l-1.717-.251c-1.378-.641-1.859-.682-2.871-1.883-.372-.442-.609-.983-.914-1.474l-17.081-39.288c-1.493-9.812-5.139-18.201-10.943-25.17l-10.023-23.054-37.946 87.507-.914 1.476-1.095.972c-.827-.9-1.573-1.87-2.229-2.901-1.885-2.91-3.368-6.153-4.422-9.739l41.095-94.767 1.077-1.663c.52-.407.98-.905 1.561-1.221a5.994 5.994 0 013.854-.647c1.293.216 2.386 1.044 3.436 1.864l1.079 1.662 40.172 92.401v16.176zm-110.115-12c1.204 4.333 2.915 8.338 5.165 12h-35.087c-.782-1.839-1.17-4.232-1.17-7.179v-4.821h31.092zm-49.128 0v4.821c0 2.578.161 4.969.502 7.179h-33.616v-12h33.114zm-91.838 0h40.688v12h-40.688v-12zm-95.306 29.505l-7.715-17.505h-8.4c2.223-3.666 3.951-7.666 5.145-12h7.167l1.71.248c.522.242 1.085.411 1.568.726 1.309.854 1.409 1.323 2.213 2.606l6.128 13.906-7.816 1.343v10.676zm39.614-17.505l-18.68 40.3-1.101 1.617c-1.048.789-2.14 1.589-3.421 1.788-1.97.306-4.034-.446-5.342-1.871-.441-.481-.714-1.092-1.07-1.638l-9.622-21.831h13.114l2.136 4.847 2.247-4.847 12.464-26.889.926-1.425c.429-.369.81-.803 1.288-1.108l.406-.224.046-.027c.967-.558 1.479-.506 2.777-.692h41.488v12h-37.656zm-69.038-12a36.343 36.343 0 01-3.87 7.934c-.999 1.533-2.101 2.894-3.33 4.066h-32.574c-1.234-1.172-2.334-2.533-3.327-4.066a36.449 36.449 0 01-3.843-7.934h46.944zm-90.021 0h24.658c1.204 4.333 2.915 8.338 5.165 12h-33.848l-1.747-.26c-1.397-.663-1.89-.708-2.901-1.947-.373-.456-.603-1.011-.904-1.517l-20.764-50.654 6.434-15.941 23.907 58.319zm-78.981-27.916l28.017-69.269 1.062-1.718c.524-.423.984-.94 1.572-1.269 2.405-1.345 5.633-.748 7.41 1.248.447.503.713 1.142 1.07 1.713l7.48 18.248-6.334 16.185-6.661-16.248-27.244 67.358-6.372-16.248zm-92.776 27.916h81.485l3.158-7.81 6.468 16.012-.019.048-.9 1.527c-1.145 1.049-1.373 1.491-2.908 1.961-.547.167-1.129.174-1.754.262h-88.051l2.521-12z"
-                    fill="#fff"/>
+              <path
+                d="M1190.18 188.973l2.522 12h-49.334v-12h46.812zm-79.771 21.881l-14.452 31.169-1.094 1.609c-1.578 1.196-3.466 2.099-5.342 1.785-1.912-.321-3.346-1.756-4.467-3.429l-18.692-41.015h-25.556c-1.233-1.172-2.334-2.533-3.326-4.066a36.452 36.452 0 01-3.844-7.934h36.585l1.692.243c.518.237 1.075.402 1.554.711 1.3.836 1.405 1.297 2.214 2.558l14.879 32.649 15.155-32.685.926-1.425c.43-.369.811-.803 1.289-1.108 1.294-.827 1.754-.732 3.229-.943h14.173v12h-10.342l-3.044 6.565-1.537.264v3.052zm-95.192-21.881c1.205 4.333 2.915 8.338 5.166 12H974.46v-12h40.757zm-58.793 12h-2.119l-1.717-.251c-1.378-.641-1.859-.682-2.871-1.883-.372-.442-.609-.983-.914-1.474l-17.081-39.288c-1.493-9.812-5.139-18.201-10.943-25.17l-10.023-23.054-37.946 87.507-.914 1.476-1.095.972c-.827-.9-1.573-1.87-2.229-2.901-1.885-2.91-3.368-6.153-4.422-9.739l41.095-94.767 1.077-1.663c.52-.407.98-.905 1.561-1.221a5.994 5.994 0 013.854-.647c1.293.216 2.386 1.044 3.436 1.864l1.079 1.662 40.172 92.401v16.176zm-110.115-12c1.204 4.333 2.915 8.338 5.165 12h-35.087c-.782-1.839-1.17-4.232-1.17-7.179v-4.821h31.092zm-49.128 0v4.821c0 2.578.161 4.969.502 7.179h-33.616v-12h33.114zm-91.838 0h40.688v12h-40.688v-12zm-95.306 29.505l-7.715-17.505h-8.4c2.223-3.666 3.951-7.666 5.145-12h7.167l1.71.248c.522.242 1.085.411 1.568.726 1.309.854 1.409 1.323 2.213 2.606l6.128 13.906-7.816 1.343v10.676zm39.614-17.505l-18.68 40.3-1.101 1.617c-1.048.789-2.14 1.589-3.421 1.788-1.97.306-4.034-.446-5.342-1.871-.441-.481-.714-1.092-1.07-1.638l-9.622-21.831h13.114l2.136 4.847 2.247-4.847 12.464-26.889.926-1.425c.429-.369.81-.803 1.288-1.108l.406-.224.046-.027c.967-.558 1.479-.506 2.777-.692h41.488v12h-37.656zm-69.038-12a36.343 36.343 0 01-3.87 7.934c-.999 1.533-2.101 2.894-3.33 4.066h-32.574c-1.234-1.172-2.334-2.533-3.327-4.066a36.449 36.449 0 01-3.843-7.934h46.944zm-90.021 0h24.658c1.204 4.333 2.915 8.338 5.165 12h-33.848l-1.747-.26c-1.397-.663-1.89-.708-2.901-1.947-.373-.456-.603-1.011-.904-1.517l-20.764-50.654 6.434-15.941 23.907 58.319zm-78.981-27.916l28.017-69.269 1.062-1.718c.524-.423.984-.94 1.572-1.269 2.405-1.345 5.633-.748 7.41 1.248.447.503.713 1.142 1.07 1.713l7.48 18.248-6.334 16.185-6.661-16.248-27.244 67.358-6.372-16.248zm-92.776 27.916h81.485l3.158-7.81 6.468 16.012-.019.048-.9 1.527c-1.145 1.049-1.373 1.491-2.908 1.961-.547.167-1.129.174-1.754.262h-88.051l2.521-12z"
+                fill="#fff"/>
             </mask>
           </defs>
 
@@ -303,7 +337,8 @@
       <div></div>
       <div></div>
       <div class="m-footer--license">
-        Under the terms of <a class="c-underlined" href="">MIT license</a>
+        Under the terms of
+        <a class="c-underlined" href="https://github.com/monitoror/monitoror/blob/master/LICENSE">MIT license</a>
       </div>
     </div>
   </div>
