@@ -23,6 +23,13 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('../fonts/jetbrains-mono-regular.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
 
 /**
  * Reset & global styles
@@ -89,6 +96,10 @@ a {
 strong {
   font-weight: 600;
   color: var(--color-text);
+}
+
+code {
+  font-family: "JetBrains Mono", monospace;
 }
 
 hr {
@@ -377,11 +388,6 @@ input {
   letter-spacing: 0.5px;
 }
 
-.m-header--baseline strong,
-.m-header--description strong {
-  font-weight: inherit;
-}
-
 .m-header--buttons {
   padding: 30px 30px;
   text-align: center;
@@ -418,14 +424,14 @@ input {
 }
 
 .m-home--sup-title {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 18px;
   text-align: center;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 1.2px;
   color: var(--color-succeeded);
   transform: translateX(2px);
   margin-bottom: 10px;
+  font-family: "JetBrains Mono", monospace;
 }
 
 .m-home--title {
@@ -452,7 +458,8 @@ input {
 }
 
 .m-home--content strong {
-  font-weight: 400;
+  font-weight: inherit;
+  color: hsl(211, 80%, 82%);
 }
 
 .m-home--content .c-underlined {
@@ -1411,7 +1418,6 @@ input {
   background: var(--color-code-background);
   padding: 2px 7px;
   border-radius: 2px;
-  font-weight: bold;
 }
 
 .m-documentation--content dl dd {
@@ -1439,10 +1445,13 @@ input {
 }
 
 .m-documentation--content .required {
+  display: inline-block;
   color: var(--color-failed);
   text-transform: uppercase;
   font-size: 14px;
   margin-left: 10px;
+  font-weight: bold;
+  transform: translateY(-1px);
 }
 
 .m-documentation--content .tag {
