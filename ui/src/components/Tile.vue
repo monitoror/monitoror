@@ -1,3 +1,4 @@
+import TileValueUnit from '@/enums/tileValueUnit'
 <template>
   <div class="c-monitoror-tile" :class="classes" :style="styles">
     <div class="c-monitoror-tile--content" v-if="!isEmpty">
@@ -187,7 +188,7 @@
     }
 
     get status(): string | undefined {
-      if (!this.state) {
+      if (this.state === undefined) {
         return
       }
 
@@ -195,7 +196,7 @@
     }
 
     get previousStatus(): string | undefined {
-      if (!this.state) {
+      if (this.state === undefined) {
         return
       }
 
@@ -235,7 +236,7 @@
     }
 
     get message(): string | undefined {
-      if (!this.state) {
+      if (this.state === undefined) {
         return
       }
 
@@ -243,7 +244,7 @@
     }
 
     get unit(): TileValueUnit {
-      if (!this.state || this.state.unit === undefined) {
+      if (this.state === undefined || this.state.unit === undefined) {
         return TileValueUnit.Default
       }
 
@@ -251,7 +252,7 @@
     }
 
     get values(): number[] | undefined {
-      if (!this.state) {
+      if (this.state === undefined) {
         return
       }
 
@@ -259,7 +260,7 @@
     }
 
     get value(): string | undefined {
-      if (!this.values) {
+      if (this.values === undefined) {
         return
       }
 
@@ -268,11 +269,16 @@
         [TileValueUnit.Default]: '',
       }
 
-      return this.values[this.values.length - 1] + UNIT_DISPLAY[this.unit]
+      let value = this.values[this.values.length - 1]
+      if (this.unit === TileValueUnit.Millisecond) {
+        value = Math.round(value)
+      }
+
+      return value + UNIT_DISPLAY[this.unit]
     }
 
     get finishedAt(): number | undefined {
-      if (!this.state) {
+      if (this.state === undefined) {
         return
       }
 
@@ -280,7 +286,7 @@
     }
 
     get duration(): number | undefined {
-      if (!this.state) {
+      if (this.state === undefined) {
         return
       }
 
@@ -288,7 +294,7 @@
     }
 
     get estimatedDuration(): number | undefined {
-      if (!this.state) {
+      if (this.state === undefined) {
         return
       }
 
@@ -341,7 +347,7 @@
     }
 
     get author(): TileAuthor | undefined {
-      if (!this.state) {
+      if (this.state === undefined) {
         return
       }
 
