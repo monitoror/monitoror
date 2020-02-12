@@ -1,3 +1,4 @@
+import axios from 'axios'
 import throttle from 'lodash-es/throttle'
 import {Md5 as md5} from 'ts-md5/dist/md5'
 import Vue from 'vue'
@@ -14,7 +15,6 @@ import Config from '@/interfaces/config'
 import Info from '@/interfaces/info'
 import TileConfig from '@/interfaces/tileConfig'
 import TileState from '@/interfaces/tileState'
-import vueInstance from '@/main'
 
 Vue.use(Vuex)
 
@@ -103,9 +103,9 @@ const store: StoreOptions<RootState> = {
     autoUpdate({commit, state, getters}) {
       const infoUrl = getters.apiBaseUrl + API_BASE_PATH + INFO_URL
 
-      return vueInstance.$http.get(infoUrl)
-        .then(async (data) => {
-          const info: Info = await data.json()
+      return axios.get(infoUrl)
+        .then((response) => {
+          const info: Info = response.data
 
           if (state.version === undefined) {
             commit('setVersion', info.version)
@@ -135,9 +135,9 @@ const store: StoreOptions<RootState> = {
         return tile
       }
 
-      return vueInstance.$http.get(getters.proxyfiedConfigUrl)
-        .then(async (data) => {
-          const config: Config = await data.json()
+      return axios.get(getters.proxyfiedConfigUrl)
+        .then((response) => {
+          const config: Config = response.data
 
           config.tiles = config.tiles.map(hydrateTile)
 
@@ -177,9 +177,9 @@ const store: StoreOptions<RootState> = {
         return Promise.resolve()
       }
 
-      return vueInstance.$http.get(tile.url)
-        .then(async (data) => {
-          const tileState = await data.json()
+      return axios.get(tile.url)
+        .then(async (response) => {
+          const tileState = response.data
 
           commit('setTileState', {tileStateKey: tile.stateKey, tileState})
         }) as Promise<void>
