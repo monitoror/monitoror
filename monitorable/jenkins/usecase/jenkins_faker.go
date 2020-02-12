@@ -56,7 +56,7 @@ func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (tile *models
 	if tile.Status == models.WarningStatus {
 		// Warning can be Unstable Build
 		if rand.Intn(2) == 0 {
-			tile.Message = "random error message"
+			tile.Message = "Fake error message"
 			return
 		}
 	}
@@ -66,8 +66,8 @@ func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (tile *models
 	// Author
 	if tile.Status == models.FailedStatus {
 		tile.Author = &models.Author{}
-		tile.Author.Name = nonempty.String(params.AuthorName, "Faker")
-		tile.Author.AvatarURL = nonempty.String(params.AuthorAvatarURL, "https://www.gravatar.com/avatar/00000000000000000000000000000000")
+		tile.Author.Name = nonempty.String(params.AuthorName, "John Doe")
+		tile.Author.AvatarURL = nonempty.String(params.AuthorAvatarURL, "https://monitoror.com/assets/images/avatar.png")
 	}
 
 	// Duration / EstimatedDuration

@@ -65,7 +65,7 @@ func (hu *httpUsecase) httpAll(tileType models.TileType, url string, params http
 	}
 
 	if tile.Status == models.FailedStatus {
-		tile.Message = nonempty.String(params.GetMessage(), "random error message")
+		tile.Message = nonempty.String(params.GetMessage(), "Fake error message")
 	}
 
 	return
