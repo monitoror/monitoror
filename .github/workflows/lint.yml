@@ -1,14 +1,51 @@
 ---
-name: chmod-checker
+name: lint
 
-on: [pull_request]
+on:
+  pull_request:
 
 jobs:
+  core-lint:
+    name: Core / Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      - uses: reviewdog/action-golangci-lint@v1
+        with:
+          github_token: ${{ secrets.github_token }}
+          golangci_lint_flags: "--config=.golangci.yml"
+          tool_name: Core / Lint report
+
+  ui-lint:
+    name: UI / Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 10.x
+
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      - name: install
+        working-directory: ui
+        run: yarn install
+
+      - name: lint
+        working-directory: ui
+        run: yarn lint
+
   chmod:
     name: Check chmods
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
 
       - name: check
         run: |
