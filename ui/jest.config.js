@@ -2,8 +2,8 @@ module.exports = {
   collectCoverage: true,
 
   collectCoverageFrom: [
-    'src/**/*.{js,vue}',
-    '!src/main.js', // No need to cover bootstrap file
+    'src/**/*.{ts,vue}',
+    '!src/main.ts', // No need to cover bootstrap file
   ],
 
   coverageDirectory: '<rootDir>/tests/coverage',
@@ -25,7 +25,7 @@ module.exports = {
   },
 
   transformIgnorePatterns: [
-    '/node_modules/',
+    '/node_modules/(?!lodash-es).+\\.js$',
   ],
 
   moduleNameMapper: {

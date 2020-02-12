@@ -11,6 +11,7 @@
   "main": "index.js",
   "dependencies": {
     "@babel/core": "^7.8.3",
+    "axios": "^0.19.2",
     "core-js": "^3.6.4",
     "date-fns": "^2.9.0",
     "lodash-es": "^4.17.15",
@@ -18,11 +19,10 @@
     "vue": "^2.6.11",
     "vue-class-component": "^7.2.2",
     "vue-property-decorator": "^8.3.0",
-    "vue-resource": "^1.5.1",
     "vuex": "^3.1.2"
   },
   "devDependencies": {
-    "@types/jest": "^24.9.1",
+    "@types/jest": "^25.1.2",
     "@types/lodash-es": "^4.17.3",
     "@typescript-eslint/eslint-plugin": "^2.17.0",
     "@typescript-eslint/parser": "^2.17.0",
