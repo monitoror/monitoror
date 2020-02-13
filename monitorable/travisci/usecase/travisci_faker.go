@@ -43,7 +43,7 @@ func (tu *travisCIUsecase) Build(params *travisCIModels.BuildParams) (tile *mode
 	tile.Status = nonempty.Struct(params.Status, tu.computeStatus(params)).(models.TileStatus)
 
 	if tile.Status == models.WarningStatus {
-		tile.Message = "random error message"
+		tile.Message = "Fake error message"
 		return
 	}
 
@@ -52,8 +52,8 @@ func (tu *travisCIUsecase) Build(params *travisCIModels.BuildParams) (tile *mode
 	// Author
 	if tile.Status == models.FailedStatus {
 		tile.Author = &models.Author{}
-		tile.Author.Name = nonempty.String(params.AuthorName, "Faker")
-		tile.Author.AvatarURL = nonempty.String(params.AuthorAvatarURL, "https://www.gravatar.com/avatar/00000000000000000000000000000000")
+		tile.Author.Name = nonempty.String(params.AuthorName, "John Doe")
+		tile.Author.AvatarURL = nonempty.String(params.AuthorAvatarURL, "https://monitoror.com/assets/images/avatar.png")
 	}
 
 	if tile.Status == models.RunningStatus {

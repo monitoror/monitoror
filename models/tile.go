@@ -27,7 +27,7 @@ type (
 
 	Author struct {
 		Name      string `json:"name,omitempty"`
-		AvatarURL string `json:"avatarURL,omitempty"`
+		AvatarURL string `json:"avatarUrl,omitempty"`
 	}
 )
 
