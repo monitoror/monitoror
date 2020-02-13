@@ -3,17 +3,17 @@
 package models
 
 type (
-	HTTPAnyParams struct {
+	HTTPStatusParams struct {
 		URL           string `json:"url" query:"url"`
 		StatusCodeMin *int   `json:"statusCodeMin" query:"statusCodeMin"`
 		StatusCodeMax *int   `json:"statusCodeMax" query:"statusCodeMax"`
 	}
 )
 
-func (p *HTTPAnyParams) IsValid() bool {
+func (p *HTTPStatusParams) IsValid() bool {
 	return isValid(p.URL, p)
 }
 
-func (p *HTTPAnyParams) GetStatusCodes() (min int, max int) {
+func (p *HTTPStatusParams) GetStatusCodes() (min int, max int) {
 	return getStatusCodes(p.StatusCodeMin, p.StatusCodeMax)
 }

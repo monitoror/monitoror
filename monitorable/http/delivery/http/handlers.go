@@ -19,15 +19,15 @@ func NewHTTPDelivery(p http.Usecase) *HTTPDelivery {
 	return &HTTPDelivery{p}
 }
 
-func (h *HTTPDelivery) GetHTTPAny(c echo.Context) error {
+func (h *HTTPDelivery) GetHTTPStatus(c echo.Context) error {
 	// Bind / Check Params
-	params := &httpModels.HTTPAnyParams{}
+	params := &httpModels.HTTPStatusParams{}
 	err := c.Bind(params)
 	if err != nil || !params.IsValid() {
 		return models.QueryParamsError
 	}
 
-	tile, err := h.httpUsecase.HTTPAny(params)
+	tile, err := h.httpUsecase.HTTPStatus(params)
 	if err != nil {
 		return err
 	}

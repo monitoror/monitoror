@@ -5,7 +5,7 @@ package models
 import "github.com/monitoror/monitoror/models"
 
 type (
-	HTTPAnyParams struct {
+	HTTPStatusParams struct {
 		URL           string `json:"url" query:"url"`
 		StatusCodeMin *int   `json:"statusCodeMin" query:"statusCodeMin"`
 		StatusCodeMax *int   `json:"statusCodeMax" query:"statusCodeMax"`
@@ -16,14 +16,14 @@ type (
 	}
 )
 
-func (p *HTTPAnyParams) IsValid() bool {
+func (p *HTTPStatusParams) IsValid() bool {
 	return isValid(p.URL, p)
 }
 
-func (p *HTTPAnyParams) GetStatusCodes() (min int, max int) {
+func (p *HTTPStatusParams) GetStatusCodes() (min int, max int) {
 	return getStatusCodes(p.StatusCodeMin, p.StatusCodeMax)
 }
 
-func (p *HTTPAnyParams) GetStatus() models.TileStatus { return p.Status }
-func (p *HTTPAnyParams) GetMessage() string           { return p.Message }
-func (p *HTTPAnyParams) GetValues() []float64         { return p.Values }
+func (p *HTTPStatusParams) GetStatus() models.TileStatus { return p.Status }
+func (p *HTTPStatusParams) GetMessage() string           { return p.Message }
+func (p *HTTPStatusParams) GetValues() []float64         { return p.Values }

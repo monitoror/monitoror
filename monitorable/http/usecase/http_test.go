@@ -17,12 +17,12 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func TestHTTPAny_WithError(t *testing.T) {
+func TestHTTPStatus_WithError(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("Get", AnythingOfType("string")).Return(nil, context.DeadlineExceeded)
 	tu := NewHTTPUsecase(mockRepository, cache.NewGoCacheStore(time.Minute*5, time.Second), 2000)
 
-	tile, err := tu.HTTPAny(&models.HTTPAnyParams{URL: "toto"})
+	tile, err := tu.HTTPStatus(&models.HTTPStatusParams{URL: "toto"})
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
 		mockRepository.AssertNumberOfCalls(t, "Get", 1)
@@ -42,14 +42,14 @@ func TestHtmlAll_WithoutErrors(t *testing.T) {
 		{
 			// HTTP Any
 			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
-				return usecase.HTTPAny(&models.HTTPAnyParams{URL: "toto"})
+				return usecase.HTTPStatus(&models.HTTPStatusParams{URL: "toto"})
 			},
 			expectedStatus: SuccessStatus, expectedLabel: "toto",
 		},
 		{
 			// HTTP Any with wrong status
 			usecaseFunc: func(usecase http.Usecase) (*Tile, error) {
-				return usecase.HTTPAny(&models.HTTPAnyParams{URL: "toto", StatusCodeMin: pointer.ToInt(400), StatusCodeMax: pointer.ToInt(499)})
+				return usecase.HTTPStatus(&models.HTTPStatusParams{URL: "toto", StatusCodeMin: pointer.ToInt(400), StatusCodeMax: pointer.ToInt(499)})
 			},
 			expectedStatus: FailedStatus, expectedLabel: "toto", expectedMessage: "status code 200",
 		},
@@ -151,7 +151,7 @@ func TestHtmlAll_WithoutErrors(t *testing.T) {
 	}
 }
 
-func TestHTTPAny_WithCache(t *testing.T) {
+func TestHTTPStatus_WithCache(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("Get", AnythingOfType("string")).
 		Return(&models.Response{StatusCode: 200, Body: []byte("test with cache")}, nil)
@@ -174,7 +174,7 @@ func TestHTTPAny_WithCache(t *testing.T) {
 }
 
 func TestHTTPUsecase_CheckStatusCode(t *testing.T) {
-	httpAny := &models.HTTPAnyParams{}
+	httpAny := &models.HTTPStatusParams{}
 	assert.True(t, checkStatusCode(httpAny, 301))
 	assert.False(t, checkStatusCode(httpAny, 404))
 
@@ -232,8 +232,8 @@ func TestHTTPUsecase_LookupKey_Json(t *testing.T) {
 
 func TestHTTPUsecase_LookupKey_Yaml(t *testing.T) {
 	input := `
-bloc1: 
-  bloc.2: 
+bloc1:
+  bloc.2:
     - name: test1
       value: "YEAH !!"
     - name: test2
@@ -253,8 +253,8 @@ bloc1:
 
 func TestHTTPUsecase_LookupKey_MissingKey(t *testing.T) {
 	input := `
-bloc1: 
-  bloc.2: 
+bloc1:
+  bloc.2:
     - name: test1
       value: "YEAH !!"
     - name: test2

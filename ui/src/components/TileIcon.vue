@@ -78,7 +78,7 @@
 
     get isHttp(): boolean {
       return [
-        TileType.HttpAny,
+        TileType.HttpStatus,
         TileType.HttpRaw,
         TileType.HttpFormatted,
       ].includes(this.tileType)

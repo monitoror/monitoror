@@ -69,7 +69,7 @@
           </li>
           <li><a href="#http">HTTP</a>
             <ul>
-              <li><a href="#tile-http-any">HTTP-ANY</a></li>
+              <li><a href="#tile-http-status">HTTP-STATUS</a></li>
               <li><a href="#tile-http-raw">HTTP-RAW</a></li>
               <li><a href="#tile-http-formatted">HTTP-FORMATTED</a></li>
             </ul>
@@ -861,7 +861,7 @@ chmod +x monitoror
         <a href="#configuration-variants">Configuration Variants</a> are available for HTTP
       </p>
 
-      <h4 id="tile-http-any">HTTP-ANY</h4>
+      <h4 id="tile-http-status">HTTP-STATUS</h4>
 
       <p>
         Will only check that status code is in range.
@@ -897,7 +897,7 @@ chmod +x monitoror
       <div class="m-documentation--example-and-demo">
         <pre class="example"><code class="language-json">
 {
-  "type": "HTTP-ANY",
+  "type": "HTTP-STATUS",
   "params": {
     "url": "http://localhost/test",
     "statusCodeMax": 299
@@ -916,11 +916,11 @@ chmod +x monitoror
           </div>
           <div class="m-documentation--demo-switch">
             <label class="m-documentation--demo-switch-label m-documentation--demo-switch-succeeded">
-              <input data-state-switch name="http-any-state" type="radio" value="succeeded">
+              <input data-state-switch name="http-status-state" type="radio" value="succeeded">
               Success
             </label>
             <label class="m-documentation--demo-switch-label m-documentation--demo-switch-error">
-              <input data-state-switch name="http-any-state" type="radio" value="error">
+              <input data-state-switch name="http-status-state" type="radio" value="error">
               Error
             </label>
           </div>

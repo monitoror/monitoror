@@ -33,7 +33,7 @@ func Test_httpHttpDelivery_GetHttp_MissingParams(t *testing.T) {
 	// init tests cases
 	testcases := []handlerFunc{
 		func(handler *HTTPDelivery) func(ctx echo.Context) error {
-			return handler.GetHTTPAny
+			return handler.GetHTTPStatus
 		},
 		func(handler *HTTPDelivery) func(ctx echo.Context) error {
 			return handler.GetHTTPRaw
@@ -62,9 +62,9 @@ func Test_httpHttpDelivery_GetHttp_Error(t *testing.T) {
 		handlerFunc  handlerFunc
 	}{
 		{
-			mockFuncName: "HTTPAny",
+			mockFuncName: "HTTPStatus",
 			handlerFunc: func(handler *HTTPDelivery) func(ctx echo.Context) error {
-				return handler.GetHTTPAny
+				return handler.GetHTTPStatus
 			},
 		},
 		{
@@ -109,10 +109,10 @@ func Test_httpHttpDelivery_GetHttp(t *testing.T) {
 		handlerFunc  handlerFunc
 	}{
 		{
-			tileType:     http.HTTPAnyTileType,
-			mockFuncName: "HTTPAny",
+			tileType:     http.HTTPStatusTileType,
+			mockFuncName: "HTTPStatus",
 			handlerFunc: func(handler *HTTPDelivery) func(ctx echo.Context) error {
-				return handler.GetHTTPAny
+				return handler.GetHTTPStatus
 			},
 		},
 		{

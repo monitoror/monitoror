@@ -42,29 +42,6 @@ func (_m *Usecase) Checks(params *models.ChecksParams) (*monitorormodels.Tile, e
 	return r0, r1
 }
 
-// ListDynamicTile provides a mock function with given fields: params
-func (_m *Usecase) ListDynamicTile(params interface{}) ([]builder.Result, error) {
-	ret := _m.Called(params)
-
-	var r0 []builder.Result
-	if rf, ok := ret.Get(0).(func(interface{}) []builder.Result); ok {
-		r0 = rf(params)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]builder.Result)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(interface{}) error); ok {
-		r1 = rf(params)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // Count provides a mock function with given fields: params
 func (_m *Usecase) Count(params *models.CountParams) (*monitorormodels.Tile, error) {
 	ret := _m.Called(params)
@@ -80,6 +57,29 @@ func (_m *Usecase) Count(params *models.CountParams) (*monitorormodels.Tile, err
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(*models.CountParams) error); ok {
+		r1 = rf(params)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// ListDynamicTile provides a mock function with given fields: params
+func (_m *Usecase) ListDynamicTile(params interface{}) ([]builder.Result, error) {
+	ret := _m.Called(params)
+
+	var r0 []builder.Result
+	if rf, ok := ret.Get(0).(func(interface{}) []builder.Result); ok {
+		r0 = rf(params)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]builder.Result)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(interface{}) error); ok {
 		r1 = rf(params)
 	} else {
 		r1 = ret.Error(1)
