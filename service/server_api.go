@@ -145,12 +145,12 @@ func (s *Server) registerHTTP(variant string) {
 
 	// Register route to echo
 	httpGroup := s.api.Group("/http")
-	routeAny := httpGroup.GET("/any", s.cm.UpstreamCacheHandler(delivery.GetHTTPAny))
+	routeStatus := httpGroup.GET("/status", s.cm.UpstreamCacheHandler(delivery.GetHTTPStatus))
 	routeRaw := httpGroup.GET("/raw", s.cm.UpstreamCacheHandler(delivery.GetHTTPRaw))
 	routeJSON := httpGroup.GET("/formatted", s.cm.UpstreamCacheHandler(delivery.GetHTTPFormatted))
 
 	// Register data for config hydration
-	s.configHelper.RegisterTile(http.HTTPAnyTileType, &_httpModels.HTTPAnyParams{}, routeAny.Path)
+	s.configHelper.RegisterTile(http.HTTPStatusTileType, &_httpModels.HTTPStatusParams{}, routeStatus.Path)
 	s.configHelper.RegisterTile(http.HTTPRawTileType, &_httpModels.HTTPRawParams{}, routeRaw.Path)
 	s.configHelper.RegisterTile(http.HTTPFormattedTileType, &_httpModels.HTTPFormattedParams{}, routeJSON.Path)
 }

@@ -15,10 +15,10 @@ func TestHTTPParams_IsValid(t *testing.T) {
 		params   Validator
 		expected bool
 	}{
-		{&HTTPAnyParams{}, false},
-		{&HTTPAnyParams{URL: "toto"}, true},
-		{&HTTPAnyParams{URL: "toto", StatusCodeMin: pointer.ToInt(300), StatusCodeMax: pointer.ToInt(299)}, false},
-		{&HTTPAnyParams{URL: "toto", StatusCodeMin: pointer.ToInt(299), StatusCodeMax: pointer.ToInt(300)}, true},
+		{&HTTPStatusParams{}, false},
+		{&HTTPStatusParams{URL: "toto"}, true},
+		{&HTTPStatusParams{URL: "toto", StatusCodeMin: pointer.ToInt(300), StatusCodeMax: pointer.ToInt(299)}, false},
+		{&HTTPStatusParams{URL: "toto", StatusCodeMin: pointer.ToInt(299), StatusCodeMax: pointer.ToInt(300)}, true},
 
 		{&HTTPRawParams{}, false},
 		{&HTTPRawParams{URL: "toto"}, true},

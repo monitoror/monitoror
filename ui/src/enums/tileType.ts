@@ -1,5 +1,5 @@
 export enum TileType {
-  HttpAny = 'HTTP-ANY',
+  HttpStatus = 'HTTP-STATUS',
   HttpRaw = 'HTTP-RAW',
   HttpFormatted = 'HTTP-FORMATTED',
   Ping = 'PING',

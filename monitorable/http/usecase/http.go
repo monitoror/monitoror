@@ -40,8 +40,8 @@ func NewHTTPUsecase(repository http.Repository, store cache.Store, upstreamCache
 	return &httpUsecase{repository, store, upstreamCacheExpiration}
 }
 
-func (hu *httpUsecase) HTTPAny(params *httpModels.HTTPAnyParams) (*models.Tile, error) {
-	return hu.httpAll(http.HTTPAnyTileType, params.URL, params)
+func (hu *httpUsecase) HTTPStatus(params *httpModels.HTTPStatusParams) (*models.Tile, error) {
+	return hu.httpAll(http.HTTPStatusTileType, params.URL, params)
 }
 
 func (hu *httpUsecase) HTTPRaw(params *httpModels.HTTPRawParams) (*models.Tile, error) {

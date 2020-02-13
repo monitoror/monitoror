@@ -15,29 +15,6 @@ type Usecase struct {
 	mock.Mock
 }
 
-// HTTPAny provides a mock function with given fields: params
-func (_m *Usecase) HTTPAny(params *models.HTTPAnyParams) (*monitorormodels.Tile, error) {
-	ret := _m.Called(params)
-
-	var r0 *monitorormodels.Tile
-	if rf, ok := ret.Get(0).(func(*models.HTTPAnyParams) *monitorormodels.Tile); ok {
-		r0 = rf(params)
-	} else {
-		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*monitorormodels.Tile)
-		}
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(*models.HTTPAnyParams) error); ok {
-		r1 = rf(params)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
 // HTTPFormatted provides a mock function with given fields: params
 func (_m *Usecase) HTTPFormatted(params *models.HTTPFormattedParams) (*monitorormodels.Tile, error) {
 	ret := _m.Called(params)
@@ -76,6 +53,29 @@ func (_m *Usecase) HTTPRaw(params *models.HTTPRawParams) (*monitorormodels.Tile,
 
 	var r1 error
 	if rf, ok := ret.Get(1).(func(*models.HTTPRawParams) error); ok {
+		r1 = rf(params)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// HTTPStatus provides a mock function with given fields: params
+func (_m *Usecase) HTTPStatus(params *models.HTTPStatusParams) (*monitorormodels.Tile, error) {
+	ret := _m.Called(params)
+
+	var r0 *monitorormodels.Tile
+	if rf, ok := ret.Get(0).(func(*models.HTTPStatusParams) *monitorormodels.Tile); ok {
+		r0 = rf(params)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*monitorormodels.Tile)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*models.HTTPStatusParams) error); ok {
 		r1 = rf(params)
 	} else {
 		r1 = ret.Error(1)

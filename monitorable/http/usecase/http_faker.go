@@ -29,9 +29,9 @@ func NewHTTPUsecase() http.Usecase {
 	return &httpUsecase{make(map[string]time.Time)}
 }
 
-// HTTPAny only check status code
-func (hu *httpUsecase) HTTPAny(params *httpModels.HTTPAnyParams) (tile *models.Tile, err error) {
-	return hu.httpAll(http.HTTPAnyTileType, params.URL, params)
+// HTTPStatus only check status code
+func (hu *httpUsecase) HTTPStatus(params *httpModels.HTTPStatusParams) (tile *models.Tile, err error) {
+	return hu.httpAll(http.HTTPStatusTileType, params.URL, params)
 }
 
 // HTTPRaw check status code and content
@@ -49,7 +49,7 @@ func (hu *httpUsecase) httpAll(tileType models.TileType, url string, params http
 	tile.Label = url
 
 	tile.Status = nonempty.Struct(params.GetStatus(), hu.computeStatus(url)).(models.TileStatus)
-	if tile.Status == models.SuccessStatus && tileType != http.HTTPAnyTileType {
+	if tile.Status == models.SuccessStatus && tileType != http.HTTPStatusTileType {
 		if len(params.GetValues()) != 0 {
 			tile.Values = params.GetValues()
 		} else if params.GetMessage() != "" {
