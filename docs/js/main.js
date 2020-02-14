@@ -118,3 +118,14 @@ Array.from(document.querySelectorAll('[data-state-switch]')).forEach((input) => 
     tileElement.classList.add('m-documentation--demo-tile__status-' + this.value)
   })
 })
+
+// Add anchors
+Array.from(document.querySelectorAll('.m-documentation h3[id], .m-documentation h4[id]')).forEach((title) => {
+  const anchor = document.createElement('a')
+  anchor.href = '#' + title.id
+  anchor.title = 'Permalink to ' + title.innerText
+  anchor.classList.add('m-documentation--title-link')
+  anchor.innerHTML = '<svg><use xlink:href="#link-icon"></use></svg>'
+  // title.parentNode.insertBefore(anchor, title.nextSibling)
+  title.appendChild(anchor)
+})
