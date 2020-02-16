@@ -1,4 +1,3 @@
-import TileValueUnit from '@/enums/tileValueUnit'
 <template>
   <div class="c-monitoror-tile" :class="classes" :style="styles">
     <div class="c-monitoror-tile--content" v-if="!isEmpty">
@@ -10,8 +9,8 @@ import TileValueUnit from '@/enums/tileValueUnit'
         {{ message }}
       </div>
 
-      <div class="c-monitoror-tile--value" v-if="value">
-        {{ value }}
+      <div class="c-monitoror-tile--value" v-if="displayedValue">
+        {{ displayedValue }}
       </div>
 
       <div class="c-monitoror-tile--sub-tiles" v-if="isGroup">
@@ -61,6 +60,8 @@ import TileValueUnit from '@/enums/tileValueUnit'
 
   import MonitororSubTile from '@/components/SubTile.vue'
   import MonitororTileIcon from '@/components/TileIcon.vue'
+  import TileBuild from '@/interfaces/tileBuild'
+  import TileValue from '@/interfaces/tileValue'
 
   @Component({
     components: {
@@ -187,6 +188,22 @@ import TileValueUnit from '@/enums/tileValueUnit'
       return this.$store.state.tilesState[this.stateKey]
     }
 
+    get build(): TileBuild | undefined {
+      if (this.state === undefined) {
+        return
+      }
+
+      return this.state.build
+    }
+
+    get value(): TileValue | undefined {
+      if (this.state === undefined) {
+        return
+      }
+
+      return this.state.value
+    }
+
     get status(): string | undefined {
       if (this.state === undefined) {
         return
@@ -196,11 +213,11 @@ import TileValueUnit from '@/enums/tileValueUnit'
     }
 
     get previousStatus(): string | undefined {
-      if (this.state === undefined) {
+      if (this.build === undefined) {
         return
       }
 
-      return this.state.previousStatus
+      return this.build.previousStatus
     }
 
     get isQueued(): boolean {
@@ -244,61 +261,65 @@ import TileValueUnit from '@/enums/tileValueUnit'
     }
 
     get unit(): TileValueUnit {
-      if (this.state === undefined || this.state.unit === undefined) {
-        return TileValueUnit.Default
+      if (this.value === undefined) {
+        return TileValueUnit.Raw
       }
 
-      return this.state.unit as TileValueUnit
+      return this.value.unit as TileValueUnit
     }
 
-    get values(): number[] | undefined {
-      if (this.state === undefined) {
+    get values(): string[] | undefined {
+      if (this.value === undefined) {
         return
       }
 
-      return this.state.values
+      return this.value.values
     }
 
-    get value(): string | undefined {
+    get displayedValue(): string | undefined {
       if (this.values === undefined) {
         return
       }
 
       const UNIT_DISPLAY = {
         [TileValueUnit.Millisecond]: 'ms',
-        [TileValueUnit.Default]: '',
+        [TileValueUnit.Ratio]: '%',
+        [TileValueUnit.Number]: '',
+        [TileValueUnit.Raw]: '',
       }
 
       let value = this.values[this.values.length - 1]
       if (this.unit === TileValueUnit.Millisecond) {
-        value = Math.round(value)
+        value = Math.round(parseFloat(value)).toString()
+      } else if (this.unit === TileValueUnit.Ratio) {
+        value = (parseFloat(value) * 100).toFixed(2).toString()
       }
 
       return value + UNIT_DISPLAY[this.unit]
     }
 
     get finishedAt(): number | undefined {
-      if (this.state === undefined) {
+      if (this.build === undefined) {
         return
       }
 
-      return this.state.finishedAt
+      return this.build.finishedAt
     }
 
     get duration(): number | undefined {
-      if (this.state === undefined) {
+      if (this.build === undefined) {
         return
       }
 
-      return this.state.duration
+      return this.build.duration
     }
 
     get estimatedDuration(): number | undefined {
-      if (this.state === undefined) {
+      if (this.build === undefined) {
         return
       }
 
-      return this.state.estimatedDuration
+      return this.build.estimatedDuration
     }
 
     get progress(): number | undefined {
@@ -347,11 +368,11 @@ import TileValueUnit from '@/enums/tileValueUnit'
     }
 
     get author(): TileAuthor | undefined {
-      if (this.state === undefined) {
+      if (this.build === undefined) {
         return
       }
 
-      return this.state.author
+      return this.build.author
     }
 
     get showAuthor(): boolean {

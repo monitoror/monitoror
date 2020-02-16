@@ -1,17 +1,13 @@
 import TileStatus from '@/enums/tileStatus'
-import TileValueUnit from '@/enums/tileValueUnit'
-import TileAuthor from '@/interfaces/tileAuthor'
+import TileType from '@/enums/tileType'
+import TileBuild from '@/interfaces/tileBuild'
+import TileValue from '@/interfaces/tileValue'
 
 export default interface TileState {
-  label?: string,
+  type: TileType,
   status: TileStatus,
-  previousStatus?: TileStatus,
+  label?: string,
   message?: string,
-  values?: number[],
-  unit?: TileValueUnit,
-  author?: TileAuthor,
-  duration?: number,
-  estimatedDuration?: number,
-  startedAt?: number,
-  finishedAt?: number,
+  value?: TileValue,
+  build?: TileBuild
 }

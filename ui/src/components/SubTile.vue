@@ -36,6 +36,7 @@
   import TileState from '@/interfaces/tileState'
 
   import MonitororTileIcon from '@/components/TileIcon.vue'
+  import TileBuild from '@/interfaces/tileBuild'
 
   @Component({
     components: {
@@ -113,8 +114,16 @@
       return this.$store.state.tilesState[this.stateKey]
     }
 
+    get build(): TileBuild | undefined {
+      if (this.state === undefined) {
+        return
+      }
+
+      return this.state.build
+    }
+
     get status(): string | undefined {
-      if (!this.state) {
+      if (this.state === undefined) {
         return
       }
 
@@ -122,11 +131,11 @@
     }
 
     get previousStatus(): string | undefined {
-      if (!this.state) {
+      if (this.build === undefined) {
         return
       }
 
-      return this.state.previousStatus
+      return this.build.previousStatus
     }
 
     get isQueued(): boolean {
@@ -162,19 +171,19 @@
     }
 
     get duration(): number | undefined {
-      if (!this.state) {
+      if (this.build === undefined) {
         return
       }
 
-      return this.state.duration
+      return this.build.duration
     }
 
     get estimatedDuration(): number | undefined {
-      if (!this.state) {
+      if (this.build === undefined) {
         return
       }
 
-      return this.state.estimatedDuration
+      return this.build.estimatedDuration
     }
 
     get progress(): number | undefined {

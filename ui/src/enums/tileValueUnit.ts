@@ -1,6 +1,8 @@
 enum TileValueUnit {
   Millisecond = 'MILLISECOND',
-  Default = '',
+  Ratio = 'RATIO',
+  Number = 'NUMBER',
+  Raw = 'RAW',
 }
 
 export default TileValueUnit
