@@ -5,6 +5,19 @@
         {{ label }}
       </div>
 
+      <div class="c-monitoror-tile--build-info" v-if="branch || buildId">
+        <template v-if="branch">
+          <svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 510 510" xmlns="http://www.w3.org/2000/svg">
+            <path d="M130.122 165.707h101.614l83.236 211.052h133.126l-25.75 25.748c-6.332 6.332-6.332 16.628 0 22.96 6.331 6.331 16.624 6.331 22.955 0l64.941-64.941-64.941-64.941c-6.331-6.332-16.624-6.332-22.955 0-6.332 6.332-6.332 16.628 0 22.959l25.75 25.748H337.084L266.64 165.707h181.458l-25.75 25.748c-6.332 6.332-6.332 16.624 0 22.956 6.331 6.331 16.624 6.331 22.955 0l64.941-64.937-64.941-64.941c-6.331-6.331-16.624-6.331-22.955 0-6.332 6.332-6.332 16.624 0 22.956l25.748 25.748H130.122v32.47zm-32.47 0v-32.47H65.185v32.47h32.467zm-64.937 0v-32.47H.244v32.47h32.471z" fill="currentColor" fill-rule="nonzero"></path>
+          </svg>
+          {{ branch }}
+        </template>
+        <template v-if="branch && buildId">—</template>
+        <template v-if="buildId">
+          #{{ buildId }}
+        </template>
+      </div>
+
       <div class="c-monitoror-tile--message" v-if="message">
         {{ message }}
       </div>
@@ -86,7 +99,6 @@
         ['c-monitoror-tile__theme-' + this.theme]: true,
         'c-monitoror-tile__empty': this.isEmpty,
         'c-monitoror-tile__group': this.isGroup,
-        'c-monitoror-tile__centered-message': this.mustCenterMessage,
         'c-monitoror-tile__status-succeeded': this.isSucceeded,
         'c-monitoror-tile__status-failed': this.isFailed,
         'c-monitoror-tile__status-warning': this.isWarning,
@@ -129,10 +141,6 @@
 
     get isGroup(): boolean {
       return this.config.type === TileType.Group
-    }
-
-    get mustCenterMessage(): boolean {
-      return this.values !== undefined
     }
 
     get label(): string | undefined {
@@ -258,6 +266,22 @@
       }
 
       return this.state.message
+    }
+
+    get buildId(): string | undefined {
+      if (this.build === undefined) {
+        return
+      }
+
+      return this.build.id
+    }
+
+    get branch(): string | undefined {
+      if (this.build === undefined) {
+        return
+      }
+
+      return this.build.branch
     }
 
     get unit(): TileValueUnit {
@@ -447,7 +471,20 @@
     opacity: 0.8;
   }
 
-  .c-monitoror-tile__centered-message .c-monitoror-tile--message,
+  .c-monitoror-tile--build-info {
+    font-size: 24px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .c-monitoror-tile--build-info svg {
+    display: inline-block;
+    width: 28px;
+    vertical-align: middle;
+    color: var(--color-code-background);
+    transform: translate(2px, -1px);
+    margin-right: -3px;
+  }
+
   .c-monitoror-tile--value {
     position: absolute;
     top: 50%;
