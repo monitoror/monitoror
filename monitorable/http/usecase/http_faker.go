@@ -64,11 +64,16 @@ func (hu *httpUsecase) httpAll(tileType models.TileType, url string, params http
 			}
 		}
 
-		if _, err := strconv.ParseFloat(values[0], 64); err == nil {
-			tile.WithValue(models.NumberUnit)
+		if params.GetValueUnit() == "" {
+			if _, err := strconv.ParseFloat(values[0], 64); err == nil {
+				tile.WithValue(models.NumberUnit)
+			} else {
+				tile.WithValue(models.RawUnit)
+			}
 		} else {
-			tile.WithValue(models.RawUnit)
+			tile.WithValue(params.GetValueUnit())
 		}
+
 		tile.Value.Values = values
 	}
 

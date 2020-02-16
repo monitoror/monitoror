@@ -9,5 +9,6 @@ type (
 		GetStatus() models.TileStatus
 		GetMessage() string
 		GetValueValues() []string
+		GetValueUnit() models.TileValuesUnit
 	}
 )

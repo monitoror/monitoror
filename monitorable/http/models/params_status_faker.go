@@ -23,6 +23,7 @@ func (p *HTTPStatusParams) GetStatusCodes() (min int, max int) {
 	return getStatusCodes(p.StatusCodeMin, p.StatusCodeMax)
 }
 
-func (p *HTTPStatusParams) GetStatus() models.TileStatus { return p.Status }
-func (p *HTTPStatusParams) GetMessage() string           { return p.Message }
-func (p *HTTPStatusParams) GetValueValues() []string     { panic("unimplemented") }
+func (p *HTTPStatusParams) GetStatus() models.TileStatus        { return p.Status }
+func (p *HTTPStatusParams) GetMessage() string                  { return p.Message }
+func (p *HTTPStatusParams) GetValueValues() []string            { panic("unimplemented") }
+func (p *HTTPStatusParams) GetValueUnit() models.TileValuesUnit { panic("unimplemented") }
