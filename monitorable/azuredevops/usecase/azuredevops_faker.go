@@ -98,7 +98,7 @@ func (tu *azureDevOpsUsecase) Build(params *azureModels.BuildParams) (tile *mode
 
 func (tu *azureDevOpsUsecase) Release(params *azureModels.ReleaseParams) (tile *models.Tile, err error) {
 	tile = models.NewTile(azuredevops.AzureDevOpsReleaseTileType).WithBuild()
-	tile.Label = fmt.Sprintf("%s (%d)\n#12", params.Project, *params.Definition)
+	tile.Label = fmt.Sprintf("%s (%d)", params.Project, *params.Definition)
 	tile.Build.ID = pointer.ToString("12")
 
 	tile.Status = nonempty.Struct(params.Status, tu.computeStatus(params.Project, params.Definition, availableReleaseStatus)).(models.TileStatus)
