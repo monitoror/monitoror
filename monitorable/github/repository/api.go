@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strings"
 	"time"
@@ -132,7 +131,7 @@ func (gr *githubRepository) GetPullRequests(owner, repository string) ([]githubM
 	var result []githubModels.PullRequest
 	for _, pullRequest := range pullRequests {
 		pr := githubModels.PullRequest{
-			Title:      fmt.Sprintf("PR#%d - %s", pullRequest.GetNumber(), pullRequest.GetTitle()),
+			ID:         pullRequest.GetNumber(),
 			Owner:      owner,
 			Repository: repository,
 			Ref:        pullRequest.Head.GetRef(),

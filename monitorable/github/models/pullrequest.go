@@ -1,7 +1,7 @@
 package models
 
 type PullRequest struct {
-	Title      string
+	ID         int
 	Owner      string
 	Repository string
 	Ref        string

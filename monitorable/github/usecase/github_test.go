@@ -291,7 +291,7 @@ func TestListDynamicTile_Success(t *testing.T) {
 	mockRepository.On("GetPullRequests", AnythingOfType("string"), AnythingOfType("string")).
 		Return([]PullRequest{
 			{
-				Title:      "PR#2 - TEST",
+				ID:         2,
 				Owner:      "test",
 				Repository: "test",
 				Ref:        "master",
@@ -305,7 +305,7 @@ func TestListDynamicTile_Success(t *testing.T) {
 		assert.NotNil(t, results)
 		assert.Len(t, results, 1)
 		assert.Equal(t, github.GithubChecksTileType, results[0].TileType)
-		assert.Equal(t, "test\nPR#2 - TEST", results[0].Label)
+		assert.Equal(t, "PR#2 @ test", results[0].Label)
 		assert.Equal(t, "test", results[0].Params["owner"])
 		assert.Equal(t, "test", results[0].Params["repository"])
 		assert.Equal(t, "master", results[0].Params["ref"])

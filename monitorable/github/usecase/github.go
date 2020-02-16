@@ -145,7 +145,7 @@ func (gu *githubUsecase) ListDynamicTile(params interface{}) ([]builder.Result, 
 
 		results = append(results, builder.Result{
 			TileType: github.GithubChecksTileType,
-			Label:    fmt.Sprintf("%s\n%s", pullRequest.Repository, pullRequest.Title),
+			Label:    fmt.Sprintf("PR#%d @ %s", pullRequest.ID, pullRequest.Repository),
 			Params:   p,
 		})
 	}
