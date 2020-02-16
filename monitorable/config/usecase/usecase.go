@@ -48,8 +48,9 @@ type (
 
 	// TileConfig struct is used by GetConfig endpoint to check / hydrate config
 	TileConfig struct {
-		Validator utils.Validator
-		Path      string
+		Validator       utils.Validator
+		Path            string
+		InitialMaxDelay int
 	}
 
 	// DynamicTileConfig struct is used by GetConfig endpoint to check / hydrate config
@@ -77,11 +78,15 @@ func NewConfigUsecase(repository monitorableConfig.Repository, store cache.Store
 	}
 }
 
-func (cu *configUsecase) RegisterTile(tileType models.TileType, clientConfigValidator utils.Validator, path string) {
-	cu.RegisterTileWithConfigVariant(tileType, config.DefaultVariant, clientConfigValidator, path)
+func (cu *configUsecase) RegisterTile(
+	tileType models.TileType, clientConfigValidator utils.Validator, path string, initialMaxDelay int,
+) {
+	cu.RegisterTileWithConfigVariant(tileType, config.DefaultVariant, clientConfigValidator, path, initialMaxDelay)
 }
 
-func (cu *configUsecase) RegisterTileWithConfigVariant(tileType models.TileType, variant string, clientConfigValidator utils.Validator, path string) {
+func (cu *configUsecase) RegisterTileWithConfigVariant(
+	tileType models.TileType, variant string, clientConfigValidator utils.Validator, path string, initialMaxDelay int,
+) {
 	value, exists := cu.tileConfigs[tileType]
 	if !exists {
 		value = make(map[string]*TileConfig)
@@ -89,8 +94,9 @@ func (cu *configUsecase) RegisterTileWithConfigVariant(tileType models.TileType,
 	}
 
 	value[variant] = &TileConfig{
-		Path:      path,
-		Validator: clientConfigValidator,
+		Path:            path,
+		Validator:       clientConfigValidator,
+		InitialMaxDelay: initialMaxDelay,
 	}
 }
 

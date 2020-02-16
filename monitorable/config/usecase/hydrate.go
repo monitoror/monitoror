@@ -56,8 +56,9 @@ func (cu *configUsecase) hydrateTile(conf *models.Config, tile *models.Tile) {
 		return
 	}
 
+	tileConfig := cu.tileConfigs[tile.Type][tile.ConfigVariant]
+
 	// Change Params by a valid URL
-	path := cu.tileConfigs[tile.Type][tile.ConfigVariant].Path
 	urlParams := url.Values{}
 	for key, value := range tile.Params {
 		// Array of value
@@ -69,8 +70,10 @@ func (cu *configUsecase) hydrateTile(conf *models.Config, tile *models.Tile) {
 			urlParams.Add(key, fmt.Sprintf("%v", value))
 		}
 	}
+	tile.URL = fmt.Sprintf("%s?%s", tileConfig.Path, urlParams.Encode())
 
-	tile.URL = fmt.Sprintf("%s?%s", path, urlParams.Encode())
+	// Add initial max delay from config
+	tile.InitialMaxDelay = &tileConfig.InitialMaxDelay
 
 	// Remove Params / Variant
 	tile.Params = nil
@@ -105,7 +108,7 @@ func (cu *configUsecase) hydrateDynamicTile(conf *models.Config, tile *models.Ti
 		_ = cu.dynamicTileStore.Set(cacheKey, results, cu.downstreamStoreExpiration)
 	}
 
-	tiles := []models.Tile{}
+	var tiles []models.Tile
 	for _, result := range results {
 		newTile := models.Tile{
 			Type:          result.TileType,

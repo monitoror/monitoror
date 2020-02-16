@@ -11,6 +11,8 @@ import (
 const EnvPrefix = "MO"
 const DefaultVariant = "default"
 
+const DefaultInitialMaxDelay = 1700
+
 type (
 	// Config contain backend Configuration
 	Config struct {
@@ -40,18 +42,21 @@ type (
 	}
 
 	Ping struct {
-		Count    int
-		Timeout  int // In Millisecond
-		Interval int // In Millisecond
+		Count           int
+		Timeout         int // In Millisecond
+		Interval        int // In Millisecond
+		InitialMaxDelay int // In Millisecond
 	}
 
 	Port struct {
-		Timeout int // In Millisecond
+		Timeout         int // In Millisecond
+		InitialMaxDelay int // In Millisecond
 	}
 
 	HTTP struct {
-		Timeout   int // In Millisecond
-		SSLVerify bool
+		Timeout         int // In Millisecond
+		SSLVerify       bool
+		InitialMaxDelay int // In Millisecond
 	}
 
 	Pingdom struct {
@@ -59,33 +64,38 @@ type (
 		Token           string
 		Timeout         int // In Millisecond
 		CacheExpiration int // In Millisecond
+		InitialMaxDelay int // In Millisecond
 	}
 
 	TravisCI struct {
-		URL         string
-		Timeout     int // In Millisecond
-		Token       string
-		GithubToken string
+		URL             string
+		Timeout         int // In Millisecond
+		Token           string
+		GithubToken     string
+		InitialMaxDelay int // In Millisecond
 	}
 
 	Jenkins struct {
-		URL       string
-		Timeout   int // In Millisecond
-		SSLVerify bool
-		Login     string
-		Token     string
+		URL             string
+		Timeout         int // In Millisecond
+		SSLVerify       bool
+		Login           string
+		Token           string
+		InitialMaxDelay int // In Millisecond
 	}
 
 	AzureDevOps struct {
-		URL     string
-		Timeout int // In Millisecond
-		Token   string
+		URL             string
+		Timeout         int // In Millisecond
+		Token           string
+		InitialMaxDelay int // In Millisecond
 	}
 
 	Github struct {
 		Timeout              int // In Millisecond
 		Token                string
 		CountCacheExpiration int // In Millisecond
+		InitialMaxDelay      int // In Millisecond
 	}
 )
 
@@ -115,11 +125,13 @@ func InitConfig() *Config {
 		viper.SetDefault(fmt.Sprintf("Monitorable.Ping.%s.Count", variant), 2)
 		viper.SetDefault(fmt.Sprintf("Monitorable.Ping.%s.Timeout", variant), 1000)
 		viper.SetDefault(fmt.Sprintf("Monitorable.Ping.%s.Interval", variant), 100)
+		viper.SetDefault(fmt.Sprintf("Monitorable.Ping.%s.InitialMaxDelay", variant), DefaultInitialMaxDelay)
 	}
 
 	// --- Port Configuration ---
 	for variant := range variants["Port"] {
 		viper.SetDefault(fmt.Sprintf("Monitorable.Port.%s.Timeout", variant), 2000)
+		viper.SetDefault(fmt.Sprintf("Monitorable.Port.%s.InitialMaxDelay", variant), DefaultInitialMaxDelay)
 	}
 
 	// --- HTTP Configuration ---
@@ -127,6 +139,7 @@ func InitConfig() *Config {
 		viper.SetDefault(fmt.Sprintf("Monitorable.HTTP.%s.Timeout", variant), 2000)
 		viper.SetDefault(fmt.Sprintf("Monitorable.HTTP.%s.SSLVerify", variant), true)
 		viper.SetDefault(fmt.Sprintf("Monitorable.HTTP.%s.URL", variant), "")
+		viper.SetDefault(fmt.Sprintf("Monitorable.HTTP.%s.InitialMaxDelay", variant), DefaultInitialMaxDelay)
 	}
 
 	// --- Pingdom Configuration ---
@@ -135,6 +148,7 @@ func InitConfig() *Config {
 		viper.SetDefault(fmt.Sprintf("Monitorable.Pingdom.%s.Token", variant), "")
 		viper.SetDefault(fmt.Sprintf("Monitorable.Pingdom.%s.Timeout", variant), 2000)
 		viper.SetDefault(fmt.Sprintf("Monitorable.Pingdom.%s.CacheExpiration", variant), 30000)
+		viper.SetDefault(fmt.Sprintf("Monitorable.Pingdom.%s.InitialMaxDelay", variant), DefaultInitialMaxDelay)
 	}
 
 	// --- TravisCI Configuration ---
@@ -142,6 +156,7 @@ func InitConfig() *Config {
 		viper.SetDefault(fmt.Sprintf("Monitorable.TravisCI.%s.URL", variant), "https://api.travis-ci.org/")
 		viper.SetDefault(fmt.Sprintf("Monitorable.TravisCI.%s.Timeout", variant), 2000)
 		viper.SetDefault(fmt.Sprintf("Monitorable.TravisCI.%s.Token", variant), "")
+		viper.SetDefault(fmt.Sprintf("Monitorable.TravisCI.%s.InitialMaxDelay", variant), DefaultInitialMaxDelay)
 	}
 
 	// --- Jenkins Configuration ---
@@ -151,6 +166,7 @@ func InitConfig() *Config {
 		viper.SetDefault(fmt.Sprintf("Monitorable.Jenkins.%s.SSLVerify", variant), true)
 		viper.SetDefault(fmt.Sprintf("Monitorable.Jenkins.%s.Login", variant), "")
 		viper.SetDefault(fmt.Sprintf("Monitorable.Jenkins.%s.Token", variant), "")
+		viper.SetDefault(fmt.Sprintf("Monitorable.Jenkins.%s.InitialMaxDelay", variant), DefaultInitialMaxDelay)
 	}
 
 	// --- Azure DevOps Configuration ---
@@ -158,6 +174,7 @@ func InitConfig() *Config {
 		viper.SetDefault(fmt.Sprintf("Monitorable.AzureDevOps.%s.URL", variant), "")
 		viper.SetDefault(fmt.Sprintf("Monitorable.AzureDevOps.%s.Timeout", variant), 4000)
 		viper.SetDefault(fmt.Sprintf("Monitorable.AzureDevOps.%s.Token", variant), "")
+		viper.SetDefault(fmt.Sprintf("Monitorable.AzureDevOps.%s.InitialMaxDelay", variant), DefaultInitialMaxDelay)
 	}
 
 	// --- Github Configuration ---
@@ -165,6 +182,7 @@ func InitConfig() *Config {
 		viper.SetDefault(fmt.Sprintf("Monitorable.Github.%s.Timeout", variant), 5000)
 		viper.SetDefault(fmt.Sprintf("Monitorable.Github.%s.Token", variant), "")
 		viper.SetDefault(fmt.Sprintf("Monitorable.Github.%s.CountCacheExpiration", variant), 30000)
+		viper.SetDefault(fmt.Sprintf("Monitorable.Github.%s.InitialMaxDelay", variant), DefaultInitialMaxDelay)
 	}
 
 	_ = viper.Unmarshal(&config)

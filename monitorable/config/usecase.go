@@ -9,8 +9,8 @@ import (
 
 type (
 	Helper interface {
-		RegisterTile(tileType models.TileType, clientConfigValidator utils.Validator, path string)
-		RegisterTileWithConfigVariant(tileType models.TileType, variant string, clientConfigValidator utils.Validator, path string)
+		RegisterTile(tileType models.TileType, clientConfigValidator utils.Validator, path string, initialMaxDelay int)
+		RegisterTileWithConfigVariant(tileType models.TileType, variant string, clientConfigValidator utils.Validator, path string, initialMaxDelay int)
 
 		RegisterDynamicTile(tileType models.TileType, clientConfigValidator utils.Validator, builder builder.DynamicTileBuilder)
 		RegisterDynamicTileWithConfigVariant(tileType models.TileType, configVariant string, clientConfigValidator utils.Validator, builder builder.DynamicTileBuilder)
