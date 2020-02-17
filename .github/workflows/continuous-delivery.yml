@@ -1,0 +1,95 @@
+---
+name: continuous-delivery
+
+# Trigger deployment on tags
+on:
+  push:
+    tags:
+      - '*'
+
+# Jobs definition
+jobs:
+  build-demo:
+    name: Build / Demo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 10.x
+
+      - uses: actions/setup-go@v1
+        with:
+          go-version: 1.13
+        id: go
+
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      - name: ui / install
+        working-directory: ui
+        run: yarn install
+
+      - name: core / install
+        run: |
+          go get -u github.com/GeertJohan/go.rice/rice
+          make install
+
+      - name: ui / build
+        working-directory: ui
+        run: yarn run build
+
+      - name: core / build
+        run: |
+          # https://github.com/actions/setup-go/issues/14
+          export PATH=${PATH}:`go env GOPATH`/bin
+          make build-faker-linux
+
+      - uses: actions/upload-artifact@v1
+        with:
+          name: binaries
+          path: binaries
+
+  deploy-demo:
+    name: Deploy / Demo
+    needs: [build-demo]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      - uses: actions/download-artifact@v1
+        with:
+          name: binaries
+
+      - name: stoping monitoror service
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEMO_HOST }}
+          username: ${{ secrets.DEMO_USERNAME }}
+          key: ${{ secrets.DEMO_SSH_KEY }}
+          port: 22
+          script: sudo systemctl stop monitoror
+
+      - uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.DEMO_HOST }}
+          username: ${{ secrets.DEMO_USERNAME }}
+          key: ${{ secrets.DEMO_SSH_KEY }}
+          port: 22
+          source: "binaries/monitoror-faker-linux-amd64"
+          target: "/opt/monitoror/"
+          strip_components: 1
+
+      - name: starting monitoror service
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.DEMO_HOST }}
+          username: ${{ secrets.DEMO_USERNAME }}
+          key: ${{ secrets.DEMO_SSH_KEY }}
+          port: 22
+          script: |
+            chmod +x /opt/monitoror/monitoror-faker-linux-amd64
+            sudo systemctl start monitoror
+
