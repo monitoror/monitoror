@@ -55,7 +55,7 @@ func (gu *githubUsecase) Count(params *githubModels.CountParams) (*models.Tile, 
 
 func (gu *githubUsecase) Checks(params *githubModels.ChecksParams) (tile *models.Tile, err error) {
 	tile = models.NewTile(github.GithubChecksTileType).WithBuild()
-	tile.Label = fmt.Sprintf("%s\n%s", params.Repository, git.HumanizeBranch(params.Ref))
+	tile.Label = params.Repository
 
 	tile.Status = nonempty.Struct(params.Status, gu.computeStatus(params)).(models.TileStatus)
 
@@ -71,6 +71,7 @@ func (gu *githubUsecase) Checks(params *githubModels.ChecksParams) (tile *models
 		}
 	}
 
+	tile.Build.Branch = pointer.ToString(git.HumanizeBranch(params.Ref))
 	tile.Build.PreviousStatus = nonempty.Struct(params.PreviousStatus, models.SuccessStatus).(models.TileStatus)
 
 	// Author
