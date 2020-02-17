@@ -119,19 +119,20 @@ func (hu *httpUsecase) httpAll(tileType models.TileType, url string, params inte
 	// Match regex
 	if regexProvider, ok := params.(httpModels.RegexProvider); ok {
 		match, matchedContent := matchRegex(regexProvider, content)
-		if !match {
+		if match {
+			content = matchedContent
+		} else {
 			tile.Status = models.FailedStatus
-			tile.Message = content
-			return tile, nil
 		}
-
-		content = matchedContent
 	}
 
-	if s, err := strconv.ParseFloat(content, 64); err == nil {
-		tile.Values = []float64{s}
-	} else {
-		tile.Message = content
+	if content != "" {
+		if _, err := strconv.ParseFloat(content, 64); err == nil {
+			tile.WithValue(models.NumberUnit)
+		} else {
+			tile.WithValue(models.RawUnit)
+		}
+		tile.Value.Values = []string{content}
 	}
 
 	return tile, nil

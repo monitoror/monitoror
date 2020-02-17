@@ -1,4 +1,3 @@
-import TileValueUnit from '@/enums/tileValueUnit'
 <template>
   <div class="c-monitoror-tile" :class="classes" :style="styles">
     <div class="c-monitoror-tile--content" v-if="!isEmpty">
@@ -6,12 +5,25 @@ import TileValueUnit from '@/enums/tileValueUnit'
         {{ label }}
       </div>
 
+      <div class="c-monitoror-tile--build-info" v-if="branch || buildId">
+        <template v-if="branch">
+          <svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 510 510" xmlns="http://www.w3.org/2000/svg">
+            <path d="M130.122 165.707h101.614l83.236 211.052h133.126l-25.75 25.748c-6.332 6.332-6.332 16.628 0 22.96 6.331 6.331 16.624 6.331 22.955 0l64.941-64.941-64.941-64.941c-6.331-6.332-16.624-6.332-22.955 0-6.332 6.332-6.332 16.628 0 22.959l25.75 25.748H337.084L266.64 165.707h181.458l-25.75 25.748c-6.332 6.332-6.332 16.624 0 22.956 6.331 6.331 16.624 6.331 22.955 0l64.941-64.937-64.941-64.941c-6.331-6.331-16.624-6.331-22.955 0-6.332 6.332-6.332 16.624 0 22.956l25.748 25.748H130.122v32.47zm-32.47 0v-32.47H65.185v32.47h32.467zm-64.937 0v-32.47H.244v32.47h32.471z" fill="currentColor" fill-rule="nonzero"></path>
+          </svg>
+          {{ branch }}
+        </template>
+        <template v-if="branch && buildId">—</template>
+        <template v-if="buildId">
+          #{{ buildId }}
+        </template>
+      </div>
+
       <div class="c-monitoror-tile--message" v-if="message">
         {{ message }}
       </div>
 
-      <div class="c-monitoror-tile--value" v-if="value">
-        {{ value }}
+      <div class="c-monitoror-tile--value" v-if="displayedValue">
+        {{ displayedValue }}
       </div>
 
       <div class="c-monitoror-tile--sub-tiles" v-if="isGroup">
@@ -61,6 +73,8 @@ import TileValueUnit from '@/enums/tileValueUnit'
 
   import MonitororSubTile from '@/components/SubTile.vue'
   import MonitororTileIcon from '@/components/TileIcon.vue'
+  import TileBuild from '@/interfaces/tileBuild'
+  import TileValue from '@/interfaces/tileValue'
 
   @Component({
     components: {
@@ -85,7 +99,6 @@ import TileValueUnit from '@/enums/tileValueUnit'
         ['c-monitoror-tile__theme-' + this.theme]: true,
         'c-monitoror-tile__empty': this.isEmpty,
         'c-monitoror-tile__group': this.isGroup,
-        'c-monitoror-tile__centered-message': this.mustCenterMessage,
         'c-monitoror-tile__status-succeeded': this.isSucceeded,
         'c-monitoror-tile__status-failed': this.isFailed,
         'c-monitoror-tile__status-warning': this.isWarning,
@@ -128,10 +141,6 @@ import TileValueUnit from '@/enums/tileValueUnit'
 
     get isGroup(): boolean {
       return this.config.type === TileType.Group
-    }
-
-    get mustCenterMessage(): boolean {
-      return this.values !== undefined
     }
 
     get label(): string | undefined {
@@ -187,6 +196,22 @@ import TileValueUnit from '@/enums/tileValueUnit'
       return this.$store.state.tilesState[this.stateKey]
     }
 
+    get build(): TileBuild | undefined {
+      if (this.state === undefined) {
+        return
+      }
+
+      return this.state.build
+    }
+
+    get value(): TileValue | undefined {
+      if (this.state === undefined) {
+        return
+      }
+
+      return this.state.value
+    }
+
     get status(): string | undefined {
       if (this.state === undefined) {
         return
@@ -196,11 +221,11 @@ import TileValueUnit from '@/enums/tileValueUnit'
     }
 
     get previousStatus(): string | undefined {
-      if (this.state === undefined) {
+      if (this.build === undefined) {
         return
       }
 
-      return this.state.previousStatus
+      return this.build.previousStatus
     }
 
     get isQueued(): boolean {
@@ -243,62 +268,82 @@ import TileValueUnit from '@/enums/tileValueUnit'
       return this.state.message
     }
 
-    get unit(): TileValueUnit {
-      if (this.state === undefined || this.state.unit === undefined) {
-        return TileValueUnit.Default
-      }
-
-      return this.state.unit as TileValueUnit
-    }
-
-    get values(): number[] | undefined {
-      if (this.state === undefined) {
+    get buildId(): string | undefined {
+      if (this.build === undefined) {
         return
       }
 
-      return this.state.values
+      return this.build.id
     }
 
-    get value(): string | undefined {
+    get branch(): string | undefined {
+      if (this.build === undefined) {
+        return
+      }
+
+      return this.build.branch
+    }
+
+    get unit(): TileValueUnit {
+      if (this.value === undefined) {
+        return TileValueUnit.Raw
+      }
+
+      return this.value.unit as TileValueUnit
+    }
+
+    get values(): string[] | undefined {
+      if (this.value === undefined) {
+        return
+      }
+
+      return this.value.values
+    }
+
+    get displayedValue(): string | undefined {
       if (this.values === undefined) {
         return
       }
 
       const UNIT_DISPLAY = {
         [TileValueUnit.Millisecond]: 'ms',
-        [TileValueUnit.Default]: '',
+        [TileValueUnit.Ratio]: '%',
+        [TileValueUnit.Number]: '',
+        [TileValueUnit.Raw]: '',
       }
 
       let value = this.values[this.values.length - 1]
       if (this.unit === TileValueUnit.Millisecond) {
-        value = Math.round(value)
+        value = Math.round(parseFloat(value)).toString()
+      } else if (this.unit === TileValueUnit.Ratio) {
+        value = (parseFloat(value) * 100).toFixed(2).toString()
       }
 
       return value + UNIT_DISPLAY[this.unit]
     }
 
     get finishedAt(): number | undefined {
-      if (this.state === undefined) {
+      if (this.build === undefined) {
         return
       }
 
-      return this.state.finishedAt
+      return this.build.finishedAt
     }
 
     get duration(): number | undefined {
-      if (this.state === undefined) {
+      if (this.build === undefined) {
         return
       }
 
-      return this.state.duration
+      return this.build.duration
     }
 
     get estimatedDuration(): number | undefined {
-      if (this.state === undefined) {
+      if (this.build === undefined) {
         return
       }
 
-      return this.state.estimatedDuration
+      return this.build.estimatedDuration
     }
 
     get progress(): number | undefined {
@@ -347,11 +392,11 @@ import TileValueUnit from '@/enums/tileValueUnit'
     }
 
     get author(): TileAuthor | undefined {
-      if (this.state === undefined) {
+      if (this.build === undefined) {
         return
       }
 
-      return this.state.author
+      return this.build.author
     }
 
     get showAuthor(): boolean {
@@ -426,7 +471,20 @@ import TileValueUnit from '@/enums/tileValueUnit'
     opacity: 0.8;
   }
 
-  .c-monitoror-tile__centered-message .c-monitoror-tile--message,
+  .c-monitoror-tile--build-info {
+    font-size: 24px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .c-monitoror-tile--build-info svg {
+    display: inline-block;
+    width: 28px;
+    vertical-align: middle;
+    color: var(--color-code-background);
+    transform: translate(2px, -1px);
+    margin-right: -3px;
+  }
+
   .c-monitoror-tile--value {
     position: absolute;
     top: 50%;

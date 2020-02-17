@@ -4,11 +4,11 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/jsdidierlaurent/go-pingdom/pingdom"
 	. "github.com/monitoror/monitoror/config"
 	pkgPingdom "github.com/monitoror/monitoror/pkg/gopingdom"
 	"github.com/monitoror/monitoror/pkg/gopingdom/mocks"
 
+	"github.com/jsdidierlaurent/go-pingdom/pingdom"
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"
 )

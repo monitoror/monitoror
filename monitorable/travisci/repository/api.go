@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/monitoror/monitoror/models"
+
 	"github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/monitorable/travisci"
-	"github.com/monitoror/monitoror/monitorable/travisci/models"
+	travisModels "github.com/monitoror/monitoror/monitorable/travisci/models"
 	pkgTravis "github.com/monitoror/monitoror/pkg/gotravis"
 
 	"github.com/shuheiktgw/go-travis"
@@ -41,7 +43,7 @@ func NewTravisCIRepository(config *config.TravisCI) travisci.Repository {
 }
 
 // GetBuildStatus fetch build information from travis-ci
-func (r *travisCIRepository) GetLastBuildStatus(owner, repository, branch string) (*models.Build, error) {
+func (r *travisCIRepository) GetLastBuildStatus(owner, repository, branch string) (*travisModels.Build, error) {
 	// GetConfig
 	repoSlug := fmt.Sprintf("%s/%s", owner, repository)
 	options := &travis.BuildsByRepoOption{
@@ -66,7 +68,7 @@ func (r *travisCIRepository) GetLastBuildStatus(owner, repository, branch string
 	}
 
 	tBuild := builds[0]
-	build := &models.Build{
+	build := &travisModels.Build{
 		ID:     *tBuild.Id,
 		Branch: *tBuild.Branch.Name,
 		Author: models.Author{

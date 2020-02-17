@@ -3,7 +3,6 @@
 package usecase
 
 import (
-	"fmt"
 	"net/url"
 	"regexp"
 	"time"
@@ -37,15 +36,12 @@ func NewJenkinsUsecase(repository jenkins.Repository) jenkins.Usecase {
 }
 
 func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (*models.Tile, error) {
-	tile := models.NewTile(jenkins.JenkinsBuildTileType)
+	tile := models.NewTile(jenkins.JenkinsBuildTileType).WithBuild()
 
-	jobLabel, _ := url.QueryUnescape(params.Job)
-	branchLabel, _ := url.QueryUnescape(params.Branch)
-
-	if params.Branch == "" {
-		tile.Label = jobLabel
-	} else {
-		tile.Label = fmt.Sprintf("%s\n%s", jobLabel, git.HumanizeBranch(branchLabel))
+	tile.Label, _ = url.QueryUnescape(params.Job)
+	if params.Branch != "" {
+		branchLabel, _ := url.QueryUnescape(params.Branch)
+		tile.Build.Branch = pointer.ToString(git.HumanizeBranch(branchLabel))
 	}
 
 	job, err := tu.repository.GetJob(params.Job, params.Branch)
@@ -62,15 +58,15 @@ func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (*models.Tile
 	// Set Previous Status
 	previousStatus := tu.buildsCache.GetPreviousStatus(params, "null") // null because we don't have build number yet, but it's not important in jenkins
 	if previousStatus != nil {
-		tile.PreviousStatus = *previousStatus
+		tile.Build.PreviousStatus = *previousStatus
 	} else {
-		tile.PreviousStatus = models.UnknownStatus
+		tile.Build.PreviousStatus = models.UnknownStatus
 	}
 
 	// Queued build
 	if job.InQueue {
 		tile.Status = models.QueuedStatus
-		tile.StartedAt = job.QueuedAt
+		tile.Build.StartedAt = job.QueuedAt
 		return tile, nil
 	}
 
@@ -80,6 +76,9 @@ func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (*models.Tile
 		return nil, &models.MonitororError{Err: err, Tile: tile, Message: "no build found", ErrorStatus: models.UnknownStatus}
 	}
 
+	// Build ID
+	tile.Build.ID = pointer.ToString(build.Number)
+
 	// Set Status
 	if build.Building {
 		tile.Status = models.RunningStatus
@@ -88,25 +87,25 @@ func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (*models.Tile
 	}
 
 	// Set StartedAt
-	tile.StartedAt = pointer.ToTime(build.StartedAt)
+	tile.Build.StartedAt = pointer.ToTime(build.StartedAt)
 
 	// Set FinishedAt Or Duration
 	if tile.Status != models.RunningStatus {
-		tile.FinishedAt = pointer.ToTime(build.StartedAt.Add(build.Duration))
+		tile.Build.FinishedAt = pointer.ToTime(build.StartedAt.Add(build.Duration))
 	} else {
-		tile.Duration = pointer.ToInt64(int64(time.Since(build.StartedAt).Seconds()))
+		tile.Build.Duration = pointer.ToInt64(int64(time.Since(build.StartedAt).Seconds()))
 
 		estimatedDuration := tu.buildsCache.GetEstimatedDuration(params)
 		if estimatedDuration != nil {
-			tile.EstimatedDuration = pointer.ToInt64(int64(estimatedDuration.Seconds()))
+			tile.Build.EstimatedDuration = pointer.ToInt64(int64(estimatedDuration.Seconds()))
 		} else {
-			tile.EstimatedDuration = pointer.ToInt64(int64(0))
+			tile.Build.EstimatedDuration = pointer.ToInt64(int64(0))
 		}
 	}
 
 	// Set Author
 	if tile.Status == models.FailedStatus && build.Author != nil {
-		tile.Author = &models.Author{
+		tile.Build.Author = &models.Author{
 			Name:      build.Author.Name,
 			AvatarURL: build.Author.AvatarURL,
 		}
@@ -114,7 +113,7 @@ func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (*models.Tile
 
 	// Cache Duration when success / failed / warning
 	if tile.Status == models.SuccessStatus || tile.Status == models.FailedStatus || tile.Status == models.WarningStatus {
-		tu.buildsCache.Add(params, build.Number, tile.Status, build.Duration)
+		tu.buildsCache.Add(params, *tile.Build.ID, tile.Status, build.Duration)
 	}
 
 	return tile, nil

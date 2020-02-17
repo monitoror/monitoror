@@ -9,7 +9,6 @@ import (
 	"testing"
 
 	"github.com/monitoror/monitoror/models"
-
 	"github.com/monitoror/monitoror/monitorable/travisci"
 	"github.com/monitoror/monitoror/monitorable/travisci/mocks"
 

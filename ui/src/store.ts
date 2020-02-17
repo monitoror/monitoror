@@ -217,8 +217,8 @@ const store: StoreOptions<RootState> = {
     increaseTilesDuration({commit, state}) {
       Object.keys(state.tilesState).forEach((tileStateKey) => {
         const tileState = state.tilesState[tileStateKey]
-        if (tileState.duration) {
-          tileState.duration += 1
+        if (tileState.build !== undefined && tileState.build.duration) {
+          tileState.build.duration += 1
           commit('setTileState', {tileStateKey, tileState})
         }
       })

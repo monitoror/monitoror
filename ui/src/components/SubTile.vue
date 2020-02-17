@@ -36,6 +36,7 @@
   import TileState from '@/interfaces/tileState'
 
   import MonitororTileIcon from '@/components/TileIcon.vue'
+  import TileBuild from '@/interfaces/tileBuild'
 
   @Component({
     components: {
@@ -88,9 +89,17 @@
         return this.config.label
       }
 
-      if (this.state) {
-        return this.state.label
+      if (this.state === undefined) {
+        return
       }
+
+      let label = this.state.label
+
+      if (this.branch !== undefined) {
+        label = `${this.branch} @ ${label}`
+      }
+
+      return label
     }
 
     get url(): string | undefined {
@@ -113,20 +122,36 @@
       return this.$store.state.tilesState[this.stateKey]
     }
 
+    get build(): TileBuild | undefined {
+      if (this.state === undefined) {
+        return
+      }
+
+      return this.state.build
+    }
+
     get status(): string | undefined {
-      if (!this.state) {
+      if (this.state === undefined) {
         return
       }
 
       return this.state.status
     }
 
-    get previousStatus(): string | undefined {
-      if (!this.state) {
+    get branch(): string | undefined {
+      if (this.build === undefined) {
         return
       }
 
-      return this.state.previousStatus
+      return this.build.branch
+    }
+
+    get previousStatus(): string | undefined {
+      if (this.build === undefined) {
+        return
+      }
+
+      return this.build.previousStatus
     }
 
     get isQueued(): boolean {
@@ -162,19 +187,19 @@
     }
 
     get duration(): number | undefined {
-      if (!this.state) {
+      if (this.build === undefined) {
         return
       }
 
-      return this.state.duration
+      return this.build.duration
     }
 
     get estimatedDuration(): number | undefined {
-      if (!this.state) {
+      if (this.build === undefined) {
         return
       }
 
-      return this.state.estimatedDuration
+      return this.build.estimatedDuration
     }
 
     get progress(): number | undefined {

@@ -5,8 +5,9 @@ import (
 	"time"
 
 	"github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/azuredevops"
-	"github.com/monitoror/monitoror/monitorable/azuredevops/models"
+	azureModels "github.com/monitoror/monitoror/monitorable/azuredevops/models"
 
 	"github.com/AlekSi/pointer"
 	azureDevOpsApi "github.com/jsdidierlaurent/azure-devops-go-api/azuredevops"
@@ -46,7 +47,7 @@ func NewAzureDevOpsRepository(config *config.AzureDevOps) azuredevops.Repository
 	}
 }
 
-func (r *azureDevOpsRepository) GetBuild(project string, definition int, branch *string) (*models.Build, error) {
+func (r *azureDevOpsRepository) GetBuild(project string, definition int, branch *string) (*azureModels.Build, error) {
 	ids := []int{definition}
 	args := build.GetBuildsArgs{
 		Project:                pointer.ToString(project),
@@ -71,7 +72,7 @@ func (r *azureDevOpsRepository) GetBuild(project string, definition int, branch 
 	}
 	aBuild := aBuilds.Value[0]
 
-	result := &models.Build{
+	result := &azureModels.Build{
 		BuildNumber:    *aBuild.BuildNumber,
 		DefinitionName: *aBuild.Definition.Name,
 	}
@@ -131,7 +132,7 @@ func (r *azureDevOpsRepository) GetBuild(project string, definition int, branch 
 	return result, nil
 }
 
-func (r *azureDevOpsRepository) GetRelease(project string, definition int) (*models.Release, error) {
+func (r *azureDevOpsRepository) GetRelease(project string, definition int) (*azureModels.Release, error) {
 	args := release.GetDeploymentsArgs{
 		Project:            pointer.ToString(project),
 		DefinitionId:       pointer.ToInt(definition),
@@ -155,7 +156,7 @@ func (r *azureDevOpsRepository) GetRelease(project string, definition int) (*mod
 	}
 	aRelease := aReleases.Value[0]
 
-	result := &models.Release{
+	result := &azureModels.Release{
 		ReleaseNumber:  *aRelease.Release.Name,
 		DefinitionName: *aRelease.ReleaseDefinition.Name,
 		Status:         string(*aRelease.DeploymentStatus),

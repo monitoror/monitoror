@@ -1,12 +1,16 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/monitoror/monitoror/models"
+)
 
 type (
 	Release struct {
 		ReleaseNumber  string
 		DefinitionName string
-		Author         *Author
+		Author         *models.Author
 
 		Status string
 

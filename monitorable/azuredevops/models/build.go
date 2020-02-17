@@ -1,13 +1,17 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/monitoror/monitoror/models"
+)
 
 type (
 	Build struct {
 		BuildNumber    string
 		DefinitionName string
 		Branch         string
-		Author         *Author
+		Author         *models.Author
 
 		Status string
 		Result string

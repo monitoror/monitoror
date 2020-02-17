@@ -6,9 +6,11 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/monitoror/monitoror/models"
+
 	"github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
-	"github.com/monitoror/monitoror/monitorable/jenkins/models"
+	jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
 	pkgJenkins "github.com/monitoror/monitoror/pkg/gojenkins"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/gravatar"
 
@@ -43,7 +45,7 @@ func NewJenkinsRepository(config *config.Jenkins) jenkins.Repository {
 	}
 }
 
-func (r *jenkinsRepository) GetJob(jobName string, branch string) (job *models.Job, err error) {
+func (r *jenkinsRepository) GetJob(jobName string, branch string) (job *jenkinsModels.Job, err error) {
 	jobID := jobName
 	if branch != "" {
 		jobID = fmt.Sprintf("%s/job/%s", jobName, branch)
@@ -54,7 +56,7 @@ func (r *jenkinsRepository) GetJob(jobName string, branch string) (job *models.J
 		return nil, err
 	}
 
-	job = &models.Job{}
+	job = &jenkinsModels.Job{}
 	job.ID = jobID
 
 	job.Buildable = jenkinsJob.Buildable
@@ -76,13 +78,13 @@ func (r *jenkinsRepository) GetJob(jobName string, branch string) (job *models.J
 }
 
 //GetBuildStatus fetch build information from travis-ci
-func (r *jenkinsRepository) GetLastBuildStatus(job *models.Job) (*models.Build, error) {
+func (r *jenkinsRepository) GetLastBuildStatus(job *jenkinsModels.Job) (*jenkinsModels.Build, error) {
 	jenkinsBuild, err := r.jenkinsAPI.GetLastBuildByJobId(job.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	build := &models.Build{}
+	build := &jenkinsModels.Build{}
 	build.Number = string(jenkinsBuild.Number)
 	build.FullName = jenkinsBuild.FullDisplayName
 

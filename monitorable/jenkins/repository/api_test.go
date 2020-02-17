@@ -6,7 +6,8 @@ import (
 
 	gojenkins "github.com/jsdidierlaurent/golang-jenkins"
 	. "github.com/monitoror/monitoror/config"
-	"github.com/monitoror/monitoror/monitorable/jenkins/models"
+	"github.com/monitoror/monitoror/models"
+	jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
 	pkgJenkins "github.com/monitoror/monitoror/pkg/gojenkins"
 	"github.com/monitoror/monitoror/pkg/gojenkins/mocks"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/gravatar"
@@ -62,7 +63,7 @@ func TestRepository_GetJob_Success(t *testing.T) {
 		Return(jenkinsJob, nil)
 
 	// Expected
-	expectedJob := &models.Job{
+	expectedJob := &jenkinsModels.Job{
 		ID:        "test/job/master",
 		Buildable: true,
 		InQueue:   false,
@@ -95,7 +96,7 @@ func TestRepository_GetJob_SuccessWithQueue(t *testing.T) {
 
 	// Expected
 	date := parseDate(123456789)
-	expectedJob := &models.Job{
+	expectedJob := &jenkinsModels.Job{
 		ID:        "test/job/master",
 		Buildable: true,
 		InQueue:   true,
@@ -127,7 +128,7 @@ func TestRepository_GetJob_SuccessWithBranch(t *testing.T) {
 		Return(jenkinsJob, nil)
 
 	// Expected
-	expectedJob := &models.Job{
+	expectedJob := &jenkinsModels.Job{
 		ID:        "test/job/master",
 		Buildable: false,
 		InQueue:   false,
@@ -153,7 +154,7 @@ func TestRepository_GetLastBuildStatus_Error(t *testing.T) {
 
 	repository := initRepository(t, mocksJenkins)
 	if repository != nil {
-		build, err := repository.GetLastBuildStatus(&models.Job{ID: "test/job/master"})
+		build, err := repository.GetLastBuildStatus(&jenkinsModels.Job{ID: "test/job/master"})
 		assert.Error(t, err)
 		assert.Nil(t, build)
 		mocksJenkins.AssertNumberOfCalls(t, "GetLastBuildByJobId", 1)
@@ -185,7 +186,7 @@ func TestRepository_GetLastBuildStatus_Success(t *testing.T) {
 		Return(jenkinsBuild, nil)
 
 	// Expected
-	expectedBuild := &models.Build{
+	expectedBuild := &jenkinsModels.Build{
 		Number:   string(jenkinsBuild.Number),
 		FullName: jenkinsBuild.FullDisplayName,
 		Author: &models.Author{
@@ -201,7 +202,7 @@ func TestRepository_GetLastBuildStatus_Success(t *testing.T) {
 
 	repository := initRepository(t, mockJenkins)
 	if repository != nil {
-		build, err := repository.GetLastBuildStatus(&models.Job{ID: "test/job/master"})
+		build, err := repository.GetLastBuildStatus(&jenkinsModels.Job{ID: "test/job/master"})
 		assert.NoError(t, err)
 		assert.Equal(t, expectedBuild, build)
 		mockJenkins.AssertNumberOfCalls(t, "GetLastBuildByJobId", 1)

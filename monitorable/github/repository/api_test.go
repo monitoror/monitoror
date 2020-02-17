@@ -220,7 +220,7 @@ func TestRepository_GetPullRequest_Success(t *testing.T) {
 		pullRequests, err := repository.GetPullRequests("test", "test")
 		if assert.NoError(t, err) {
 			assert.Len(t, pullRequests, 1)
-			assert.Equal(t, "PR#10 - Test", pullRequests[0].Title)
+			assert.Equal(t, 10, pullRequests[0].ID)
 			assert.Equal(t, "test", pullRequests[0].Owner)
 			assert.Equal(t, "test", pullRequests[0].Repository)
 			assert.Equal(t, "master", pullRequests[0].Ref)

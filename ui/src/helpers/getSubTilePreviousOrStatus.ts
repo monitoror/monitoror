@@ -8,8 +8,8 @@ export default function getSubTilePreviousOrStatus(subTileState?: TileState): Ti
 
   let subTileStatus = subTileState.status
 
-  if ([TileStatus.Queued, TileStatus.Running].includes(subTileState.status)) {
-    subTileStatus = subTileState.previousStatus as TileStatus
+  if ([TileStatus.Queued, TileStatus.Running].includes(subTileState.status) && subTileState.build !== undefined) {
+    subTileStatus = subTileState.build.previousStatus as TileStatus
   }
 
   return subTileStatus

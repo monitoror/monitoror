@@ -1,21 +1,20 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	"github.com/monitoror/monitoror/models"
+)
 
 type (
 	Build struct {
 		Number   string
 		FullName string
-		Author   *Author
+		Author   *models.Author
 
 		Building  bool
 		Result    string
 		StartedAt time.Time
 		Duration  time.Duration
-	}
-
-	Author struct {
-		Name      string
-		AvatarURL string
 	}
 )

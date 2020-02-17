@@ -7,15 +7,14 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/monitoror/monitoror/pkg/monitoror/faker"
-
-	"github.com/AlekSi/pointer"
-
 	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/azuredevops"
 	azureModels "github.com/monitoror/monitoror/monitorable/azuredevops/models"
+	"github.com/monitoror/monitoror/pkg/monitoror/faker"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
+
+	"github.com/AlekSi/pointer"
 )
 
 type (
@@ -45,13 +44,10 @@ func NewAzureDevOpsUsecase() azuredevops.Usecase {
 }
 
 func (tu *azureDevOpsUsecase) Build(params *azureModels.BuildParams) (tile *models.Tile, err error) {
-	tile = models.NewTile(azuredevops.AzureDevOpsBuildTileType)
-
-	branch := "master"
-	if params.Branch != nil {
-		branch = *params.Branch
-	}
-	tile.Label = fmt.Sprintf("%s (%d)\n%s - #12", params.Project, *params.Definition, git.HumanizeBranch(branch))
+	tile = models.NewTile(azuredevops.AzureDevOpsBuildTileType).WithBuild()
+	tile.Label = fmt.Sprintf("%s (%d)", params.Project, *params.Definition)
+	tile.Build.ID = pointer.ToString("12")
+	tile.Build.Branch = pointer.ToString(git.HumanizeBranch(nonempty.String(*params.Branch, "master")))
 
 	tile.Status = nonempty.Struct(params.Status, tu.computeStatus(params.Project, params.Definition, availableBuildStatus)).(models.TileStatus)
 
@@ -63,13 +59,13 @@ func (tu *azureDevOpsUsecase) Build(params *azureModels.BuildParams) (tile *mode
 		}
 	}
 
-	tile.PreviousStatus = nonempty.Struct(params.PreviousStatus, models.SuccessStatus).(models.TileStatus)
+	tile.Build.PreviousStatus = nonempty.Struct(params.PreviousStatus, models.SuccessStatus).(models.TileStatus)
 
 	// Author
 	if tile.Status != models.QueuedStatus {
-		tile.Author = &models.Author{}
-		tile.Author.Name = nonempty.String(params.AuthorName, "John Doe")
-		tile.Author.AvatarURL = nonempty.String(params.AuthorAvatarURL, "https://monitoror.com/assets/images/avatar.png")
+		tile.Build.Author = &models.Author{}
+		tile.Build.Author.Name = nonempty.String(params.AuthorName, "John Doe")
+		tile.Build.Author.AvatarURL = nonempty.String(params.AuthorAvatarURL, "https://monitoror.com/assets/images/avatar.png")
 	}
 
 	// StartedAt / FinishedAt
@@ -78,22 +74,22 @@ func (tu *azureDevOpsUsecase) Build(params *azureModels.BuildParams) (tile *mode
 		max := time.Now().Unix() - 3600
 		delta := max - min
 
-		tile.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Unix(rand.Int63n(delta)+min, 0)))
-		tile.FinishedAt = pointer.ToTime(nonempty.Time(params.FinishedAt, tile.StartedAt.Add(time.Second*time.Duration(rand.Int63n(3600)))))
+		tile.Build.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Unix(rand.Int63n(delta)+min, 0)))
+		tile.Build.FinishedAt = pointer.ToTime(nonempty.Time(params.FinishedAt, tile.Build.StartedAt.Add(time.Second*time.Duration(rand.Int63n(3600)))))
 	}
 	if tile.Status == models.QueuedStatus || tile.Status == models.RunningStatus {
-		tile.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Now().Add(-time.Second*time.Duration(rand.Int63n(3600)))))
+		tile.Build.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Now().Add(-time.Second*time.Duration(rand.Int63n(3600)))))
 	}
 
 	// Duration / EstimatedDuration
 	if tile.Status == models.RunningStatus {
 		estimatedDuration := nonempty.Duration(time.Duration(params.EstimatedDuration), time.Second*300)
-		tile.Duration = pointer.ToInt64(nonempty.Int64(params.Duration, int64(tu.computeDuration(params.Project, params.Definition, estimatedDuration).Seconds())))
+		tile.Build.Duration = pointer.ToInt64(nonempty.Int64(params.Duration, int64(tu.computeDuration(params.Project, params.Definition, estimatedDuration).Seconds())))
 
-		if tile.PreviousStatus != models.UnknownStatus {
-			tile.EstimatedDuration = pointer.ToInt64(int64(estimatedDuration.Seconds()))
+		if tile.Build.PreviousStatus != models.UnknownStatus {
+			tile.Build.EstimatedDuration = pointer.ToInt64(int64(estimatedDuration.Seconds()))
 		} else {
-			tile.EstimatedDuration = pointer.ToInt64(0)
+			tile.Build.EstimatedDuration = pointer.ToInt64(0)
 		}
 	}
 
@@ -101,8 +97,9 @@ func (tu *azureDevOpsUsecase) Build(params *azureModels.BuildParams) (tile *mode
 }
 
 func (tu *azureDevOpsUsecase) Release(params *azureModels.ReleaseParams) (tile *models.Tile, err error) {
-	tile = models.NewTile(azuredevops.AzureDevOpsReleaseTileType)
-	tile.Label = fmt.Sprintf("%s (%d)\n#12", params.Project, *params.Definition)
+	tile = models.NewTile(azuredevops.AzureDevOpsReleaseTileType).WithBuild()
+	tile.Label = fmt.Sprintf("%s (%d)", params.Project, *params.Definition)
+	tile.Build.ID = pointer.ToString("12")
 
 	tile.Status = nonempty.Struct(params.Status, tu.computeStatus(params.Project, params.Definition, availableReleaseStatus)).(models.TileStatus)
 
@@ -114,36 +111,36 @@ func (tu *azureDevOpsUsecase) Release(params *azureModels.ReleaseParams) (tile *
 		}
 	}
 
-	tile.PreviousStatus = nonempty.Struct(params.PreviousStatus, models.SuccessStatus).(models.TileStatus)
+	tile.Build.PreviousStatus = nonempty.Struct(params.PreviousStatus, models.SuccessStatus).(models.TileStatus)
 
 	// Author
 	if tile.Status == models.FailedStatus {
-		tile.Author = &models.Author{}
-		tile.Author.Name = nonempty.String(params.AuthorName, "John Doe")
-		tile.Author.AvatarURL = nonempty.String(params.AuthorAvatarURL, "https://monitoror.com/assets/images/avatar.png")
+		tile.Build.Author = &models.Author{}
+		tile.Build.Author.Name = nonempty.String(params.AuthorName, "John Doe")
+		tile.Build.Author.AvatarURL = nonempty.String(params.AuthorAvatarURL, "https://monitoror.com/assets/images/avatar.png")
 	}
 
 	// Duration / EstimatedDuration
 	if tile.Status == models.RunningStatus {
 		estimatedDuration := nonempty.Duration(time.Duration(params.EstimatedDuration), time.Second*300)
-		tile.Duration = pointer.ToInt64(nonempty.Int64(params.Duration, int64(tu.computeDuration(params.Project, params.Definition, estimatedDuration).Seconds())))
+		tile.Build.Duration = pointer.ToInt64(nonempty.Int64(params.Duration, int64(tu.computeDuration(params.Project, params.Definition, estimatedDuration).Seconds())))
 
-		if tile.PreviousStatus != models.UnknownStatus {
-			tile.EstimatedDuration = pointer.ToInt64(int64(estimatedDuration.Seconds()))
+		if tile.Build.PreviousStatus != models.UnknownStatus {
+			tile.Build.EstimatedDuration = pointer.ToInt64(int64(estimatedDuration.Seconds()))
 		} else {
-			tile.EstimatedDuration = pointer.ToInt64(0)
+			tile.Build.EstimatedDuration = pointer.ToInt64(0)
 		}
 	}
 
 	// StartedAt / FinishedAt
-	if tile.Duration == nil {
-		tile.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Now().Add(-time.Minute*10)))
+	if tile.Build.Duration == nil {
+		tile.Build.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Now().Add(-time.Minute*10)))
 	} else {
-		tile.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Now().Add(-time.Second*time.Duration(*tile.Duration))))
+		tile.Build.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Now().Add(-time.Second*time.Duration(*tile.Build.Duration))))
 	}
 
 	if tile.Status != models.QueuedStatus && tile.Status != models.RunningStatus {
-		tile.FinishedAt = pointer.ToTime(nonempty.Time(params.FinishedAt, tile.StartedAt.Add(time.Minute*5)))
+		tile.Build.FinishedAt = pointer.ToTime(nonempty.Time(params.FinishedAt, tile.Build.StartedAt.Add(time.Minute*5)))
 	}
 
 	return

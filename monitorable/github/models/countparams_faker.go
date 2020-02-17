@@ -6,7 +6,7 @@ type (
 	CountParams struct {
 		Query string `json:"query" query:"query"`
 
-		Values []float64 `json:"values" query:"values"`
+		ValueValues []string `json:"valueValues" query:"valueValues"`
 	}
 )
 
