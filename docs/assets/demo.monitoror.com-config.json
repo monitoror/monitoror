@@ -31,7 +31,7 @@
     { "type": "TRAVISCI-BUILD", "params": { "owner": "monitoror", "repository": "monitoror", "branch": "docs", "status": "QUEUED", "previousStatus": "SUCCESS" } },
     { "type": "JENKINS-BUILD", "params": { "job": "monitoror", "branch": "v1.0.0", "status": "SUCCESS" } },
     { "type": "AZUREDEVOPS-BUILD", "params": { "project": "monitoror", "definition": 8, "branch": "master", "status": "RUNNING" } },
-    { "type": "GITHUB-CHECKS", "params": { "owner": "monitoror", "repository": "monitoror", "ref": "pr/417", "status": "FAILURE" } },
+    { "type": "GITHUB-CHECKS", "label": "PR#43 @ monitoror", "params": { "owner": "monitoror", "repository": "monitoror", "ref": "feat-github-checks", "status": "FAILURE" } },
     { "type": "GITHUB-CHECKS", "params": { "owner": "monitoror", "repository": "monitoror", "ref": "action-required", "status": "ACTION_REQUIRED" } },
     { "type": "HTTP-STATUS", "label": "Please note that all the shown results are faked for demo purposes", "params": { "url": "monitoror.com", "status": "UNKNOWN" } }
   ]
