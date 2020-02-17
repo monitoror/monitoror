@@ -89,9 +89,17 @@
         return this.config.label
       }
 
-      if (this.state) {
-        return this.state.label
+      if (this.state === undefined) {
+        return
       }
+
+      let label = this.state.label
+
+      if (this.branch !== undefined) {
+        label = `${this.branch} @ ${label}`
+      }
+
+      return label
     }
 
     get url(): string | undefined {
@@ -128,6 +136,14 @@
       }
 
       return this.state.status
+    }
+
+    get branch(): string | undefined {
+      if (this.build === undefined) {
+        return
+      }
+
+      return this.build.branch
     }
 
     get previousStatus(): string | undefined {
