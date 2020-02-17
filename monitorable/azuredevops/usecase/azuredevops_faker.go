@@ -45,7 +45,7 @@ func NewAzureDevOpsUsecase() azuredevops.Usecase {
 
 func (tu *azureDevOpsUsecase) Build(params *azureModels.BuildParams) (tile *models.Tile, err error) {
 	tile = models.NewTile(azuredevops.AzureDevOpsBuildTileType).WithBuild()
-	tile.Label = fmt.Sprintf("%s (%d)", params.Project, *params.Definition)
+	tile.Label = fmt.Sprintf("%s (build-qa-%d)", params.Project, *params.Definition)
 	tile.Build.ID = pointer.ToString("12")
 	tile.Build.Branch = pointer.ToString(git.HumanizeBranch(nonempty.String(*params.Branch, "master")))
 
@@ -98,7 +98,7 @@ func (tu *azureDevOpsUsecase) Build(params *azureModels.BuildParams) (tile *mode
 
 func (tu *azureDevOpsUsecase) Release(params *azureModels.ReleaseParams) (tile *models.Tile, err error) {
 	tile = models.NewTile(azuredevops.AzureDevOpsReleaseTileType).WithBuild()
-	tile.Label = fmt.Sprintf("%s (%d)", params.Project, *params.Definition)
+	tile.Label = fmt.Sprintf("%s (release-%d)", params.Project, *params.Definition)
 	tile.Build.ID = pointer.ToString("12")
 
 	tile.Status = nonempty.Struct(params.Status, tu.computeStatus(params.Project, params.Definition, availableReleaseStatus)).(models.TileStatus)
