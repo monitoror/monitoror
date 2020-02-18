@@ -5,7 +5,7 @@
     </div>
 
     <transition name="loading-fade">
-      <div class="c-app--loading" v-if="!loaded" :class="appLoadingClasses">
+      <div class="c-app--loading" v-if="showLoading" :class="appLoadingClasses">
         <div class="c-app--logo">
           <svg viewBox="0 0 300 300" class="c-app--logo-icon">
             <path style="fill: var(--color-logo-background, #87d7af)"
@@ -55,6 +55,9 @@
             I'm offline... Gimme my connection back!
           </template>
         </div>
+        <div class="c-app--loading-progress">
+          <div class="c-app--loading-progress-bar" :style="loadingProgressBarStyle"></div>
+        </div>
       </div>
     </transition>
   </div>
@@ -63,9 +66,11 @@
 <script lang="ts">
   import {Component, Vue} from 'vue-property-decorator'
 
+  import Task from '@/classes/task'
   import TileConfig from '@/interfaces/tileConfig'
 
   import MonitororTile from '@/components/Tile.vue'
+  import TaskInterval from '@/enums/taskInterval'
 
   @Component({
     components: {
@@ -74,7 +79,6 @@
   })
   export default class App extends Vue {
     private static readonly SHOW_CURSOR_DELAY: number = 10 // 10 seconds
-    private static readonly REFRESH_TILES_DELTA: number = 10 // Each 10 seconds
 
     /*
      * Data
@@ -84,11 +88,7 @@
     private configurationLoadTimeout!: number
     private showCursor: boolean = true
     private showCursorTimeout!: number
-    private autoUpdateInterval!: number
-    private loadConfigurationInterval!: number
-    private refreshTilesCount: number = 0
-    private refreshTilesInterval!: number
-    private loaded: boolean = false
+    private taskRunnerInterval!: number
 
     /*
      * Computed
@@ -128,6 +128,20 @@
 
     get configUrlOrPath(): string {
       return this.$store.getters.configUrl || decodeURIComponent(this.$store.getters.configPath)
+    }
+
+    get loadingProgress(): number {
+      return this.$store.getters.loadingProgress
+    }
+
+    get loadingProgressBarStyle() {
+      return {
+        transform: `translateX(-${100 - this.loadingProgress * 100}%)`,
+      }
+    }
+
+    get showLoading(): boolean {
+      return this.loadingProgress < 1
     }
 
     get isOnline(): boolean {
@@ -177,42 +191,46 @@
       window.addEventListener('online', this.dispatchUpdateNetworkState)
       window.addEventListener('offline', this.dispatchUpdateNetworkState)
 
-      await this.$store.dispatch('autoUpdate')
-      await this.loadConfiguration()
-      await this.$store.dispatch('refreshTiles')
+      this.taskRunnerInterval = setInterval(() => {
+        this.$store.dispatch('runTasks')
+      }, 100)
 
-      this.autoUpdateInterval = setInterval(async () => {
-        await this.$store.dispatch('autoUpdate')
-      }, 60000)
+      // Run auto-update each minute
+      await this.$store.dispatch('addTask', new Task(
+        'autoUpdate',
+        () => {
+          this.$store.dispatch('autoUpdate')
+        },
+        1 * TaskInterval.Minute,
+      ))
 
-      this.loadConfigurationInterval = setInterval(async () => {
-        await this.loadConfiguration()
-        await this.$store.dispatch('refreshTiles')
-      }, 10000)
+      // Update configuration each minute
+      await this.$store.dispatch('addTask', new Task(
+        'updateConfiguration',
+        () => {
+          this.loadConfiguration()
+        },
+        1 * TaskInterval.Minute,
+      ))
 
-      this.refreshTilesInterval = setInterval(() => {
-        if (this.refreshTilesCount >= App.REFRESH_TILES_DELTA) {
-          this.refreshTilesCount = 0
-          return this.$store.dispatch('refreshTiles')
-        }
-
-        this.$store.dispatch('increaseTilesDuration')
-        this.refreshTilesCount += 1
-      }, 1000)
-
-      setTimeout(() => {
-        this.loaded = true
-      }, 10000)
+      // Update time durations each second
+      await this.$store.dispatch('addTask', new Task(
+        'increaseTilesDuration',
+        () => {
+          this.$store.dispatch('increaseTilesDuration')
+        },
+        1 * TaskInterval.Second,
+      ))
     }
 
     private beforeDestroy() {
       window.removeEventListener('online', this.dispatchUpdateNetworkState)
       window.removeEventListener('offline', this.dispatchUpdateNetworkState)
 
-      clearInterval(this.autoUpdateInterval)
-      clearTimeout(this.configurationLoadTimeout)
-      clearInterval(this.loadConfigurationInterval)
-      clearInterval(this.refreshTilesInterval)
+      clearTimeout(this.showCursorTimeout)
+      clearInterval(this.taskRunnerInterval)
+
+      this.$store.dispatch('killAllTasks', [])
     }
   }
 </script>
@@ -366,5 +384,28 @@
   .loading-fade-leave-to .c-app--logo {
     transform: translate(-50%, -60%);
     opacity: 0;
+  }
+
+  .loading-fade-leave-to .c-app--loading-progress-bar {
+    transform: translateX(0);
+  }
+
+  .c-app--loading-progress {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    display: block;
+    height: 5px;
+    margin: 0 auto;
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  .c-app--loading-progress-bar {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background: var(--color-succeeded);
+    transition: transform 150ms ease-in-out;
   }
 </style>
