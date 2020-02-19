@@ -9,6 +9,12 @@ output:
   print-issued-lines: true
   print-linter-name: true
 
+issues:
+  exclude-rules:
+    - path: service/rice-box.go
+      linters:
+        - misspell
+
 linters:
   enable:
     - megacheck
