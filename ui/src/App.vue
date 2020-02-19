@@ -179,7 +179,7 @@
 
       this.taskRunnerInterval = setInterval(() => {
         this.$store.dispatch('runTasks')
-      }, 100)
+      }, 50)
 
       await this.$store.dispatch('init')
     }

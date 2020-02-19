@@ -59,7 +59,7 @@
 </template>
 
 <script lang="ts">
-  import {formatDistanceToNow} from 'date-fns'
+  import {differenceInSeconds, formatDistanceToNow} from 'date-fns'
   import Vue from 'vue'
   import {Component, Prop} from 'vue-property-decorator'
 
@@ -170,6 +170,10 @@
 
     get theme(): string {
       return this.$store.getters.theme.toString().toLowerCase()
+    }
+
+    get now(): Date {
+      return this.$store.state.now
     }
 
     get displayedSubTiles(): TileConfig[] | undefined {
@@ -322,20 +326,28 @@
       return value + UNIT_DISPLAY[this.unit]
     }
 
-    get finishedAt(): number | undefined {
-      if (this.build === undefined) {
+    get startedAt(): Date | undefined {
+      if (this.build === undefined || this.build.startedAt === undefined) {
         return
       }
 
-      return this.build.finishedAt
+      return new Date(this.build.startedAt)
+    }
+
+    get finishedAt(): Date | undefined {
+      if (this.build === undefined || this.build.finishedAt === undefined) {
+        return
+      }
+
+      return new Date(this.build.finishedAt)
     }
 
     get duration(): number | undefined {
-      if (this.build === undefined) {
+      if (this.startedAt === undefined) {
         return
       }
 
-      return this.build.duration
+      return differenceInSeconds(this.now, this.startedAt)
     }
 
     get estimatedDuration(): number | undefined {
@@ -371,7 +383,7 @@
       let minutesPrefix = ''
       let secondsPrefix = ''
 
-      if (hours > 1 && minutes < 10) {
+      if (hours >= 1 && minutes < 10) {
         minutesPrefix = '0'
       }
       if (seconds < 10) {
@@ -384,11 +396,11 @@
     }
 
     get finishedSince(): string | undefined {
-      if (!this.finishedAt) {
+      if (this.finishedAt === undefined) {
         return
       }
 
-      return formatDistanceToNow(new Date(this.finishedAt)) + ' ago'
+      return formatDistanceToNow(this.finishedAt) + ' ago'
     }
 
     get author(): TileAuthor | undefined {

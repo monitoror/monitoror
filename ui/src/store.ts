@@ -33,6 +33,7 @@ export interface RootState {
   tasks: Task[],
   configurationFetchFailedAttemptsCount: number,
   online: boolean,
+  now: Date,
 }
 
 const store: StoreOptions<RootState> = {
@@ -44,6 +45,7 @@ const store: StoreOptions<RootState> = {
     tasks: [],
     configurationFetchFailedAttemptsCount: 0,
     online: true,
+    now: new Date(),
   },
   getters: {
     apiBaseUrl(): string {
@@ -174,6 +176,9 @@ const store: StoreOptions<RootState> = {
     },
     setConfigurationFetchFailedAttemptsCount(state, payload: number): void {
       state.configurationFetchFailedAttemptsCount = payload
+    },
+    setNow(state, payload: Date): void {
+      state.now = payload
     },
   },
   actions: {
@@ -308,7 +313,7 @@ const store: StoreOptions<RootState> = {
     },
     runTasks({state, dispatch}) {
       const nowTime = now()
-      const shouldRunTask = (task: Task) => !task.isDone() && task.time <= nowTime
+      const shouldRunTask = (task: Task) => !task.isDone() && !task.isRunning() && task.time <= nowTime
 
       const taskToRun = state.tasks.filter(shouldRunTask)
       Promise.all(taskToRun.map((task: Task) => {
@@ -371,12 +376,12 @@ const store: StoreOptions<RootState> = {
         },
       })
 
-      // Update tile durations each second
+      // Update "now" each second
       dispatch('addTask', {
-        id: 'increaseTilesDuration',
+        id: 'updateNow',
         type: TaskType.RootTask,
         executor: async () => {
-          await dispatch('increaseTilesDuration')
+          commit('setNow', new Date())
         },
         interval: 1 * TaskInterval.Second,
       })

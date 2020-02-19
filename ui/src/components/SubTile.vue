@@ -37,6 +37,7 @@
 
   import MonitororTileIcon from '@/components/TileIcon.vue'
   import TileBuild from '@/interfaces/tileBuild'
+  import {differenceInSeconds} from 'date-fns'
 
   @Component({
     components: {
@@ -114,6 +115,10 @@
       return this.$store.getters.theme.toString().toLowerCase()
     }
 
+    get now(): Date {
+      return this.$store.state.now
+    }
+
     get state(): TileState | undefined {
       if (!this.$store.state.tilesState.hasOwnProperty(this.stateKey)) {
         return
@@ -186,12 +191,20 @@
       return this.status === TileStatus.Warning
     }
 
-    get duration(): number | undefined {
-      if (this.build === undefined) {
+    get startedAt(): Date | undefined {
+      if (this.build === undefined || this.build.startedAt === undefined) {
         return
       }
 
-      return this.build.duration
+      return new Date(this.build.startedAt)
+    }
+
+    get duration(): number | undefined {
+      if (this.startedAt === undefined) {
+        return
+      }
+
+      return differenceInSeconds(this.now, this.startedAt)
     }
 
     get estimatedDuration(): number | undefined {
