@@ -43,7 +43,11 @@ func (hu *httpUsecase) HTTPFormatted(params *models.HTTPFormattedParams) (tile *
 	return hu.httpAll(api.HTTPFormattedTileType, params.URL, params)
 }
 
-// httpAll handle all http usecase by checking if params match interfaces listed in coreModels.params
+func (hu *httpUsecase) HTTPProxy(params *httpModels.HTTPProxyParams) (*models.Tile, error) {
+	panic("unimplemented")
+}
+
+// http handle all http usecase by checking if params match interfaces listed in coreModels.params
 func (hu *httpUsecase) httpAll(tileType coreModels.TileType, url string, params models.FakerParamsProvider) (tile *coreModels.Tile, err error) {
 	tile = coreModels.NewTile(tileType)
 	tile.Label = url

@@ -38,6 +38,6 @@ func TestNewMonitorable(t *testing.T) {
 	}
 
 	// Test calls
-	mockMonitorableHelper.RouterAssertNumberOfCalls(t, 1, 3)
-	mockMonitorableHelper.TileSettingsManagerAssertNumberOfCalls(t, 3, 0, 3, 0)
+	mockMonitorableHelper.RouterAssertNumberOfCalls(t, 1, 4)
+	mockMonitorableHelper.TileSettingsManagerAssertNumberOfCalls(t, 4, 0, 4, 0)
 }
