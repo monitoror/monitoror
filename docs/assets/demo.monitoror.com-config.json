@@ -14,7 +14,7 @@
       { "type": "PING", "params": { "hostname": "prod6.monitoror.com", "status": "SUCCESS" } }
     ]},
     { "type": "PINGDOM-CHECK", "label":  "Pingdom check", "params": { "id": 1000, "status": "SUCCESS" } },
-    { "type": "GITHUB-COUNT", "label": "Open GitHub issues", "params": { "query": "is:open is:issue repo:monitoror/monitoror", "values": ["26"] } },
+    { "type": "GITHUB-COUNT", "label": "Open GitHub issues", "params": { "query": "is:open is:issue repo:monitoror/monitoror", "valueValues": ["26"] } },
     { "type": "HTTP-FORMATTED", "label": "Active users", "params": { "format": "JSON", "url": "https://analytics.example.com/active-users", "key": ".count", "status": "SUCCESS", "valueValues": ["0.1337"], "valueUnit": "RATIO" } },
     { "type": "GROUP", "rowSpan": 2, "label": "QA nodes & deploy", "tiles": [
       { "type": "PING", "params": { "hostname": "qa1.monitoror.com", "status": "SUCCESS" } },
