@@ -1,5 +1,4 @@
 import axios from 'axios'
-import throttle from 'lodash-es/throttle'
 import {Md5 as md5} from 'ts-md5/dist/md5'
 import Vue from 'vue'
 import Vuex, {StoreOptions} from 'vuex'
@@ -8,6 +7,7 @@ import DISPLAYABLE_SUBTILE_STATUS from '@/constants/displayableSubtileStatus'
 
 import Task from '@/classes/task'
 import TaskInterval from '@/enums/taskInterval'
+import TaskType from '@/enums/taskType'
 import Theme from '@/enums/theme'
 import TileStatus from '@/enums/tileStatus'
 import getQueryParamValue from '@/helpers/getQueryParamValue'
@@ -171,7 +171,7 @@ const store: StoreOptions<RootState> = {
     },
   },
   actions: {
-    autoUpdate({commit, state, getters}) {
+    async autoUpdate({commit, state, getters}) {
       const infoUrl = getters.apiBaseUrl + API_BASE_PATH + INFO_URL
 
       return axios.get(infoUrl)
@@ -199,8 +199,9 @@ const store: StoreOptions<RootState> = {
 
           // Create a task for this tile
           const initialDelay = Math.random() * (tile.initialMaxDelay || 0)
-          dispatch('addTask', new Task(
-            'refreshTile_' + tile.stateKey,
+          const refreshTileTask = new Task(
+            tile.stateKey,
+            TaskType.RefreshTile,
             async () => {
               await dispatch('refreshTile', tile)
 
@@ -210,7 +211,8 @@ const store: StoreOptions<RootState> = {
             },
             10 * TaskInterval.Second,
             initialDelay,
-          ))
+          )
+          dispatch('addTask', refreshTileTask)
         }
 
         // Set stateKey on group subTiles
@@ -226,15 +228,10 @@ const store: StoreOptions<RootState> = {
           const config: Config = response.data
 
           // Kill old refreshTile tasks
-          state.tasks.forEach((task) => {
-            if (!task.id.startsWith('refreshTile')) {
-              return
-            }
+          state.tasks
+            .filter((task) => task.type === TaskType.RefreshTile && !getters.tileStateKeys.includes(task.id))
+            .map((task) => task.kill())
 
-            if (!getters.tileStateKeys.includes(task.id.replace('refreshTile_', ''))) {
-              task.kill()
-            }
-          })
           config.tiles = config.tiles.map((tile) => hydrateTile(tile))
 
           commit('setConfig', config)

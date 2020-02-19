@@ -1,15 +1,19 @@
 import {now} from 'lodash-es'
 
+import TaskType from '@/enums/taskType'
+
 export default class Task {
   public readonly id: string
+  public readonly type: TaskType
   public readonly interval: number
   private done: boolean = false
   private dead: boolean = false
   private runTime: number
   private readonly task: () => void
 
-  constructor(id: string, task: () => void, interval: number = 0, initialDelay: number = 0) {
+  constructor(id: string, type: TaskType, task: () => void, interval: number = 0, initialDelay: number = 0) {
     this.id = id
+    this.type = type
     this.interval = interval
     this.runTime = now() + initialDelay
     this.task = task

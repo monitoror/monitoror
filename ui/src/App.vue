@@ -71,6 +71,7 @@
 
   import MonitororTile from '@/components/Tile.vue'
   import TaskInterval from '@/enums/taskInterval'
+  import TaskType from '@/enums/taskType'
 
   @Component({
     components: {
@@ -196,31 +197,37 @@
       }, 100)
 
       // Run auto-update each minute
-      await this.$store.dispatch('addTask', new Task(
+      const autoUpdateTask = new Task(
         'autoUpdate',
+        TaskType.AutoUpdate,
         () => {
           this.$store.dispatch('autoUpdate')
         },
         1 * TaskInterval.Minute,
-      ))
+      )
+      await this.$store.dispatch('addTask', autoUpdateTask)
 
       // Update configuration each minute
-      await this.$store.dispatch('addTask', new Task(
+      const updateConfigurationTask = new Task(
         'updateConfiguration',
+        TaskType.UpdateConfiguration,
         () => {
           this.loadConfiguration()
         },
         1 * TaskInterval.Minute,
-      ))
+      )
+      await this.$store.dispatch('addTask', updateConfigurationTask)
 
-      // Update time durations each second
-      await this.$store.dispatch('addTask', new Task(
+      // Update tile durations each second
+      const increaseTilesDurationTask = new Task(
         'increaseTilesDuration',
+        TaskType.IncreaseTilesDuration,
         () => {
           this.$store.dispatch('increaseTilesDuration')
         },
         1 * TaskInterval.Second,
-      ))
+      )
+      await this.$store.dispatch('addTask', increaseTilesDurationTask)
     }
 
     private beforeDestroy() {
