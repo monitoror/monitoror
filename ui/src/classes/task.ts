@@ -1,26 +1,56 @@
-import {now} from 'lodash-es'
+import {noop, now} from 'lodash-es'
 
 import TaskType from '@/enums/taskType'
+import TaskOptions from '@/interfaces/taskOptions'
 
 export default class Task {
   public readonly id: string
   public readonly type: TaskType
   public readonly interval: number
+  public readonly retryOnFailInterval: number
+  private running: boolean = false
   private done: boolean = false
   private dead: boolean = false
-  private runTime: number
-  private readonly task: () => void
+  private internalTime: number
+  private internalFailedAttemptsCount: number = 0
+  private readonly executor: () => Promise<void>
+  private readonly onFailedAttemptsCountChange: (failedAttemptsCount: number) => void
 
-  constructor(id: string, type: TaskType, task: () => void, interval: number = 0, initialDelay: number = 0) {
+  constructor(
+    {
+      id,
+      type,
+      executor,
+      interval = 0,
+      initialDelay = 0,
+      retryOnFailInterval = 0,
+      onFailedAttemptsCountChange = noop,
+    }: TaskOptions,
+  ) {
     this.id = id
     this.type = type
     this.interval = interval
-    this.runTime = now() + initialDelay
-    this.task = task
+    this.retryOnFailInterval = retryOnFailInterval
+    this.internalTime = now() + initialDelay
+    this.executor = executor
+    this.onFailedAttemptsCountChange = onFailedAttemptsCountChange
   }
 
   get time() {
-    return this.runTime
+    return this.internalTime
+  }
+
+  set failedAttemptsCount(failedAttemptsCount: number) {
+    this.internalFailedAttemptsCount = failedAttemptsCount
+    this.onFailedAttemptsCountChange(this.internalFailedAttemptsCount)
+  }
+
+  get failedAttemptsCount() {
+    return this.internalFailedAttemptsCount
+  }
+
+  public isRunning() {
+    return this.running
   }
 
   public isDone() {
@@ -40,8 +70,15 @@ export default class Task {
       return
     }
 
-    await this.task()
+    this.running = true
+    try {
+      await this.executor()
+      this.failedAttemptsCount = 0
+    } catch (e) {
+      this.failedAttemptsCount += 1
+    }
     this.done = true
+    this.running = false
 
     if (this.interval === 0) {
       this.dead = true
@@ -49,11 +86,16 @@ export default class Task {
   }
 
   public prepareNextRun() {
-    if (this.isDead()) {
+    if (this.isDead() || this.isRunning()) {
       return
     }
 
+    let interval = this.interval
+    if (this.retryOnFailInterval > 0) {
+      interval = this.retryOnFailInterval
+    }
+
     this.done = false
-    this.runTime = now() + this.interval
+    this.internalTime = now() + interval
   }
 }

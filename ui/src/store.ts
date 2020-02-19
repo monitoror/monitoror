@@ -15,6 +15,7 @@ import getSubTilePreviousOrStatus from '@/helpers/getSubTilePreviousOrStatus'
 import mostImportantStatus from '@/helpers/mostImportantStatus'
 import Config from '@/interfaces/config'
 import Info from '@/interfaces/info'
+import TaskOptions from '@/interfaces/taskOptions'
 import TileConfig from '@/interfaces/tileConfig'
 import TileState from '@/interfaces/tileState'
 import {now} from 'lodash-es'
@@ -30,6 +31,7 @@ export interface RootState {
   tiles: TileConfig[],
   tilesState: { [key: string]: TileState },
   tasks: Task[],
+  configurationFetchFailedAttemptsCount: number,
   online: boolean,
 }
 
@@ -40,6 +42,7 @@ const store: StoreOptions<RootState> = {
     tiles: [],
     tilesState: {},
     tasks: [],
+    configurationFetchFailedAttemptsCount: 0,
     online: true,
   },
   getters: {
@@ -169,6 +172,9 @@ const store: StoreOptions<RootState> = {
     addTask(state, payload: Task): void {
       state.tasks.push(payload)
     },
+    setConfigurationFetchFailedAttemptsCount(state, payload: number): void {
+      state.configurationFetchFailedAttemptsCount = payload
+    },
   },
   actions: {
     async autoUpdate({commit, state, getters}) {
@@ -188,8 +194,8 @@ const store: StoreOptions<RootState> = {
           }
         })
     },
-    async loadConfiguration({commit, state, getters, dispatch}) {
-      function hydrateTile(tile: TileConfig, groupTile?: TileConfig) {
+    async fetchConfiguration({commit, state, getters, dispatch}) {
+      const hydrateTile = (tile: TileConfig, groupTile?: TileConfig) => {
         // Create a identifier based on tile configuration
         tile.stateKey = tile.type + '_' + md5.hashStr(JSON.stringify(tile))
 
@@ -198,21 +204,7 @@ const store: StoreOptions<RootState> = {
           tile.url = getters.apiBaseUrl + tile.url
 
           // Create a task for this tile
-          const initialDelay = Math.random() * (tile.initialMaxDelay || 0)
-          const refreshTileTask = new Task(
-            tile.stateKey,
-            TaskType.RefreshTile,
-            async () => {
-              await dispatch('refreshTile', tile)
-
-              if (groupTile !== undefined) {
-                dispatch('refreshGroup', groupTile)
-              }
-            },
-            10 * TaskInterval.Second,
-            initialDelay,
-          )
-          dispatch('addTask', refreshTileTask)
+          dispatch('createRefreshTileTask', {tile, groupTile})
         }
 
         // Set stateKey on group subTiles
@@ -236,6 +228,21 @@ const store: StoreOptions<RootState> = {
 
           commit('setConfig', config)
         })
+    },
+    createRefreshTileTask({dispatch}, {tile, groupTile}: { tile: TileConfig, groupTile?: TileConfig }) {
+      dispatch('addTask', {
+        id: tile.stateKey,
+        type: TaskType.RefreshTile,
+        executor: async () => {
+          await dispatch('refreshTile', tile)
+
+          if (groupTile !== undefined) {
+            await dispatch('refreshGroup', groupTile)
+          }
+        },
+        interval: 10 * TaskInterval.Second,
+        initialDelay: Math.random() * (tile.initialMaxDelay || 0),
+      })
     },
     async refreshTile({commit}, tile: TileConfig) {
       if (!tile.url) {
@@ -291,13 +298,13 @@ const store: StoreOptions<RootState> = {
     updateNetworkState({commit}) {
       commit('setOnline', navigator.onLine)
     },
-    addTask({getters, commit}, task: Task) {
+    addTask({getters, commit}, taskOptions: TaskOptions) {
       // Avoid adding multiple task with the same ID
-      if (getters.taskIds.includes(task.id)) {
+      if (getters.taskIds.includes(taskOptions.id)) {
         return
       }
 
-      commit('addTask', task)
+      commit('addTask', new Task(taskOptions))
     },
     runTasks({state, dispatch}) {
       const nowTime = now()
@@ -338,6 +345,41 @@ const store: StoreOptions<RootState> = {
     killAllTasks({commit, state}) {
       state.tasks.map((task: Task) => task.kill())
       commit('setTasks', [])
+    },
+    init({commit, dispatch}) {
+      // Run auto-update each minute
+      dispatch('addTask', {
+        id: 'autoUpdate',
+        type: TaskType.RootTask,
+        executor: async () => {
+          await dispatch('autoUpdate')
+        },
+        interval: 1 * TaskInterval.Minute,
+      })
+
+      // Fetch configuration each minute
+      dispatch('addTask', {
+        id: 'fetchConfiguration',
+        type: TaskType.RootTask,
+        executor: async () => {
+          await dispatch('fetchConfiguration')
+        },
+        interval: 1 * TaskInterval.Minute,
+        retryOnFailInterval: 5 * TaskInterval.Second,
+        onFailedAttemptsCountChange: (failedAttemptsCount: number) => {
+          commit('setConfigurationFetchFailedAttemptsCount', failedAttemptsCount)
+        },
+      })
+
+      // Update tile durations each second
+      dispatch('addTask', {
+        id: 'increaseTilesDuration',
+        type: TaskType.RootTask,
+        executor: async () => {
+          await dispatch('increaseTilesDuration')
+        },
+        interval: 1 * TaskInterval.Second,
+      })
     },
   },
 }

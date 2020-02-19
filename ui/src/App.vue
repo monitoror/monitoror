@@ -37,9 +37,9 @@
           </svg>
         </div>
         <div class="c-app--loading-message">
-          <template v-if="configurationLoadRetries > 0">
-            Retrying configuration load, attempt {{configurationLoadRetries}}... <br>
-            <template v-if="configurationLoadRetries > 5">
+          <template v-if="configurationFetchFailedAttemptsCount > 0">
+            Retrying configuration load, attempt {{configurationFetchFailedAttemptsCount}}... <br>
+            <template v-if="configurationFetchFailedAttemptsCount > 5">
               <template v-if="!isOnline">
                 <hr>
                 I'm offline... Gimme my connection back!
@@ -85,8 +85,6 @@
      * Data
      */
 
-    private configurationLoadRetries: number = 0
-    private configurationLoadTimeout!: number
     private showCursor: boolean = true
     private showCursorTimeout!: number
     private taskRunnerInterval!: number
@@ -114,8 +112,8 @@
 
     get appLoadingClasses() {
       return {
-        'c-app--loading__error': !this.isOnline || this.configurationLoadRetries > 5,
-        'c-app--loading__warning': this.configurationLoadRetries > 0,
+        'c-app--loading__error': !this.isOnline || this.configurationFetchFailedAttemptsCount > 5,
+        'c-app--loading__warning': this.configurationFetchFailedAttemptsCount > 0,
       }
     }
 
@@ -129,6 +127,10 @@
 
     get configUrlOrPath(): string {
       return this.$store.getters.configUrl || decodeURIComponent(this.$store.getters.configPath)
+    }
+
+    get configurationFetchFailedAttemptsCount(): number {
+      return this.$store.state.configurationFetchFailedAttemptsCount
     }
 
     get loadingProgress(): number {
@@ -161,23 +163,6 @@
       }, App.SHOW_CURSOR_DELAY * 1000)
     }
 
-    private async loadConfiguration() {
-      let isConfigLoaded = false
-      do {
-        try {
-          await this.$store.dispatch('loadConfiguration')
-          isConfigLoaded = true
-        } catch (e) {
-          this.configurationLoadRetries += 1
-          await new Promise((resolve) => {
-            clearTimeout(this.configurationLoadTimeout)
-            this.configurationLoadTimeout = setTimeout(resolve, 5000)
-          })
-        }
-      } while (!isConfigLoaded)
-      this.configurationLoadRetries = 0
-    }
-
     private dispatchUpdateNetworkState() {
       return this.$store.dispatch('updateNetworkState')
     }
@@ -196,38 +181,7 @@
         this.$store.dispatch('runTasks')
       }, 100)
 
-      // Run auto-update each minute
-      const autoUpdateTask = new Task(
-        'autoUpdate',
-        TaskType.AutoUpdate,
-        () => {
-          this.$store.dispatch('autoUpdate')
-        },
-        1 * TaskInterval.Minute,
-      )
-      await this.$store.dispatch('addTask', autoUpdateTask)
-
-      // Update configuration each minute
-      const updateConfigurationTask = new Task(
-        'updateConfiguration',
-        TaskType.UpdateConfiguration,
-        () => {
-          this.loadConfiguration()
-        },
-        1 * TaskInterval.Minute,
-      )
-      await this.$store.dispatch('addTask', updateConfigurationTask)
-
-      // Update tile durations each second
-      const increaseTilesDurationTask = new Task(
-        'increaseTilesDuration',
-        TaskType.IncreaseTilesDuration,
-        () => {
-          this.$store.dispatch('increaseTilesDuration')
-        },
-        1 * TaskInterval.Second,
-      )
-      await this.$store.dispatch('addTask', increaseTilesDurationTask)
+      await this.$store.dispatch('init')
     }
 
     private beforeDestroy() {
