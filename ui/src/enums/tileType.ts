@@ -2,6 +2,7 @@ export enum TileType {
   HttpStatus = 'HTTP-STATUS',
   HttpRaw = 'HTTP-RAW',
   HttpFormatted = 'HTTP-FORMATTED',
+  HttpProxy = 'HTTP-PROXY',
   Ping = 'PING',
   Port = 'PORT',
   Pingdom = 'PINGDOM-CHECK',
