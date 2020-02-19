@@ -1,5 +1,5 @@
 enum TaskType {
-  RootTask = 'ROOT_TASK',
+  Root = 'ROOT',
   RefreshTile = 'REFRESH_TILE',
 }
 

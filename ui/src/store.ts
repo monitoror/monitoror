@@ -355,7 +355,7 @@ const store: StoreOptions<RootState> = {
       // Run auto-update each minute
       dispatch('addTask', {
         id: 'autoUpdate',
-        type: TaskType.RootTask,
+        type: TaskType.Root,
         executor: async () => {
           await dispatch('autoUpdate')
         },
@@ -365,7 +365,7 @@ const store: StoreOptions<RootState> = {
       // Fetch configuration each minute
       dispatch('addTask', {
         id: 'fetchConfiguration',
-        type: TaskType.RootTask,
+        type: TaskType.Root,
         executor: async () => {
           await dispatch('fetchConfiguration')
         },
@@ -379,7 +379,7 @@ const store: StoreOptions<RootState> = {
       // Update "now" each second
       dispatch('addTask', {
         id: 'updateNow',
-        type: TaskType.RootTask,
+        type: TaskType.Root,
         executor: async () => {
           commit('setNow', new Date())
         },
