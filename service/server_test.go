@@ -24,6 +24,7 @@ func TestInitFront_Panic(t *testing.T) {
 	}
 	server.initEcho()
 
+	delete(embedded.EmbeddedBoxes, "../ui/dist")
 	assert.Panics(t, func() {
 		server.initUI()
 	})
@@ -38,6 +39,7 @@ func TestInitFront_Success(t *testing.T) {
 	}
 	server.initEcho()
 
+	delete(embedded.EmbeddedBoxes, "../ui/dist")
 	embedded.RegisterEmbeddedBox("../ui/dist", &embedded.EmbeddedBox{
 		Name: "../ui/dist",
 	})
