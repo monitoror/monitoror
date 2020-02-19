@@ -7,8 +7,11 @@
 
       <div class="c-monitoror-tile--build-info" v-if="branch || buildId">
         <template v-if="branch">
-          <svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2" viewBox="0 0 510 510" xmlns="http://www.w3.org/2000/svg">
-            <path d="M130.122 165.707h101.614l83.236 211.052h133.126l-25.75 25.748c-6.332 6.332-6.332 16.628 0 22.96 6.331 6.331 16.624 6.331 22.955 0l64.941-64.941-64.941-64.941c-6.331-6.332-16.624-6.332-22.955 0-6.332 6.332-6.332 16.628 0 22.959l25.75 25.748H337.084L266.64 165.707h181.458l-25.75 25.748c-6.332 6.332-6.332 16.624 0 22.956 6.331 6.331 16.624 6.331 22.955 0l64.941-64.937-64.941-64.941c-6.331-6.331-16.624-6.331-22.955 0-6.332 6.332-6.332 16.624 0 22.956l25.748 25.748H130.122v32.47zm-32.47 0v-32.47H65.185v32.47h32.467zm-64.937 0v-32.47H.244v32.47h32.471z" fill="currentColor" fill-rule="nonzero"></path>
+          <svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2"
+               viewBox="0 0 510 510" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M130.122 165.707h101.614l83.236 211.052h133.126l-25.75 25.748c-6.332 6.332-6.332 16.628 0 22.96 6.331 6.331 16.624 6.331 22.955 0l64.941-64.941-64.941-64.941c-6.331-6.332-16.624-6.332-22.955 0-6.332 6.332-6.332 16.628 0 22.959l25.75 25.748H337.084L266.64 165.707h181.458l-25.75 25.748c-6.332 6.332-6.332 16.624 0 22.956 6.331 6.331 16.624 6.331 22.955 0l64.941-64.937-64.941-64.941c-6.331-6.331-16.624-6.331-22.955 0-6.332 6.332-6.332 16.624 0 22.956l25.748 25.748H130.122v32.47zm-32.47 0v-32.47H65.185v32.47h32.467zm-64.937 0v-32.47H.244v32.47h32.471z"
+              fill="currentColor" fill-rule="nonzero"></path>
           </svg>
           {{ branch }}
         </template>
@@ -27,7 +30,8 @@
       </div>
 
       <div class="c-monitoror-tile--sub-tiles" v-if="isGroup">
-        <monitoror-sub-tile v-for="subTile in displayedSubTiles" :key="subTile.stateKey" :config="subTile"></monitoror-sub-tile>
+        <monitoror-sub-tile v-for="subTile in displayedSubTiles" :key="subTile.stateKey"
+                            :config="subTile"></monitoror-sub-tile>
       </div>
 
       <monitoror-tile-icon :tile-type="type" class="c-monitoror-tile--icon"></monitoror-tile-icon>
@@ -59,21 +63,17 @@
 </template>
 
 <script lang="ts">
-  import {differenceInSeconds, formatDistanceToNow} from 'date-fns'
-  import Vue from 'vue'
-  import {Component, Prop} from 'vue-property-decorator'
+  import {Component} from 'vue-property-decorator'
 
   import DISPLAYABLE_SUBTILE_STATUS from '@/constants/displayableSubtileStatus'
   import TileStatus from '@/enums/tileStatus'
   import TileType from '@/enums/tileType'
   import TileValueUnit from '@/enums/tileValueUnit'
-  import TileAuthor from '@/interfaces/tileAuthor'
   import TileConfig from '@/interfaces/tileConfig'
-  import TileState from '@/interfaces/tileState'
 
+  import AbstractMonitororTile from '@/classes/monitororTile'
   import MonitororSubTile from '@/components/SubTile.vue'
   import MonitororTileIcon from '@/components/TileIcon.vue'
-  import TileBuild from '@/interfaces/tileBuild'
   import TileValue from '@/interfaces/tileValue'
 
   @Component({
@@ -82,13 +82,7 @@
       MonitororTileIcon,
     },
   })
-  export default class MonitororTile extends Vue {
-    /*
-     * Props
-     */
-
-    @Prop()
-    private config!: TileConfig
+  export default class MonitororTile extends AbstractMonitororTile {
 
     /*
      * Computed
@@ -119,61 +113,20 @@
       return styles
     }
 
-    get progressBarStyle() {
-      if (!this.progress) {
-        return
-      }
-
-      const progress = Math.min(this.progress, 100)
-
-      return {
-        transform: `translateX(${-100 + progress}%)`,
-      }
-    }
-
-    get type(): TileType {
-      return this.config.type
-    }
-
     get isEmpty(): boolean {
-      return this.config.type === TileType.Empty
+      return this.type === TileType.Empty
     }
 
     get isGroup(): boolean {
-      return this.config.type === TileType.Group
-    }
-
-    get label(): string | undefined {
-      if (this.config.label) {
-        return this.config.label
-      }
-
-      if (this.state) {
-        return this.state.label
-      }
+      return this.type === TileType.Group
     }
 
     get columnSpan(): number {
       return this.config.columnSpan || 1
     }
+
     get rowSpan(): number {
       return this.config.rowSpan || 1
-    }
-
-    get url(): string | undefined {
-      return this.config.url
-    }
-
-    get stateKey(): string {
-      return this.config.stateKey
-    }
-
-    get theme(): string {
-      return this.$store.getters.theme.toString().toLowerCase()
-    }
-
-    get now(): Date {
-      return this.$store.state.now
     }
 
     get displayedSubTiles(): TileConfig[] | undefined {
@@ -192,76 +145,12 @@
       return displayedSubTiles
     }
 
-    get state(): TileState | undefined {
-      if (!this.$store.state.tilesState.hasOwnProperty(this.stateKey)) {
-        return
-      }
-
-      return this.$store.state.tilesState[this.stateKey]
-    }
-
-    get build(): TileBuild | undefined {
-      if (this.state === undefined) {
-        return
-      }
-
-      return this.state.build
-    }
-
     get value(): TileValue | undefined {
       if (this.state === undefined) {
         return
       }
 
       return this.state.value
-    }
-
-    get status(): string | undefined {
-      if (this.state === undefined) {
-        return
-      }
-
-      return this.state.status
-    }
-
-    get previousStatus(): string | undefined {
-      if (this.build === undefined) {
-        return
-      }
-
-      return this.build.previousStatus
-    }
-
-    get isQueued(): boolean {
-      return this.status === TileStatus.Queued
-    }
-
-    get isRunning(): boolean {
-      return this.status === TileStatus.Running
-    }
-
-    get isSucceeded(): boolean {
-      if (this.isQueued || this.isRunning) {
-        return this.previousStatus === TileStatus.Success
-      }
-
-      return this.status === TileStatus.Success
-    }
-
-    get isFailed(): boolean {
-      if (this.isQueued || this.isRunning) {
-        return this.previousStatus === TileStatus.Failed
-      }
-
-      return this.status === TileStatus.Failed
-    }
-
-    get isWarning(): boolean {
-      if (this.isQueued || this.isRunning) {
-        return this.previousStatus === TileStatus.Warning
-      }
-
-      return this.status === TileStatus.Warning
     }
 
     get message(): string | undefined {
@@ -278,14 +167,6 @@
       }
 
       return this.build.id
-    }
-
-    get branch(): string | undefined {
-      if (this.build === undefined) {
-        return
-      }
-
-      return this.build.branch
     }
 
     get unit(): TileValueUnit {
@@ -324,95 +205,6 @@
       }
 
       return value + UNIT_DISPLAY[this.unit]
-    }
-
-    get startedAt(): Date | undefined {
-      if (this.build === undefined || this.build.startedAt === undefined) {
-        return
-      }
-
-      return new Date(this.build.startedAt)
-    }
-
-    get finishedAt(): Date | undefined {
-      if (this.build === undefined || this.build.finishedAt === undefined) {
-        return
-      }
-
-      return new Date(this.build.finishedAt)
-    }
-
-    get duration(): number | undefined {
-      if (this.startedAt === undefined) {
-        return
-      }
-
-      return differenceInSeconds(this.now, this.startedAt)
-    }
-
-    get estimatedDuration(): number | undefined {
-      if (this.build === undefined) {
-        return
-      }
-
-      return this.build.estimatedDuration
-    }
-
-    get progress(): number | undefined {
-      if (this.duration === undefined || this.estimatedDuration === undefined) {
-        return
-      }
-
-      const progress = this.duration / this.estimatedDuration * 100
-
-      return progress
-    }
-
-    get progressTime(): string | undefined {
-      if (!this.progress || this.estimatedDuration === undefined || this.duration === undefined) {
-        return
-      }
-
-      let totalSeconds = Math.round((this.estimatedDuration - this.duration))
-      if (this.progress > 100) {
-        totalSeconds = Math.round((this.duration - this.estimatedDuration))
-      }
-      const hours = Math.floor(totalSeconds / 3600)
-      const minutes = Math.floor((totalSeconds - (hours * 3600)) / 60)
-      const seconds = totalSeconds - (hours * 3600) - (minutes * 60)
-      let minutesPrefix = ''
-      let secondsPrefix = ''
-
-      if (hours >= 1 && minutes < 10) {
-        minutesPrefix = '0'
-      }
-      if (seconds < 10) {
-        secondsPrefix = '0'
-      }
-
-      const overtimePrefix = (this.progress > 100 ? 'Overtime: +' : '')
-
-      return overtimePrefix + ((hours) ? `${hours}:` : '') + `${minutesPrefix + minutes}:${secondsPrefix + seconds}`
-    }
-
-    get finishedSince(): string | undefined {
-      if (this.finishedAt === undefined) {
-        return
-      }
-
-      return formatDistanceToNow(this.finishedAt) + ' ago'
-    }
-
-    get author(): TileAuthor | undefined {
-      if (this.build === undefined) {
-        return
-      }
-
-      return this.build.author
-    }
-
-    get showAuthor(): boolean {
-      return this.author !== undefined && this.status === TileStatus.Failed
     }
   }
 </script>
