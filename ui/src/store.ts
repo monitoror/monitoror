@@ -1,32 +1,39 @@
 import axios from 'axios'
-import throttle from 'lodash-es/throttle'
 import {Md5 as md5} from 'ts-md5/dist/md5'
 import Vue from 'vue'
 import Vuex, {StoreOptions} from 'vuex'
 
 import DISPLAYABLE_SUBTILE_STATUS from '@/constants/displayableSubtileStatus'
+
+import Task from '@/classes/task'
+import TaskInterval from '@/enums/taskInterval'
+import TaskType from '@/enums/taskType'
 import Theme from '@/enums/theme'
 import TileStatus from '@/enums/tileStatus'
 import getQueryParamValue from '@/helpers/getQueryParamValue'
 import getSubTilePreviousOrStatus from '@/helpers/getSubTilePreviousOrStatus'
 import mostImportantStatus from '@/helpers/mostImportantStatus'
-import timeout from '@/helpers/timeout'
 import Config from '@/interfaces/config'
 import Info from '@/interfaces/info'
+import TaskOptions from '@/interfaces/taskOptions'
 import TileConfig from '@/interfaces/tileConfig'
 import TileState from '@/interfaces/tileState'
+import {now} from 'lodash-es'
 
 Vue.use(Vuex)
 
 const API_BASE_PATH = '/api/v1'
 const INFO_URL = '/info'
 
-interface RootState {
+export interface RootState {
   version: string | undefined,
   columns: number,
   tiles: TileConfig[],
   tilesState: { [key: string]: TileState },
+  tasks: Task[],
+  configurationFetchFailedAttemptsCount: number,
   online: boolean,
+  now: Date,
 }
 
 const store: StoreOptions<RootState> = {
@@ -35,7 +42,10 @@ const store: StoreOptions<RootState> = {
     columns: 4,
     tiles: [],
     tilesState: {},
+    tasks: [],
+    configurationFetchFailedAttemptsCount: 0,
     online: true,
+    now: new Date(),
   },
   getters: {
     apiBaseUrl(): string {
@@ -79,6 +89,66 @@ const store: StoreOptions<RootState> = {
 
       return theme
     },
+    tileStateKeys(state): string[] {
+      const tileStateKeys: string[] = []
+      state.tiles.forEach((tile: TileConfig) => {
+        tileStateKeys.push(tile.stateKey)
+
+        // Add group subTiles stateKeys
+        if (tile.tiles) {
+          tile.tiles.forEach((subTile) => {
+            tileStateKeys.push(subTile.stateKey)
+          })
+        }
+      })
+
+      return tileStateKeys
+    },
+    taskIds(state): string[] {
+      return state.tasks.map((task: Task) => task.id)
+    },
+    loadedTilesCount(state): number {
+      const loadedTilesCount = Object.keys(state.tilesState).length
+
+      return loadedTilesCount
+    },
+    loadableTilesCount(state): number {
+      const loadableTilesStateKeys: string[] = []
+
+      function addLoadableTileStateKey(stateKey: string) {
+        if (loadableTilesStateKeys.includes(stateKey)) {
+          return
+        }
+
+        loadableTilesStateKeys.push(stateKey)
+      }
+
+      state.tiles.forEach((tile) => {
+        if (tile.url) {
+          addLoadableTileStateKey(tile.stateKey)
+        }
+
+        if (tile.tiles) {
+          addLoadableTileStateKey(tile.stateKey)
+          tile.tiles.forEach((subTile) => {
+            addLoadableTileStateKey(subTile.stateKey)
+          })
+        }
+      })
+
+      const loadableTilesCount = loadableTilesStateKeys.length
+
+      return loadableTilesCount
+    },
+    loadingProgress(state, getters): number {
+      const loadingProgress = getters.loadedTilesCount / getters.loadableTilesCount
+
+      if (!loadingProgress) {
+        return 0
+      }
+
+      return loadingProgress
+    },
   },
   mutations: {
     setVersion(state, payload: string): void {
@@ -98,9 +168,21 @@ const store: StoreOptions<RootState> = {
     setOnline(state, payload: boolean): void {
       state.online = payload
     },
+    setTasks(state, payload: Task[]): void {
+      state.tasks = payload
+    },
+    addTask(state, payload: Task): void {
+      state.tasks.push(payload)
+    },
+    setConfigurationFetchFailedAttemptsCount(state, payload: number): void {
+      state.configurationFetchFailedAttemptsCount = payload
+    },
+    setNow(state, payload: Date): void {
+      state.now = payload
+    },
   },
   actions: {
-    autoUpdate({commit, state, getters}) {
+    async autoUpdate({commit, state, getters}) {
       const infoUrl = getters.apiBaseUrl + API_BASE_PATH + INFO_URL
 
       return axios.get(infoUrl)
@@ -117,19 +199,22 @@ const store: StoreOptions<RootState> = {
           }
         })
     },
-    loadConfiguration({commit, getters}) {
-      function hydrateTile(tile: TileConfig) {
-        // Create a random identifier
+    async fetchConfiguration({commit, state, getters, dispatch}) {
+      const hydrateTile = (tile: TileConfig, groupTile?: TileConfig) => {
+        // Create a identifier based on tile configuration
         tile.stateKey = tile.type + '_' + md5.hashStr(JSON.stringify(tile))
 
-        // Prefix URL with api base URL
         if (tile.url) {
+          // Prefix URL with api base URL
           tile.url = getters.apiBaseUrl + tile.url
+
+          // Create a task for this tile
+          dispatch('createRefreshTileTask', {tile, groupTile})
         }
 
         // Set stateKey on group subTiles
         if (tile.tiles) {
-          tile.tiles = tile.tiles.map(hydrateTile)
+          tile.tiles = tile.tiles.map((subTile) => hydrateTile(subTile, tile))
         }
 
         return tile
@@ -139,40 +224,32 @@ const store: StoreOptions<RootState> = {
         .then((response) => {
           const config: Config = response.data
 
-          config.tiles = config.tiles.map(hydrateTile)
+          // Kill old refreshTile tasks
+          state.tasks
+            .filter((task) => task.type === TaskType.RefreshTile && !getters.tileStateKeys.includes(task.id))
+            .map((task) => task.kill())
+
+          config.tiles = config.tiles.map((tile) => hydrateTile(tile))
 
           commit('setConfig', config)
         })
     },
-    refreshTiles({state, dispatch}) {
-      // Classic tiles (all except empty and group types)
-      state.tiles
-        .filter((tile) => !!tile.url)
-        .forEach(async (tile) => {
-          // Randomize delay for each tile to avoid DoS back-end services
-          await timeout(Math.random() * 10000)
-
+    createRefreshTileTask({dispatch}, {tile, groupTile}: { tile: TileConfig, groupTile?: TileConfig }) {
+      dispatch('addTask', {
+        id: tile.stateKey,
+        type: TaskType.RefreshTile,
+        executor: async () => {
           await dispatch('refreshTile', tile)
-        })
 
-      // Group subTiles
-      state.tiles.forEach(async (groupTile) => {
-        if (!groupTile.tiles) {
-          return
-        }
-
-        // Randomize delay for each group to avoid DoS back-end services
-        await timeout(Math.random() * 10000)
-
-        const throttledDispatch = throttle(dispatch, 150)
-        groupTile.tiles.map(async (subTile) => {
-          await dispatch('refreshTile', subTile).then(() => {
-            throttledDispatch('refreshGroup', groupTile)
-          })
-        })
+          if (groupTile !== undefined) {
+            await dispatch('refreshGroup', groupTile)
+          }
+        },
+        interval: 10 * TaskInterval.Second,
+        initialDelay: Math.random() * (tile.initialMaxDelay || 0),
       })
     },
-    refreshTile({commit}, tile: TileConfig): Promise<void> {
+    async refreshTile({commit}, tile: TileConfig) {
       if (!tile.url) {
         return Promise.resolve()
       }
@@ -182,7 +259,7 @@ const store: StoreOptions<RootState> = {
           const tileState = response.data
 
           commit('setTileState', {tileStateKey: tile.stateKey, tileState})
-        }) as Promise<void>
+        })
     },
     refreshGroup({state, commit}, groupTile: TileConfig) {
       if (!groupTile.tiles) {
@@ -225,6 +302,89 @@ const store: StoreOptions<RootState> = {
     },
     updateNetworkState({commit}) {
       commit('setOnline', navigator.onLine)
+    },
+    addTask({getters, commit}, taskOptions: TaskOptions) {
+      // Avoid adding multiple task with the same ID
+      if (getters.taskIds.includes(taskOptions.id)) {
+        return
+      }
+
+      commit('addTask', new Task(taskOptions))
+    },
+    runTasks({state, dispatch}) {
+      const nowTime = now()
+      const shouldRunTask = (task: Task) => !task.isDone() && !task.isRunning() && task.time <= nowTime
+
+      const taskToRun = state.tasks.filter(shouldRunTask)
+      Promise.all(taskToRun.map((task: Task) => {
+        return task.run()
+      })).then(() => {
+        dispatch('updateTasks')
+      })
+    },
+    updateTasks({commit, state}) {
+      const {taskList, hasChanged} = state.tasks.reduce(
+        (previousValue: { taskList: Task[], hasChanged: boolean }, task: Task) => {
+          // Remove dead tasks from task list
+          if (task.isDead()) {
+            previousValue.hasChanged = true
+            return previousValue
+          }
+
+          // Update outdated recurring tasks
+          if (task.isDone()) {
+            task.prepareNextRun()
+          }
+
+          previousValue.taskList.push(task)
+
+          return previousValue
+        },
+        {taskList: [], hasChanged: false},
+      )
+
+      if (hasChanged) {
+        commit('setTasks', taskList)
+      }
+    },
+    killAllTasks({commit, state}) {
+      state.tasks.map((task: Task) => task.kill())
+      commit('setTasks', [])
+    },
+    init({commit, dispatch}) {
+      // Run auto-update each minute
+      dispatch('addTask', {
+        id: 'autoUpdate',
+        type: TaskType.Root,
+        executor: async () => {
+          await dispatch('autoUpdate')
+        },
+        interval: 1 * TaskInterval.Minute,
+      })
+
+      // Fetch configuration each minute
+      dispatch('addTask', {
+        id: 'fetchConfiguration',
+        type: TaskType.Root,
+        executor: async () => {
+          await dispatch('fetchConfiguration')
+        },
+        interval: 1 * TaskInterval.Minute,
+        retryOnFailInterval: 5 * TaskInterval.Second,
+        onFailedAttemptsCountChange: (failedAttemptsCount: number) => {
+          commit('setConfigurationFetchFailedAttemptsCount', failedAttemptsCount)
+        },
+      })
+
+      // Update "now" each second
+      dispatch('addTask', {
+        id: 'updateNow',
+        type: TaskType.Root,
+        executor: async () => {
+          commit('setNow', new Date())
+        },
+        interval: 1 * TaskInterval.Second,
+      })
     },
   },
 }

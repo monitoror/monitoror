@@ -48,8 +48,9 @@ type (
 
 	// TileConfig struct is used by GetConfig endpoint to check / hydrate config
 	TileConfig struct {
-		Validator utils.Validator
-		Path      string
+		Validator       utils.Validator
+		Path            string
+		InitialMaxDelay int
 	}
 
 	// DynamicTileConfig struct is used by GetConfig endpoint to check / hydrate config
@@ -77,11 +78,15 @@ func NewConfigUsecase(repository monitorableConfig.Repository, store cache.Store
 	}
 }
 
-func (cu *configUsecase) RegisterTile(tileType models.TileType, validator utils.Validator, path string) {
-	cu.RegisterTileWithConfigVariant(tileType, config.DefaultVariant, validator, path)
+func (cu *configUsecase) RegisterTile(
+	tileType models.TileType, clientConfigValidator utils.Validator, path string, initialMaxDelay int,
+) {
+	cu.RegisterTileWithConfigVariant(tileType, config.DefaultVariant, clientConfigValidator, path, initialMaxDelay)
 }
 
-func (cu *configUsecase) RegisterTileWithConfigVariant(tileType models.TileType, variant string, validator utils.Validator, path string) {
+func (cu *configUsecase) RegisterTileWithConfigVariant(
+	tileType models.TileType, variant string, clientConfigValidator utils.Validator, path string, initialMaxDelay int,
+) {
 	value, exists := cu.tileConfigs[tileType]
 	if !exists {
 		value = make(map[string]*TileConfig)
@@ -89,16 +94,17 @@ func (cu *configUsecase) RegisterTileWithConfigVariant(tileType models.TileType,
 	}
 
 	value[variant] = &TileConfig{
-		Path:      path,
-		Validator: validator,
+		Path:            path,
+		Validator:       clientConfigValidator,
+		InitialMaxDelay: initialMaxDelay,
 	}
 }
 
-func (cu *configUsecase) RegisterDynamicTile(tileType models.TileType, validator utils.Validator, builder builder.DynamicTileBuilder) {
-	cu.RegisterDynamicTileWithConfigVariant(tileType, config.DefaultVariant, validator, builder)
+func (cu *configUsecase) RegisterDynamicTile(tileType models.TileType, clientConfigValidator utils.Validator, builder builder.DynamicTileBuilder) {
+	cu.RegisterDynamicTileWithConfigVariant(tileType, config.DefaultVariant, clientConfigValidator, builder)
 }
 
-func (cu *configUsecase) RegisterDynamicTileWithConfigVariant(tileType models.TileType, variant string, validator utils.Validator, builder builder.DynamicTileBuilder) {
+func (cu *configUsecase) RegisterDynamicTileWithConfigVariant(tileType models.TileType, variant string, clientConfigValidator utils.Validator, builder builder.DynamicTileBuilder) {
 	// Used for authorized type
 	cu.tileConfigs[tileType] = nil
 
@@ -108,7 +114,7 @@ func (cu *configUsecase) RegisterDynamicTileWithConfigVariant(tileType models.Ti
 	}
 
 	value[variant] = &DynamicTileConfig{
-		Validator: validator,
+		Validator: clientConfigValidator,
 		Builder:   builder,
 	}
 	cu.dynamicTileConfigs[tileType] = value

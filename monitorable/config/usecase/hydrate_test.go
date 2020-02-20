@@ -42,7 +42,7 @@ func TestUsecase_Hydrate(t *testing.T) {
 
 	store := cache.NewGoCacheStore(time.Second, time.Second)
 	usecase := initConfigUsecase(nil, store)
-	usecase.RegisterTileWithConfigVariant(jenkins.JenkinsBuildTileType, "variant1", &_jenkinsModels.BuildParams{}, "/jenkins/variant1")
+	usecase.RegisterTileWithConfigVariant(jenkins.JenkinsBuildTileType, "variant1", &_jenkinsModels.BuildParams{}, "/jenkins/variant1", 1000)
 
 	reader := ioutil.NopCloser(strings.NewReader(input))
 	config, err := repository.ReadConfig(reader)
@@ -53,14 +53,20 @@ func TestUsecase_Hydrate(t *testing.T) {
 	assert.Len(t, config.Warnings, 0)
 
 	assert.Equal(t, "/ping?hostname=aserver.com&values=123&values=456", config.Tiles[1].URL)
+	assert.Equal(t, 1000, *config.Tiles[1].InitialMaxDelay)
 	assert.Equal(t, "/port?hostname=bserver.com&port=22", config.Tiles[2].URL)
+	assert.Equal(t, 1000, *config.Tiles[2].InitialMaxDelay)
 
 	group := config.Tiles[3].Tiles
 	assert.Equal(t, "/ping?hostname=aserver.com", group[0].URL)
+	assert.Equal(t, 1000, *group[0].InitialMaxDelay)
 	assert.Equal(t, "/port?hostname=bserver.com&port=22", group[1].URL)
+	assert.Equal(t, 1000, *group[1].InitialMaxDelay)
 
 	assert.Equal(t, "/jenkins/default?job=test", config.Tiles[4].URL)
+	assert.Equal(t, 1000, *config.Tiles[4].InitialMaxDelay)
 	assert.Equal(t, "/jenkins/variant1?job=test", config.Tiles[5].URL)
+	assert.Equal(t, 1000, *config.Tiles[5].InitialMaxDelay)
 }
 
 func TestUsecase_Hydrate_WithDynamic(t *testing.T) {
@@ -99,10 +105,13 @@ func TestUsecase_Hydrate_WithDynamic(t *testing.T) {
 	assert.Equal(t, 3, len(config.Tiles))
 	assert.Equal(t, jenkins.JenkinsBuildTileType, config.Tiles[0].Type)
 	assert.Equal(t, "/jenkins/default?job=test", config.Tiles[0].URL)
+	assert.Equal(t, 1000, *config.Tiles[0].InitialMaxDelay)
 	assert.Equal(t, jenkins.JenkinsBuildTileType, config.Tiles[1].Tiles[1].Type)
 	assert.Equal(t, "/jenkins/default?job=test", config.Tiles[1].Tiles[1].URL)
+	assert.Equal(t, 1000, *config.Tiles[1].Tiles[1].InitialMaxDelay)
 	assert.Equal(t, jenkins.JenkinsBuildTileType, config.Tiles[2].Tiles[0].Type)
 	assert.Equal(t, "/jenkins/default?job=test", config.Tiles[2].Tiles[0].URL)
+	assert.Equal(t, 1000, *config.Tiles[2].Tiles[0].InitialMaxDelay)
 	mockBuilder.AssertNumberOfCalls(t, "ListDynamicTile", 3)
 	mockBuilder.AssertExpectations(t)
 }
@@ -167,7 +176,7 @@ func TestUsecase_Hydrate_WithDynamic_WithError(t *testing.T) {
 
 	store := cache.NewGoCacheStore(time.Second, time.Second)
 	usecase := initConfigUsecase(nil, store)
-	usecase.RegisterTileWithConfigVariant(jenkins.JenkinsBuildTileType, "variant1", &_jenkinsModels.BuildParams{}, "/jenkins/variant1")
+	usecase.RegisterTileWithConfigVariant(jenkins.JenkinsBuildTileType, "variant1", &_jenkinsModels.BuildParams{}, "/jenkins/variant1", 1000)
 	usecase.RegisterDynamicTile(jenkins.JenkinsMultiBranchTileType, &_jenkinsModels.MultiBranchParams{}, mockBuilder)
 	usecase.RegisterDynamicTileWithConfigVariant(jenkins.JenkinsMultiBranchTileType, "variant1", &_jenkinsModels.MultiBranchParams{}, mockBuilder2)
 
@@ -210,7 +219,7 @@ func TestUsecase_Hydrate_WithDynamic_WithWarning(t *testing.T) {
 
 	store := cache.NewGoCacheStore(time.Second, time.Second)
 	usecase := initConfigUsecase(nil, store)
-	usecase.RegisterTileWithConfigVariant(jenkins.JenkinsBuildTileType, "variant1", &_jenkinsModels.BuildParams{}, "/jenkins/variant1")
+	usecase.RegisterTileWithConfigVariant(jenkins.JenkinsBuildTileType, "variant1", &_jenkinsModels.BuildParams{}, "/jenkins/variant1", 1000)
 	usecase.RegisterDynamicTile(jenkins.JenkinsMultiBranchTileType, &_jenkinsModels.MultiBranchParams{}, mockBuilder)
 	usecase.RegisterDynamicTileWithConfigVariant(jenkins.JenkinsMultiBranchTileType, "variant1", &_jenkinsModels.MultiBranchParams{}, mockBuilder2)
 

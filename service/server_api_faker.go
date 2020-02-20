@@ -6,8 +6,6 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/monitoror/monitoror/monitorable/github"
-
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 	. "github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/handlers"
@@ -18,6 +16,7 @@ import (
 	_configDelivery "github.com/monitoror/monitoror/monitorable/config/delivery/http"
 	_configRepository "github.com/monitoror/monitoror/monitorable/config/repository"
 	_configUsecase "github.com/monitoror/monitoror/monitorable/config/usecase"
+	"github.com/monitoror/monitoror/monitorable/github"
 	_githubDelivery "github.com/monitoror/monitoror/monitorable/github/delivery/http"
 	_githubModels "github.com/monitoror/monitoror/monitorable/github/models"
 	_githubUsecase "github.com/monitoror/monitoror/monitorable/github/usecase"
@@ -94,7 +93,7 @@ func (s *Server) registerPing(variant string) {
 	route := s.api.GET("/ping", delivery.GetPing)
 
 	// Register param and path to config usecase
-	s.configHelper.RegisterTile(ping.PingTileType, &_pingModels.PingParams{}, route.Path)
+	s.configHelper.RegisterTile(ping.PingTileType, &_pingModels.PingParams{}, route.Path, DefaultInitialMaxDelay)
 }
 
 func (s *Server) registerPort(variant string) {
@@ -105,7 +104,7 @@ func (s *Server) registerPort(variant string) {
 	route := s.api.GET("/port", delivery.GetPort)
 
 	// Register param and path to config usecase
-	s.configHelper.RegisterTile(port.PortTileType, &_portModels.PortParams{}, route.Path)
+	s.configHelper.RegisterTile(port.PortTileType, &_portModels.PortParams{}, route.Path, DefaultInitialMaxDelay)
 }
 
 func (s *Server) registerHTTP(variant string) {
@@ -119,9 +118,9 @@ func (s *Server) registerHTTP(variant string) {
 	routeJson := httpGroup.GET("/formatted", delivery.GetHTTPFormatted)
 
 	// Register data for config hydration
-	s.configHelper.RegisterTile(http.HTTPStatusTileType, &_httpModels.HTTPStatusParams{}, routeStatus.Path)
-	s.configHelper.RegisterTile(http.HTTPRawTileType, &_httpModels.HTTPRawParams{}, routeRaw.Path)
-	s.configHelper.RegisterTile(http.HTTPFormattedTileType, &_httpModels.HTTPFormattedParams{}, routeJson.Path)
+	s.configHelper.RegisterTile(http.HTTPStatusTileType, &_httpModels.HTTPStatusParams{}, routeStatus.Path, DefaultInitialMaxDelay)
+	s.configHelper.RegisterTile(http.HTTPRawTileType, &_httpModels.HTTPRawParams{}, routeRaw.Path, DefaultInitialMaxDelay)
+	s.configHelper.RegisterTile(http.HTTPFormattedTileType, &_httpModels.HTTPFormattedParams{}, routeJson.Path, DefaultInitialMaxDelay)
 }
 
 func (s *Server) registerPingdom(variant string) {
@@ -133,7 +132,7 @@ func (s *Server) registerPingdom(variant string) {
 	route := pingdomGroup.GET("/check", delivery.GetCheck)
 
 	// Register data for config hydration
-	s.configHelper.RegisterTile(pingdom.PingdomCheckTileType, &_pingdomModels.CheckParams{}, route.Path)
+	s.configHelper.RegisterTile(pingdom.PingdomCheckTileType, &_pingdomModels.CheckParams{}, route.Path, DefaultInitialMaxDelay)
 }
 
 func (s *Server) registerTravisCI(variant string) {
@@ -145,7 +144,7 @@ func (s *Server) registerTravisCI(variant string) {
 	route := travisCIGroup.GET("/build", delivery.GetBuild)
 
 	// Register param and path to config usecase
-	s.configHelper.RegisterTile(travisci.TravisCIBuildTileType, &_travisciModels.BuildParams{}, route.Path)
+	s.configHelper.RegisterTile(travisci.TravisCIBuildTileType, &_travisciModels.BuildParams{}, route.Path, DefaultInitialMaxDelay)
 }
 
 func (s *Server) registerJenkins(variant string) {
@@ -157,7 +156,7 @@ func (s *Server) registerJenkins(variant string) {
 	route := jenkinsGroup.GET("/build", delivery.GetBuild)
 
 	// Register param and path to config usecase
-	s.configHelper.RegisterTile(jenkins.JenkinsBuildTileType, &_jenkinsModels.BuildParams{}, route.Path)
+	s.configHelper.RegisterTile(jenkins.JenkinsBuildTileType, &_jenkinsModels.BuildParams{}, route.Path, DefaultInitialMaxDelay)
 }
 
 func (s *Server) registerAzureDevOps(variant string) {
@@ -170,8 +169,8 @@ func (s *Server) registerAzureDevOps(variant string) {
 	routeRelease := azureGroup.GET("/release", s.cm.UpstreamCacheHandler(delivery.GetRelease))
 
 	// Register data for config hydration
-	s.configHelper.RegisterTile(azuredevops.AzureDevOpsBuildTileType, &_azureDevOpsModels.BuildParams{}, routeBuild.Path)
-	s.configHelper.RegisterTile(azuredevops.AzureDevOpsReleaseTileType, &_azureDevOpsModels.ReleaseParams{}, routeRelease.Path)
+	s.configHelper.RegisterTile(azuredevops.AzureDevOpsBuildTileType, &_azureDevOpsModels.BuildParams{}, routeBuild.Path, DefaultInitialMaxDelay)
+	s.configHelper.RegisterTile(azuredevops.AzureDevOpsReleaseTileType, &_azureDevOpsModels.ReleaseParams{}, routeRelease.Path, DefaultInitialMaxDelay)
 }
 
 func (s *Server) registerGithub(variant string) {
@@ -184,6 +183,6 @@ func (s *Server) registerGithub(variant string) {
 	routeChecks := azureGroup.GET("/checks", s.cm.UpstreamCacheHandler(delivery.GetChecks))
 
 	// Register data for config hydration
-	s.configHelper.RegisterTile(github.GithubCountTileType, &_githubModels.CountParams{}, routeCount.Path)
-	s.configHelper.RegisterTile(github.GithubChecksTileType, &_githubModels.ChecksParams{}, routeChecks.Path)
+	s.configHelper.RegisterTile(github.GithubCountTileType, &_githubModels.CountParams{}, routeCount.Path, DefaultInitialMaxDelay)
+	s.configHelper.RegisterTile(github.GithubChecksTileType, &_githubModels.ChecksParams{}, routeChecks.Path, DefaultInitialMaxDelay)
 }

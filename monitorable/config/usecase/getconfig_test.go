@@ -23,9 +23,9 @@ import (
 func initConfigUsecase(repository config.Repository, store cache.Store) *configUsecase {
 	usecase := NewConfigUsecase(repository, store, 5000)
 
-	usecase.RegisterTile(ping.PingTileType, &_pingModels.PingParams{}, "/ping")
-	usecase.RegisterTile(port.PortTileType, &_portModels.PortParams{}, "/port")
-	usecase.RegisterTile(jenkins.JenkinsBuildTileType, &_jenkinsModels.BuildParams{}, "/jenkins/default")
+	usecase.RegisterTile(ping.PingTileType, &_pingModels.PingParams{}, "/ping", 1000)
+	usecase.RegisterTile(port.PortTileType, &_portModels.PortParams{}, "/port", 1000)
+	usecase.RegisterTile(jenkins.JenkinsBuildTileType, &_jenkinsModels.BuildParams{}, "/jenkins/default", 1000)
 
 	return usecase.(*configUsecase)
 }

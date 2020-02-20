@@ -49,24 +49,24 @@ func (_m *Usecase) Hydrate(_a0 *models.Config) {
 	_m.Called(_a0)
 }
 
-// RegisterDynamicTile provides a mock function with given fields: tileType, validator, _a2
-func (_m *Usecase) RegisterDynamicTile(tileType monitorormodels.TileType, validator utils.Validator, _a2 builder.DynamicTileBuilder) {
-	_m.Called(tileType, validator, _a2)
+// RegisterDynamicTile provides a mock function with given fields: tileType, clientConfigValidator, _a2
+func (_m *Usecase) RegisterDynamicTile(tileType monitorormodels.TileType, clientConfigValidator utils.Validator, _a2 builder.DynamicTileBuilder) {
+	_m.Called(tileType, clientConfigValidator, _a2)
 }
 
-// RegisterDynamicTileWithConfigVariant provides a mock function with given fields: tileType, configVariant, validator, _a3
-func (_m *Usecase) RegisterDynamicTileWithConfigVariant(tileType monitorormodels.TileType, configVariant string, validator utils.Validator, _a3 builder.DynamicTileBuilder) {
-	_m.Called(tileType, configVariant, validator, _a3)
+// RegisterDynamicTileWithConfigVariant provides a mock function with given fields: tileType, configVariant, clientConfigValidator, _a3
+func (_m *Usecase) RegisterDynamicTileWithConfigVariant(tileType monitorormodels.TileType, configVariant string, clientConfigValidator utils.Validator, _a3 builder.DynamicTileBuilder) {
+	_m.Called(tileType, configVariant, clientConfigValidator, _a3)
 }
 
-// RegisterTile provides a mock function with given fields: tileType, validator, path
-func (_m *Usecase) RegisterTile(tileType monitorormodels.TileType, validator utils.Validator, path string) {
-	_m.Called(tileType, validator, path)
+// RegisterTile provides a mock function with given fields: tileType, clientConfigValidator, path, initialMaxDelay
+func (_m *Usecase) RegisterTile(tileType monitorormodels.TileType, clientConfigValidator utils.Validator, path string, initialMaxDelay int) {
+	_m.Called(tileType, clientConfigValidator, path, initialMaxDelay)
 }
 
-// RegisterTileWithConfigVariant provides a mock function with given fields: tileType, variant, validator, path
-func (_m *Usecase) RegisterTileWithConfigVariant(tileType monitorormodels.TileType, variant string, validator utils.Validator, path string) {
-	_m.Called(tileType, variant, validator, path)
+// RegisterTileWithConfigVariant provides a mock function with given fields: tileType, variant, clientConfigValidator, path, initialMaxDelay
+func (_m *Usecase) RegisterTileWithConfigVariant(tileType monitorormodels.TileType, variant string, clientConfigValidator utils.Validator, path string, initialMaxDelay int) {
+	_m.Called(tileType, variant, clientConfigValidator, path, initialMaxDelay)
 }
 
 // Verify provides a mock function with given fields: _a0

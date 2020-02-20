@@ -19,8 +19,9 @@ type (
 		RowSpan    *int   `json:"rowSpan,omitempty"`
 		ColumnSpan *int   `json:"columnSpan,omitempty"`
 
-		Tiles []Tile `json:"tiles,omitempty"`
-		URL   string `json:"url,omitempty"`
+		Tiles           []Tile `json:"tiles,omitempty"`
+		URL             string `json:"url,omitempty"`
+		InitialMaxDelay *int   `json:"initialMaxDelay,omitempty"`
 
 		// Used by config.hydrate only (will be remove before returning config to UI)
 		ConfigVariant string `json:"configVariant,omitempty"`

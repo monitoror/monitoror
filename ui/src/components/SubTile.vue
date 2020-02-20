@@ -19,7 +19,7 @@
           </template>
         </div>
         <div class="c-monitoror-sub-tile--progress">
-          <div class="c-monitoror-sub-tile--progress-bar" :style="progressBatStyle"></div>
+          <div class="c-monitoror-sub-tile--progress-bar" :style="progressBarStyle"></div>
         </div>
       </template>
     </div>
@@ -27,30 +27,19 @@
 </template>
 
 <script lang="ts">
-  import Vue from 'vue'
-  import {Component, Prop} from 'vue-property-decorator'
+  import {Component} from 'vue-property-decorator'
 
   import TileStatus from '@/enums/tileStatus'
-  import TileType from '@/enums/tileType'
-  import TileConfig from '@/interfaces/tileConfig'
-  import TileState from '@/interfaces/tileState'
 
+  import AbstractMonitororTile from '@/classes/monitororTile'
   import MonitororTileIcon from '@/components/TileIcon.vue'
-  import TileBuild from '@/interfaces/tileBuild'
 
   @Component({
     components: {
       MonitororTileIcon,
     },
   })
-  export default class MonitororSubTile extends Vue {
-    /*
-     * Props
-     */
-
-    @Prop()
-    private config!: TileConfig
-
+  export default class MonitororSubTile extends AbstractMonitororTile {
     /*
      * Computed
      */
@@ -66,22 +55,6 @@
         'c-monitoror-sub-tile__status-canceled': this.status === TileStatus.Canceled,
         'c-monitoror-sub-tile__status-action-required': this.status === TileStatus.ActionRequired,
       }
-    }
-
-    get progressBatStyle() {
-      if (!this.progress) {
-        return
-      }
-
-      const progress = Math.min(this.progress, 100)
-
-      return {
-        transform: `translateX(${-100 + progress}%)`,
-      }
-    }
-
-    get type(): TileType {
-      return this.config.type
     }
 
     get label(): string | undefined {
@@ -100,143 +73,6 @@
       }
 
       return label
-    }
-
-    get url(): string | undefined {
-      return this.config.url
-    }
-
-    get stateKey(): string {
-      return this.config.stateKey
-    }
-
-    get theme(): string {
-      return this.$store.getters.theme.toString().toLowerCase()
-    }
-
-    get state(): TileState | undefined {
-      if (!this.$store.state.tilesState.hasOwnProperty(this.stateKey)) {
-        return
-      }
-
-      return this.$store.state.tilesState[this.stateKey]
-    }
-
-    get build(): TileBuild | undefined {
-      if (this.state === undefined) {
-        return
-      }
-
-      return this.state.build
-    }
-
-    get status(): string | undefined {
-      if (this.state === undefined) {
-        return
-      }
-
-      return this.state.status
-    }
-
-    get branch(): string | undefined {
-      if (this.build === undefined) {
-        return
-      }
-
-      return this.build.branch
-    }
-
-    get previousStatus(): string | undefined {
-      if (this.build === undefined) {
-        return
-      }
-
-      return this.build.previousStatus
-    }
-
-    get isQueued(): boolean {
-      return this.status === TileStatus.Queued
-    }
-
-    get isRunning(): boolean {
-      return this.status === TileStatus.Running
-    }
-
-    get isSucceeded(): boolean {
-      if (this.isQueued || this.isRunning) {
-        return this.previousStatus === TileStatus.Success
-      }
-
-      return this.status === TileStatus.Success
-    }
-
-    get isFailed(): boolean {
-      if (this.isQueued || this.isRunning) {
-        return this.previousStatus === TileStatus.Failed
-      }
-
-      return this.status === TileStatus.Failed
-    }
-
-    get isWarning(): boolean {
-      if (this.isQueued || this.isRunning) {
-        return this.previousStatus === TileStatus.Warning
-      }
-
-      return this.status === TileStatus.Warning
-    }
-
-    get duration(): number | undefined {
-      if (this.build === undefined) {
-        return
-      }
-
-      return this.build.duration
-    }
-
-    get estimatedDuration(): number | undefined {
-      if (this.build === undefined) {
-        return
-      }
-
-      return this.build.estimatedDuration
-    }
-
-    get progress(): number | undefined {
-      if (!this.duration || this.estimatedDuration === undefined) {
-        return
-      }
-
-      const progress = this.duration / this.estimatedDuration * 100
-
-      return progress
-    }
-
-    get progressTime(): string | undefined {
-      if (!this.progress || this.estimatedDuration === undefined || !this.duration) {
-        return
-      }
-
-      let totalSeconds = Math.round((this.estimatedDuration - this.duration))
-      if (this.progress > 100) {
-        totalSeconds = Math.round((this.duration - this.estimatedDuration))
-      }
-      const hours = Math.floor(totalSeconds / 3600)
-      const minutes = Math.floor((totalSeconds - (hours * 3600)) / 60)
-      const seconds = totalSeconds - (hours * 3600) - (minutes * 60)
-      let minutesPrefix = ''
-      let secondsPrefix = ''
-
-      if (hours > 1 && minutes < 10) {
-        minutesPrefix = '0'
-      }
-      if (seconds < 10) {
-        secondsPrefix = '0'
-      }
-
-      const overtimePrefix = (this.progress > 100 ? '+' : '')
-
-      return overtimePrefix + ((hours) ? `${hours}:` : '') + `${minutesPrefix + minutes}:${secondsPrefix + seconds}`
     }
   }
 </script>
