@@ -6,7 +6,6 @@ export default interface TileBuild {
   id?: string,
   branch?: string,
   author?: TileAuthor,
-  duration?: number,
   estimatedDuration?: number,
   startedAt?: number,
   finishedAt?: number,
