@@ -291,15 +291,6 @@ const store: StoreOptions<RootState> = {
 
       commit('setTileState', {tileStateKey: groupTile.stateKey, tileState: groupState})
     },
-    increaseTilesDuration({commit, state}) {
-      Object.keys(state.tilesState).forEach((tileStateKey) => {
-        const tileState = state.tilesState[tileStateKey]
-        if (tileState.build !== undefined && tileState.build.duration) {
-          tileState.build.duration += 1
-          commit('setTileState', {tileStateKey, tileState})
-        }
-      })
-    },
     updateNetworkState({commit}) {
       commit('setOnline', navigator.onLine)
     },
