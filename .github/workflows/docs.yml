@@ -1,0 +1,20 @@
+---
+name: docs
+
+on:
+  push:
+    branches:
+      - 'master'
+    paths:
+      - 'docs/**'
+
+jobs:
+  purge-cache:
+    name: Purge cache
+    runs-on: ubuntu-latest
+    steps:
+      - name: Purge cache
+        uses: jakejarvis/cloudflare-purge-action@master
+        env:
+          CLOUDFLARE_ZONE: ${{ secrets.CLOUDFLARE_ZONE }}
+          CLOUDFLARE_TOKEN: ${{ secrets.CLOUDFLARE_TOKEN }}
