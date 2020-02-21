@@ -153,7 +153,7 @@ func InitConfig() *Config {
 
 	// --- TravisCI Configuration ---
 	for variant := range variants["TravisCI"] {
-		viper.SetDefault(fmt.Sprintf("Monitorable.TravisCI.%s.URL", variant), "https://api.travis-ci.org/")
+		viper.SetDefault(fmt.Sprintf("Monitorable.TravisCI.%s.URL", variant), "https://api.travis-ci.com/")
 		viper.SetDefault(fmt.Sprintf("Monitorable.TravisCI.%s.Timeout", variant), 2000)
 		viper.SetDefault(fmt.Sprintf("Monitorable.TravisCI.%s.Token", variant), "")
 		viper.SetDefault(fmt.Sprintf("Monitorable.TravisCI.%s.InitialMaxDelay", variant), DefaultInitialMaxDelay)

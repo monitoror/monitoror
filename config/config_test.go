@@ -28,7 +28,7 @@ func TestInitConfig_WithEnv(t *testing.T) {
 	assert.Equal(t, 2000, config.Monitorable.Port[DefaultVariant].Timeout)
 	assert.Equal(t, 2000, config.Monitorable.HTTP[DefaultVariant].Timeout)
 	assert.Equal(t, 2000, config.Monitorable.Pingdom[DefaultVariant].Timeout)
-	assert.Equal(t, "https://api.travis-ci.org/", config.Monitorable.TravisCI[DefaultVariant].URL)
+	assert.Equal(t, "https://api.travis-ci.com/", config.Monitorable.TravisCI[DefaultVariant].URL)
 	assert.Equal(t, true, config.Monitorable.Jenkins[DefaultVariant].SSLVerify)
 	assert.Equal(t, 2000, config.Monitorable.Jenkins[DefaultVariant].Timeout)
 	assert.Equal(t, "test", config.Monitorable.Jenkins[DefaultVariant].URL)
