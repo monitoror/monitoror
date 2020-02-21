@@ -1,10 +1,12 @@
 ---
-name: purge-cache
+name: docs
 
 on:
   push:
     branches:
       - 'master'
+    paths:
+      - 'docs/**'
 
 jobs:
   purge-cache:
