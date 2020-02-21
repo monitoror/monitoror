@@ -74,7 +74,6 @@
       document.body.classList.remove('m-documentation__sidebar-open')
 
       if (toggleMenuButton.style.display !== 'none') {
-        e.preventDefault()
         const targetElementId = this.href.split('#')[1]
         const targetPosition = document.getElementById(targetElementId).getBoundingClientRect()
         window.scroll(window.pageXOffset, targetPosition.top + window.pageYOffset - 50)
