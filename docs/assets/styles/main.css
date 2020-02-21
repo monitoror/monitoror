@@ -1389,16 +1389,22 @@ input {
   background: #293536;
   border-radius: 4px;
   opacity: 0;
-  transition: opacity 150ms;
+  transition: opacity 150ms, color 150ms, background 150ms;
 }
 
-.m-documentation--block:hover .m-documentation--title-link {
+.m-documentation--title-link:hover {
+  color: var(--color-background);
+  background: var(--color-succeeded);
+}
+
+.m-documentation--section h3:hover .m-documentation--title-link,
+.m-documentation--section h4:hover .m-documentation--title-link {
   opacity: 1;
 }
 
 
 .m-documentation--section h3 .m-documentation--title-link {
-  bottom: 27px;
+  bottom: 25px;
 }
 
 .m-documentation--section h4 .m-documentation--title-link {
