@@ -26,6 +26,14 @@ func (cu *configUsecase) Verify(conf *models.Config) {
 		conf.AddErrors(`Missing or invalid "columns" field. Must be a positive integer.`)
 	}
 
+	if conf.Zoom != nil {
+		if *conf.Version < Version6 {
+			conf.AddErrors(fmt.Sprintf(`Please upgrade configuration to version %d or more to get "zoom" support.`, Version6))
+		} else if *conf.Zoom <= 0 || *conf.Zoom > 10 {
+			conf.AddErrors(`Invalid "zoom" field. Must be a positive float between 0 and 10.`)
+		}
+	}
+
 	if conf.Tiles == nil || len(conf.Tiles) == 0 {
 		conf.AddErrors(`Missing or invalid "tiles" field. Must be an array not empty.`)
 	} else {

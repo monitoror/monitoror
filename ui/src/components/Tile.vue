@@ -262,6 +262,7 @@
   .c-monitoror-tile--content {
     height: 100%;
     padding: $tile-padding;
+    zoom: var(--zoom);
   }
 
   .c-monitoror-tile--label {

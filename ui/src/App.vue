@@ -107,6 +107,7 @@
       return {
         '--columns': this.columns,
         '--rows': Math.ceil(tilesCount / this.columns),
+        '--zoom': this.zoom,
       }
     }
 
@@ -119,6 +120,10 @@
 
     get columns(): number {
       return this.$store.state.columns
+    }
+
+    get zoom(): number {
+      return this.$store.state.zoom
     }
 
     get tiles(): TileConfig[] {
@@ -203,6 +208,7 @@
 
     --columns: 1;
     --rows: 1;
+    --zoom: 1;
 
     &:not(.c-app__show-cursor) {
       cursor: none;

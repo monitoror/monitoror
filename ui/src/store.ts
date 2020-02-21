@@ -28,6 +28,7 @@ const INFO_URL = '/info'
 export interface RootState {
   version: string | undefined,
   columns: number,
+  zoom: number,
   tiles: TileConfig[],
   tilesState: { [key: string]: TileState },
   tasks: Task[],
@@ -40,6 +41,7 @@ const store: StoreOptions<RootState> = {
   state: {
     version: undefined,
     columns: 4,
+    zoom: 1,
     tiles: [],
     tilesState: {},
     tasks: [],
@@ -156,6 +158,9 @@ const store: StoreOptions<RootState> = {
     },
     setConfig(state, payload: Config): void {
       state.columns = payload.columns
+      if (payload.zoom) {
+        state.zoom = payload.zoom
+      }
       state.tiles = payload.tiles
     },
     setTileState(state, payload: { tileStateKey: string, tileState: TileState }): void {
