@@ -13,12 +13,12 @@ import (
 
 func (cu *configUsecase) Verify(conf *models.Config) {
 	if conf.Version == nil {
-		conf.AddErrors(fmt.Sprintf(`Missing "version" field. Must be %s.`, keys(SupportedVersions)))
+		conf.AddErrors(fmt.Sprintf(`Missing "version" field. Must be one of the following: %s.`, keys(SupportedVersions)))
 		return
 	}
 
 	if exists := SupportedVersions[*conf.Version]; !exists {
-		conf.AddErrors(fmt.Sprintf(`Unsupported "version" field. Must be %s.`, keys(SupportedVersions)))
+		conf.AddErrors(fmt.Sprintf(`Unsupported configuration version. Must be one of the following: %s.`, keys(SupportedVersions)))
 		return
 	}
 
@@ -146,5 +146,5 @@ func keys(m interface{}) string {
 		strkeys[i] = fmt.Sprintf(`%v`, keys[i])
 	}
 
-	return strings.Join(strkeys, ",")
+	return strings.Join(strkeys, ", ")
 }
