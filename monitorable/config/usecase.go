@@ -19,8 +19,8 @@ type (
 	Usecase interface {
 		Helper
 
-		GetConfig(params *configModels.ConfigParams) (*configModels.Config, error)
-		Verify(config *configModels.Config)
-		Hydrate(config *configModels.Config)
+		GetConfig(params *configModels.ConfigParams) (*configModels.ConfigBag, error)
+		Verify(config *configModels.ConfigBag)
+		Hydrate(config *configModels.ConfigBag)
 	}
 )

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -17,8 +18,10 @@ type (
 	}
 )
 
+var ErrConfigFileNotFound = errors.New("config file not found")
+
 func NewConfigRepository() config.Repository {
-	//TODO : Add possibility to disable SSL check ?
+	//TODO: Add possibility to disable SSL check?
 	return &configRepository{httpClient: http.DefaultClient}
 }
 

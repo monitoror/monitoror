@@ -29,20 +29,20 @@ func (h *ConfigDelivery) GetConfig(c echo.Context) error {
 		return models.QueryParamsError
 	}
 
-	config, err := h.configUsecase.GetConfig(params)
+	configBag, err := h.configUsecase.GetConfig(params)
 	if err != nil {
 		return err
 	}
 
 	// Verify config and if there is no errors, hydrate config
-	h.configUsecase.Verify(config)
-	if len(config.Errors) == 0 {
-		h.configUsecase.Hydrate(config)
+	h.configUsecase.Verify(configBag)
+	if len(configBag.Errors) == 0 {
+		h.configUsecase.Hydrate(configBag)
 	}
 
 	// By default, Marshall function escape <, > and & according https://golang.org/src/encoding/json/encode.go?s=6456:6499#L48
 	// In Chromium on arm the UI code do not parse escaping character correctly
-	encoded, _ := JSONMarshal(config) // Ignoring error, assuming there is no function or channel inside this struct
+	encoded, _ := JSONMarshal(configBag) // Ignoring error, assuming there is no function or channel inside this struct
 
 	return c.Blob(http.StatusOK, echo.MIMEApplicationJSONCharsetUTF8, encoded)
 }

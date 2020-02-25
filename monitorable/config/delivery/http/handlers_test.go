@@ -126,7 +126,7 @@ func TestDelivery_ConfigHandler_ErrorHydrate(t *testing.T) {
 		Columns: pointer.ToInt(2),
 		Errors:  []string{},
 	}
-	conf.AddWarnings("boom")
+	conf.AddErrors("boom")
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("GetConfig", Anything).Return(conf, nil)

@@ -9,7 +9,7 @@ import (
 func (cr *configRepository) GetConfigFromURL(url string) (config *models.Config, err error) {
 	resp, err := cr.httpClient.Get(url)
 	if err != nil || resp.StatusCode != http.StatusOK {
-		return nil, &models.ConfigNotFoundError{Err: err, URL: url}
+		return nil, ErrConfigFileNotFound
 	}
 	defer resp.Body.Close()
 
