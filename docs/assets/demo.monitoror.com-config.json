@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": 6,
   "columns": 4,
   "tiles": [
     { "type": "HTTP-STATUS", "label": "Monitoror.com", "params": { "url": "monitoror.com", "status": "SUCCESS" } },

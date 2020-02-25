@@ -359,7 +359,7 @@ chmod +x monitoror
       </p>
       <pre><code class="language-json">
 {
-  "version": 5,
+  "version": 6,
   "columns": 2,
   "tiles": [
     {
@@ -384,13 +384,19 @@ chmod +x monitoror
           The configuration format version. <br>
           <p class="note">
             <span class="tag">Note</span>
-            Current version is <code>5</code>
+            Current version is <code>6</code>
           </p>
         </dd>
 
         <dt><code>columns</code> <code class="type">number</code> <span class="required">required</span></dt>
         <dd>
           Number of columns the grid is based on.
+        </dd>
+
+        <dt><code>zoom</code> <code class="type">number</code></dt>
+        <dd>
+          Zoom factor applied to all tiles. <br>
+          <span class="tag">Default:</span> <code>1</code>
         </dd>
 
         <dt><code>tiles</code> <code class="type">Tile[]</code> <span class="required">required</span></dt>

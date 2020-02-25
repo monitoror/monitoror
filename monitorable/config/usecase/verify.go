@@ -13,17 +13,25 @@ import (
 
 func (cu *configUsecase) Verify(conf *models.Config) {
 	if conf.Version == nil {
-		conf.AddErrors(fmt.Sprintf(`Missing "version" field. Must be %s.`, keys(SupportedVersions)))
+		conf.AddErrors(fmt.Sprintf(`Missing "version" field. Must be one of the following: %s.`, keys(SupportedVersions)))
 		return
 	}
 
 	if exists := SupportedVersions[*conf.Version]; !exists {
-		conf.AddErrors(fmt.Sprintf(`Unsupported "version" field. Must be %s.`, keys(SupportedVersions)))
+		conf.AddErrors(fmt.Sprintf(`Unsupported configuration version. Must be one of the following: %s.`, keys(SupportedVersions)))
 		return
 	}
 
 	if conf.Columns == nil || *conf.Columns <= 0 {
 		conf.AddErrors(`Missing or invalid "columns" field. Must be a positive integer.`)
+	}
+
+	if conf.Zoom != nil {
+		if *conf.Version < Version6 {
+			conf.AddErrors(fmt.Sprintf(`Please upgrade configuration to version %d or more to get "zoom" support.`, Version6))
+		} else if *conf.Zoom <= 0 || *conf.Zoom > 10 {
+			conf.AddErrors(`Invalid "zoom" field. Must be a positive float between 0 and 10.`)
+		}
 	}
 
 	if conf.Tiles == nil || len(conf.Tiles) == 0 {
@@ -138,5 +146,5 @@ func keys(m interface{}) string {
 		strkeys[i] = fmt.Sprintf(`%v`, keys[i])
 	}
 
-	return strings.Join(strkeys, ",")
+	return strings.Join(strkeys, ", ")
 }

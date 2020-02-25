@@ -107,6 +107,7 @@
       return {
         '--columns': this.columns,
         '--rows': Math.ceil(tilesCount / this.columns),
+        '--zoom': this.zoom,
       }
     }
 
@@ -119,6 +120,10 @@
 
     get columns(): number {
       return this.$store.state.columns
+    }
+
+    get zoom(): number {
+      return this.$store.state.zoom
     }
 
     get tiles(): TileConfig[] {
@@ -203,9 +208,20 @@
 
     --columns: 1;
     --rows: 1;
+    --zoom: 1;
 
     &:not(.c-app__show-cursor) {
       cursor: none;
+    }
+
+    @media screen and (max-width: 750px) {
+      --columns: 2 !important;
+      --rows: 0 !important;
+      --zoom: 0.65 !important;
+    }
+
+    @media screen and (max-width: 500px) {
+      --columns: 1 !important;
     }
   }
 
@@ -221,7 +237,7 @@
     --color-logo-background: #87d7af;
     --color-logo-m: #ffffff;
 
-    position: absolute;
+    position: fixed;
     top: 0;
     right: 0;
     bottom: 0;

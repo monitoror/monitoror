@@ -262,6 +262,11 @@
   .c-monitoror-tile--content {
     height: 100%;
     padding: $tile-padding;
+    zoom: var(--zoom);
+
+    @media screen and (max-width: 750px) {
+      min-height: 160px;
+    }
   }
 
   .c-monitoror-tile--label {

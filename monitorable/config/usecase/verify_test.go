@@ -48,6 +48,28 @@ func TestUsecase_Verify_Success(t *testing.T) {
 	}
 }
 
+func TestUsecase_Verify_SuccessWithOptionalParameters(t *testing.T) {
+	input := fmt.Sprintf(`
+{
+	"version" : %d,
+  "columns": 4,
+  "zoom": 2.5,
+  "tiles": [
+		{ "type": "EMPTY" }
+  ]
+}
+`, CurrentVersion)
+
+	reader := ioutil.NopCloser(strings.NewReader(input))
+	config, err := repository.ReadConfig(reader)
+
+	if assert.NoError(t, err) {
+		usecase := initConfigUsecase(nil, nil)
+		usecase.Verify(config)
+		assert.Len(t, config.Errors, 0)
+	}
+}
+
 func TestUsecase_Verify_MissingVersion(t *testing.T) {
 	input := `{}`
 	reader := ioutil.NopCloser(strings.NewReader(input))
@@ -57,7 +79,7 @@ func TestUsecase_Verify_MissingVersion(t *testing.T) {
 		usecase := initConfigUsecase(nil, nil)
 		usecase.Verify(config)
 		if assert.Len(t, config.Errors, 1) {
-			assert.Contains(t, config.Errors[0], `Missing "version" field. Must be`)
+			assert.Contains(t, config.Errors[0], `Missing "version" field. Must be one of the following:`)
 		}
 	}
 }
@@ -73,7 +95,7 @@ func TestUsecase_Verify_UnknownVersion(t *testing.T) {
 		usecase := initConfigUsecase(nil, nil)
 		usecase.Verify(config)
 		if assert.Len(t, config.Errors, 1) {
-			assert.Contains(t, config.Errors[0], `Unsupported "version" field. Must be`)
+			assert.Contains(t, config.Errors[0], `Unsupported configuration version. Must be one of the following:`)
 		}
 	}
 }
@@ -92,6 +114,75 @@ func TestUsecase_Verify_Failed(t *testing.T) {
 		if assert.Len(t, config.Errors, 2) {
 			assert.Contains(t, config.Errors, `Missing or invalid "columns" field. Must be a positive integer.`)
 			assert.Contains(t, config.Errors, `Missing or invalid "tiles" field. Must be an array not empty.`)
+		}
+	}
+}
+
+func TestUsecase_Verify_ZoomMinimalVersion(t *testing.T) {
+	input := fmt.Sprintf(`
+{
+  "version": %d,
+  "columns": 1,
+  "zoom": 2,
+  "tiles": [
+		{ "type": "EMPTY" }
+  ]
+}
+`, Version5)
+	reader := ioutil.NopCloser(strings.NewReader(input))
+	config, err := repository.ReadConfig(reader)
+
+	if assert.NoError(t, err) {
+		usecase := initConfigUsecase(nil, nil)
+		usecase.Verify(config)
+		if assert.Len(t, config.Errors, 1) {
+			assert.Contains(t, config.Errors[0], `or more to get "zoom" support.`)
+		}
+	}
+}
+
+func TestUsecase_Verify_ZoomMinimalValue(t *testing.T) {
+	input := fmt.Sprintf(`
+{
+  "version": %d,
+  "columns": 1,
+  "zoom": 0,
+  "tiles": [
+		{ "type": "EMPTY" }
+  ]
+}
+`, CurrentVersion)
+	reader := ioutil.NopCloser(strings.NewReader(input))
+	config, err := repository.ReadConfig(reader)
+
+	if assert.NoError(t, err) {
+		usecase := initConfigUsecase(nil, nil)
+		usecase.Verify(config)
+		if assert.Len(t, config.Errors, 1) {
+			assert.Contains(t, config.Errors[0], `Invalid "zoom" field. Must be a positive float between 0 and 10.`)
+		}
+	}
+}
+
+func TestUsecase_Verify_ZoomMaximalValue(t *testing.T) {
+	input := fmt.Sprintf(`
+{
+  "version": %d,
+  "columns": 1,
+  "zoom": 11,
+  "tiles": [
+		{ "type": "EMPTY" }
+  ]
+}
+`, CurrentVersion)
+	reader := ioutil.NopCloser(strings.NewReader(input))
+	config, err := repository.ReadConfig(reader)
+
+	if assert.NoError(t, err) {
+		usecase := initConfigUsecase(nil, nil)
+		usecase.Verify(config)
+		if assert.Len(t, config.Errors, 1) {
+			assert.Contains(t, config.Errors[0], `Invalid "zoom" field. Must be a positive float between 0 and 10.`)
 		}
 	}
 }
