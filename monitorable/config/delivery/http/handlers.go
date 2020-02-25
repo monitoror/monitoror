@@ -40,14 +40,9 @@ func (h *ConfigDelivery) GetConfig(c echo.Context) error {
 		h.configUsecase.Hydrate(config)
 	}
 
-	// Remove tiles if Errors is not empty
-	if len(config.Errors) > 0 {
-		config.Tiles = nil
-	}
-
 	// By default, Marshall function escape <, > and & according https://golang.org/src/encoding/json/encode.go?s=6456:6499#L48
 	// In Chromium on arm the UI code do not parse escaping character correctly
-	encoded, _ := JSONMarshal(config) // Ignoring error, assuming there is no function or chanel inside this struct
+	encoded, _ := JSONMarshal(config) // Ignoring error, assuming there is no function or channel inside this struct
 
 	return c.Blob(http.StatusOK, echo.MIMEApplicationJSONCharsetUTF8, encoded)
 }
