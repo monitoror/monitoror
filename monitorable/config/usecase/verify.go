@@ -12,6 +12,10 @@ import (
 )
 
 func (cu *configUsecase) Verify(conf *models.Config) {
+	if conf.Errors != nil {
+		return
+	}
+
 	if conf.Version == nil {
 		conf.AddErrors(fmt.Sprintf(`Missing "version" field. Must be one of the following: %s.`, keys(SupportedVersions)))
 		return

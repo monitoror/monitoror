@@ -4,8 +4,8 @@ import "github.com/monitoror/monitoror/models"
 
 type (
 	Config struct {
-		Version  *int     `json:"version"`
-		Columns  *int     `json:"columns"`
+		Version  *int     `json:"version,omitempty"`
+		Columns  *int     `json:"columns,omitempty"`
 		Zoom     *float32 `json:"zoom,omitempty"`
 		Tiles    []Tile   `json:"tiles,omitempty"`
 		Errors   []string `json:"errors,omitempty"`

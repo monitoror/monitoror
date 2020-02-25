@@ -3,6 +3,8 @@
 package usecase
 
 import (
+	"errors"
+
 	"github.com/monitoror/monitoror/monitorable/config/models"
 )
 
@@ -15,7 +17,12 @@ func (cu *configUsecase) GetConfig(params *models.ConfigParams) (config *models.
 	}
 
 	if err != nil {
-		return
+		var e *models.ConfigNotFoundError
+		if errors.As(err, &e) {
+			config = &models.Config{}
+			config.AddErrors(err.Error())
+			err = nil
+		}
 	}
 
 	return
