@@ -1,7 +1,8 @@
 import TileConfig from '@/interfaces/tileConfig'
 
 export default interface Config {
-  columns: number,
+  columns?: number,
   zoom?: number,
-  tiles: TileConfig[],
+  tiles?: TileConfig[],
+  errors?: string[],
 }

@@ -29,6 +29,7 @@ export interface RootState {
   version: string | undefined,
   columns: number,
   zoom: number,
+  errors: string[],
   tiles: TileConfig[],
   tilesState: { [key: string]: TileState },
   tasks: Task[],
@@ -42,6 +43,7 @@ const store: StoreOptions<RootState> = {
     version: undefined,
     columns: 4,
     zoom: 1,
+    errors: [],
     tiles: [],
     tilesState: {},
     tasks: [],
@@ -157,11 +159,18 @@ const store: StoreOptions<RootState> = {
       state.version = payload
     },
     setConfig(state, payload: Config): void {
-      state.columns = payload.columns
+      if (payload.columns !== undefined) {
+        state.columns = payload.columns
+      }
       if (payload.zoom) {
         state.zoom = payload.zoom
       }
-      state.tiles = payload.tiles
+      if (payload.tiles !== undefined) {
+        state.tiles = payload.tiles
+      }
+      if (payload.errors !== undefined) {
+        state.errors = payload.errors
+      }
     },
     setTileState(state, payload: { tileStateKey: string, tileState: TileState }): void {
       if (!state.tilesState.hasOwnProperty(payload.tileStateKey)) {
@@ -228,6 +237,11 @@ const store: StoreOptions<RootState> = {
       return axios.get(getters.proxyfiedConfigUrl)
         .then((response) => {
           const config: Config = response.data
+
+          if (config.errors !== undefined || config.tiles === undefined) {
+            commit('setConfig', config)
+            throw new Error()
+          }
 
           // Kill old refreshTile tasks
           state.tasks
