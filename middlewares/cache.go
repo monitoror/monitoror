@@ -86,7 +86,12 @@ func (c *upstreamStore) Get(key string, value interface{}) error {
 
 func (c *upstreamStore) Set(key string, val interface{}, expires time.Duration) (err error) {
 	err = c.store.Set(models.UpstreamStoreKeyPrefix+key[1:], val, expires)
-	_ = c.store.Set(models.DownstreamStoreKeyPrefix+key[1:], val, c.downstreamDefaultExpiration)
+
+	// Don't add response in downstream cache when she come from timeout recover to avoid infinite loop
+	if response, ok := val.(cache.ResponseCache); ok && response.Header.Get(models.DownstreamCacheHeader) == "" {
+		_ = c.store.Set(models.DownstreamStoreKeyPrefix+key[1:], val, c.downstreamDefaultExpiration)
+	}
+
 	return
 }
 
