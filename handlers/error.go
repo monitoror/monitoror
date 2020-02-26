@@ -104,7 +104,7 @@ func cacheMiddleware(ctx echo.Context) bool {
 		}
 	}
 
-	// Adding Header
+	// Adding Header (used by cache middleware to skip "caching" this response again.
 	ctx.Response().Header().Add(models.DownstreamCacheHeader, "true")
 
 	ctx.Response().WriteHeader(cachedResponse.Status)
