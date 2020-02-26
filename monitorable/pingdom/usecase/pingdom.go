@@ -36,8 +36,8 @@ type (
 
 const (
 	PingdomChecksStoreKeyPrefix   = "monitoror.pingdom.checks.store"
-	PingdomTagsByIDStoreKeyPrefix = "monitoror.pingdom.tagsById.store"
 	PingdomCheckStoreKeyPrefix    = "monitoror.pingdom.check.store"
+	PingdomTagsByIDStoreKeyPrefix = "monitoror.pingdom.tagsById.store"
 
 	PausedStatus = "paused"
 	UpStatus     = "up"
@@ -64,7 +64,7 @@ func (pu *pingdomUsecase) Check(params *pingdomModels.CheckParams) (*models.Tile
 	if err := pu.store.Get(pu.getTagsByIDStoreKey(checkID), &tags); err == nil {
 		checks, err := pu.loadChecks(tags)
 		if err != nil {
-			return nil, &models.MonitororError{Err: err, Message: "unable to find checks"}
+			return nil, &models.MonitororError{Err: err, Tile: tile, Message: "unable to find checks"}
 		}
 
 		// Find check in array
@@ -78,7 +78,7 @@ func (pu *pingdomUsecase) Check(params *pingdomModels.CheckParams) (*models.Tile
 	{
 		check, err := pu.loadCheck(checkID)
 		if err != nil {
-			return nil, &models.MonitororError{Err: err, Message: "unable to find check"}
+			return nil, &models.MonitororError{Err: err, Tile: tile, Message: "unable to find check"}
 		}
 		result = *check
 	}
