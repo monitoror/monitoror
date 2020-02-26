@@ -19,7 +19,7 @@ func (cu *configUsecase) Verify(configBag *models.ConfigBag) {
 	if configBag.Config.Version == nil {
 		configBag.AddErrors(models.ConfigError{
 			ID:      models.ConfigErrorMissingRequiredField,
-			Message: fmt.Sprintf(`Required "version" field is missing. Must be one of the following: %s.`, keys(SupportedVersions)),
+			Message: fmt.Sprintf(`Required "version" field is missing. Current config version is: %s.`, CurrentVersion),
 			Data: models.ConfigErrorData{
 				FieldName: "version",
 			},
@@ -27,14 +27,14 @@ func (cu *configUsecase) Verify(configBag *models.ConfigBag) {
 		return
 	}
 
-	if exists := SupportedVersions[*configBag.Config.Version]; !exists {
+	if configBag.Config.Version.MustGreaterThan(MinimalVersion) {
 		configBag.AddErrors(models.ConfigError{
 			ID:      models.ConfigErrorUnsupportedVersion,
-			Message: fmt.Sprintf(`Unsupported configuration version. Must be one of the following: %s.`, keys(SupportedVersions)),
+			Message: fmt.Sprintf(`Unsupported configuration version. Minimal supported version is %s. Current config version is: %s`, MinimalVersion, CurrentVersion),
 			Data: models.ConfigErrorData{
 				FieldName: "version",
 				Value:     stringify(configBag.Config.Version),
-				Expected:  keys(SupportedVersions),
+				Expected:  fmt.Sprintf(`%s >= version >= %s`, MinimalVersion, CurrentVersion),
 			},
 		})
 		return
@@ -59,28 +59,16 @@ func (cu *configUsecase) Verify(configBag *models.ConfigBag) {
 		})
 	}
 
-	if configBag.Config.Zoom != nil {
-		if *configBag.Config.Version < Version6 {
-			configBag.AddErrors(models.ConfigError{
-				ID:      models.ConfigErrorConfigVersionTooOld,
-				Message: fmt.Sprintf(`Please upgrade configuration to version %d or more to get "zoom" support.`, Version6),
-				Data: models.ConfigErrorData{
-					FieldName: "zoom",
-					Value:     stringify(configBag.Config.Version),
-					Expected:  fmt.Sprintf("version >= %d", Version6),
-				},
-			})
-		} else if *configBag.Config.Zoom <= 0 || *configBag.Config.Zoom > 10 {
-			configBag.AddErrors(models.ConfigError{
-				ID:      models.ConfigErrorInvalidFieldValue,
-				Message: fmt.Sprintf(`Invalid "zoom" field. Must be a positive float between 0 and 10.`),
-				Data: models.ConfigErrorData{
-					FieldName: "zoom",
-					Value:     stringify(configBag.Config.Zoom),
-					Expected:  "0 < zoom <= 10",
-				},
-			})
-		}
+	if configBag.Config.Zoom != nil && *configBag.Config.Zoom <= 0 || *configBag.Config.Zoom > 10 {
+		configBag.AddErrors(models.ConfigError{
+			ID:      models.ConfigErrorInvalidFieldValue,
+			Message: fmt.Sprintf(`Invalid "zoom" field. Must be a positive float between 0 and 10.`),
+			Data: models.ConfigErrorData{
+				FieldName: "zoom",
+				Value:     stringify(configBag.Config.Zoom),
+				Expected:  "0 < zoom <= 10",
+			},
+		})
 	}
 
 	if configBag.Config.Tiles == nil {

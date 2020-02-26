@@ -14,14 +14,10 @@ import (
 
 // Versions
 const (
-	CurrentVersion = Version6
+	CurrentVersion = Version1000
+	MinimalVersion = Version1000
 
-	Version1 = 1
-	Version2 = 2
-	Version3 = 3
-	Version4 = 4
-	Version5 = 5
-	Version6 = 6
+	Version1000 = "1.0" // Initial version
 )
 
 const (
@@ -30,11 +26,6 @@ const (
 
 	DynamicTileStoreKeyPrefix = "monitoror.config.dynamicTile.key"
 )
-
-var SupportedVersions = map[int]bool{
-	Version5: true,
-	Version6: true,
-}
 
 type (
 	configUsecase struct {
