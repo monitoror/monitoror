@@ -17,7 +17,7 @@ const (
 	CurrentVersion = Version1000
 	MinimalVersion = Version1000
 
-	Version1000 = "1.0" // Initial version
+	Version1000 = `"1.0"` // Initial version
 )
 
 const (

@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	"github.com/monitoror/monitoror/monitorable/config/models"
-	"github.com/monitoror/monitoror/monitorable/config/repository"
 )
 
 // GetConfig and set default value for Config from repository
@@ -20,7 +19,7 @@ func (cu *configUsecase) GetConfig(params *models.ConfigParams) (configBag *mode
 	}
 
 	if err != nil {
-		if errors.Is(err, repository.ErrConfigFileNotFound) {
+		if errors.Is(err, models.ErrConfigFileNotFound) {
 			var pathOrURL string
 
 			if params.URL != "" {

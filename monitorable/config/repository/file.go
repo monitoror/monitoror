@@ -9,7 +9,7 @@ import (
 func (cr *configRepository) GetConfigFromPath(path string) (config *models.Config, err error) {
 	file, err := os.Open(path)
 	if err != nil {
-		return nil, ErrConfigFileNotFound
+		return nil, models.ErrConfigFileNotFound
 	}
 	defer file.Close()
 

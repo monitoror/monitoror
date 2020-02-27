@@ -3,5 +3,6 @@ package models
 import "errors"
 
 var (
-	ErrInvalidVersion = errors.New("invalid version format")
+	ErrConfigFileNotFound = errors.New("config file not found")
+	ErrInvalidVersionFormat = errors.New("invalid version format")
 )

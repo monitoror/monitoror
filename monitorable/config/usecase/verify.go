@@ -27,14 +27,27 @@ func (cu *configUsecase) Verify(configBag *models.ConfigBag) {
 		return
 	}
 
-	if configBag.Config.Version.MustGreaterThan(MinimalVersion) {
+	isSupportedVersion, err := configBag.Config.Version.MustGreaterThanOrEqualTo(MinimalVersion)
+	if err != nil {
 		configBag.AddErrors(models.ConfigError{
-			ID:      models.ConfigErrorUnsupportedVersion,
-			Message: fmt.Sprintf(`Unsupported configuration version. Minimal supported version is %s. Current config version is: %s`, MinimalVersion, CurrentVersion),
+			ID:      models.ConfigErrorInvalidFieldValue,
+			Message: fmt.Sprintf(`Invalid configuration version format. Must be a string with "x.y" format. Current config version is: "%s"`, CurrentVersion),
 			Data: models.ConfigErrorData{
 				FieldName: "version",
 				Value:     stringify(configBag.Config.Version),
-				Expected:  fmt.Sprintf(`%s >= version >= %s`, MinimalVersion, CurrentVersion),
+				Expected:  fmt.Sprintf(`"%s" >= version >= "%s"`, MinimalVersion, CurrentVersion),
+			},
+		})
+		return
+	}
+	if !isSupportedVersion {
+		configBag.AddErrors(models.ConfigError{
+			ID:      models.ConfigErrorUnsupportedVersion,
+			Message: fmt.Sprintf(`Unsupported configuration version. Minimal supported version is "%s". Current config version is: "%s"`, MinimalVersion, CurrentVersion),
+			Data: models.ConfigErrorData{
+				FieldName: "version",
+				Value:     stringify(configBag.Config.Version),
+				Expected:  fmt.Sprintf(`"%s" >= version >= "%s"`, MinimalVersion, CurrentVersion),
 			},
 		})
 		return
