@@ -1,5 +1,5 @@
 {
-  "version": 6,
+  "version": "1.0",
   "columns": 4,
   "tiles": [
     { "type": "PING", "columnSpan": 2, "label": "test1" ,"params": { "hostname": "example.com", "status": "SUCCESS" } },
