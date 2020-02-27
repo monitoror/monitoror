@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
-	"strings"
 
 	"github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/monitorable/config/models"
@@ -12,10 +11,6 @@ import (
 )
 
 func (cu *configUsecase) Verify(configBag *models.ConfigBag) {
-	if configBag.Errors != nil {
-		return
-	}
-
 	if configBag.Config.Version == nil {
 		configBag.AddErrors(models.ConfigError{
 			ID:      models.ConfigErrorMissingRequiredField,
@@ -27,20 +22,7 @@ func (cu *configUsecase) Verify(configBag *models.ConfigBag) {
 		return
 	}
 
-	isSupportedVersion, err := configBag.Config.Version.MustGreaterThanOrEqualTo(MinimalVersion)
-	if err != nil {
-		configBag.AddErrors(models.ConfigError{
-			ID:      models.ConfigErrorInvalidFieldValue,
-			Message: fmt.Sprintf(`Invalid configuration version format. Must be a string with "x.y" format. Current config version is: "%s"`, CurrentVersion),
-			Data: models.ConfigErrorData{
-				FieldName: "version",
-				Value:     stringify(configBag.Config.Version),
-				Expected:  fmt.Sprintf(`"%s" >= version >= "%s"`, MinimalVersion, CurrentVersion),
-			},
-		})
-		return
-	}
-	if !isSupportedVersion {
+	if configBag.Config.Version.IsLessThan(MinimalVersion) || configBag.Config.Version.IsGreaterThan(CurrentVersion) {
 		configBag.AddErrors(models.ConfigError{
 			ID:      models.ConfigErrorUnsupportedVersion,
 			Message: fmt.Sprintf(`Unsupported configuration version. Minimal supported version is "%s". Current config version is: "%s"`, MinimalVersion, CurrentVersion),
@@ -68,14 +50,15 @@ func (cu *configUsecase) Verify(configBag *models.ConfigBag) {
 			Data: models.ConfigErrorData{
 				FieldName: "columns",
 				Value:     stringify(configBag.Config.Columns),
+				Expected:  "columns > 0",
 			},
 		})
 	}
 
-	if configBag.Config.Zoom != nil && *configBag.Config.Zoom <= 0 || *configBag.Config.Zoom > 10 {
+	if configBag.Config.Zoom != nil && (*configBag.Config.Zoom <= 0 || *configBag.Config.Zoom > 10) {
 		configBag.AddErrors(models.ConfigError{
 			ID:      models.ConfigErrorInvalidFieldValue,
-			Message: fmt.Sprintf(`Invalid "zoom" field. Must be a positive float between 0 and 10.`),
+			Message: `Invalid "zoom" field. Must be a positive float between 0 and 10.`,
 			Data: models.ConfigErrorData{
 				FieldName: "zoom",
 				Value:     stringify(configBag.Config.Zoom),
@@ -87,7 +70,7 @@ func (cu *configUsecase) Verify(configBag *models.ConfigBag) {
 	if configBag.Config.Tiles == nil {
 		configBag.AddErrors(models.ConfigError{
 			ID:      models.ConfigErrorMissingRequiredField,
-			Message: fmt.Sprintf(`Missing "tiles" field. Must be a non-empty array.`),
+			Message: `Missing "tiles" field. Must be a non-empty array.`,
 			Data: models.ConfigErrorData{
 				FieldName: "tiles",
 			},
@@ -95,7 +78,7 @@ func (cu *configUsecase) Verify(configBag *models.ConfigBag) {
 	} else if len(configBag.Config.Tiles) == 0 {
 		configBag.AddErrors(models.ConfigError{
 			ID:      models.ConfigErrorInvalidFieldValue,
-			Message: fmt.Sprintf(`Invalid "tiles" field. Must be a non-empty array.`),
+			Message: `Invalid "tiles" field. Must be a non-empty array.`,
 			Data: models.ConfigErrorData{
 				FieldName:     "tiles",
 				ConfigExtract: stringify(configBag.Config),
@@ -113,10 +96,11 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 	if tile.ColumnSpan != nil && *tile.ColumnSpan <= 0 {
 		configBag.AddErrors(models.ConfigError{
 			ID:      models.ConfigErrorInvalidFieldValue,
-			Message: fmt.Sprintf(`Invalid "columnSpan" field. Must be a positive integer.`),
+			Message: `Invalid "columnSpan" field. Must be a positive integer.`,
 			Data: models.ConfigErrorData{
-				FieldName:     "columnSpan",
-				ConfigExtract: stringify(tile),
+				FieldName: "columnSpan",
+				Value:     stringify(*tile.ColumnSpan),
+				Expected:  "columnSpan > 0",
 			},
 		})
 		return
@@ -125,11 +109,11 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 	if tile.RowSpan != nil && *tile.RowSpan <= 0 {
 		configBag.AddErrors(models.ConfigError{
 			ID:      models.ConfigErrorInvalidFieldValue,
-			Message: fmt.Sprintf(`Invalid "rowSpan" field. Must be a positive integer.`),
+			Message: `Invalid "rowSpan" field. Must be a positive integer.`,
 			Data: models.ConfigErrorData{
-				FieldName:     "rowSpan",
-				ConfigExtract: stringify(tile),
-			},
+				FieldName: "rowSpan",
+				Value:     stringify(*tile.RowSpan),
+				Expected:  "rowSpan > 0"},
 		})
 		return
 	}
@@ -246,6 +230,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 					tile.ConfigVariant, tile.Type, keys(cu.tileConfigs[tile.Type])),
 				Data: models.ConfigErrorData{
 					FieldName:     "configVariant",
+					Value:         stringify(tile.ConfigVariant),
 					ConfigExtract: stringify(tile),
 				},
 			})
@@ -261,6 +246,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 					tile.ConfigVariant, tile.Type, keys(cu.dynamicTileConfigs[tile.Type])),
 				Data: models.ConfigErrorData{
 					FieldName:     "configVariant",
+					Value:         stringify(tile.ConfigVariant),
 					ConfigExtract: stringify(tile),
 				},
 			})
@@ -287,21 +273,4 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 			},
 		})
 	}
-}
-
-// --- Utility functions ---
-func keys(m interface{}) string {
-	keys := reflect.ValueOf(m).MapKeys()
-	strKeys := make([]string, len(keys))
-
-	for i := 0; i < len(keys); i++ {
-		strKeys[i] = fmt.Sprintf(`%v`, keys[i])
-	}
-
-	return strings.Join(strKeys, ", ")
-}
-
-func stringify(v interface{}) string {
-	bytes, _ := json.Marshal(v)
-	return string(bytes)
 }

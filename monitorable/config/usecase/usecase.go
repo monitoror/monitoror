@@ -1,6 +1,10 @@
 package usecase
 
 import (
+	"encoding/json"
+	"fmt"
+	"reflect"
+	"strings"
 	"time"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
@@ -17,7 +21,7 @@ const (
 	CurrentVersion = Version1000
 	MinimalVersion = Version1000
 
-	Version1000 = `"1.0"` // Initial version
+	Version1000 = "1.0" // Initial version
 )
 
 const (
@@ -111,4 +115,21 @@ func (cu *configUsecase) RegisterDynamicTileWithConfigVariant(tileType models.Ti
 		Builder:   builder,
 	}
 	cu.dynamicTileConfigs[tileType] = value
+}
+
+// --- Utility functions ---
+func keys(m interface{}) string {
+	keys := reflect.ValueOf(m).MapKeys()
+	strKeys := make([]string, len(keys))
+
+	for i := 0; i < len(keys); i++ {
+		strKeys[i] = fmt.Sprintf(`%v`, keys[i])
+	}
+
+	return strings.Join(strKeys, ", ")
+}
+
+func stringify(v interface{}) string {
+	bytes, _ := json.Marshal(v)
+	return string(bytes)
 }

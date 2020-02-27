@@ -3,12 +3,9 @@ package usecase
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"strings"
 	"testing"
 
 	"github.com/monitoror/monitoror/monitorable/config/models"
-	"github.com/monitoror/monitoror/monitorable/config/repository"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
 	_jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/builder"
@@ -18,19 +15,19 @@ import (
 	. "github.com/stretchr/testify/mock"
 )
 
-func initTile(t *testing.T, input string) (tiles *models.Tile) {
+func initTile(t *testing.T, rawConfig string) (tiles *models.Tile) {
 	tiles = &models.Tile{}
 
-	err := json.Unmarshal([]byte(input), &tiles)
+	err := json.Unmarshal([]byte(rawConfig), &tiles)
 	assert.NoError(t, err)
 
 	return
 }
 
 func TestUsecase_Verify_Success(t *testing.T) {
-	input := fmt.Sprintf(`
+	rawConfig := fmt.Sprintf(`
 {
-	"version" : %d,
+	"version" : "%s",
   "columns": 4,
   "tiles": [
 		{ "type": "EMPTY" }
@@ -38,20 +35,19 @@ func TestUsecase_Verify_Success(t *testing.T) {
 }
 `, CurrentVersion)
 
-	reader := ioutil.NopCloser(strings.NewReader(input))
-	config, err := repository.ReadConfig(reader)
-
+	config, err := readConfig(rawConfig)
 	if assert.NoError(t, err) {
 		usecase := initConfigUsecase(nil, nil)
 		usecase.Verify(config)
+
 		assert.Len(t, config.Errors, 0)
 	}
 }
 
 func TestUsecase_Verify_SuccessWithOptionalParameters(t *testing.T) {
-	input := fmt.Sprintf(`
+	rawConfig := fmt.Sprintf(`
 {
-	"version" : %d,
+	"version" : "%s",
   "columns": 4,
   "zoom": 2.5,
   "tiles": [
@@ -60,310 +56,275 @@ func TestUsecase_Verify_SuccessWithOptionalParameters(t *testing.T) {
 }
 `, CurrentVersion)
 
-	reader := ioutil.NopCloser(strings.NewReader(input))
-	config, err := repository.ReadConfig(reader)
+	config, err := readConfig(rawConfig)
 
 	if assert.NoError(t, err) {
 		usecase := initConfigUsecase(nil, nil)
 		usecase.Verify(config)
+
 		assert.Len(t, config.Errors, 0)
 	}
 }
 
-func TestUsecase_Verify_MissingVersion(t *testing.T) {
-	input := `{}`
-	reader := ioutil.NopCloser(strings.NewReader(input))
-	config, err := repository.ReadConfig(reader)
-
-	if assert.NoError(t, err) {
-		usecase := initConfigUsecase(nil, nil)
-		usecase.Verify(config)
-		if assert.Len(t, config.Errors, 1) {
-			assert.Contains(t, config.Errors[0], `Missing "version" field. Must be one of the following:`)
-		}
-	}
-}
-
-func TestUsecase_Verify_UnknownVersion(t *testing.T) {
-	input := `
-{"version": 0}
-`
-	reader := ioutil.NopCloser(strings.NewReader(input))
-	config, err := repository.ReadConfig(reader)
-
-	if assert.NoError(t, err) {
-		usecase := initConfigUsecase(nil, nil)
-		usecase.Verify(config)
-		if assert.Len(t, config.Errors, 1) {
-			assert.Contains(t, config.Errors[0], `Unsupported configuration version. Must be one of the following:`)
-		}
-	}
-}
-
 func TestUsecase_Verify_Failed(t *testing.T) {
-	input := fmt.Sprintf(`
-{"version": %d}
-`, CurrentVersion)
-
-	reader := ioutil.NopCloser(strings.NewReader(input))
-	config, err := repository.ReadConfig(reader)
-
-	if assert.NoError(t, err) {
-		usecase := initConfigUsecase(nil, nil)
-		usecase.Verify(config)
-		if assert.Len(t, config.Errors, 2) {
-			assert.Contains(t, config.Errors, `Missing or invalid "columns" field. Must be a positive integer.`)
-			assert.Contains(t, config.Errors, `Missing or invalid "tiles" field. Must be an array not empty.`)
-		}
-	}
-}
-
-func TestUsecase_Verify_ZoomMinimalVersion(t *testing.T) {
-	input := fmt.Sprintf(`
-{
-  "version": %d,
-  "columns": 1,
-  "zoom": 2,
-  "tiles": [
-		{ "type": "EMPTY" }
-  ]
-}
-`, Version5)
-	reader := ioutil.NopCloser(strings.NewReader(input))
-	config, err := repository.ReadConfig(reader)
-
-	if assert.NoError(t, err) {
-		usecase := initConfigUsecase(nil, nil)
-		usecase.Verify(config)
-		if assert.Len(t, config.Errors, 1) {
-			assert.Contains(t, config.Errors[0], `or more to get "zoom" support.`)
-		}
-	}
-}
-
-func TestUsecase_Verify_ZoomMinimalValue(t *testing.T) {
-	input := fmt.Sprintf(`
-{
-  "version": %d,
-  "columns": 1,
-  "zoom": 0,
-  "tiles": [
-		{ "type": "EMPTY" }
-  ]
-}
-`, CurrentVersion)
-	reader := ioutil.NopCloser(strings.NewReader(input))
-	config, err := repository.ReadConfig(reader)
-
-	if assert.NoError(t, err) {
-		usecase := initConfigUsecase(nil, nil)
-		usecase.Verify(config)
-		if assert.Len(t, config.Errors, 1) {
-			assert.Contains(t, config.Errors[0], `Invalid "zoom" field. Must be a positive float between 0 and 10.`)
-		}
-	}
-}
-
-func TestUsecase_Verify_ZoomMaximalValue(t *testing.T) {
-	input := fmt.Sprintf(`
-{
-  "version": %d,
-  "columns": 1,
-  "zoom": 11,
-  "tiles": [
-		{ "type": "EMPTY" }
-  ]
-}
-`, CurrentVersion)
-	reader := ioutil.NopCloser(strings.NewReader(input))
-	config, err := repository.ReadConfig(reader)
-
-	if assert.NoError(t, err) {
-		usecase := initConfigUsecase(nil, nil)
-		usecase.Verify(config)
-		if assert.Len(t, config.Errors, 1) {
-			assert.Contains(t, config.Errors[0], `Invalid "zoom" field. Must be a positive float between 0 and 10.`)
+	for _, testcase := range []struct {
+		rawConfig string
+		errorID   models.ConfigErrorID
+		errorData models.ConfigErrorData
+	}{
+		{
+			rawConfig: `{}`,
+			errorID:   models.ConfigErrorMissingRequiredField,
+			errorData: models.ConfigErrorData{FieldName: "version"},
+		},
+		{
+			rawConfig: `{"version": "0.0"}`,
+			errorID:   models.ConfigErrorUnsupportedVersion,
+			errorData: models.ConfigErrorData{
+				FieldName: "version",
+				Value:     `"0.0"`,
+				Expected:  fmt.Sprintf(`"%s" >= version >= "%s"`, MinimalVersion, CurrentVersion),
+			},
+		},
+		{
+			rawConfig: `{"version": "999.999"}`, // Don't let me go that far ^^'
+			errorID:   models.ConfigErrorUnsupportedVersion,
+			errorData: models.ConfigErrorData{
+				FieldName: "version",
+				Value:     `"999.999"`,
+				Expected:  fmt.Sprintf(`"%s" >= version >= "%s"`, MinimalVersion, CurrentVersion),
+			},
+		},
+		{
+			rawConfig: fmt.Sprintf(`{"version": "%s", "tiles": [{ "type": "EMPTY" }]}`, CurrentVersion),
+			errorID:   models.ConfigErrorMissingRequiredField,
+			errorData: models.ConfigErrorData{
+				FieldName: "columns",
+			},
+		},
+		{
+			rawConfig: fmt.Sprintf(`{"version": "%s", "columns": 0, "tiles": [{ "type": "EMPTY" }]}`, CurrentVersion),
+			errorID:   models.ConfigErrorInvalidFieldValue,
+			errorData: models.ConfigErrorData{
+				FieldName: "columns",
+				Value:     `0`,
+				Expected:  "columns > 0",
+			},
+		},
+		{
+			rawConfig: fmt.Sprintf(`{"version": "%s", "columns": 1, "zoom": 0, "tiles": [{ "type": "EMPTY" }]}`, CurrentVersion),
+			errorID:   models.ConfigErrorInvalidFieldValue,
+			errorData: models.ConfigErrorData{
+				FieldName: "zoom",
+				Value:     `0`,
+				Expected:  "0 < zoom <= 10",
+			},
+		},
+		{
+			rawConfig: fmt.Sprintf(`{"version": "%s", "columns": 1, "zoom": 20, "tiles": [{ "type": "EMPTY" }]}`, CurrentVersion),
+			errorID:   models.ConfigErrorInvalidFieldValue,
+			errorData: models.ConfigErrorData{
+				FieldName: "zoom",
+				Value:     `20`,
+				Expected:  "0 < zoom <= 10",
+			},
+		},
+		{
+			rawConfig: fmt.Sprintf(`{"version": "%s", "columns": 1}`, CurrentVersion),
+			errorID:   models.ConfigErrorMissingRequiredField,
+			errorData: models.ConfigErrorData{
+				FieldName: "tiles",
+			},
+		},
+		{
+			rawConfig: fmt.Sprintf(`{"version": "%s", "columns": 1, "tiles": []}`, CurrentVersion),
+			errorID:   models.ConfigErrorInvalidFieldValue,
+			errorData: models.ConfigErrorData{
+				FieldName:     "tiles",
+				ConfigExtract: fmt.Sprintf(`{"version":"%s","columns":1,"tiles":[]}`, CurrentVersion),
+			},
+		},
+	} {
+		conf, err := readConfig(testcase.rawConfig)
+		if assert.NoError(t, err) {
+			usecase := initConfigUsecase(nil, nil)
+			usecase.Verify(conf)
+			if assert.Len(t, conf.Errors, 1) {
+				assert.Equal(t, testcase.errorID, conf.Errors[0].ID)
+				assert.Equal(t, testcase.errorData, conf.Errors[0].Data)
+			}
 		}
 	}
 }
 
 func TestUsecase_VerifyTile_Success(t *testing.T) {
-	input := `{ "type": "PORT", "columnSpan": 2, "rowSpan": 2, "params": { "hostname": "bserver.com", "port": 22 } }`
-	conf := &models.Config{}
+	rawConfig := `{ "type": "PORT", "columnSpan": 2, "rowSpan": 2, "params": { "hostname": "bserver.com", "port": 22 } }`
+	conf := &models.ConfigBag{}
 
-	tile := initTile(t, input)
+	tile := initTile(t, rawConfig)
 	usecase := initConfigUsecase(nil, nil)
-	usecase.verifyTile(conf, tile, false)
+	usecase.verifyTile(conf, tile, nil)
 
 	assert.Len(t, conf.Errors, 0)
 }
 
 func TestUsecase_VerifyTile_Success_Empty(t *testing.T) {
-	input := `{ "type": "EMPTY" }`
-	conf := &models.Config{}
+	rawConfig := `{ "type": "EMPTY" }`
+	conf := &models.ConfigBag{}
 
-	tile := initTile(t, input)
+	tile := initTile(t, rawConfig)
 	usecase := initConfigUsecase(nil, nil)
-	usecase.verifyTile(conf, tile, false)
+	usecase.verifyTile(conf, tile, nil)
 
 	assert.Len(t, conf.Errors, 0)
 }
 
-func TestUsecase_VerifyTile_Failed_ParamsInGroup(t *testing.T) {
-	input := `{ "type": "GROUP", "label": "...", "params": {"test": "test"}}`
-	conf := &models.Config{}
-
-	tile := initTile(t, input)
-	usecase := initConfigUsecase(nil, nil)
-	usecase.verifyTile(conf, tile, false)
-
-	assert.Len(t, conf.Errors, 1)
-	assert.Contains(t, conf.Errors[0], `Unauthorized "params" key in GROUP tile definition.`)
-}
-
-func TestUsecase_VerifyTile_Failed_EmptyInGroup(t *testing.T) {
-	input := `
-      { "type": "GROUP", "label": "...", "tiles": [
-          { "type": "EMPTY" }
-			]}
-`
-	conf := &models.Config{}
-
-	tile := initTile(t, input)
-	usecase := initConfigUsecase(nil, nil)
-	usecase.verifyTile(conf, tile, false)
-
-	assert.Len(t, conf.Errors, 1)
-	assert.Contains(t, conf.Errors[0], `Unauthorized "EMPTY" type in GROUP tile.`)
-}
-
-func TestUsecase_VerifyTile_Failed_MissingParamsKey(t *testing.T) {
-	input := `{ "type": "PING", "label": "..." }`
-	conf := &models.Config{}
-
-	tile := initTile(t, input)
-	usecase := initConfigUsecase(nil, nil)
-	usecase.verifyTile(conf, tile, false)
-
-	assert.Len(t, conf.Errors, 1)
-	assert.Contains(t, conf.Errors[0], `Missing "params" key in PING tile definition.`)
-}
-
 func TestUsecase_VerifyTile_Success_Group(t *testing.T) {
-	input := `
+	rawConfig := `
       { "type": "GROUP", "label": "...", "tiles": [
           { "type": "PING", "params": { "hostname": "aserver.com" } },
           { "type": "PORT", "params": { "hostname": "bserver.com", "port": 22 } }
 			]}
 `
-	conf := &models.Config{}
+	conf := &models.ConfigBag{}
 
-	tile := initTile(t, input)
+	tile := initTile(t, rawConfig)
 	usecase := initConfigUsecase(nil, nil)
-	usecase.verifyTile(conf, tile, false)
+	usecase.verifyTile(conf, tile, nil)
 
 	assert.Len(t, conf.Errors, 0)
 }
 
-func TestUsecase_VerifyTile_Failed_GroupInGroup(t *testing.T) {
-	input := `
-      { "type": "GROUP", "label": "...", "tiles": [
-          { "type": "GROUP" }
-			]}
-`
-	conf := &models.Config{}
+func TestUsecase_VerifyTile_Failed(t *testing.T) {
+	for _, testcase := range []struct {
+		rawConfig string
+		errorID   models.ConfigErrorID
+		errorData models.ConfigErrorData
+	}{
+		{
+			rawConfig: `{ "type": "PING", "columnSpan": -1, "params": { "host": "server.com" } }`,
+			errorID:   models.ConfigErrorInvalidFieldValue,
+			errorData: models.ConfigErrorData{
+				FieldName: "columnSpan",
+				Value:     "-1",
+				Expected:  "columnSpan > 0",
+			},
+		},
+		{
+			rawConfig: `{ "type": "PING", "rowSpan": -1, "params": { "host": "server.com" } }`,
+			errorID:   models.ConfigErrorInvalidFieldValue,
+			errorData: models.ConfigErrorData{
+				FieldName: "rowSpan",
+				Value:     "-1",
+				Expected:  "rowSpan > 0",
+			},
+		},
+		{
+			rawConfig: `
+					{ "type": "GROUP", "tiles": [
+							{ "type": "EMPTY" }
+					]}
+		`,
+			errorID: models.ConfigErrorUnauthorizedSubtileType,
+			errorData: models.ConfigErrorData{
+				ConfigExtract:          `{"type":"GROUP","tiles":[{"type":"EMPTY"}]}`,
+				ConfigExtractHighlight: `{"type":"EMPTY"}`,
+			},
+		},
+		{
+			rawConfig: `
+					{ "type": "GROUP", "tiles": [
+							{ "type": "GROUP" }
+					]}
+		`,
+			errorID: models.ConfigErrorUnauthorizedSubtileType,
+			errorData: models.ConfigErrorData{
+				ConfigExtract:          `{"type":"GROUP","tiles":[{"type":"GROUP"}]}`,
+				ConfigExtractHighlight: `{"type":"GROUP"}`,
+			},
+		},
+		{
+			rawConfig: `{ "type": "GROUP", "params": {"test": "test"}}`,
+			errorID:   models.ConfigErrorUnauthorizedField,
+			errorData: models.ConfigErrorData{
+				FieldName:     "params",
+				ConfigExtract: `{"type":"GROUP","params":{"test":"test"}}`,
+			},
+		},
+		{
+			rawConfig: `{ "type": "GROUP"}`,
+			errorID:   models.ConfigErrorMissingRequiredField,
+			errorData: models.ConfigErrorData{
+				FieldName:     "tiles",
+				ConfigExtract: `{"type":"GROUP"}`,
+			},
+		},
+		{
+			rawConfig: `{ "type": "GROUP", "tiles": []}`,
+			errorID:   models.ConfigErrorInvalidFieldValue,
+			errorData: models.ConfigErrorData{
+				FieldName:     "tiles",
+				ConfigExtract: `{"type":"GROUP"}`,
+			},
+		},
+		{
+			rawConfig: `{ "type": "PING" }`,
+			errorID:   models.ConfigErrorMissingRequiredField,
+			errorData: models.ConfigErrorData{
+				FieldName:     "params",
+				ConfigExtract: `{"type":"PING"}`,
+			},
+		},
+		{
+			rawConfig: `{ "type": "PING", "params": { "host": "server.com" } }`,
+			errorID:   models.ConfigErrorInvalidFieldValue,
+			errorData: models.ConfigErrorData{
+				FieldName:     "params",
+				ConfigExtract: `{"type":"PING","params":{"host":"server.com"},"configVariant":"default"}`,
+			},
+		},
+		{
+			rawConfig: `{ "type": "JENKINS-BUILD", "configVariant": "test", "params": { "job": "job1" } }`,
+			errorID:   models.ConfigErrorUnknownVariant,
+			errorData: models.ConfigErrorData{
+				FieldName:     "configVariant",
+				Value:         `"test"`,
+				ConfigExtract: `{"type":"JENKINS-BUILD","params":{"job":"job1"},"configVariant":"test"}`,
+			},
+		},
+	} {
+		conf := &models.ConfigBag{}
+		tile := initTile(t, testcase.rawConfig)
+		usecase := initConfigUsecase(nil, nil)
+		usecase.verifyTile(conf, tile, nil)
 
-	tile := initTile(t, input)
-	usecase := initConfigUsecase(nil, nil)
-	usecase.verifyTile(conf, tile, false)
-
-	assert.Len(t, conf.Errors, 1)
-	assert.Contains(t, conf.Errors[0], `Unauthorized "GROUP" type in GROUP tile.`)
-}
-
-func TestUsecase_VerifyTile_Failed_GroupWithWrongTiles(t *testing.T) {
-	input := `
-     { "type": "GROUP", "label": "..."}
-`
-	conf := &models.Config{}
-
-	tile := initTile(t, input)
-	usecase := initConfigUsecase(nil, nil)
-	usecase.verifyTile(conf, tile, false)
-
-	assert.Len(t, conf.Errors, 1)
-	assert.Contains(t, conf.Errors[0], `Missing or empty "tiles" key in GROUP tile definition.`)
+		if assert.Len(t, conf.Errors, 1) {
+			assert.Equal(t, testcase.errorID, conf.Errors[0].ID)
+			assert.Equal(t, testcase.errorData, conf.Errors[0].Data)
+		}
+	}
 }
 
 func TestUsecase_VerifyTile_Failed_WrongTileType(t *testing.T) {
-	input := `{ "type": "PONG", "params": { "hostname": "server.com" } }`
+	rawConfig := `{ "type": "PONG", "params": { "hostname": "server.com" } }`
 
-	conf := &models.Config{}
-
-	tile := initTile(t, input)
+	conf := &models.ConfigBag{}
+	tile := initTile(t, rawConfig)
 	usecase := initConfigUsecase(nil, nil)
-	usecase.verifyTile(conf, tile, false)
+	usecase.verifyTile(conf, tile, nil)
 
-	assert.Len(t, conf.Errors, 1)
-	assert.Contains(t, conf.Errors[0], `Unknown "PONG" type in tile definition. Must be`)
-}
-
-func TestUsecase_VerifyTile_Failed_InvalidParams(t *testing.T) {
-	input := `{ "type": "PING", "params": { "host": "server.com" } }`
-
-	conf := &models.Config{}
-
-	tile := initTile(t, input)
-	usecase := initConfigUsecase(nil, nil)
-	usecase.verifyTile(conf, tile, false)
-
-	assert.Len(t, conf.Errors, 1)
-	assert.Contains(t, conf.Errors[0], `Invalid params definition for "PING": "{"host":"server.com"}".`)
-}
-
-func TestUsecase_VerifyTile_Failed_InvalidColumnSpan(t *testing.T) {
-	input := `{ "type": "PING", "columnSpan": -1, "params": { "host": "server.com" } }`
-
-	conf := &models.Config{}
-
-	tile := initTile(t, input)
-	usecase := initConfigUsecase(nil, nil)
-	usecase.verifyTile(conf, tile, false)
-
-	assert.Len(t, conf.Errors, 1)
-	assert.Contains(t, conf.Errors[0], `Invalid "columnSpan" field. Must be a positive integer.`)
-}
-
-func TestUsecase_VerifyTile_Failed_InvalidRowSpan(t *testing.T) {
-	input := `{ "type": "PING", "rowSpan": -1, "params": { "host": "server.com" } }`
-
-	conf := &models.Config{}
-
-	tile := initTile(t, input)
-	usecase := initConfigUsecase(nil, nil)
-	usecase.verifyTile(conf, tile, false)
-
-	assert.Len(t, conf.Errors, 1)
-	assert.Contains(t, conf.Errors[0], `Invalid "rowSpan" field. Must be a positive integer.`)
-}
-
-func TestUsecase_VerifyTile_Failed_WrongVariant(t *testing.T) {
-	input := `{ "type": "JENKINS-BUILD", "configVariant": "test", "params": { "job": "job1" } }`
-	conf := &models.Config{}
-
-	tile := initTile(t, input)
-	usecase := initConfigUsecase(nil, nil)
-	usecase.verifyTile(conf, tile, false)
-
-	assert.Len(t, conf.Errors, 1)
-	assert.Contains(t, conf.Errors[0], `Unknown "test" variant for JENKINS-BUILD type in tile definition. Must be`)
+	if assert.Len(t, conf.Errors, 1) {
+		assert.Equal(t, models.ConfigErrorUnknownTileType, conf.Errors[0].ID)
+		assert.Equal(t, "type", conf.Errors[0].Data.FieldName)
+		assert.Equal(t, `{"type":"PONG","params":{"hostname":"server.com"}}`, conf.Errors[0].Data.ConfigExtract)
+	}
 }
 
 func TestUsecase_VerifyTile_WithDynamicTile(t *testing.T) {
-	input := `{ "type": "JENKINS-MULTIBRANCH", "configVariant": "default", "params": { "job": "job1" } }`
-	conf := &models.Config{}
+	rawConfig := `{ "type": "JENKINS-MULTIBRANCH", "configVariant": "default", "params": { "job": "job1" } }`
+	conf := &models.ConfigBag{}
 
-	tile := initTile(t, input)
+	tile := initTile(t, rawConfig)
 
 	params := make(map[string]interface{})
 	params["job"] = "test"
@@ -372,16 +333,16 @@ func TestUsecase_VerifyTile_WithDynamicTile(t *testing.T) {
 
 	usecase := initConfigUsecase(nil, nil)
 	usecase.RegisterDynamicTile(jenkins.JenkinsMultiBranchTileType, &_jenkinsModels.MultiBranchParams{}, mockBuilder)
-	usecase.verifyTile(conf, tile, false)
+	usecase.verifyTile(conf, tile, nil)
 
 	assert.Len(t, conf.Errors, 0)
 }
 
 func TestUsecase_VerifyTile_WithDynamicTile_WithWrongVariant(t *testing.T) {
-	input := `{ "type": "JENKINS-MULTIBRANCH", "configVariant": "test", "params": { "job": "job1" } }`
-	conf := &models.Config{}
+	rawConfig := `{ "type": "JENKINS-MULTIBRANCH", "configVariant": "test", "params": { "job": "job1" } }`
+	conf := &models.ConfigBag{}
 
-	tile := initTile(t, input)
+	tile := initTile(t, rawConfig)
 
 	params := make(map[string]interface{})
 	params["job"] = "test"
@@ -390,8 +351,12 @@ func TestUsecase_VerifyTile_WithDynamicTile_WithWrongVariant(t *testing.T) {
 
 	usecase := initConfigUsecase(nil, nil)
 	usecase.RegisterDynamicTile(jenkins.JenkinsMultiBranchTileType, &_jenkinsModels.MultiBranchParams{}, mockBuilder)
-	usecase.verifyTile(conf, tile, false)
+	usecase.verifyTile(conf, tile, nil)
 
-	assert.Len(t, conf.Errors, 1)
-	assert.Contains(t, conf.Errors[0], `Unknown "test" variant for JENKINS-MULTIBRANCH dynamic type in tile definition. Must be`)
+	if assert.Len(t, conf.Errors, 1) {
+		assert.Equal(t, models.ConfigErrorUnknownVariant, conf.Errors[0].ID)
+		assert.Equal(t, "configVariant", conf.Errors[0].Data.FieldName)
+		assert.Equal(t, `"test"`, conf.Errors[0].Data.Value)
+		assert.Equal(t, `{"type":"JENKINS-MULTIBRANCH","params":{"job":"job1"},"configVariant":"test"}`, conf.Errors[0].Data.ConfigExtract)
+	}
 }

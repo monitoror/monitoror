@@ -1,48 +1,57 @@
 package usecase
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/monitoror/monitoror/monitorable/config/models"
 )
 
 // GetConfig and set default value for Config from repository
-func (cu *configUsecase) GetConfig(params *models.ConfigParams) (configBag *models.ConfigBag, err error) {
-	configBag = &models.ConfigBag{}
+func (cu *configUsecase) GetConfig(params *models.ConfigParams) *models.ConfigBag {
+	configBag := &models.ConfigBag{}
 
-	var config *models.Config
+	var err error
 	if params.URL != "" {
-		config, err = cu.repository.GetConfigFromURL(params.URL)
+		configBag.Config, err = cu.repository.GetConfigFromURL(params.URL)
 	} else if params.Path != "" {
-		config, err = cu.repository.GetConfigFromPath(params.Path)
+		configBag.Config, err = cu.repository.GetConfigFromPath(params.Path)
 	}
 
-	if err != nil {
-		if errors.Is(err, models.ErrConfigFileNotFound) {
-			var pathOrURL string
-
-			if params.URL != "" {
-				pathOrURL = params.URL
-			}
-			if params.Path != "" {
-				pathOrURL = params.Path
-			}
-
-			configBag.AddErrors(models.ConfigError{
-				ID:      models.ConfigErrorConfigNotFound,
-				Message: fmt.Sprintf("Config not found at: %s", pathOrURL),
-				Data: models.ConfigErrorData{
-					Value: pathOrURL,
-				},
-			})
-			err = nil
-		}
+	if err == nil {
+		return configBag
 	}
 
-	if config != nil {
-		configBag.Config = *config
+	switch e := err.(type) {
+	case *models.ConfigFileNotFoundError:
+		configBag.AddErrors(models.ConfigError{
+			ID:      models.ConfigErrorConfigNotFound,
+			Message: e.Error(),
+			Data:    models.ConfigErrorData{Value: e.PathOrURL},
+		})
+	case *models.ConfigVersionFormatError:
+		configBag.AddErrors(models.ConfigError{
+			ID:      models.ConfigErrorUnsupportedVersion,
+			Message: e.Error(),
+			Data: models.ConfigErrorData{
+				FieldName: "version",
+				Value:     e.WrongVersion,
+				Expected:  fmt.Sprintf(`"%s" >= version >= "%s"`, MinimalVersion, CurrentVersion),
+			},
+		})
+	case *models.ConfigUnmarshalError:
+		configBag.AddErrors(models.ConfigError{
+			ID:      models.ConfigErrorUnableToParseConfig,
+			Message: e.Error(),
+			Data: models.ConfigErrorData{
+				ConfigExtract: e.RawConfig,
+			},
+		})
+	default:
+		configBag.AddErrors(models.ConfigError{
+			ID:      models.ConfigErrorUnexpectedError,
+			Message: err.Error(),
+		})
 	}
 
-	return
+	return configBag
 }

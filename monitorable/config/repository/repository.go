@@ -6,9 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/monitoror/monitoror/monitorable/config/models"
-
 	"github.com/monitoror/monitoror/monitorable/config"
+	"github.com/monitoror/monitoror/monitorable/config/models"
 )
 
 type (
@@ -29,7 +28,7 @@ func ReadConfig(reader io.Reader) (config *models.Config, err error) {
 	}
 
 	if err = json.Unmarshal(bytes, &config); err != nil {
-		return
+		err = &models.ConfigUnmarshalError{Err: err, RawConfig: string(bytes)}
 	}
 
 	return

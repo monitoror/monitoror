@@ -63,15 +63,15 @@ func TestConfigVersion_UnmarshalJSON(t *testing.T) {
 		},
 		{
 			strVersion:    "1",
-			expectedError: ErrInvalidVersionFormat,
+			expectedError: &ConfigVersionFormatError{WrongVersion: `"1"`},
 		},
 		{
 			strVersion:    "0.0.1",
-			expectedError: ErrInvalidVersionFormat,
+			expectedError: &ConfigVersionFormatError{WrongVersion: `"0.0.1"`},
 		},
 		{
 			strVersion:    "test",
-			expectedError: ErrInvalidVersionFormat,
+			expectedError: &ConfigVersionFormatError{WrongVersion: `"test"`},
 		},
 	} {
 		version := &TestVersion{}
@@ -85,7 +85,7 @@ func TestConfigVersion_UnmarshalJSON(t *testing.T) {
 	}
 }
 
-func TestConfigVersion_MustEqualTo(t *testing.T) {
+func TestConfigVersion_IsEqualTo(t *testing.T) {
 	for _, testcase := range []struct {
 		v1, v2 string
 		equal  bool
@@ -93,13 +93,13 @@ func TestConfigVersion_MustEqualTo(t *testing.T) {
 		{v1: "1.0", v2: "1.0", equal: true},
 		{v1: "1.0", v2: "1.1", equal: false},
 	} {
-		version, _ := parseVersion(testcase.v1)
-		result, _ := version.MustEqualTo(testcase.v2)
+		version := parseVersion(testcase.v1)
+		result := version.IsEqualTo(testcase.v2)
 		assert.Equal(t, testcase.equal, result)
 	}
 }
 
-func TestConfigVersion_MustGreaterThan(t *testing.T) {
+func TestConfigVersion_IsGreaterThan(t *testing.T) {
 	for _, testcase := range []struct {
 		v1, v2  string
 		greater bool
@@ -110,13 +110,13 @@ func TestConfigVersion_MustGreaterThan(t *testing.T) {
 		{v1: "1.0", v2: "0.8", greater: true},
 		{v1: "1.1", v2: "1.0", greater: true},
 	} {
-		version, _ := parseVersion(testcase.v1)
-		result, _ := version.MustGreaterThan(testcase.v2)
+		version := parseVersion(testcase.v1)
+		result := version.IsGreaterThan(testcase.v2)
 		assert.Equal(t, testcase.greater, result)
 	}
 }
 
-func TestConfigVersion_MustGreaterThanOrEqualTo(t *testing.T) {
+func TestConfigVersion_IsGreaterThanOrEqualTo(t *testing.T) {
 	for _, testcase := range []struct {
 		v1, v2         string
 		greaterOrEqual bool
@@ -127,13 +127,13 @@ func TestConfigVersion_MustGreaterThanOrEqualTo(t *testing.T) {
 		{v1: "1.0", v2: "0.8", greaterOrEqual: true},
 		{v1: "1.1", v2: "1.0", greaterOrEqual: true},
 	} {
-		version, _ := parseVersion(testcase.v1)
-		result, _ := version.MustGreaterThanOrEqualTo(testcase.v2)
+		version := parseVersion(testcase.v1)
+		result := version.IsGreaterThanOrEqualTo(testcase.v2)
 		assert.Equal(t, testcase.greaterOrEqual, result)
 	}
 }
 
-func TestConfigVersion_MustLessThan(t *testing.T) {
+func TestConfigVersion_IsLessThan(t *testing.T) {
 	for _, testcase := range []struct {
 		v1, v2 string
 		less   bool
@@ -144,13 +144,13 @@ func TestConfigVersion_MustLessThan(t *testing.T) {
 		{v1: "1.0", v2: "1.1", less: true},
 		{v1: "1.0", v2: "2.0", less: true},
 	} {
-		version, _ := parseVersion(testcase.v1)
-		result, _ := version.MustLessThan(testcase.v2)
+		version := parseVersion(testcase.v1)
+		result := version.IsLessThan(testcase.v2)
 		assert.Equal(t, testcase.less, result)
 	}
 }
 
-func TestConfigVersion_MustLessThanOrEqualTo(t *testing.T) {
+func TestConfigVersion_IsLessThanOrEqualTo(t *testing.T) {
 	for _, testcase := range []struct {
 		v1, v2      string
 		lessOrEqual bool
@@ -161,17 +161,20 @@ func TestConfigVersion_MustLessThanOrEqualTo(t *testing.T) {
 		{v1: "1.0", v2: "1.1", lessOrEqual: true},
 		{v1: "1.0", v2: "2.0", lessOrEqual: true},
 	} {
-		version, _ := parseVersion(testcase.v1)
-		result, _ := version.MustLessThanOrEqualTo(testcase.v2)
+		version := parseVersion(testcase.v1)
+		result := version.IsLessThanOrEqualTo(testcase.v2)
 		assert.Equal(t, testcase.lessOrEqual, result)
 	}
 }
 
 func TestConfigVersion_parseVersion(t *testing.T) {
-	version, _ := parseVersion(`"1.8"`)
+	version := parseVersion(`"1.8"`)
 	assert.Equal(t, uint64(1), version.major)
 	assert.Equal(t, uint64(8), version.minor)
 
-	_, err := parseVersion("test")
-	assert.Error(t, err)
+	version = parseVersion(`2.0`)
+	assert.Equal(t, uint64(2), version.major)
+	assert.Equal(t, uint64(0), version.minor)
+
+	assert.Panics(t, func() { parseVersion("test") })
 }

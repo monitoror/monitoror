@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 type ConfigVersion struct {
@@ -28,7 +29,7 @@ func (v *ConfigVersion) UnmarshalJSON(data []byte) error {
 	strVersion := string(data)
 	m := versionRegex.FindStringSubmatch(strVersion)
 	if m == nil {
-		return ErrInvalidVersionFormat
+		return &ConfigVersionFormatError{WrongVersion: strVersion}
 	}
 
 	v.major, _ = strconv.ParseUint(m[1], 10, 64)
@@ -39,52 +40,38 @@ func (v *ConfigVersion) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func (v *ConfigVersion) MustEqualTo(v2Str string) (bool, error) {
-	v2, err := parseVersion(v2Str)
-	if err != nil {
-		return false, err
-	}
-	return v.major == v2.major && v.minor == v2.minor, nil
+func (v *ConfigVersion) IsEqualTo(v2Str string) bool {
+	v2 := parseVersion(v2Str)
+	return v.major == v2.major && v.minor == v2.minor
 }
 
-func (v *ConfigVersion) MustGreaterThan(v2Str string) (bool, error) {
-	v2, err := parseVersion(v2Str)
-	if err != nil {
-		return false, err
-	}
-	return v.major > v2.major || (v.major == v2.major && v.minor > v2.minor), nil
+func (v *ConfigVersion) IsGreaterThan(v2Str string) bool {
+	v2 := parseVersion(v2Str)
+	return v.major > v2.major || (v.major == v2.major && v.minor > v2.minor)
 }
 
-func (v *ConfigVersion) MustLessThan(v2Str string) (bool, error) {
-	v2, err := parseVersion(v2Str)
-	if err != nil {
-		return false, err
-	}
-	return v.major < v2.major || (v.major == v2.major && v.minor < v2.minor), nil
+func (v *ConfigVersion) IsLessThan(v2Str string) bool {
+	v2 := parseVersion(v2Str)
+	return v.major < v2.major || (v.major == v2.major && v.minor < v2.minor)
 }
 
-func (v *ConfigVersion) MustGreaterThanOrEqualTo(v2Str string) (bool, error) {
-	v2, err := parseVersion(v2Str)
-	if err != nil {
-		return false, err
-	}
-	return v.major > v2.major || (v.major == v2.major && v.minor > v2.minor) || (v.major == v2.major && v.minor == v2.minor), nil
+func (v *ConfigVersion) IsGreaterThanOrEqualTo(v2Str string) bool {
+	v2 := parseVersion(v2Str)
+	return v.major > v2.major || (v.major == v2.major && v.minor > v2.minor) || (v.major == v2.major && v.minor == v2.minor)
 }
 
-func (v *ConfigVersion) MustLessThanOrEqualTo(v2Str string) (bool, error) {
-	v2, err := parseVersion(v2Str)
-	if err != nil {
-		return false, err
-	}
-	return v.major < v2.major || (v.major == v2.major && v.minor < v2.minor) || (v.major == v2.major && v.minor == v2.minor), nil
+func (v *ConfigVersion) IsLessThanOrEqualTo(v2Str string) bool {
+	v2 := parseVersion(v2Str)
+	return v.major < v2.major || (v.major == v2.major && v.minor < v2.minor) || (v.major == v2.major && v.minor == v2.minor)
 }
 
-func parseVersion(version string) (*ConfigVersion, error) {
+func parseVersion(version string) *ConfigVersion {
+	version = strings.ReplaceAll(fmt.Sprintf(`"%s"`, version), `""`, `"`)
 	v := &ConfigVersion{}
 	err := v.UnmarshalJSON([]byte(version))
 	if err != nil {
-		return nil, err
+		panic(fmt.Sprintf(`Invalid version format used in configversion comparaison function "%s", %v`, version, err))
 	}
 
-	return v, nil
+	return v
 }

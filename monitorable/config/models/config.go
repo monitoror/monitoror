@@ -4,15 +4,15 @@ import "github.com/monitoror/monitoror/models"
 
 type (
 	ConfigBag struct {
-		Config Config        `json:"config,omitempty"`
+		Config *Config       `json:"config,omitempty"`
 		Errors []ConfigError `json:"errors,omitempty"`
 	}
 
 	Config struct {
-		Version  *ConfigVersion `json:"version"`
-		Columns  *int           `json:"columns"`
-		Zoom     *float32       `json:"zoom,omitempty"`
-		Tiles    []Tile         `json:"tiles,omitempty"`
+		Version *ConfigVersion `json:"version"`
+		Columns *int           `json:"columns"`
+		Zoom    *float32       `json:"zoom,omitempty"`
+		Tiles   []Tile         `json:"tiles"`
 	}
 
 	Tile struct {
@@ -49,8 +49,9 @@ type (
 )
 
 const (
+	ConfigErrorUnexpectedError         ConfigErrorID = "ERROR_UNEXPECTED"
 	ConfigErrorConfigNotFound          ConfigErrorID = "ERROR_CONFIG_NOT_FOUND"
-	ConfigErrorConfigVersionTooOld     ConfigErrorID = "ERROR_CONFIG_VERSION_TOO_OLD"
+	ConfigErrorUnableToParseConfig     ConfigErrorID = "ERROR_UNABLE_TO_PARSE_CONFIG"
 	ConfigErrorInvalidFieldValue       ConfigErrorID = "ERROR_INVALID_FIELD_VALUE"
 	ConfigErrorMissingRequiredField    ConfigErrorID = "ERROR_MISSING_REQUIRED_FIELD"
 	ConfigErrorUnauthorizedField       ConfigErrorID = "ERROR_UNAUTHORIZED_FIELD"

@@ -19,7 +19,7 @@ type (
 	Usecase interface {
 		Helper
 
-		GetConfig(params *configModels.ConfigParams) (*configModels.ConfigBag, error)
+		GetConfig(params *configModels.ConfigParams) *configModels.ConfigBag
 		Verify(config *configModels.ConfigBag)
 		Hydrate(config *configModels.ConfigBag)
 	}

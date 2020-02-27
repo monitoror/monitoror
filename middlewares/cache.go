@@ -19,7 +19,7 @@ import (
 * He is implemented as a decorator on the handler of each route
 *
 * DownstreamCache should be used instead of a timeout response.
-* So we look at the cache in the global error handler (see handlers/error.go)
+* So we look at the cache in the global error handler (see handlers/errors.go)
 *
 * To fill both store at the same time, I implemented a store wrapper that performs every actions on both store
  */

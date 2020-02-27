@@ -29,13 +29,11 @@ func (h *ConfigDelivery) GetConfig(c echo.Context) error {
 		return models.QueryParamsError
 	}
 
-	configBag, err := h.configUsecase.GetConfig(params)
-	if err != nil {
-		return err
-	}
+	configBag := h.configUsecase.GetConfig(params)
 
-	// Verify config and if there is no errors, hydrate config
-	h.configUsecase.Verify(configBag)
+	if len(configBag.Errors) == 0 {
+		h.configUsecase.Verify(configBag)
+	}
 	if len(configBag.Errors) == 0 {
 		h.configUsecase.Hydrate(configBag)
 	}
