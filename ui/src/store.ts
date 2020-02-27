@@ -27,7 +27,8 @@ const API_BASE_PATH = '/api/v1'
 const INFO_URL = '/info'
 
 export interface RootState {
-  version: string | undefined,
+  appVersion: string | undefined,
+  configVersion: string | undefined,
   columns: number,
   zoom: number,
   tiles: TileConfig[],
@@ -40,7 +41,8 @@ export interface RootState {
 
 const store: StoreOptions<RootState> = {
   state: {
-    version: undefined,
+    appVersion: undefined,
+    configVersion: undefined,
     columns: 4,
     zoom: 1,
     tiles: [],
@@ -154,10 +156,11 @@ const store: StoreOptions<RootState> = {
     },
   },
   mutations: {
-    setVersion(state, payload: string): void {
-      state.version = payload
+    setAppVersion(state, payload: string): void {
+      state.appVersion = payload
     },
     setConfig(state, payload: Config): void {
+      state.configVersion = payload.version
       state.columns = payload.columns
       if (payload.zoom) {
         state.zoom = payload.zoom
@@ -195,12 +198,12 @@ const store: StoreOptions<RootState> = {
         .then((response) => {
           const info: Info = response.data
 
-          if (state.version === undefined) {
-            commit('setVersion', info.version)
+          if (state.appVersion === undefined) {
+            commit('setAppVersion', info.version)
             return
           }
 
-          if (info.version !== state.version) {
+          if (info.version !== state.appVersion) {
             window.location.reload()
           }
         })
