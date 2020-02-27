@@ -14,6 +14,7 @@ import getQueryParamValue from '@/helpers/getQueryParamValue'
 import getSubTilePreviousOrStatus from '@/helpers/getSubTilePreviousOrStatus'
 import mostImportantStatus from '@/helpers/mostImportantStatus'
 import Config from '@/interfaces/config'
+import ConfigBag from '@/interfaces/configBag'
 import Info from '@/interfaces/info'
 import TaskOptions from '@/interfaces/taskOptions'
 import TileConfig from '@/interfaces/tileConfig'
@@ -227,16 +228,17 @@ const store: StoreOptions<RootState> = {
 
       return axios.get(getters.proxyfiedConfigUrl)
         .then((response) => {
-          const config: Config = response.data
+          const configBag: ConfigBag = response.data
 
           // Kill old refreshTile tasks
           state.tasks
             .filter((task) => task.type === TaskType.RefreshTile && !getters.tileStateKeys.includes(task.id))
             .map((task) => task.kill())
 
-          config.tiles = config.tiles.map((tile) => hydrateTile(tile))
-
-          commit('setConfig', config)
+          if (configBag.config !== undefined) {
+            configBag.config.tiles = configBag.config.tiles.map((tile) => hydrateTile(tile))
+            commit('setConfig', configBag.config)
+          }
         })
     },
     createRefreshTileTask({dispatch}, {tile, groupTile}: { tile: TileConfig, groupTile?: TileConfig }) {
