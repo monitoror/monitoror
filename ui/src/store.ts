@@ -251,11 +251,11 @@ const store: StoreOptions<RootState> = {
             commit('setErrors', configBag.errors)
           } else {
             commit('setErrors', [])
-          }
 
-          if (configBag.config !== undefined) {
-            configBag.config.tiles = configBag.config.tiles.map((tile) => hydrateTile(tile))
-            commit('setConfig', configBag.config)
+            if (configBag.config !== undefined) {
+              configBag.config.tiles = configBag.config.tiles.map((tile) => hydrateTile(tile))
+              commit('setConfig', configBag.config)
+            }
           }
         })
     },

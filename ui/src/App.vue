@@ -51,7 +51,7 @@
                   <p class="c-app--error-title">
                     Unexpected error
                   </p>
-                  <code>{{error.message}}</code>
+                  {{error.message}}
                 </template>
                 <template v-else-if="error.id === ConfigErrorId.ConfigNotFound">
                   <p class="c-app--error-title">
