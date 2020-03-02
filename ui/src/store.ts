@@ -1,4 +1,5 @@
 import axios from 'axios'
+import {now} from 'lodash-es'
 import {Md5 as md5} from 'ts-md5/dist/md5'
 import Vue from 'vue'
 import Vuex, {StoreOptions} from 'vuex'
@@ -6,6 +7,7 @@ import Vuex, {StoreOptions} from 'vuex'
 import DISPLAYABLE_SUBTILE_STATUS from '@/constants/displayableSubtileStatus'
 
 import Task from '@/classes/task'
+import ConfigErrorId from '@/enums/configErrorId'
 import TaskInterval from '@/enums/taskInterval'
 import TaskType from '@/enums/taskType'
 import Theme from '@/enums/theme'
@@ -15,11 +17,11 @@ import getSubTilePreviousOrStatus from '@/helpers/getSubTilePreviousOrStatus'
 import mostImportantStatus from '@/helpers/mostImportantStatus'
 import Config from '@/interfaces/config'
 import ConfigBag from '@/interfaces/configBag'
+import ConfigError from '@/interfaces/configError'
 import Info from '@/interfaces/info'
 import TaskOptions from '@/interfaces/taskOptions'
 import TileConfig from '@/interfaces/tileConfig'
 import TileState from '@/interfaces/tileState'
-import {now} from 'lodash-es'
 
 Vue.use(Vuex)
 
@@ -34,9 +36,10 @@ export interface RootState {
   tiles: TileConfig[],
   tilesState: { [key: string]: TileState },
   tasks: Task[],
-  configurationFetchFailedAttemptsCount: number,
+  errors: ConfigError[],
   online: boolean,
   now: Date,
+  lastRefreshDate: Date,
 }
 
 const store: StoreOptions<RootState> = {
@@ -48,9 +51,10 @@ const store: StoreOptions<RootState> = {
     tiles: [],
     tilesState: {},
     tasks: [],
-    configurationFetchFailedAttemptsCount: 0,
+    errors: [],
     online: true,
     now: new Date(),
+    lastRefreshDate: new Date(),
   },
   getters: {
     apiBaseUrl(): string {
@@ -162,10 +166,13 @@ const store: StoreOptions<RootState> = {
     setConfig(state, payload: Config): void {
       state.configVersion = payload.version
       state.columns = payload.columns
-      if (payload.zoom) {
+      if (payload.zoom !== undefined) {
         state.zoom = payload.zoom
       }
       state.tiles = payload.tiles
+    },
+    setErrors(state, payload: ConfigError[]): void {
+      state.errors = payload
     },
     setTileState(state, payload: { tileStateKey: string, tileState: TileState }): void {
       if (!state.tilesState.hasOwnProperty(payload.tileStateKey)) {
@@ -183,8 +190,8 @@ const store: StoreOptions<RootState> = {
     addTask(state, payload: Task): void {
       state.tasks.push(payload)
     },
-    setConfigurationFetchFailedAttemptsCount(state, payload: number): void {
-      state.configurationFetchFailedAttemptsCount = payload
+    setLastRefreshDate(state, payload: Date): void {
+      state.lastRefreshDate = payload
     },
     setNow(state, payload: Date): void {
       state.now = payload
@@ -229,6 +236,8 @@ const store: StoreOptions<RootState> = {
         return tile
       }
 
+      commit('setLastRefreshDate', new Date())
+
       return axios.get(getters.proxyfiedConfigUrl)
         .then((response) => {
           const configBag: ConfigBag = response.data
@@ -237,6 +246,12 @@ const store: StoreOptions<RootState> = {
           state.tasks
             .filter((task) => task.type === TaskType.RefreshTile && !getters.tileStateKeys.includes(task.id))
             .map((task) => task.kill())
+
+          if (configBag.errors !== undefined) {
+            commit('setErrors', configBag.errors)
+          } else {
+            commit('setErrors', [])
+          }
 
           if (configBag.config !== undefined) {
             configBag.config.tiles = configBag.config.tiles.map((tile) => hydrateTile(tile))
@@ -352,7 +367,7 @@ const store: StoreOptions<RootState> = {
       state.tasks.map((task: Task) => task.kill())
       commit('setTasks', [])
     },
-    init({commit, dispatch}) {
+    init({state, commit, dispatch}) {
       // Run auto-update each minute
       dispatch('addTask', {
         id: 'autoUpdate',
@@ -372,8 +387,18 @@ const store: StoreOptions<RootState> = {
         },
         interval: 1 * TaskInterval.Minute,
         retryOnFailInterval: 5 * TaskInterval.Second,
-        onFailedAttemptsCountChange: (failedAttemptsCount: number) => {
-          commit('setConfigurationFetchFailedAttemptsCount', failedAttemptsCount)
+        onFailedCallback: () => {
+          // When offline, we know why we cannot get a response from the Core
+          if (!state.online) {
+            return
+          }
+
+          const cannotLoad: ConfigError = {
+            id: ConfigErrorId.UnexpectedError,
+            message: 'Cannot get a response from Monitoror Core',
+            data: {},
+          }
+          commit('setErrors', [cannotLoad])
         },
       })
 

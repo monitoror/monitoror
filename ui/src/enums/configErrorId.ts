@@ -1,14 +1,16 @@
 export enum ConfigErrorId {
-  ConfigErrorConfigNotFound = 'ERROR_CONFIG_NOT_FOUND',
-  ConfigErrorConfigVersionTooOld = 'ERROR_CONFIG_VERSION_TOO_OLD',
-  ConfigErrorInvalidFieldValue = 'ERROR_INVALID_FIELD_VALUE',
-  ConfigErrorMissingRequiredField = 'ERROR_MISSING_REQUIRED_FIELD',
-  ConfigErrorUnauthorizedField = 'ERROR_UNAUTHORIZED_FIELD',
-  ConfigErrorUnauthorizedSubtileType = 'ERROR_UNAUTHORIZED_SUBTILE_TYPE',
-  ConfigErrorUnableToHydrate = 'ERROR_UNABLE_TO_HYDRATE',
-  ConfigErrorUnknownTileType = 'ERROR_UNKNOWN_TILE_TYPE',
-  ConfigErrorUnknownVariant = 'ERROR_UNKNOWN_VARIANT',
-  ConfigErrorUnsupportedVersion = 'ERROR_UNSUPPORTED_VERSION',
+  UnexpectedError = 'ERROR_UNEXPECTED',
+  ConfigNotFound = 'ERROR_CONFIG_NOT_FOUND',
+  UnableToParseConfig = 'ERROR_UNABLE_TO_PARSE_CONFIG',
+  ConfigVersionTooOld = 'ERROR_CONFIG_VERSION_TOO_OLD',
+  InvalidFieldValue = 'ERROR_INVALID_FIELD_VALUE',
+  MissingRequiredField = 'ERROR_MISSING_REQUIRED_FIELD',
+  UnauthorizedField = 'ERROR_UNAUTHORIZED_FIELD',
+  UnauthorizedSubtileType = 'ERROR_UNAUTHORIZED_SUBTILE_TYPE',
+  UnableToHydrate = 'ERROR_UNABLE_TO_HYDRATE',
+  UnknownTileType = 'ERROR_UNKNOWN_TILE_TYPE',
+  UnknownVariant = 'ERROR_UNKNOWN_VARIANT',
+  UnsupportedVersion = 'ERROR_UNSUPPORTED_VERSION',
 }
 
 export default ConfigErrorId
