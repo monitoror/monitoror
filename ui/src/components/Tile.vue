@@ -288,7 +288,6 @@
     display: inline-block;
     width: 16px;
     vertical-align: middle;
-    color: var(--color-code-background);
     transform: translate(2px, -1px);
     margin-right: -5px;
   }
