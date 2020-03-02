@@ -188,7 +188,12 @@
         const isHighlightMultiline = formattedConfigExtractHighlight.includes('\n')
         const multilinePrefix = isHighlightMultiline ? ' *' : ''
         const multilineSuffix = isHighlightMultiline ? ',?' : ''
-        const pattern = multilinePrefix + patternPrefix + (formattedConfigExtractHighlight.replace(/\s+/g, '\\s+')) + multilineSuffix
+        const pattern = [
+          multilinePrefix,
+          patternPrefix,
+          formattedConfigExtractHighlight.replace(/\s+/g, '\\s+'),
+          multilineSuffix,
+        ].join('')
         const find = new RegExp(pattern)
         const matches = formattedConfigExtract.match(find)
 
