@@ -49,14 +49,14 @@ type (
 )
 
 const (
-	ConfigErrorUnexpectedError         ConfigErrorID = "ERROR_UNEXPECTED"
 	ConfigErrorConfigNotFound          ConfigErrorID = "ERROR_CONFIG_NOT_FOUND"
-	ConfigErrorUnableToParseConfig     ConfigErrorID = "ERROR_UNABLE_TO_PARSE_CONFIG"
 	ConfigErrorInvalidFieldValue       ConfigErrorID = "ERROR_INVALID_FIELD_VALUE"
 	ConfigErrorMissingRequiredField    ConfigErrorID = "ERROR_MISSING_REQUIRED_FIELD"
 	ConfigErrorUnauthorizedField       ConfigErrorID = "ERROR_UNAUTHORIZED_FIELD"
 	ConfigErrorUnauthorizedSubtileType ConfigErrorID = "ERROR_UNAUTHORIZED_SUBTILE_TYPE"
 	ConfigErrorUnableToHydrate         ConfigErrorID = "ERROR_UNABLE_TO_HYDRATE"
+	ConfigErrorUnableToParseConfig     ConfigErrorID = "ERROR_UNABLE_TO_PARSE_CONFIG"
+	ConfigErrorUnexpectedError         ConfigErrorID = "ERROR_UNEXPECTED"
 	ConfigErrorUnknownTileType         ConfigErrorID = "ERROR_UNKNOWN_TILE_TYPE"
 	ConfigErrorUnknownVariant          ConfigErrorID = "ERROR_UNKNOWN_VARIANT"
 	ConfigErrorUnsupportedVersion      ConfigErrorID = "ERROR_UNSUPPORTED_VERSION"

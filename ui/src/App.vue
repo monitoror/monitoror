@@ -36,90 +36,7 @@
                 class="c-app--logo-line"/>
             </svg>
           </div>
-          <div class="c-app--loading-errors">
-            <template v-if="!isOnline">
-              I'm offline... Gimme my connection back!
-            </template>
-            <template v-else-if="hasErrors">
-              <div class="c-app--loading-config-info">
-                <code>{{configUrlOrPath}}</code> <br><br>
-                Last refresh at {{lastRefreshDate}}
-              </div>
-              <div class="c-app--error" v-for="error in errors">
-                <hr>
-                <template v-if="error.id === ConfigErrorId.UnexpectedError">
-                  <p class="c-app--error-title">
-                    Unexpected error
-                  </p>
-                  {{error.message}}
-                </template>
-                <template v-else-if="error.id === ConfigErrorId.ConfigNotFound">
-                  <p class="c-app--error-title">
-                    Your configuration URL or path seems broken, please verify it.
-                  </p>
-                </template>
-                <template v-else-if="error.id === ConfigErrorId.UnableToParseConfig">
-                  <p class="c-app--error-title">
-                    Your configuration cannot be parsed, please verify it.
-                  </p>
-                </template>
-                <template v-else-if="error.id === ConfigErrorId.MissingRequiredField">
-                  <p class="c-app--error-title">
-                    Missing required <code>{{error.data.fieldName}}</code> field.
-                  </p>
-                  Context:
-                  <pre><code>{{formatJSON(error.data.configExtract)}}</code></pre>
-                </template>
-                <template v-else-if="error.id === ConfigErrorId.UnknownTileType">
-                  <p class="c-app--error-title">
-                    Unknown
-                    <code>{{extractFieldValue(error.data.configExtract, error.data.fieldName)}}</code>
-                    tile type.
-                  </p>
-                  <pre><code>{{formatJSON(error.data.configExtract)}}</code></pre>
-                  Expected <code>{{error.data.fieldName}}</code> value:
-                  <ul>
-                    <li v-for="expected in splitList(error.data.expected)"><code>{{expected}}</code></li>
-                  </ul>
-                </template>
-                <template v-else-if="error.id === ConfigErrorId.InvalidFieldValue">
-                  <p class="c-app--error-title">
-                    Invalid
-                    <code>{{error.data.fieldName}}</code>
-                    value.
-                  </p>
-                  <pre v-if="error.data.configExtract"><code>{{formatJSON(error.data.configExtract)}}</code></pre>
-                  <a
-                    v-if="getTileDocUrl(error) !== undefined"
-                    :href="getTileDocUrl(error)"
-                    target="_blank">
-                    Go to <code>{{extractFieldValue(error.data.configExtract, 'type')}}</code> documentation
-                  </a>
-                </template>
-                <template v-else-if="error.id === ConfigErrorId.UnsupportedVersion">
-                  <p class="c-app--error-title">
-                    Invalid
-                    <code>{{error.data.fieldName}}</code>
-                    value: <code>{{error.data.value}}</code>
-                  </p>
-                  <p>
-                    Supported config version by Core: <code>{{error.data.expected}}</code>
-                  </p>
-                  <p>
-                    Are you up to date?
-                    <a href="https://monitoror.com/documentation/#ui-configuration" target="_blank">
-                      Go check the latest config version on documentation
-                    </a>
-                  </p>
-                </template>
-                <template v-else>
-                  <p class="c-app--error-title">
-                    {{error.message}}
-                  </p>
-                </template>
-              </div>
-            </template>
-          </div>
+          <monitoror-errors class="c-app--loading-errors"></monitoror-errors>
         </div>
       </div>
     </transition>
@@ -127,18 +44,18 @@
 </template>
 
 <script lang="ts">
-  import {format} from 'date-fns'
   import {Component, Vue} from 'vue-property-decorator'
 
   import CONFIG_VERIFY_ERRORS from '@/constants/configVerifyErrors'
 
+  import MonitororErrors from '@/components/Errors.vue'
   import MonitororTile from '@/components/Tile.vue'
-  import ConfigErrorId from '@/enums/configErrorId'
   import ConfigError from '@/interfaces/configError'
   import TileConfig from '@/interfaces/tileConfig'
 
   @Component({
     components: {
+      MonitororErrors,
       MonitororTile,
     },
   })
@@ -159,8 +76,9 @@
 
     get classes() {
       return {
-        'c-app__show-cursor': this.showCursor,
+        'c-app__show-cursor': this.hasConfigVerifyErrors || this.showCursor,
         'c-app__no-scroll': !this.hasConfigVerifyErrors,
+        'c-app__config-verify-errors': this.hasConfigVerifyErrors,
       }
     }
 
@@ -208,14 +126,6 @@
       return this.errors.filter((error) => CONFIG_VERIFY_ERRORS.includes(error.id)).length > 0
     }
 
-    get configUrlOrPath(): string {
-      return this.$store.getters.configUrl || decodeURIComponent(this.$store.getters.configPath)
-    }
-
-    get lastRefreshDate(): string {
-      return format(this.$store.state.lastRefreshDate, 'hh:mm:ss')
-    }
-
     get loadingProgress(): number {
       return this.$store.getters.loadingProgress
     }
@@ -234,10 +144,6 @@
       return this.$store.state.online
     }
 
-    get ConfigErrorId() {
-      return ConfigErrorId
-    }
-
     /*
      * Methods
      */
@@ -252,38 +158,6 @@
 
     public dispatchUpdateNetworkState() {
       return this.$store.dispatch('updateNetworkState')
-    }
-
-    public formatJSON(jsonString: string): string {
-      return JSON.stringify(JSON.parse(jsonString), null, 2)
-    }
-
-    public splitList(list: string): string[] {
-      try {
-        return list.split(',').map((item) => item.trim()).sort()
-      } catch (e) {
-        return [list]
-      }
-    }
-
-    public extractFieldValue(jsonString: string, fieldName: string): string | undefined {
-      try {
-        return JSON.parse(jsonString)[fieldName]
-      } catch (e) {
-        return
-      }
-    }
-
-    public getTileDocUrl(error: ConfigError): string | undefined {
-      const tileType = this.extractFieldValue(error.data.configExtract as string, 'type')
-
-      if (tileType === undefined) {
-        return
-      }
-
-      const url = 'https://monitoror.com/documentation/#tile-' + tileType.toLowerCase()
-
-      return url
     }
 
     /*
@@ -326,6 +200,7 @@
 
     &:not(.c-app__show-cursor) {
       cursor: none;
+      user-select: none;
     }
 
     @media screen and (max-width: 750px) {
@@ -362,6 +237,7 @@
     right: 0;
     bottom: 0;
     left: 0;
+    color: var(--color-spindle);
     background: var(--color-background);
     text-align: center;
     z-index: 50;
@@ -384,27 +260,32 @@
     text-align: left;
     bottom: initial;
     min-height: 100vh;
+    background: var(--color-docs-background);
   }
 
   .c-app--loading__config-verify-errors .c-app--loading-container {
     position: relative;
-    width: 70%;
-    max-width: 1500px;
+    width: 1000px;
+    max-width: 100%;
     padding: 100px 0;
     margin: 0 auto;
+
+    hr {
+      margin: 150px auto;
+    }
   }
 
   .c-app--logo {
     position: absolute;
-    top: 50%;
+    top: 50vh;
     left: 50%;
     width: 80%;
     transform: translate(-50%, -50%);
     will-change: transform, opacity, width;
-    animation: fadeIn 1s, slideIn 1s;
+    animation: fadeIn 1s, logoSlideIn 1s;
     transition: transform 750ms, opacity 750ms, width 300ms, top 300ms;
 
-    &-icon path {
+    path {
       will-change: fill;
       transition: fill 300ms;
     }
@@ -424,7 +305,7 @@
     }
   }
 
-  @keyframes slideIn {
+  @keyframes logoSlideIn {
     from {
       transform: translate(-50%, -40%);
     }
@@ -454,48 +335,20 @@
   .c-app--loading__config-verify-errors .c-app--logo {
     top: 120px;
     width: 700px;
-  }
-
-  .c-app--loading-config-info {
-    text-align: center;
+    max-width: calc(100% - 100px);
   }
 
   .c-app--loading-errors {
     position: absolute;
     top: 70%;
     left: 50%;
-    padding: 0 200px;
+    padding: 0 50px;
     width: 100%;
     transform: translateX(-50%);
     font-weight: 400;
     font-size: 24px;
     animation: fadeIn 300ms ease 500ms;
     animation-fill-mode: both;
-
-    hr {
-      width: 150px;
-      border-color: var(--color-logo-background);
-      margin: 25px auto;
-      transition: border-color 300ms;
-    }
-
-    code {
-      display: inline-block;
-      background: rgba(0, 0, 0, 0.3);
-      margin-top: 5px;
-      padding: 3px 7px;
-      border-radius: 4px;
-    }
-
-    .c-app--loading-config-info code {
-      color: var(--color-failed);
-      padding: 7px 13px;
-    }
-
-    a {
-      color: var(--color-succeeded);
-      font-size: 20px;
-    }
   }
 
   .c-app--loading__config-verify-errors .c-app--loading-errors {
@@ -504,19 +357,6 @@
     left: initial;
     margin-top: 130px;
     transform: initial;
-  }
-
-  .c-app--error {
-    margin-bottom: 50px;
-    font-size: 18px;
-  }
-
-  .c-app--error-title {
-    font-size: 24px;
-  }
-
-  .c-app--error pre code {
-    padding: 20px;
   }
 
   .loading-fade-enter,

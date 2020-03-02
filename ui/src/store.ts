@@ -59,38 +59,36 @@ const store: StoreOptions<RootState> = {
   getters: {
     apiBaseUrl(): string {
       const defaultApiBaseUrl = window.location.origin
-      let apiBaseUrl = getQueryParamValue('apiBaseUrl', defaultApiBaseUrl)
+      let apiBaseUrl = getQueryParamValue('apiBaseUrl', defaultApiBaseUrl) as string
 
       apiBaseUrl = apiBaseUrl.replace(/\/+$/, '')
 
       return apiBaseUrl
     },
-    configPath(): string {
+    configPath(): string | undefined {
       const configPath = getQueryParamValue('configPath')
 
       return configPath
     },
-    configUrl(): string {
+    configUrl(): string | undefined {
       const configUrl = getQueryParamValue('configUrl')
 
       return configUrl
     },
-    proxyfiedConfigUrl(state, getters): string {
+    proxyfiedConfigUrl(state, getters): string | undefined {
       const configProxyUrl = `${getters.apiBaseUrl}${API_BASE_PATH}/config`
 
-      if (getters.configUrl !== '') {
+      if (getters.configUrl !== undefined) {
         return `${configProxyUrl}?url=${getters.configUrl}`
       }
 
-      if (getters.configPath !== '') {
+      if (getters.configPath !== undefined) {
         return `${configProxyUrl}?path=${getters.configPath}`
       }
-
-      return ''
     },
     theme(): Theme {
       let theme = Theme.Default
-      const queryTheme = getQueryParamValue('theme', theme)
+      const queryTheme = getQueryParamValue('theme', theme) as string
 
       if (Object.values(Theme).includes(queryTheme.toUpperCase() as Theme)) {
         theme = queryTheme.toUpperCase() as Theme
@@ -216,6 +214,17 @@ const store: StoreOptions<RootState> = {
         })
     },
     async fetchConfiguration({commit, state, getters, dispatch}) {
+      if (getters.proxyfiedConfigUrl === undefined) {
+        const configPathOrUrlIsMissing: ConfigError = {
+          id: ConfigErrorId.MissingPathOrUrl,
+          message: 'configPath or configUrl query param is missing',
+          data: {},
+        }
+
+        commit('setErrors', [configPathOrUrlIsMissing])
+        return
+      }
+
       const hydrateTile = (tile: TileConfig, groupTile?: TileConfig) => {
         // Create a identifier based on tile configuration
         tile.stateKey = tile.type + '_' + md5.hashStr(JSON.stringify(tile))
