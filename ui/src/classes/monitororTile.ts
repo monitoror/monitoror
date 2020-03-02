@@ -1,4 +1,4 @@
-import {differenceInSeconds, formatDistanceToNow} from 'date-fns'
+import {addSeconds, differenceInSeconds, format, formatDistance} from 'date-fns'
 import Vue from 'vue'
 import {Prop} from 'vue-property-decorator'
 
@@ -56,6 +56,7 @@ export default abstract class AbstractMonitororTile extends Vue {
 
     return this.state.label
   }
+
   get build(): TileBuild | undefined {
     if (this.state === undefined) {
       return
@@ -167,26 +168,13 @@ export default abstract class AbstractMonitororTile extends Vue {
       return
     }
 
-    let totalSeconds = Math.round((this.estimatedDuration - this.duration))
-    if (this.progress > 100) {
-      totalSeconds = Math.round((this.duration - this.estimatedDuration))
-    }
-    const hours = Math.floor(totalSeconds / 3600)
-    const minutes = Math.floor((totalSeconds - (hours * 3600)) / 60)
-    const seconds = totalSeconds - (hours * 3600) - (minutes * 60)
-    let minutesPrefix = ''
-    let secondsPrefix = ''
-
-    if (hours >= 1 && minutes < 10) {
-      minutesPrefix = '0'
-    }
-    if (seconds < 10) {
-      secondsPrefix = '0'
-    }
+    const totalSeconds = Math.abs(Math.round((this.estimatedDuration - this.duration)))
 
     const overtimePrefix = (this.progress > 100 ? 'Overtime: +' : '')
+    const date = addSeconds(new Date(0), totalSeconds)
+    const dateFormat = totalSeconds > 3600 ? 'hh:mm:ss' : 'mm:ss'
 
-    return overtimePrefix + ((hours) ? `${hours}:` : '') + `${minutesPrefix + minutes}:${secondsPrefix + seconds}`
+    return overtimePrefix + format(date, dateFormat)
   }
 
   get progressBarStyle() {
@@ -206,7 +194,7 @@ export default abstract class AbstractMonitororTile extends Vue {
       return
     }
 
-    return formatDistanceToNow(this.finishedAt) + ' ago'
+    return formatDistance(this.finishedAt, this.now) + ' ago'
   }
 
   get author(): TileAuthor | undefined {
