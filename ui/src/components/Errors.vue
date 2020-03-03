@@ -6,7 +6,7 @@
     <template v-else-if="hasErrors">
       <div class="c-monitoror-errors--config-info">
         <div class="c-monitoror-errors-title" v-if="hasConfigVerifyErrors">
-          We found {{errors.length}} error{{errors.length > 1 ? 's' : ''}} in this configuration:
+          We found {{errors.length}} error{{errors.length > 1 ? 's' : ''}} in this configuration file:
         </div>
         <template v-if="configUrlOrPath !== 'undefined'">
           <code>{{configUrlOrPath}}</code> <br><br>
@@ -68,7 +68,7 @@
             <code>{{parsedExtractFieldValue(error.data.configExtractHighlight, 'type')}}</code>
             type as <code>GROUP</code> subtile
           </p>
-          <pre :data-config-path-or-url="configUrlOrPath"><code v-html="formatConfigExtract(error)"></code></pre>
+          <pre :data-config-path-or-url="configUrlOrPath"><code v-html="ellipsisUnnecessaryParams(formatConfigExtract(error))"></code></pre>
         </template>
         <template v-else-if="error.id === ConfigErrorId.InvalidFieldValue">
           <p class="c-monitoror-errors--error-title">
@@ -267,6 +267,12 @@
       return bestMatch.target
     }
 
+    public ellipsisUnnecessaryParams(jsonString: string): string {
+      const cleanedJsonString = jsonString.replace(/"params":[^}]*}/g, '"params": { ... }')
+
+      return cleanedJsonString
+    }
+
     public getTileDocUrl(error: ConfigError): string | undefined {
       const tileType = this.extractFieldValue(error.data.configExtract as string, 'type')
 
@@ -315,6 +321,8 @@
       margin-left: -$error-padding;
       margin-right: -$error-padding;
       background: var(--color-code-background);
+      max-height: 500px;
+      overflow: auto;
     }
 
     pre code {
