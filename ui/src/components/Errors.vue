@@ -48,17 +48,14 @@
         <template v-else-if="error.id === ConfigErrorId.UnknownTileType">
           <p class="c-monitoror-errors--error-title">
             Unknown
-            <code>{{JSON.parse(extractFieldValue(error.data.configExtract, error.data.fieldName))}}</code>
+            <code>{{parsedExtractFieldValue(error.data.configExtract, error.data.fieldName)}}</code>
             tile type
           </p>
-          <pre :data-config-path-or-url="configUrlOrPath"><code v-html="formatConfigExtract(error)"></code></pre>
-          <p>
-            Expected <code>{{error.data.fieldName}}</code> value to be one of:
-            <template v-for="(expected, index) in splitList(error.data.expected)">
-              <code>{{expected}}</code>
-              <template v-if="index+1 < splitList(error.data.expected).length">,</template>
-            </template>
+          <p v-if="guessExpectedValue(error.data.configExtract, error.data.fieldName, splitList(error.data.expected)) !== undefined">
+            Did you mean
+            <code>{{guessExpectedValue(error.data.configExtract, error.data.fieldName, splitList(error.data.expected))}}</code>?
           </p>
+          <pre :data-config-path-or-url="configUrlOrPath"><code v-html="formatConfigExtract(error)"></code></pre>
           <p class="go-to-documentation">
             <a href="https://monitoror.com/documentation/#tile-definitions" target="_blank">
               Go to <em>Tile definitions</em> documentation section
@@ -68,7 +65,7 @@
         <template v-else-if="error.id === ConfigErrorId.UnauthorizedSubtileType">
           <p class="c-monitoror-errors--error-title">
             Unauthorized
-            <code>{{JSON.parse(extractFieldValue(error.data.configExtractHighlight, 'type'))}}</code>
+            <code>{{parsedExtractFieldValue(error.data.configExtractHighlight, 'type')}}</code>
             type as <code>GROUP</code> subtile
           </p>
           <pre :data-config-path-or-url="configUrlOrPath"><code v-html="formatConfigExtract(error)"></code></pre>
@@ -83,7 +80,7 @@
             v-html="formatConfigExtract(error)"></code></pre>
           <p class="go-to-documentation" v-if="getTileDocUrl(error) !== undefined">
             <a :href="getTileDocUrl(error)" target="_blank">
-              Go to <em>{{JSON.parse(extractFieldValue(error.data.configExtract, 'type'))}}</em> documentation
+              Go to <em>{{parsedExtractFieldValue(error.data.configExtract, 'type')}}</em> documentation
             </a>
           </p>
         </template>
@@ -124,6 +121,7 @@
 
 <script lang="ts">
   import {format} from 'date-fns'
+  import {findBestMatch} from 'string-similarity'
   import {Component, Vue} from 'vue-property-decorator'
 
   import CONFIG_VERIFY_ERRORS from '@/constants/configVerifyErrors'
@@ -244,6 +242,29 @@
       } catch (e) {
         return
       }
+    }
+
+    public parsedExtractFieldValue(jsonString: string, fieldName: string): string | undefined {
+      const extractFieldValue = this.extractFieldValue(jsonString, fieldName)
+
+      if (extractFieldValue === undefined) {
+        return
+      }
+
+      return JSON.parse(extractFieldValue)
+    }
+
+    // guessExpectedValue(error.data.configExtract, error.data.fieldName, error.data.expected)
+    public guessExpectedValue(configExtract: string, fieldName: string, expectedValues: string[]): string | undefined {
+      const currentValue = this.parsedExtractFieldValue(configExtract, fieldName)
+
+      if (currentValue === undefined) {
+        return
+      }
+
+      const bestMatch = findBestMatch(currentValue, expectedValues).bestMatch
+
+      return bestMatch.target
     }
 
     public getTileDocUrl(error: ConfigError): string | undefined {
