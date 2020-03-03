@@ -1,10 +1,10 @@
 import ConfigErrorId from '@/enums/configErrorId'
 
 const CONFIG_NON_VERIFY_ERRORS = [
+  ConfigErrorId.CannotBeFetched,
   ConfigErrorId.ConfigNotFound,
   ConfigErrorId.MissingPathOrUrl,
   ConfigErrorId.UnableToParseConfig,
-  ConfigErrorId.UnexpectedError,
 ]
 
 const CONFIG_VERIFY_ERRORS = (Object.values(ConfigErrorId) as ConfigErrorId[])

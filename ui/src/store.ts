@@ -402,12 +402,12 @@ const store: StoreOptions<RootState> = {
             return
           }
 
-          const cannotLoad: ConfigError = {
-            id: ConfigErrorId.UnexpectedError,
-            message: 'Cannot get a response from Monitoror Core',
+          const configCannotBeFetch: ConfigError = {
+            id: ConfigErrorId.CannotBeFetched,
+            message: 'Configuration cannot be fetch from Monitoror Core',
             data: {},
           }
-          commit('setErrors', [cannotLoad])
+          commit('setErrors', [configCannotBeFetch])
         },
       })
 

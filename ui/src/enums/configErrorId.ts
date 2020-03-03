@@ -1,4 +1,5 @@
 export enum ConfigErrorId {
+  CannotBeFetched = 'ERROR_CONFIG_CANNOT_BE_FETCHED',
   ConfigNotFound = 'ERROR_CONFIG_NOT_FOUND',
   ConfigVersionTooOld = 'ERROR_CONFIG_VERSION_TOO_OLD',
   InvalidFieldValue = 'ERROR_INVALID_FIELD_VALUE',

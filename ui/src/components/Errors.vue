@@ -17,14 +17,23 @@
       </div>
       <div class="c-monitoror-errors--error" v-for="error in errors">
         <!-- Blocking single-line errors -->
-        <template v-if="error.id === ConfigErrorId.ConfigNotFound">
+        <template v-if="error.id === ConfigErrorId.CannotBeFetched">
           <p class="c-monitoror-errors--error-title">
-            Your configuration URL or path seems broken, please verify it.
+            Monitoror Core seems down
+          </p>
+          <p>
+            Is there a Monitoror Core running at <code>{{ apiBaseUrl }}</code>?<br>
+            Configuration cannot be fetch
+          </p>
+        </template>
+        <template v-else-if="error.id === ConfigErrorId.ConfigNotFound">
+          <p class="c-monitoror-errors--error-title">
+            Your configuration URL or path seems broken, please verify it
           </p>
         </template>
         <template v-else-if="error.id === ConfigErrorId.UnableToParseConfig">
           <p class="c-monitoror-errors--error-title">
-            Your configuration cannot be parsed, please verify it.
+            Your configuration cannot be parsed, please verify it
           </p>
         </template>
         <template v-else-if="error.id === ConfigErrorId.MissingPathOrUrl">
@@ -173,6 +182,10 @@
       return this.errors.filter((error) => CONFIG_VERIFY_ERRORS.includes(error.id)).length > 0
     }
 
+    get apiBaseUrl(): string {
+      return this.$store.getters.apiBaseUrl
+    }
+
     get ConfigErrorId() {
       return ConfigErrorId
     }
@@ -294,6 +307,10 @@
       box-shadow: 3px 3px 15px rgba(23, 27, 32, .3);
       border-radius: 4px;
     }
+
+    &:not(.c-monitoror-errors__config-verify-errors) p {
+      margin: 0.2rem;
+    }
   }
 
   .c-monitoror-errors--error {
@@ -315,6 +332,7 @@
 
     .c-monitoror-errors--error-title {
       margin-top: -6px;
+      margin-bottom: 1em;
 
       code {
         color: var(--color-failed);
@@ -327,7 +345,7 @@
     position: relative;
     font-size: 24px;
     color: #ffffff;
-    margin-top: -2px;
+    margin-top: -2px !important;
     font-weight: bold;
   }
 
