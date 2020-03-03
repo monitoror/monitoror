@@ -51,14 +51,16 @@
             <code>{{parsedExtractFieldValue(error.data.configExtract, error.data.fieldName)}}</code>
             tile type
           </p>
-          <p v-if="guessExpectedValue(error.data.configExtract, error.data.fieldName, splitList(error.data.expected)) !== undefined">
+          <p
+            v-if="guessExpectedValue(error.data.configExtract, error.data.fieldName, splitList(error.data.expected)) !== undefined">
             Did you mean
-            <code>{{guessExpectedValue(error.data.configExtract, error.data.fieldName, splitList(error.data.expected))}}</code>?
+            <code>{{guessExpectedValue(error.data.configExtract, error.data.fieldName,
+              splitList(error.data.expected))}}</code>?
           </p>
           <pre :data-config-path-or-url="configUrlOrPath"><code v-html="formatConfigExtract(error)"></code></pre>
           <p class="go-to-documentation">
             <a href="https://monitoror.com/documentation/#tile-definitions" target="_blank">
-              Go to <em>Tile definitions</em> documentation section
+              Go to <strong>Tile definitions</strong> documentation section
             </a>
           </p>
         </template>
@@ -68,7 +70,8 @@
             <code>{{parsedExtractFieldValue(error.data.configExtractHighlight, 'type')}}</code>
             type as <code>GROUP</code> subtile
           </p>
-          <pre :data-config-path-or-url="configUrlOrPath"><code v-html="ellipsisUnnecessaryParams(formatConfigExtract(error))"></code></pre>
+          <pre :data-config-path-or-url="configUrlOrPath"><code
+            v-html="ellipsisUnnecessaryParams(formatConfigExtract(error))"></code></pre>
         </template>
         <template v-else-if="error.id === ConfigErrorId.InvalidFieldValue">
           <p class="c-monitoror-errors--error-title">
@@ -80,7 +83,7 @@
             v-html="formatConfigExtract(error)"></code></pre>
           <p class="go-to-documentation" v-if="getTileDocUrl(error) !== undefined">
             <a :href="getTileDocUrl(error)" target="_blank">
-              Go to <em>{{parsedExtractFieldValue(error.data.configExtract, 'type')}}</em> documentation
+              Go to <strong>{{parsedExtractFieldValue(error.data.configExtract, 'type')}}</strong> documentation
             </a>
           </p>
         </template>
@@ -121,12 +124,17 @@
 
 <script lang="ts">
   import {format} from 'date-fns'
-  import {findBestMatch} from 'string-similarity'
   import {Component, Vue} from 'vue-property-decorator'
 
   import CONFIG_VERIFY_ERRORS from '@/constants/configVerifyErrors'
 
   import ConfigErrorId from '@/enums/configErrorId'
+  import ellipsisUnnecessaryParams from '@/helpers/ellipsisUnnecessaryParams'
+  import formatConfigExtract from '@/helpers/formatConfigExtract'
+  import getTileDocUrl from '@/helpers/getTileDoc'
+  import guessExpectedValue from '@/helpers/guessExpectedValue'
+  import parsedExtractFieldValue from '@/helpers/parsedExpectedValue'
+  import splitList from '@/helpers/splitList'
   import ConfigError from '@/interfaces/configError'
 
   @Component({})
@@ -173,117 +181,12 @@
      * Methods
      */
 
-    public jsonSyntaxColor(jsonString: string): string {
-      const coloredJson = jsonString
-        .replace(/:\s+"(.*)"/g, ': <span class="code-string">"$1"</span>')
-        .replace(/:\s+([.\d]+)/g, ': <span class="code-number">$1</span>')
-
-      return coloredJson
-    }
-
-    public formatConfigExtract(configError: ConfigError): string {
-      if (configError.data.configExtract === undefined) {
-        return ''
-      }
-
-      const formattedConfigExtract = JSON.stringify(JSON.parse(configError.data.configExtract), null, 2)
-      let html = formattedConfigExtract
-
-      let configExtractHighlight = configError.data.configExtractHighlight
-      let patternPrefix = ''
-
-      if (configExtractHighlight === undefined && configError.data.fieldName !== undefined) {
-        patternPrefix = `"${configError.data.fieldName}":\\s+`
-        configExtractHighlight = this.extractFieldValue(configError.data.configExtract, configError.data.fieldName)
-      }
-
-      if (configExtractHighlight !== undefined) {
-        const formattedConfigExtractHighlight = JSON.stringify(JSON.parse(configExtractHighlight), null, 2)
-        const isHighlightMultiline = formattedConfigExtractHighlight.includes('\n')
-        const multilinePrefix = isHighlightMultiline ? ' *' : ''
-        const multilineSuffix = isHighlightMultiline ? ',?' : ''
-        const pattern = [
-          multilinePrefix,
-          patternPrefix,
-          formattedConfigExtractHighlight.replace(/\s+/g, '\\s+'),
-          multilineSuffix,
-        ].join('')
-        const find = new RegExp(pattern)
-        const matches = formattedConfigExtract.match(find)
-
-        if (matches === null) {
-          return html
-        }
-
-        const match = matches[0]
-        const markClassAttr = isHighlightMultiline ? 'class="multiline-mark"' : ''
-
-        html = formattedConfigExtract.replace(match, `<mark ${markClassAttr}>${match}</mark>`)
-      }
-
-      if (html.includes('</mark>')) {
-        html = `<span class="has-mark">${html}</span>`
-      }
-
-      return this.jsonSyntaxColor(html)
-    }
-
-    public splitList(list: string): string[] {
-      try {
-        return list.split(',').map((item) => item.trim()).sort()
-      } catch (e) {
-        return [list]
-      }
-    }
-
-    public extractFieldValue(jsonString: string, fieldName: string): string | undefined {
-      try {
-        return JSON.stringify(JSON.parse(jsonString)[fieldName])
-      } catch (e) {
-        return
-      }
-    }
-
-    public parsedExtractFieldValue(jsonString: string, fieldName: string): string | undefined {
-      const extractFieldValue = this.extractFieldValue(jsonString, fieldName)
-
-      if (extractFieldValue === undefined) {
-        return
-      }
-
-      return JSON.parse(extractFieldValue)
-    }
-
-    // guessExpectedValue(error.data.configExtract, error.data.fieldName, error.data.expected)
-    public guessExpectedValue(configExtract: string, fieldName: string, expectedValues: string[]): string | undefined {
-      const currentValue = this.parsedExtractFieldValue(configExtract, fieldName)
-
-      if (currentValue === undefined) {
-        return
-      }
-
-      const bestMatch = findBestMatch(currentValue, expectedValues).bestMatch
-
-      return bestMatch.target
-    }
-
-    public ellipsisUnnecessaryParams(jsonString: string): string {
-      const cleanedJsonString = jsonString.replace(/"params":[^}]*}/g, '"params": { ... }')
-
-      return cleanedJsonString
-    }
-
-    public getTileDocUrl(error: ConfigError): string | undefined {
-      const tileType = this.extractFieldValue(error.data.configExtract as string, 'type')
-
-      if (tileType === undefined) {
-        return
-      }
-
-      const url = 'https://monitoror.com/documentation/#tile-' + JSON.parse(tileType).toLowerCase()
-
-      return url
-    }
+    public ellipsisUnnecessaryParams = ellipsisUnnecessaryParams
+    public formatConfigExtract = formatConfigExtract
+    public getTileDocUrl = getTileDocUrl
+    public guessExpectedValue = guessExpectedValue
+    public parsedExtractFieldValue = parsedExtractFieldValue
+    public splitList = splitList
   }
 </script>
 
@@ -293,7 +196,6 @@
   .c-monitoror-errors {
     a {
       color: var(--color-succeeded);
-      font-size: 20px;
 
       code {
         color: inherit;
@@ -391,10 +293,6 @@
       background: linear-gradient(to right, #293536, var(--color-succeeded-dark));
       box-shadow: 3px 3px 15px rgba(23, 27, 32, .3);
       border-radius: 4px;
-
-      em {
-        font-weight: 600;
-      }
     }
   }
 
