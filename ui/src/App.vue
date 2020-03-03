@@ -238,7 +238,7 @@
     bottom: 0;
     left: 0;
     color: var(--color-spindle);
-    background: var(--color-background);
+    background: linear-gradient(to top right, #192532, var(--color-cello)) fixed;
     text-align: center;
     z-index: 50;
     will-change: opacity;
@@ -252,7 +252,7 @@
 
   .c-app--loading__error {
     --color-logo-background: var(--color-failed);
-    --color-logo-line-start: #3f4252;
+    --color-logo-line-start: #323E55;
   }
 
   .c-app--loading__config-verify-errors {
@@ -260,7 +260,6 @@
     text-align: left;
     bottom: initial;
     min-height: 100vh;
-    background: var(--color-docs-background);
   }
 
   .c-app--loading__config-verify-errors .c-app--loading-container {
@@ -269,10 +268,6 @@
     max-width: 100%;
     padding: 100px 0;
     margin: 0 auto;
-
-    hr {
-      margin: 150px auto;
-    }
   }
 
   .c-app--logo {

@@ -1,20 +1,21 @@
 <template>
-  <div class="c-monitoror-errors">
+  <div class="c-monitoror-errors" :class="classes">
     <template v-if="!isOnline">
       I'm offline... Gimme my connection back!
     </template>
     <template v-else-if="hasErrors">
       <div class="c-monitoror-errors--config-info">
-        <div class="c-monitoror-errors-title">
+        <div class="c-monitoror-errors-title" v-if="hasConfigVerifyErrors">
           We found {{errors.length}} error{{errors.length > 1 ? 's' : ''}} in this configuration:
         </div>
         <template v-if="configUrlOrPath !== 'undefined'">
           <code>{{configUrlOrPath}}</code> <br><br>
         </template>
         Last refresh at {{lastRefreshDate}}
+
+        <hr v-if="!hasConfigVerifyErrors">
       </div>
       <div class="c-monitoror-errors--error" v-for="error in errors">
-        <hr>
         <!-- Blocking single-line errors -->
         <template v-if="error.id === ConfigErrorId.ConfigNotFound">
           <p class="c-monitoror-errors--error-title">
@@ -40,48 +41,51 @@
         <!-- Config verify errors -->
         <template v-else-if="error.id === ConfigErrorId.MissingRequiredField">
           <p class="c-monitoror-errors--error-title">
-            Missing required <code>{{error.data.fieldName}}</code> field.
+            Missing required <code>{{error.data.fieldName}}</code> field
           </p>
-          <pre><code v-html="formatConfigExtract(error)"></code></pre>
+          <pre :data-config-path-or-url="configUrlOrPath"><code v-html="formatConfigExtract(error)"></code></pre>
         </template>
         <template v-else-if="error.id === ConfigErrorId.UnknownTileType">
           <p class="c-monitoror-errors--error-title">
             Unknown
             <code>{{JSON.parse(extractFieldValue(error.data.configExtract, error.data.fieldName))}}</code>
-            tile type.
+            tile type
           </p>
-          <pre><code v-html="formatConfigExtract(error)"></code></pre>
+          <pre :data-config-path-or-url="configUrlOrPath"><code v-html="formatConfigExtract(error)"></code></pre>
           <p>
             Expected <code>{{error.data.fieldName}}</code> value to be one of:
-            <template v-for="expected in splitList(error.data.expected)">
-              <code>{{expected}}</code>,
+            <template v-for="(expected, index) in splitList(error.data.expected)">
+              <code>{{expected}}</code>
+              <template v-if="index+1 < splitList(error.data.expected).length">,</template>
             </template>
           </p>
-          <p>
-            <a href="https://monitoror.com/documentation/#tile-definitions">Go to <em>Tile definitions</em> documentation section</a>
+          <p class="go-to-documentation">
+            <a href="https://monitoror.com/documentation/#tile-definitions" target="_blank">
+              Go to <em>Tile definitions</em> documentation section
+            </a>
           </p>
         </template>
         <template v-else-if="error.id === ConfigErrorId.UnauthorizedSubtileType">
           <p class="c-monitoror-errors--error-title">
             Unauthorized
             <code>{{JSON.parse(extractFieldValue(error.data.configExtractHighlight, 'type'))}}</code>
-            type as <code>GROUP</code> subtile.
+            type as <code>GROUP</code> subtile
           </p>
-          <pre><code v-html="formatConfigExtract(error)"></code></pre>
+          <pre :data-config-path-or-url="configUrlOrPath"><code v-html="formatConfigExtract(error)"></code></pre>
         </template>
         <template v-else-if="error.id === ConfigErrorId.InvalidFieldValue">
           <p class="c-monitoror-errors--error-title">
             Invalid
             <code>{{error.data.fieldName}}</code>
-            value.
+            value
           </p>
-          <pre v-if="error.data.configExtract"><code v-html="formatConfigExtract(error)"></code></pre>
-          <a
-            v-if="getTileDocUrl(error) !== undefined"
-            :href="getTileDocUrl(error)"
-            target="_blank">
-            Go to <code>{{JSON.parse(extractFieldValue(error.data.configExtract, 'type'))}}</code> documentation
-          </a>
+          <pre v-if="error.data.configExtract" :data-config-path-or-url="configUrlOrPath"><code
+            v-html="formatConfigExtract(error)"></code></pre>
+          <p class="go-to-documentation" v-if="getTileDocUrl(error) !== undefined">
+            <a :href="getTileDocUrl(error)" target="_blank">
+              Go to <em>{{JSON.parse(extractFieldValue(error.data.configExtract, 'type'))}}</em> documentation
+            </a>
+          </p>
         </template>
         <template v-else-if="error.id === ConfigErrorId.UnsupportedVersion">
           <p class="c-monitoror-errors--error-title">
@@ -92,8 +96,8 @@
           <p>
             Supported config version by Core: <code>{{error.data.expected}}</code>
           </p>
-          <p>
-            Are you up to date?
+          <p class="go-to-documentation">
+            Are you up to date? <br>
             <a href="https://monitoror.com/documentation/#ui-configuration" target="_blank">
               Go check the latest config version on documentation
             </a>
@@ -122,6 +126,8 @@
   import {format} from 'date-fns'
   import {Component, Vue} from 'vue-property-decorator'
 
+  import CONFIG_VERIFY_ERRORS from '@/constants/configVerifyErrors'
+
   import ConfigErrorId from '@/enums/configErrorId'
   import ConfigError from '@/interfaces/configError'
 
@@ -130,6 +136,12 @@
     /**
      * Computed
      */
+
+    get classes() {
+      return {
+        'c-monitoror-errors__config-verify-errors': this.hasConfigVerifyErrors,
+      }
+    }
 
     get configUrlOrPath(): string {
       return this.$store.getters.configUrl || decodeURIComponent(this.$store.getters.configPath)
@@ -149,6 +161,10 @@
 
     get hasErrors(): boolean {
       return this.errors.length > 0
+    }
+
+    get hasConfigVerifyErrors(): boolean {
+      return this.errors.filter((error) => CONFIG_VERIFY_ERRORS.includes(error.id)).length > 0
     }
 
     get ConfigErrorId() {
@@ -245,6 +261,8 @@
 </script>
 
 <style lang="scss">
+  $error-padding: 40px;
+
   .c-monitoror-errors {
     a {
       color: var(--color-succeeded);
@@ -256,7 +274,7 @@
     }
 
     hr {
-      width: 150px;
+      width: 250px;
       border-color: var(--color-logo-background);
       margin: 25px auto;
       transition: border-color 300ms;
@@ -271,35 +289,33 @@
     }
 
     pre {
+      display: block;
       position: relative;
-      margin-top: 50px;
+      margin-left: -$error-padding;
+      margin-right: -$error-padding;
+      background: var(--color-code-background);
     }
 
     pre code {
+      position: relative;
+      display: block;
       color: var(--color-spring-wood);
     }
 
-    pre::before {
-      content: "";
-      position: absolute;
-      top: 0;
-      bottom: 0;
-      left: -9999px;
-      right: 0;
-      background: var(--color-code-background);
-      box-shadow: 9999px 0 0 var(--color-code-background);
-      z-index: -1;
-    }
+    pre[data-config-path-or-url] {
+      &::after {
+        content: "// " attr(data-config-path-or-url);
+        position: absolute;
+        top: 30px;
+        left: $error-padding;
+        color: var(--color-unknown);
+        font-style: italic;
+        opacity: 0.5;
+      }
 
-    pre::after {
-      content: "Config extract";
-      position: absolute;
-      top: -1em;
-      left: 0;
-      font-size: 20px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--color-unknown);
+      code {
+        padding: 60px $error-padding 30px $error-padding;
+      }
     }
 
     .code-string {
@@ -337,6 +353,20 @@
         opacity: 1 !important;
       }
     }
+
+    .go-to-documentation {
+      $go-to-doc-margin: 20px;
+      margin: #{$go-to-doc-margin + 20px} #{-$error-padding + $go-to-doc-margin} $go-to-doc-margin !important;
+      padding: #{$error-padding - $go-to-doc-margin};
+      line-height: 1.4;
+      background: linear-gradient(to right, #293536, var(--color-succeeded-dark));
+      box-shadow: 3px 3px 15px rgba(23, 27, 32, .3);
+      border-radius: 4px;
+
+      em {
+        font-weight: 600;
+      }
+    }
   }
 
   .c-monitoror-errors--error {
@@ -344,9 +374,34 @@
     font-size: 18px;
   }
 
+  .c-monitoror-errors__config-verify-errors .c-monitoror-errors--error {
+    border-radius: 4px;
+    padding: 30px $error-padding 0;
+    margin-top: 50px;
+    background: var(--color-docs-background);
+    border: 1px solid var(--color-cello);
+    box-shadow: 0 0 15px var(--color-docs-background);
+
+    & > :last-child {
+      margin-bottom: 0;
+    }
+
+    .c-monitoror-errors--error-title {
+      margin-top: -6px;
+
+      code {
+        color: var(--color-failed);
+        font-weight: normal;
+      }
+    }
+  }
+
   .c-monitoror-errors--error-title {
-    font-size: 22px;
+    position: relative;
+    font-size: 24px;
     color: #ffffff;
+    margin-top: -2px;
+    font-weight: bold;
   }
 
   .c-monitoror-errors--error code {
