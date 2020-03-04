@@ -11,7 +11,10 @@ type ConfigFileNotFoundError struct {
 }
 
 func (e *ConfigFileNotFoundError) Error() string {
-	return fmt.Sprintf(`Config not found at: %s, %v`, e.PathOrURL, e.Err.Error())
+	if e.Err != nil {
+		return fmt.Sprintf(`Config not found at: %s, %v`, e.PathOrURL, e.Err.Error())
+	}
+	return fmt.Sprintf(`Config not found at: %s`, e.PathOrURL)
 }
 func (e *ConfigFileNotFoundError) Unwrap() error { return e.Err }
 
