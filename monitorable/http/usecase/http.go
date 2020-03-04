@@ -73,6 +73,10 @@ func (hu *httpUsecase) httpAll(tileType models.TileType, url string, params inte
 		}
 	}
 
+	if tileType == http.HTTPStatusTileType {
+		return tile, nil
+	}
+
 	// Unmarshal page
 	var content string
 	var match bool
