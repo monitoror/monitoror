@@ -7,6 +7,8 @@ import (
 	"math/rand"
 	"time"
 
+	cmap "github.com/orcaman/concurrent-map"
+
 	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/azuredevops"
 	azureModels "github.com/monitoror/monitoror/monitorable/azuredevops/models"
@@ -19,7 +21,7 @@ import (
 
 type (
 	azureDevOpsUsecase struct {
-		timeRefByProject map[string]time.Time
+		timeRefByProject cmap.ConcurrentMap
 	}
 )
 
@@ -40,16 +42,16 @@ var availableReleaseStatus = faker.Statuses{
 }
 
 func NewAzureDevOpsUsecase() azuredevops.Usecase {
-	return &azureDevOpsUsecase{make(map[string]time.Time)}
+	return &azureDevOpsUsecase{cmap.New()}
 }
 
-func (tu *azureDevOpsUsecase) Build(params *azureModels.BuildParams) (tile *models.Tile, err error) {
+func (au *azureDevOpsUsecase) Build(params *azureModels.BuildParams) (tile *models.Tile, err error) {
 	tile = models.NewTile(azuredevops.AzureDevOpsBuildTileType).WithBuild()
 	tile.Label = fmt.Sprintf("%s (build-qa-%d)", params.Project, *params.Definition)
 	tile.Build.ID = pointer.ToString("12")
 	tile.Build.Branch = pointer.ToString(git.HumanizeBranch(nonempty.String(*params.Branch, "master")))
 
-	tile.Status = nonempty.Struct(params.Status, tu.computeStatus(params.Project, params.Definition, availableBuildStatus)).(models.TileStatus)
+	tile.Status = nonempty.Struct(params.Status, au.computeStatus(params.Project, params.Definition, availableBuildStatus)).(models.TileStatus)
 
 	if tile.Status == models.WarningStatus {
 		// Warning can be Unstable Build
@@ -68,62 +70,10 @@ func (tu *azureDevOpsUsecase) Build(params *azureModels.BuildParams) (tile *mode
 		tile.Build.Author.AvatarURL = nonempty.String(params.AuthorAvatarURL, "https://monitoror.com/assets/images/avatar.png")
 	}
 
-	// StartedAt / FinishedAt
-	if tile.Status == models.SuccessStatus || tile.Status == models.FailedStatus || tile.Status == models.WarningStatus || tile.Status == models.CanceledStatus {
-		min := time.Now().Unix() - int64(time.Hour.Seconds()*24*30) - 3600
-		max := time.Now().Unix() - 3600
-		delta := max - min
-
-		tile.Build.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Unix(rand.Int63n(delta)+min, 0)))
-		tile.Build.FinishedAt = pointer.ToTime(nonempty.Time(params.FinishedAt, tile.Build.StartedAt.Add(time.Second*time.Duration(rand.Int63n(3600)))))
-	}
-	if tile.Status == models.QueuedStatus || tile.Status == models.RunningStatus {
-		tile.Build.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Now().Add(-time.Second*time.Duration(rand.Int63n(3600)))))
-	}
-
 	// Duration / EstimatedDuration
 	if tile.Status == models.RunningStatus {
 		estimatedDuration := nonempty.Duration(time.Duration(params.EstimatedDuration), time.Second*300)
-		tile.Build.Duration = pointer.ToInt64(nonempty.Int64(params.Duration, int64(tu.computeDuration(params.Project, params.Definition, estimatedDuration).Seconds())))
-
-		if tile.Build.PreviousStatus != models.UnknownStatus {
-			tile.Build.EstimatedDuration = pointer.ToInt64(int64(estimatedDuration.Seconds()))
-		} else {
-			tile.Build.EstimatedDuration = pointer.ToInt64(0)
-		}
-	}
-
-	return
-}
-
-func (tu *azureDevOpsUsecase) Release(params *azureModels.ReleaseParams) (tile *models.Tile, err error) {
-	tile = models.NewTile(azuredevops.AzureDevOpsReleaseTileType).WithBuild()
-	tile.Label = fmt.Sprintf("%s (release-%d)", params.Project, *params.Definition)
-	tile.Build.ID = pointer.ToString("12")
-
-	tile.Status = nonempty.Struct(params.Status, tu.computeStatus(params.Project, params.Definition, availableReleaseStatus)).(models.TileStatus)
-
-	if tile.Status == models.WarningStatus {
-		// Warning can be Unstable Build
-		if rand.Intn(2) == 0 {
-			tile.Message = "Fake error message"
-			return
-		}
-	}
-
-	tile.Build.PreviousStatus = nonempty.Struct(params.PreviousStatus, models.SuccessStatus).(models.TileStatus)
-
-	// Author
-	if tile.Status == models.FailedStatus {
-		tile.Build.Author = &models.Author{}
-		tile.Build.Author.Name = nonempty.String(params.AuthorName, "John Doe")
-		tile.Build.Author.AvatarURL = nonempty.String(params.AuthorAvatarURL, "https://monitoror.com/assets/images/avatar.png")
-	}
-
-	// Duration / EstimatedDuration
-	if tile.Status == models.RunningStatus {
-		estimatedDuration := nonempty.Duration(time.Duration(params.EstimatedDuration), time.Second*300)
-		tile.Build.Duration = pointer.ToInt64(nonempty.Int64(params.Duration, int64(tu.computeDuration(params.Project, params.Definition, estimatedDuration).Seconds())))
+		tile.Build.Duration = pointer.ToInt64(nonempty.Int64(params.Duration, int64(au.computeDuration(params.Project, params.Definition, estimatedDuration).Seconds())))
 
 		if tile.Build.PreviousStatus != models.UnknownStatus {
 			tile.Build.EstimatedDuration = pointer.ToInt64(int64(estimatedDuration.Seconds()))
@@ -146,22 +96,74 @@ func (tu *azureDevOpsUsecase) Release(params *azureModels.ReleaseParams) (tile *
 	return
 }
 
-func (tu *azureDevOpsUsecase) computeStatus(project string, definition *int, statuses faker.Statuses) models.TileStatus {
-	projectID := fmt.Sprintf("%s-%d", project, *definition)
-	value, ok := tu.timeRefByProject[projectID]
-	if !ok {
-		tu.timeRefByProject[projectID] = faker.GetRefTime()
+func (au *azureDevOpsUsecase) Release(params *azureModels.ReleaseParams) (tile *models.Tile, err error) {
+	tile = models.NewTile(azuredevops.AzureDevOpsReleaseTileType).WithBuild()
+	tile.Label = fmt.Sprintf("%s (release-%d)", params.Project, *params.Definition)
+	tile.Build.ID = pointer.ToString("12")
+
+	tile.Status = nonempty.Struct(params.Status, au.computeStatus(params.Project, params.Definition, availableReleaseStatus)).(models.TileStatus)
+
+	if tile.Status == models.WarningStatus {
+		// Warning can be Unstable Build
+		if rand.Intn(2) == 0 {
+			tile.Message = "Fake error message"
+			return
+		}
 	}
 
-	return faker.ComputeStatus(value, statuses)
+	tile.Build.PreviousStatus = nonempty.Struct(params.PreviousStatus, models.SuccessStatus).(models.TileStatus)
+
+	// Author
+	if tile.Status == models.FailedStatus {
+		tile.Build.Author = &models.Author{}
+		tile.Build.Author.Name = nonempty.String(params.AuthorName, "John Doe")
+		tile.Build.Author.AvatarURL = nonempty.String(params.AuthorAvatarURL, "https://monitoror.com/assets/images/avatar.png")
+	}
+
+	// Duration / EstimatedDuration
+	if tile.Status == models.RunningStatus {
+		estimatedDuration := nonempty.Duration(time.Duration(params.EstimatedDuration), time.Second*300)
+		tile.Build.Duration = pointer.ToInt64(nonempty.Int64(params.Duration, int64(au.computeDuration(params.Project, params.Definition, estimatedDuration).Seconds())))
+
+		if tile.Build.PreviousStatus != models.UnknownStatus {
+			tile.Build.EstimatedDuration = pointer.ToInt64(int64(estimatedDuration.Seconds()))
+		} else {
+			tile.Build.EstimatedDuration = pointer.ToInt64(0)
+		}
+	}
+
+	// StartedAt / FinishedAt
+	if tile.Build.Duration == nil {
+		tile.Build.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Now().Add(-time.Minute*10)))
+	} else {
+		tile.Build.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Now().Add(-time.Second*time.Duration(*tile.Build.Duration))))
+	}
+
+	if tile.Status != models.QueuedStatus && tile.Status != models.RunningStatus {
+		tile.Build.FinishedAt = pointer.ToTime(nonempty.Time(params.FinishedAt, tile.Build.StartedAt.Add(time.Minute*5)))
+	}
+
+	return
 }
 
-func (tu *azureDevOpsUsecase) computeDuration(project string, definition *int, duration time.Duration) time.Duration {
+func (au *azureDevOpsUsecase) computeStatus(project string, definition *int, statuses faker.Statuses) models.TileStatus {
 	projectID := fmt.Sprintf("%s-%d", project, *definition)
-	value, ok := tu.timeRefByProject[projectID]
-	if !ok {
-		tu.timeRefByProject[projectID] = faker.GetRefTime()
+	value, ok := au.timeRefByProject.Get(projectID)
+	if !ok || value == nil {
+		value = faker.GetRefTime()
+		au.timeRefByProject.Set(projectID, value)
 	}
 
-	return faker.ComputeDuration(value, duration)
+	return faker.ComputeStatus(value.(time.Time), statuses)
+}
+
+func (au *azureDevOpsUsecase) computeDuration(project string, definition *int, duration time.Duration) time.Duration {
+	projectID := fmt.Sprintf("%s-%d", project, *definition)
+	value, ok := au.timeRefByProject.Get(projectID)
+	if !ok || value == nil {
+		value = faker.GetRefTime()
+		au.timeRefByProject.Set(projectID, value)
+	}
+
+	return faker.ComputeDuration(value.(time.Time), duration)
 }

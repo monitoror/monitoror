@@ -7,6 +7,8 @@ import (
 	"math/rand"
 	"time"
 
+	cmap "github.com/orcaman/concurrent-map"
+
 	"github.com/AlekSi/pointer"
 	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/github"
@@ -19,7 +21,7 @@ import (
 
 type (
 	githubUsecase struct {
-		timeRefByProject map[string]time.Time
+		timeRefByProject cmap.ConcurrentMap
 	}
 )
 
@@ -35,7 +37,7 @@ var availableBuildStatus = faker.Statuses{
 }
 
 func NewGithubUsecase() github.Usecase {
-	return &githubUsecase{make(map[string]time.Time)}
+	return &githubUsecase{cmap.New()}
 }
 
 func (gu *githubUsecase) Count(params *githubModels.CountParams) (*models.Tile, error) {
@@ -113,20 +115,22 @@ func (gu *githubUsecase) ListDynamicTile(params interface{}) ([]builder.Result, 
 
 func (gu *githubUsecase) computeStatus(params *githubModels.ChecksParams) models.TileStatus {
 	projectID := fmt.Sprintf("%s-%s-%s", params.Owner, params.Repository, params.Ref)
-	value, ok := gu.timeRefByProject[projectID]
-	if !ok {
-		gu.timeRefByProject[projectID] = faker.GetRefTime()
+	value, ok := gu.timeRefByProject.Get(projectID)
+	if !ok || value == nil {
+		value = faker.GetRefTime()
+		gu.timeRefByProject.Set(projectID, value)
 	}
 
-	return faker.ComputeStatus(value, availableBuildStatus)
+	return faker.ComputeStatus(value.(time.Time), availableBuildStatus)
 }
 
 func (gu *githubUsecase) computeDuration(params *githubModels.ChecksParams, duration time.Duration) time.Duration {
 	projectID := fmt.Sprintf("%s-%s-%s", params.Owner, params.Repository, params.Ref)
-	value, ok := gu.timeRefByProject[projectID]
-	if !ok {
-		gu.timeRefByProject[projectID] = faker.GetRefTime()
+	value, ok := gu.timeRefByProject.Get(projectID)
+	if !ok || value == nil {
+		value = faker.GetRefTime()
+		gu.timeRefByProject.Set(projectID, value)
 	}
 
-	return faker.ComputeDuration(value, duration)
+	return faker.ComputeDuration(value.(time.Time), duration)
 }
