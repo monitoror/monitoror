@@ -81,7 +81,6 @@
     })
   })
 
-
   document.querySelector('.m-sidebar').addEventListener('click', (e) => {
     e.stopPropagation()
   })
@@ -93,6 +92,21 @@
 // Run highlight.js
 if (typeof hljs !== 'undefined') {
   hljs.initHighlightingOnLoad()
+}
+
+// Fill data-download-platform href
+const downloadLinks = Array.from(document.querySelectorAll('[data-download-platform]'))
+if (downloadLinks.length > 0) {
+  fetch('https://api.github.com/repos/monitoror/monitoror/releases/latest').then((response) => {
+    response.json().then((body) => {
+      const assets = body.assets
+
+      downloadLinks.forEach((a) => {
+        const downloadUrl = assets.find((asset) => asset.name.includes(a.dataset.downloadPlatform)).browser_download_url
+        a.href = downloadUrl
+      })
+    })
+  })
 }
 
 // Input with auto "select on click" behaviour
