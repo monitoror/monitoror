@@ -12,11 +12,11 @@ import (
 	"github.com/monitoror/monitoror/monitorable/config/models"
 )
 
-func (cu *configUsecase) Hydrate(conf *models.Config) {
-	cu.hydrateTiles(conf, &conf.Tiles)
+func (cu *configUsecase) Hydrate(configBag *models.ConfigBag) {
+	cu.hydrateTiles(configBag, &configBag.Config.Tiles)
 }
 
-func (cu *configUsecase) hydrateTiles(conf *models.Config, tiles *[]models.Tile) {
+func (cu *configUsecase) hydrateTiles(configBag *models.ConfigBag, tiles *[]models.Tile) {
 	for i := 0; i < len(*tiles); i++ {
 		tile := &((*tiles)[i])
 		if tile.Type != EmptyTileType && tile.Type != GroupTileType {
@@ -27,14 +27,14 @@ func (cu *configUsecase) hydrateTiles(conf *models.Config, tiles *[]models.Tile)
 		}
 
 		if _, exists := cu.dynamicTileConfigs[tile.Type]; !exists {
-			cu.hydrateTile(conf, tile)
+			cu.hydrateTile(configBag, tile)
 
 			if tile.Type == GroupTileType && len(tile.Tiles) == 0 {
 				*tiles = append((*tiles)[:i], (*tiles)[i+1:]...)
 				i--
 			}
 		} else {
-			dynamicTiles := cu.hydrateDynamicTile(conf, tile)
+			dynamicTiles := cu.hydrateDynamicTile(configBag, tile)
 
 			// Remove DynamicTile config and add real dynamic tiles in array
 			temp := append((*tiles)[:i], dynamicTiles...)
@@ -45,14 +45,14 @@ func (cu *configUsecase) hydrateTiles(conf *models.Config, tiles *[]models.Tile)
 	}
 }
 
-func (cu *configUsecase) hydrateTile(conf *models.Config, tile *models.Tile) {
+func (cu *configUsecase) hydrateTile(configBag *models.ConfigBag, tile *models.Tile) {
 	// Empty tile, skip
 	if tile.Type == EmptyTileType {
 		return
 	}
 
 	if tile.Type == GroupTileType {
-		cu.hydrateTiles(conf, &tile.Tiles)
+		cu.hydrateTiles(configBag, &tile.Tiles)
 		return
 	}
 
@@ -80,7 +80,7 @@ func (cu *configUsecase) hydrateTile(conf *models.Config, tile *models.Tile) {
 	tile.ConfigVariant = ""
 }
 
-func (cu *configUsecase) hydrateDynamicTile(conf *models.Config, tile *models.Tile) []models.Tile {
+func (cu *configUsecase) hydrateDynamicTile(configBag *models.ConfigBag, tile *models.Tile) []models.Tile {
 	dynamicTileConfig := cu.dynamicTileConfigs[tile.Type][tile.ConfigVariant]
 
 	// Create new validator by reflexion
@@ -98,10 +98,22 @@ func (cu *configUsecase) hydrateDynamicTile(conf *models.Config, tile *models.Ti
 		if os.IsTimeout(err) {
 			// Get previous value in cache
 			if err := cu.dynamicTileStore.Get(cacheKey, &results); err != nil {
-				conf.AddWarnings(fmt.Sprintf(`Warning while listing %s dynamic tiles (params: %s). %v`, tile.Type, string(bParams), "timeout/host unreachable"))
+				configBag.AddErrors(models.ConfigError{
+					ID:      models.ConfigErrorUnableToHydrate,
+					Message: fmt.Sprintf(`Error while listing %s dynamic tiles (params: %s). Timeout or host unreachable`, tile.Type, string(bParams)),
+					Data: models.ConfigErrorData{
+						ConfigExtract: stringify(tile),
+					},
+				})
 			}
 		} else {
-			conf.AddErrors(fmt.Sprintf(`Error while listing %s dynamic tiles (params: %s). %v`, tile.Type, string(bParams), err))
+			configBag.AddErrors(models.ConfigError{
+				ID:      models.ConfigErrorUnableToHydrate,
+				Message: fmt.Sprintf(`Error while listing %s dynamic tiles (params: %s). %v`, tile.Type, string(bParams), err),
+				Data: models.ConfigErrorData{
+					ConfigExtract: stringify(tile),
+				},
+			})
 		}
 	} else {
 		// Add result in cache

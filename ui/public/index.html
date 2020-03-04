@@ -15,28 +15,37 @@
   <!-- OpenGraph / Twitter cards -->
   <% if (typeof(VUE_APP_CANONICAL_URL) !== 'undefined') { %>
   <link rel="canonical" href="<%= VUE_APP_CANONICAL_URL %>">
-  <meta property="og:image" content="https://monitoror.com/assets/images/opengraph.png" />
-  <meta property="og:site_name" content="Monitoror" />
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="Monitoror — Unified monitoring wallboard" />
-  <meta property="og:url" content="<%= VUE_APP_CANONICAL_URL %>" />
-  <meta property="og:description" content="Monitoror is a wallboard monitoring app to monitor server status; monitor CI builds progress or even display critical values" />
+  <meta property="og:image" content="https://monitoror.com/assets/images/opengraph.png"/>
+  <meta property="og:site_name" content="Monitoror"/>
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="Monitoror — Unified monitoring wallboard"/>
+  <meta property="og:url" content="<%= VUE_APP_CANONICAL_URL %>"/>
+  <meta property="og:description"
+        content="Monitoror is a wallboard monitoring app to monitor server status; monitor CI builds progress or even display critical values"/>
   <% } %>
-  <meta name="twitter:image:src" content="https://monitoror.com/assets/images/opengraph.png" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Monitoror — Unified monitoring wallboard" />
-  <meta name="twitter:description" content="Monitoror is a wallboard monitoring app to monitor server status; monitor CI builds progress or even display critical values" />
+  <meta name="twitter:image:src" content="https://monitoror.com/assets/images/opengraph.png"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Monitoror — Unified monitoring wallboard"/>
+  <meta name="twitter:description"
+        content="Monitoror is a wallboard monitoring app to monitor server status; monitor CI builds progress or even display critical values"/>
 
   <style>
     :root {
-      --color-background: #2c3e50;
+      --color-background: #132d46;
+      --color-dark-background: #15202b;
+      --color-docs-background: #20252a;
+      --color-code-background: #171b20;
+      --color-cello: #204263;
       --color-text: var(--color-background);
+      --color-spindle: #cfdff0;
+      --color-spring-wood: #f8f8f2;
       --color-succeeded: #88d8b0;
       --color-failed: #ff6f69;
       --color-warning: #ffcc5c;
       --color-unknown: #9ca3ab;
       --color-canceled: #e3eaf1;
       --color-action-required: #57c0ff;
+      --color-succeeded-dark: #252d30;
     }
 
     html,
@@ -47,10 +56,10 @@
       width: 100%;
       background: var(--color-background);
       color: #fff;
-      font-family: Arial, sans-serif;
+      font-family: "Open Sans", sans-serif;
       font-size: 18px;
-      font-weight: bold;
-      user-select: none;
+      font-weight: 600;
+      line-height: 1.2;
     }
 
     *,
@@ -62,17 +71,57 @@
     }
 
     @font-face {
+      font-family: 'Open Sans';
+      src: url('./fonts/open-sans-regular.woff2') format('woff2');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'Open Sans';
+      src: url('./fonts/open-sans-semibold.woff2') format('woff2');
+      font-weight: 600;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'Open Sans';
+      src: url('./fonts/open-sans-bold.woff2') format('woff2');
+      font-weight: 700;
+      font-style: normal;
+    }
+
+    @font-face {
       font-family: 'JetBrains Mono';
       src: url('./fonts/jetbrains-mono-regular.woff2') format('woff2');
       font-weight: normal;
       font-style: normal;
     }
 
-    @media screen and (min-width: 751px) {
-      html,
-      body {
-        overflow: hidden;
-      }
+    /* Underlined links */
+    a {
+      position: relative;
+      display: inline-block;
+      text-decoration: none;
+    }
+
+    a::after {
+      content: "";
+      transform-origin: 0 0;
+      transform: scaleX(0);
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      left: 0;
+      height: 2px;
+      background: currentColor;
+      opacity: 0.7;
+      will-change: transform;
+      transition: transform 150ms;
+    }
+
+    a:hover::after {
+      transform: scaleX(1);
     }
   </style>
 </head>

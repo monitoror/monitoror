@@ -1,4 +1,5 @@
 import axios from 'axios'
+import {now} from 'lodash-es'
 import {Md5 as md5} from 'ts-md5/dist/md5'
 import Vue from 'vue'
 import Vuex, {StoreOptions} from 'vuex'
@@ -6,6 +7,7 @@ import Vuex, {StoreOptions} from 'vuex'
 import DISPLAYABLE_SUBTILE_STATUS from '@/constants/displayableSubtileStatus'
 
 import Task from '@/classes/task'
+import ConfigErrorId from '@/enums/configErrorId'
 import TaskInterval from '@/enums/taskInterval'
 import TaskType from '@/enums/taskType'
 import Theme from '@/enums/theme'
@@ -14,11 +16,12 @@ import getQueryParamValue from '@/helpers/getQueryParamValue'
 import getSubTilePreviousOrStatus from '@/helpers/getSubTilePreviousOrStatus'
 import mostImportantStatus from '@/helpers/mostImportantStatus'
 import Config from '@/interfaces/config'
+import ConfigBag from '@/interfaces/configBag'
+import ConfigError from '@/interfaces/configError'
 import Info from '@/interfaces/info'
 import TaskOptions from '@/interfaces/taskOptions'
 import TileConfig from '@/interfaces/tileConfig'
 import TileState from '@/interfaces/tileState'
-import {now} from 'lodash-es'
 
 Vue.use(Vuex)
 
@@ -26,64 +29,66 @@ const API_BASE_PATH = '/api/v1'
 const INFO_URL = '/info'
 
 export interface RootState {
-  version: string | undefined,
+  appVersion: string | undefined,
+  configVersion: string | undefined,
   columns: number,
   zoom: number,
   tiles: TileConfig[],
   tilesState: { [key: string]: TileState },
   tasks: Task[],
-  configurationFetchFailedAttemptsCount: number,
+  errors: ConfigError[],
   online: boolean,
   now: Date,
+  lastRefreshDate: Date,
 }
 
 const store: StoreOptions<RootState> = {
   state: {
-    version: undefined,
+    appVersion: undefined,
+    configVersion: undefined,
     columns: 4,
     zoom: 1,
     tiles: [],
     tilesState: {},
     tasks: [],
-    configurationFetchFailedAttemptsCount: 0,
+    errors: [],
     online: true,
     now: new Date(),
+    lastRefreshDate: new Date(),
   },
   getters: {
     apiBaseUrl(): string {
       const defaultApiBaseUrl = window.location.origin
-      let apiBaseUrl = getQueryParamValue('apiBaseUrl', defaultApiBaseUrl)
+      let apiBaseUrl = getQueryParamValue('apiBaseUrl', defaultApiBaseUrl) as string
 
       apiBaseUrl = apiBaseUrl.replace(/\/+$/, '')
 
       return apiBaseUrl
     },
-    configPath(): string {
+    configPath(): string | undefined {
       const configPath = getQueryParamValue('configPath')
 
       return configPath
     },
-    configUrl(): string {
+    configUrl(): string | undefined {
       const configUrl = getQueryParamValue('configUrl')
 
       return configUrl
     },
-    proxyfiedConfigUrl(state, getters): string {
+    proxyfiedConfigUrl(state, getters): string | undefined {
       const configProxyUrl = `${getters.apiBaseUrl}${API_BASE_PATH}/config`
 
-      if (getters.configUrl !== '') {
+      if (getters.configUrl !== undefined) {
         return `${configProxyUrl}?url=${getters.configUrl}`
       }
 
-      if (getters.configPath !== '') {
+      if (getters.configPath !== undefined) {
         return `${configProxyUrl}?path=${getters.configPath}`
       }
-
-      return ''
     },
     theme(): Theme {
       let theme = Theme.Default
-      const queryTheme = getQueryParamValue('theme', theme)
+      const queryTheme = getQueryParamValue('theme', theme) as string
 
       if (Object.values(Theme).includes(queryTheme.toUpperCase() as Theme)) {
         theme = queryTheme.toUpperCase() as Theme
@@ -153,15 +158,19 @@ const store: StoreOptions<RootState> = {
     },
   },
   mutations: {
-    setVersion(state, payload: string): void {
-      state.version = payload
+    setAppVersion(state, payload: string): void {
+      state.appVersion = payload
     },
     setConfig(state, payload: Config): void {
+      state.configVersion = payload.version
       state.columns = payload.columns
-      if (payload.zoom) {
+      if (payload.zoom !== undefined) {
         state.zoom = payload.zoom
       }
       state.tiles = payload.tiles
+    },
+    setErrors(state, payload: ConfigError[]): void {
+      state.errors = payload
     },
     setTileState(state, payload: { tileStateKey: string, tileState: TileState }): void {
       if (!state.tilesState.hasOwnProperty(payload.tileStateKey)) {
@@ -179,8 +188,8 @@ const store: StoreOptions<RootState> = {
     addTask(state, payload: Task): void {
       state.tasks.push(payload)
     },
-    setConfigurationFetchFailedAttemptsCount(state, payload: number): void {
-      state.configurationFetchFailedAttemptsCount = payload
+    setLastRefreshDate(state, payload: Date): void {
+      state.lastRefreshDate = payload
     },
     setNow(state, payload: Date): void {
       state.now = payload
@@ -194,17 +203,28 @@ const store: StoreOptions<RootState> = {
         .then((response) => {
           const info: Info = response.data
 
-          if (state.version === undefined) {
-            commit('setVersion', info.version)
+          if (state.appVersion === undefined) {
+            commit('setAppVersion', info.version)
             return
           }
 
-          if (info.version !== state.version) {
+          if (info.version !== state.appVersion) {
             window.location.reload()
           }
         })
     },
     async fetchConfiguration({commit, state, getters, dispatch}) {
+      if (getters.proxyfiedConfigUrl === undefined) {
+        const configPathOrUrlIsMissing: ConfigError = {
+          id: ConfigErrorId.MissingPathOrUrl,
+          message: 'configPath or configUrl query param is missing',
+          data: {},
+        }
+
+        commit('setErrors', [configPathOrUrlIsMissing])
+        return
+      }
+
       const hydrateTile = (tile: TileConfig, groupTile?: TileConfig) => {
         // Create a identifier based on tile configuration
         tile.stateKey = tile.type + '_' + md5.hashStr(JSON.stringify(tile))
@@ -225,18 +245,27 @@ const store: StoreOptions<RootState> = {
         return tile
       }
 
+      commit('setLastRefreshDate', new Date())
+
       return axios.get(getters.proxyfiedConfigUrl)
         .then((response) => {
-          const config: Config = response.data
+          const configBag: ConfigBag = response.data
 
           // Kill old refreshTile tasks
           state.tasks
             .filter((task) => task.type === TaskType.RefreshTile && !getters.tileStateKeys.includes(task.id))
             .map((task) => task.kill())
 
-          config.tiles = config.tiles.map((tile) => hydrateTile(tile))
+          if (configBag.errors !== undefined) {
+            commit('setErrors', configBag.errors)
+          } else {
+            commit('setErrors', [])
 
-          commit('setConfig', config)
+            if (configBag.config !== undefined) {
+              configBag.config.tiles = configBag.config.tiles.map((tile) => hydrateTile(tile))
+              commit('setConfig', configBag.config)
+            }
+          }
         })
     },
     createRefreshTileTask({dispatch}, {tile, groupTile}: { tile: TileConfig, groupTile?: TileConfig }) {
@@ -347,7 +376,7 @@ const store: StoreOptions<RootState> = {
       state.tasks.map((task: Task) => task.kill())
       commit('setTasks', [])
     },
-    init({commit, dispatch}) {
+    init({state, commit, dispatch}) {
       // Run auto-update each minute
       dispatch('addTask', {
         id: 'autoUpdate',
@@ -367,8 +396,18 @@ const store: StoreOptions<RootState> = {
         },
         interval: 1 * TaskInterval.Minute,
         retryOnFailInterval: 5 * TaskInterval.Second,
-        onFailedAttemptsCountChange: (failedAttemptsCount: number) => {
-          commit('setConfigurationFetchFailedAttemptsCount', failedAttemptsCount)
+        onFailedCallback: () => {
+          // When offline, we know why we cannot get a response from the Core
+          if (!state.online) {
+            return
+          }
+
+          const configCannotBeFetch: ConfigError = {
+            id: ConfigErrorId.CannotBeFetched,
+            message: 'Configuration cannot be fetch from Monitoror Core',
+            data: {},
+          }
+          commit('setErrors', [configCannotBeFetch])
         },
       })
 

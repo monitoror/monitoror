@@ -15,8 +15,8 @@ func TestNewConfigRepository(t *testing.T) {
 func TestRepository_ReadConfig_Success(t *testing.T) {
 	input := `
 {
+	"version": "1.8",
   "columns": 4,
-  "apiBaseURL": "localhost:3000",
   "tiles": [
     { "type": "EMPTY" },
     { "type": "PING", "label": "...", "params": { "hostname": "server.com"}},
@@ -30,14 +30,34 @@ func TestRepository_ReadConfig_Success(t *testing.T) {
 	config, err := ReadConfig(strings.NewReader(input))
 
 	assert.NoError(t, err)
+	assert.Equal(t, "1.8", config.Version.String())
 	assert.Equal(t, 4, *config.Columns)
+}
+
+func TestRepository_ReadConfig_WrongVersion(t *testing.T) {
+	input := `
+{
+	"version": 8,
+  "columns": 4,
+  "tiles": [
+    { "type": "EMPTY" },
+    { "type": "PING", "label": "...", "params": { "hostname": "server.com"}},
+    { "type": "GROUP", "label": "...", "tiles": [
+      { "type": "PING", "params": { "hostname": "aserver.com" }},
+      { "type": "PORT", "params": { "hostname": "bserver.com", "port": 22 }}
+    ]}
+  ]
+}
+`
+	_, err := ReadConfig(strings.NewReader(input))
+	assert.Error(t, err)
+	assert.Equal(t, "json: cannot unmarshal 8 into Go struct field Config.ConfigVersion of type string and X.y format", err.Error())
 }
 
 func TestRepository_ReadConfig_Error_WrongJson(t *testing.T) {
 	input := `
 {
   "columns": 4,
-  "apiBaseURL": "localhost:3000",
   "tiles": [
     { "type": "EMPTY" },
     { "type": "PING", "label": "...", "params": { "hostname": "server.com"}},
@@ -55,7 +75,6 @@ func TestRepository_ReadConfig_Error_WrongJson2(t *testing.T) {
 	input := `
 {
   "columns": "4",
-  "apiBaseURL": "localhost:3000",
   "tiles": [
     { "type": "EMPTY" },
     { "type": "PING", "label": "...", "params": { "hostname": "server.com"}}

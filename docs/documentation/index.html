@@ -356,6 +356,13 @@ chmod +x monitoror
         </li>
       </ul>
 
+      <h5 class="m-documentation--configuration-side-title">UI query string parameters</h5>
+
+      <p class="note">
+        <span class="tag">Note</span>
+        One of <code>configUrl</code> or <code>configPath</code> is required to get the UI working.
+      </p>
+
       <dl>
         <dt><code>configUrl</code> <code class="type">string</code></dt>
         <dd>
@@ -366,14 +373,25 @@ chmod +x monitoror
         <dd>
           A path to a <code>.json</code> file, relative to Monitoror installation folder
         </dd>
+
+        <dt><code>theme</code> <code class="type">string</code></dt>
+        <dd>
+          One of the following supported themes:
+          <ul>
+            <li><code>default</code> — <a href="https://demo.monitoror.com/?theme=default">Default theme demo</a></li>
+            <li><code>dark</code> — <a href="https://demo.monitoror.com/?theme=dark">Dark theme demo</a></li>
+          </ul>
+        </dd>
       </dl>
+
+      <h5 class="m-documentation--configuration-side-title">UI configuration file sample</h5>
 
       <p>
         The file is structured like this:
       </p>
       <pre><code class="language-json">
 {
-  "version": 6,
+  "version": "1.0",
   "columns": 2,
   "tiles": [
     {
@@ -393,12 +411,12 @@ chmod +x monitoror
       <h5 class="m-documentation--configuration-side-title">UI root properties</h5>
 
       <dl>
-        <dt><code>version</code> <code class="type">number</code> <span class="required">required</span></dt>
+        <dt><code>version</code> <code class="type">string</code> <span class="required">required</span></dt>
         <dd>
           The configuration format version. <br>
           <p class="note">
             <span class="tag">Note</span>
-            Current version is <code>6</code>
+            Current version is <code>"1.0"</code>
           </p>
         </dd>
 
@@ -1080,6 +1098,7 @@ chmod +x monitoror
   }
 }
         </code></pre>
+      </div>
     </div>
 
     <div class="m-documentation--block">

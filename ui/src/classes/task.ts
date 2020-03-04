@@ -12,9 +12,9 @@ export default class Task {
   private done: boolean = false
   private dead: boolean = false
   private internalTime: number
-  private internalFailedAttemptsCount: number = 0
+  private failedAttemptsCount: number = 0
   private readonly executor: () => Promise<void>
-  private readonly onFailedAttemptsCountChange: (failedAttemptsCount: number) => void
+  private readonly onFailedCallback: (failedAttemptsCount: number) => void
 
   constructor(
     {
@@ -24,7 +24,7 @@ export default class Task {
       interval = 0,
       initialDelay = 0,
       retryOnFailInterval = 0,
-      onFailedAttemptsCountChange = noop,
+      onFailedCallback = noop,
     }: TaskOptions,
   ) {
     this.id = id
@@ -33,20 +33,11 @@ export default class Task {
     this.retryOnFailInterval = retryOnFailInterval
     this.internalTime = now() + initialDelay
     this.executor = executor
-    this.onFailedAttemptsCountChange = onFailedAttemptsCountChange
+    this.onFailedCallback = onFailedCallback
   }
 
   get time() {
     return this.internalTime
-  }
-
-  set failedAttemptsCount(failedAttemptsCount: number) {
-    this.internalFailedAttemptsCount = failedAttemptsCount
-    this.onFailedAttemptsCountChange(this.internalFailedAttemptsCount)
-  }
-
-  get failedAttemptsCount() {
-    return this.internalFailedAttemptsCount
   }
 
   public isRunning() {
@@ -73,9 +64,9 @@ export default class Task {
     this.running = true
     try {
       await this.executor()
-      this.failedAttemptsCount = 0
     } catch (e) {
       this.failedAttemptsCount += 1
+      this.onFailedCallback(this.failedAttemptsCount)
     }
     this.done = true
     this.running = false
