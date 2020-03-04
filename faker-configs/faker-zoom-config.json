@@ -1,0 +1,8 @@
+{
+  "version": "1.0",
+  "columns": 1,
+  "zoom": 5,
+  "tiles": [
+    { "type": "PING", "label": "Big Ping" ,"params": { "hostname": "example.com", "status": "SUCCESS" } }
+  ]
+}

@@ -37,6 +37,9 @@ jobs:
 
       - name: ui / build
         working-directory: ui
+        env:
+          VUE_APP_TITLE: "Demo — Monitoror, unified monitoring wallboard"
+          VUE_APP_CANONICAL_URL: https://demo.monitoror.com
         run: yarn run build
 
       - name: core / build

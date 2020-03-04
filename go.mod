@@ -20,6 +20,7 @@ require (
 	github.com/jsdidierlaurent/golang-jenkins v0.0.0-20190826091201-0ea4c9df4e09
 	github.com/labstack/echo/v4 v4.1.7
 	github.com/labstack/gommon v0.2.9
+	github.com/magiconair/properties v1.8.0
 	github.com/orcaman/concurrent-map v0.0.0-20190314100340-2693aad1ed75
 	github.com/prometheus/common v0.4.0
 	github.com/satori/go.uuid v1.2.0

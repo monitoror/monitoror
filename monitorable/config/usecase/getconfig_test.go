@@ -4,83 +4,71 @@ import (
 	"errors"
 	"testing"
 
-	"github.com/monitoror/monitoror/monitorable/config"
 	"github.com/monitoror/monitoror/monitorable/config/mocks"
 	"github.com/monitoror/monitoror/monitorable/config/models"
-	"github.com/monitoror/monitoror/monitorable/jenkins"
-	_jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
-	"github.com/monitoror/monitoror/monitorable/ping"
-	_pingModels "github.com/monitoror/monitoror/monitorable/ping/models"
-	"github.com/monitoror/monitoror/monitorable/port"
-	_portModels "github.com/monitoror/monitoror/monitorable/port/models"
 
-	"github.com/AlekSi/pointer"
-	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"
 )
 
-func initConfigUsecase(repository config.Repository, store cache.Store) *configUsecase {
-	usecase := NewConfigUsecase(repository, store, 5000)
-
-	usecase.RegisterTile(ping.PingTileType, &_pingModels.PingParams{}, "/ping", 1000)
-	usecase.RegisterTile(port.PortTileType, &_portModels.PortParams{}, "/port", 1000)
-	usecase.RegisterTile(jenkins.JenkinsBuildTileType, &_jenkinsModels.BuildParams{}, "/jenkins/default", 1000)
-
-	return usecase.(*configUsecase)
-}
-
-func TestUsecase_Load_WithURL_Success(t *testing.T) {
+func TestUsecase_GetConfig_WithURL_Success(t *testing.T) {
 	mockRepo := new(mocks.Repository)
 	mockRepo.On("GetConfigFromURL", AnythingOfType("string")).Return(&models.Config{}, nil)
 
 	usecase := initConfigUsecase(mockRepo, nil)
 
-	_, err := usecase.GetConfig(&models.ConfigParams{URL: "test"})
-	if assert.NoError(t, err) {
+	configBag := usecase.GetConfig(&models.ConfigParams{URL: "test"})
+	if assert.Len(t, configBag.Errors, 0) {
 		mockRepo.AssertNumberOfCalls(t, "GetConfigFromURL", 1)
 		mockRepo.AssertExpectations(t)
 	}
 }
 
-func TestUsecase_Load_WithPath_Success(t *testing.T) {
+func TestUsecase_GetConfig_WithPath_Success(t *testing.T) {
 	mockRepo := new(mocks.Repository)
 	mockRepo.On("GetConfigFromPath", AnythingOfType("string")).Return(&models.Config{}, nil)
 
 	usecase := initConfigUsecase(mockRepo, nil)
 
-	_, err := usecase.GetConfig(&models.ConfigParams{Path: "test"})
-	if assert.NoError(t, err) {
+	configBag := usecase.GetConfig(&models.ConfigParams{Path: "test"})
+	if assert.Len(t, configBag.Errors, 0) {
 		mockRepo.AssertNumberOfCalls(t, "GetConfigFromPath", 1)
 		mockRepo.AssertExpectations(t)
 	}
 }
 
-func TestUsecase_Load_Failed(t *testing.T) {
-	mockRepo := new(mocks.Repository)
-	mockRepo.On("GetConfigFromPath", AnythingOfType("string")).Return(nil, errors.New("boom"))
+func TestUsecase_GetConfig_WithError(t *testing.T) {
+	for _, testcase := range []struct {
+		err     error
+		errorID models.ConfigErrorID
+	}{
+		{
+			err:     errors.New("boom"),
+			errorID: models.ConfigErrorUnexpectedError,
+		},
+		{
+			err:     &models.ConfigFileNotFoundError{Err: errors.New("boom"), PathOrURL: "path"},
+			errorID: models.ConfigErrorConfigNotFound,
+		},
+		{
+			err:     &models.ConfigVersionFormatError{WrongVersion: "18"},
+			errorID: models.ConfigErrorUnsupportedVersion,
+		},
+		{
+			err:     &models.ConfigUnmarshalError{Err: errors.New("boom"), RawConfig: ""},
+			errorID: models.ConfigErrorUnableToParseConfig,
+		},
+	} {
+		mockRepo := new(mocks.Repository)
+		mockRepo.On("GetConfigFromPath", AnythingOfType("string")).Return(nil, testcase.err)
 
-	usecase := initConfigUsecase(mockRepo, nil)
+		usecase := initConfigUsecase(mockRepo, nil)
 
-	_, err := usecase.GetConfig(&models.ConfigParams{Path: "test"})
-	if assert.Error(t, err) {
-		mockRepo.AssertNumberOfCalls(t, "GetConfigFromPath", 1)
-		mockRepo.AssertExpectations(t)
+		configBag := usecase.GetConfig(&models.ConfigParams{Path: "test"})
+		if assert.Len(t, configBag.Errors, 1) {
+			assert.Equal(t, testcase.errorID, configBag.Errors[0].ID)
+			mockRepo.AssertNumberOfCalls(t, "GetConfigFromPath", 1)
+			mockRepo.AssertExpectations(t)
+		}
 	}
-}
-
-func TestUsecase_Load_Version(t *testing.T) {
-	mockRepo := new(mocks.Repository)
-	mockRepo.On("GetConfigFromPath", AnythingOfType("string")).Return(&models.Config{}, nil)
-	usecase := initConfigUsecase(mockRepo, nil)
-
-	c, _ := usecase.GetConfig(&models.ConfigParams{Path: "test"})
-	assert.Nil(t, c.Version)
-
-	mockRepo = new(mocks.Repository)
-	mockRepo.On("GetConfigFromPath", AnythingOfType("string")).Return(&models.Config{Version: pointer.ToInt(2)}, nil)
-	usecase.repository = mockRepo
-
-	c, _ = usecase.GetConfig(&models.ConfigParams{Path: "test"})
-	assert.Equal(t, 2, *c.Version)
 }

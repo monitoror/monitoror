@@ -187,7 +187,7 @@ func TestRepository_GetLastBuildStatus_Success(t *testing.T) {
 
 	// Expected
 	expectedBuild := &jenkinsModels.Build{
-		Number:   string(jenkinsBuild.Number),
+		Number:   "1",
 		FullName: jenkinsBuild.FullDisplayName,
 		Author: &models.Author{
 			Name:      jenkinsBuild.ChangeSets[0].Items[0].Author.FullName,

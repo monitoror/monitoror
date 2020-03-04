@@ -22,30 +22,23 @@ type Usecase struct {
 }
 
 // GetConfig provides a mock function with given fields: params
-func (_m *Usecase) GetConfig(params *models.ConfigParams) (*models.Config, error) {
+func (_m *Usecase) GetConfig(params *models.ConfigParams) *models.ConfigBag {
 	ret := _m.Called(params)
 
-	var r0 *models.Config
-	if rf, ok := ret.Get(0).(func(*models.ConfigParams) *models.Config); ok {
+	var r0 *models.ConfigBag
+	if rf, ok := ret.Get(0).(func(*models.ConfigParams) *models.ConfigBag); ok {
 		r0 = rf(params)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.Config)
+			r0 = ret.Get(0).(*models.ConfigBag)
 		}
 	}
 
-	var r1 error
-	if rf, ok := ret.Get(1).(func(*models.ConfigParams) error); ok {
-		r1 = rf(params)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
+	return r0
 }
 
 // Hydrate provides a mock function with given fields: _a0
-func (_m *Usecase) Hydrate(_a0 *models.Config) {
+func (_m *Usecase) Hydrate(_a0 *models.ConfigBag) {
 	_m.Called(_a0)
 }
 
@@ -70,6 +63,6 @@ func (_m *Usecase) RegisterTileWithConfigVariant(tileType monitorormodels.TileTy
 }
 
 // Verify provides a mock function with given fields: _a0
-func (_m *Usecase) Verify(_a0 *models.Config) {
+func (_m *Usecase) Verify(_a0 *models.ConfigBag) {
 	_m.Called(_a0)
 }

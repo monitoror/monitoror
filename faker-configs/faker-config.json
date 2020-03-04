@@ -1,5 +1,5 @@
 {
-  "version": 5,
+  "version": "1.0",
   "columns": 4,
   "tiles": [
     { "type": "PING", "columnSpan": 2, "label": "test1" ,"params": { "hostname": "example.com", "status": "SUCCESS" } },
@@ -7,8 +7,8 @@
     { "type": "PORT", "params": { "hostname": "bserver.com", "port": 22, "status": "SUCCESS" } },
     { "type": "PORT", "params": { "hostname": "bserver.com", "port": 22, "status": "FAILURE" } },
     { "type": "GROUP", "label": "Group SUCCESS", "tiles": [
-      { "type": "PING", "params": { "hostname": "example.com", "status": "SUCCESS" } },
-      { "type": "PORT", "params": { "hostname": "bserver.com", "port": 22, "status": "SUCCESS" } }
+      { "type": "PING", "params": { "hostname": "demo.monitoror.com", "status": "SUCCESS" } },
+      { "type": "PORT", "params": { "hostname": "build.monitoror.com", "port": 22, "status": "SUCCESS" } }
     ]},
     { "type": "GROUP", "label": "Group FAILURE", "rowSpan": 3, "tiles": [
       { "type": "PING", "params": { "hostname": "example.com", "status": "FAILURE" } },
@@ -18,7 +18,7 @@
       { "type": "PORT", "params": { "hostname": "bserver.com", "port": 443, "status": "FAILURE" } }
     ]},
     { "type": "GROUP", "label": "Partially failed group", "tiles": [
-      { "type": "PING", "params": { "hostname": "example.com", "status": "SUCCESS" } },
+      { "type": "PING", "params": { "hostname": "monitoror.com", "status": "SUCCESS" } },
       { "type": "PORT", "params": { "hostname": "bserver.com", "port": 22, "status": "FAILURE" } }
     ]},
     { "type": "PINGDOM-CHECK", "params": { "id": 1000 } },

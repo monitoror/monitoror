@@ -1,5 +1,5 @@
 <p align="center">
-  <a href="https://monitoror.github.io/monitoror"> 
+  <a href="https://monitoror.com"> 
     <img src=".assets/monitoror-logo-and-text.svg" alt="" width="70%">
   </a>
 </p>
@@ -15,22 +15,41 @@
 
 -----
 
-## Introduction
+# Monitoror
 
-Monitoror is a unified monitoring wallboard to check services, servers, builds, ...
+Monitoror is a wallboard monitoring app to monitor server status; monitor CI builds progress or even display critical values.
 
-Supported platforms:
+
+## Demo
+
+<p align="center">
+  <a href="https://demo.monitoror.com">
+    <img src=".assets/monitoror-mockup.svg" alt="" width="70%"> <br>
+    Visit Monitoror live demo
+  </a>
+</p>
+
+
+## Getting started
+
+Monitoror is a single file app written in Go which can be run on these platforms:
 
 - Linux (64bits, ARM)
 - macOS
 - Windows (64bits)
 
-[Visit the Monitoror website for more details](https://monitoror.com/)
+The app is divided into two parts: Core and UI.
+
+Core is the server-side Monitoror HTTP API, configured by the environment variables or `.env` file.
+
+UI is the client-side Monitoror loaded in browser, which is the wallboard itself.
+
+[Visit the Monitoror website for more details](https://monitoror.com)
 
 
 ## Documentation
 
-All details about installation and configuration are on [our documentation](https://monitoror.com/documentation/)
+All details about [**installation**](https://monitoror.com/documentation/#installation) and [**configuration**](https://monitoror.com/documentation/#configuration) are on [our documentation](https://monitoror.com/documentation/)
 
 
 ## Development
@@ -38,14 +57,36 @@ All details about installation and configuration are on [our documentation](http
 See our [development guide](https://monitoror.com/guides/#development)
 
 
-## Stay in touch
+## Authors
 
-- Twitter/[@Akhiro](https://twitter.com/Akhiro) (jsdidierlaurent)
-- Twitter/[@AlexandreDemode](https://twitter.com/AlexandreDemode) (Alex-D)
+<table>
+<tbody>
+  <tr width="100%">
+    <td align="center" width="50%">
+      <a href="https://github.com/jsdidierlaurent">
+        <img src="https://avatars2.githubusercontent.com/u/11354381?s=150&v=4"><br>
+        @jsdidierlaurent
+      </a> <br>
+      <strong>Jean-Sébastien Didierlaurent</strong><br>
+      <em>Mostly on Monitoror Core</em><br>
+      &bull; &bull; &bull;<br>
+      https://twitter.com/Akhiro
+    </td>
+    <td align="center" width="50%">
+      <a href="https://github.com/Alex-D">
+        <img src="https://avatars2.githubusercontent.com/u/426843?s=150&v=4"><br>
+        @Alex-D
+      </a> <br>
+      <strong>Alexandre Demode</strong><br>
+      <em>Mostly on Monitoror UI</em><br>
+      &bull; &bull; &bull;<br>
+      https://twitter.com/AlexandreDemode
+    </td>
+  </tr>
+</tbody>
+</table>
 
 
 ## License
 
-This project is under [MIT license](LICENSE).
-
-Copyright (c) 2017-2019 Alexandre Demode (Alex-D) and Jean-Sébastien Didierlaurent (jsdidierlaurent)
+This project is licensed under the MIT License - see [the LICENSE file](LICENSE) for details.

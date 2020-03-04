@@ -4,88 +4,211 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
-	"strings"
 
 	"github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/monitorable/config/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils"
 )
 
-func (cu *configUsecase) Verify(conf *models.Config) {
-	if conf.Version == nil {
-		conf.AddErrors(fmt.Sprintf(`Missing "version" field. Must be %s.`, keys(SupportedVersions)))
+func (cu *configUsecase) Verify(configBag *models.ConfigBag) {
+	if configBag.Config.Version == nil {
+		configBag.AddErrors(models.ConfigError{
+			ID:      models.ConfigErrorMissingRequiredField,
+			Message: fmt.Sprintf(`Required "version" field is missing. Current config version is: %s.`, CurrentVersion),
+			Data: models.ConfigErrorData{
+				FieldName: "version",
+			},
+		})
 		return
 	}
 
-	if exists := SupportedVersions[*conf.Version]; !exists {
-		conf.AddErrors(fmt.Sprintf(`Unsupported "version" field. Must be %s.`, keys(SupportedVersions)))
+	if configBag.Config.Version.IsLessThan(MinimalVersion) || configBag.Config.Version.IsGreaterThan(CurrentVersion) {
+		configBag.AddErrors(models.ConfigError{
+			ID:      models.ConfigErrorUnsupportedVersion,
+			Message: fmt.Sprintf(`Unsupported configuration version. Minimal supported version is "%s". Current config version is: "%s"`, MinimalVersion, CurrentVersion),
+			Data: models.ConfigErrorData{
+				FieldName: "version",
+				Value:     stringify(configBag.Config.Version),
+				Expected:  fmt.Sprintf(`"%s" >= version >= "%s"`, MinimalVersion, CurrentVersion),
+			},
+		})
 		return
 	}
 
-	if conf.Columns == nil || *conf.Columns <= 0 {
-		conf.AddErrors(`Missing or invalid "columns" field. Must be a positive integer.`)
+	if configBag.Config.Columns == nil {
+		configBag.AddErrors(models.ConfigError{
+			ID:      models.ConfigErrorMissingRequiredField,
+			Message: fmt.Sprintf(`Required "columns" field is missing. Must be a positive integer.`),
+			Data: models.ConfigErrorData{
+				FieldName: "columns",
+			},
+		})
+	} else if *configBag.Config.Columns <= 0 {
+		configBag.AddErrors(models.ConfigError{
+			ID:      models.ConfigErrorInvalidFieldValue,
+			Message: fmt.Sprintf(`Invalid "columns" field. Must be a positive integer.`),
+			Data: models.ConfigErrorData{
+				FieldName: "columns",
+				Value:     stringify(configBag.Config.Columns),
+				Expected:  "columns > 0",
+			},
+		})
 	}
 
-	if conf.Tiles == nil || len(conf.Tiles) == 0 {
-		conf.AddErrors(`Missing or invalid "tiles" field. Must be an array not empty.`)
+	if configBag.Config.Zoom != nil && (*configBag.Config.Zoom <= 0 || *configBag.Config.Zoom > 10) {
+		configBag.AddErrors(models.ConfigError{
+			ID:      models.ConfigErrorInvalidFieldValue,
+			Message: `Invalid "zoom" field. Must be a positive float between 0 and 10.`,
+			Data: models.ConfigErrorData{
+				FieldName: "zoom",
+				Value:     stringify(configBag.Config.Zoom),
+				Expected:  "0 < zoom <= 10",
+			},
+		})
+	}
+
+	if configBag.Config.Tiles == nil {
+		configBag.AddErrors(models.ConfigError{
+			ID:      models.ConfigErrorMissingRequiredField,
+			Message: `Missing "tiles" field. Must be a non-empty array.`,
+			Data: models.ConfigErrorData{
+				FieldName: "tiles",
+			},
+		})
+	} else if len(configBag.Config.Tiles) == 0 {
+		configBag.AddErrors(models.ConfigError{
+			ID:      models.ConfigErrorInvalidFieldValue,
+			Message: `Invalid "tiles" field. Must be a non-empty array.`,
+			Data: models.ConfigErrorData{
+				FieldName:     "tiles",
+				ConfigExtract: stringify(configBag.Config),
+			},
+		})
 	} else {
-		// Iterating through every tiles conf
-		for _, tile := range conf.Tiles {
-			cu.verifyTile(conf, &tile, false)
+		// Iterating through every config tiles
+		for _, tile := range configBag.Config.Tiles {
+			cu.verifyTile(configBag, &tile, nil)
 		}
 	}
 }
 
-func (cu *configUsecase) verifyTile(conf *models.Config, tile *models.Tile, group bool) {
+func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Tile, groupTile *models.Tile) {
 	if tile.ColumnSpan != nil && *tile.ColumnSpan <= 0 {
-		conf.AddErrors(`Invalid "columnSpan" field. Must be a positive integer.`)
+		configBag.AddErrors(models.ConfigError{
+			ID:      models.ConfigErrorInvalidFieldValue,
+			Message: `Invalid "columnSpan" field. Must be a positive integer.`,
+			Data: models.ConfigErrorData{
+				FieldName: "columnSpan",
+				Value:     stringify(*tile.ColumnSpan),
+				Expected:  "columnSpan > 0",
+			},
+		})
 		return
 	}
 
 	if tile.RowSpan != nil && *tile.RowSpan <= 0 {
-		conf.AddErrors(`Invalid "rowSpan" field. Must be a positive integer.`)
+		configBag.AddErrors(models.ConfigError{
+			ID:      models.ConfigErrorInvalidFieldValue,
+			Message: `Invalid "rowSpan" field. Must be a positive integer.`,
+			Data: models.ConfigErrorData{
+				FieldName: "rowSpan",
+				Value:     stringify(*tile.RowSpan),
+				Expected:  "rowSpan > 0"},
+		})
 		return
 	}
 
 	// Empty tile, skip
 	if tile.Type == EmptyTileType {
-		if group {
-			conf.AddErrors(fmt.Sprintf(`Unauthorized "%s" type in %s tile.`, EmptyTileType, GroupTileType))
+		if groupTile != nil {
+			configBag.AddErrors(models.ConfigError{
+				ID:      models.ConfigErrorUnauthorizedSubtileType,
+				Message: fmt.Sprintf(`Unauthorized "%s" type in %s tile.`, EmptyTileType, GroupTileType),
+				Data: models.ConfigErrorData{
+					ConfigExtract:          stringify(groupTile),
+					ConfigExtractHighlight: stringify(tile),
+				},
+			})
 		}
 		return
 	}
 
 	// Group tile, parse and call verifyTile for each grouped tile
 	if tile.Type == GroupTileType {
-		if group {
-			conf.AddErrors(fmt.Sprintf(`Unauthorized "%s" type in %s tile.`, GroupTileType, GroupTileType))
+		if groupTile != nil {
+			configBag.AddErrors(models.ConfigError{
+				ID:      models.ConfigErrorUnauthorizedSubtileType,
+				Message: fmt.Sprintf(`Unauthorized "%s" type in %s tile.`, GroupTileType, GroupTileType),
+				Data: models.ConfigErrorData{
+					ConfigExtract:          stringify(groupTile),
+					ConfigExtractHighlight: stringify(tile),
+				},
+			})
 			return
 		}
 
 		if tile.Params != nil {
-			conf.AddErrors(fmt.Sprintf(`Unauthorized "params" key in %s tile definition.`, tile.Type))
+			configBag.AddErrors(models.ConfigError{
+				ID:      models.ConfigErrorUnauthorizedField,
+				Message: fmt.Sprintf(`Unauthorized "params" key in %s tile definition.`, tile.Type),
+				Data: models.ConfigErrorData{
+					FieldName:     "params",
+					ConfigExtract: stringify(tile),
+				},
+			})
 			return
 		}
 
-		if tile.Tiles == nil || len(tile.Tiles) == 0 {
-			conf.AddErrors(fmt.Sprintf(`Missing or empty "tiles" key in %s tile definition.`, tile.Type))
+		if tile.Tiles == nil {
+			configBag.AddErrors(models.ConfigError{
+				ID:      models.ConfigErrorMissingRequiredField,
+				Message: fmt.Sprintf(`Missing "tiles" field in %s tile definition. Must be a non-empty array.`, tile.Type),
+				Data: models.ConfigErrorData{
+					FieldName:     "tiles",
+					ConfigExtract: stringify(tile),
+				},
+			})
+		} else if len(tile.Tiles) == 0 {
+			configBag.AddErrors(models.ConfigError{
+				ID:      models.ConfigErrorInvalidFieldValue,
+				Message: fmt.Sprintf(`Invalid "tiles" field in %s tile definition. Must be a non-empty array.`, tile.Type),
+				Data: models.ConfigErrorData{
+					FieldName:     "tiles",
+					ConfigExtract: stringify(tile),
+				},
+			})
 			return
 		}
 
 		for _, groupTile := range tile.Tiles {
-			cu.verifyTile(conf, &groupTile, true)
+			cu.verifyTile(configBag, &groupTile, tile)
 		}
 
 		return
 	}
 
 	if _, exists := cu.tileConfigs[tile.Type]; !exists {
-		conf.AddErrors(fmt.Sprintf(`Unknown "%s" type in tile definition. Must be %s`, tile.Type, keys(cu.tileConfigs)))
+		configBag.AddErrors(models.ConfigError{
+			ID:      models.ConfigErrorUnknownTileType,
+			Message: fmt.Sprintf(`Unknown "%s" type in tile definition. Must be %s`, tile.Type, keys(cu.tileConfigs)),
+			Data: models.ConfigErrorData{
+				FieldName:     "type",
+				ConfigExtract: stringify(tile),
+				Expected:      keys(cu.tileConfigs),
+			},
+		})
 		return
 	}
 
 	if tile.Params == nil {
-		conf.AddErrors(fmt.Sprintf(`Missing "params" key in %s tile definition.`, tile.Type))
+		configBag.AddErrors(models.ConfigError{
+			ID:      models.ConfigErrorMissingRequiredField,
+			Message: fmt.Sprintf(`Missing "params" key in %s tile definition.`, tile.Type),
+			Data: models.ConfigErrorData{
+				FieldName:     "params",
+				ConfigExtract: stringify(tile),
+			},
+		})
 		return
 	}
 
@@ -101,16 +224,32 @@ func (cu *configUsecase) verifyTile(conf *models.Config, tile *models.Tile, grou
 	if _, exists := cu.dynamicTileConfigs[tile.Type]; !exists {
 		tileConfig, exists := cu.tileConfigs[tile.Type][tile.ConfigVariant]
 		if !exists {
-			conf.AddErrors(fmt.Sprintf(`Unknown "%s" variant for %s type in tile definition. Must be %s`,
-				tile.ConfigVariant, tile.Type, keys(cu.tileConfigs[tile.Type])))
+			configBag.AddErrors(models.ConfigError{
+				ID: models.ConfigErrorUnknownVariant,
+				Message: fmt.Sprintf(`Unknown "%s" variant for %s type in tile definition. Must be %s`,
+					tile.ConfigVariant, tile.Type, keys(cu.tileConfigs[tile.Type])),
+				Data: models.ConfigErrorData{
+					FieldName:     "configVariant",
+					Value:         stringify(tile.ConfigVariant),
+					ConfigExtract: stringify(tile),
+				},
+			})
 			return
 		}
 		validator = tileConfig.Validator
 	} else {
 		dynamicTileConfig, exists := cu.dynamicTileConfigs[tile.Type][tile.ConfigVariant]
 		if !exists {
-			conf.AddErrors(fmt.Sprintf(`Unknown "%s" variant for %s dynamic type in tile definition. Must be %s`,
-				tile.ConfigVariant, tile.Type, keys(cu.dynamicTileConfigs[tile.Type])))
+			configBag.AddErrors(models.ConfigError{
+				ID: models.ConfigErrorUnknownVariant,
+				Message: fmt.Sprintf(`Unknown "%s" variant for %s dynamic type in tile definition. Must be %s`,
+					tile.ConfigVariant, tile.Type, keys(cu.dynamicTileConfigs[tile.Type])),
+				Data: models.ConfigErrorData{
+					FieldName:     "configVariant",
+					Value:         stringify(tile.ConfigVariant),
+					ConfigExtract: stringify(tile),
+				},
+			})
 			return
 		}
 		validator = dynamicTileConfig.Validator
@@ -125,18 +264,13 @@ func (cu *configUsecase) verifyTile(conf *models.Config, tile *models.Tile, grou
 	unmarshalErr := json.Unmarshal(bParams, &rInstance)
 
 	if unmarshalErr != nil || !rInstance.(utils.Validator).IsValid() {
-		conf.AddErrors(fmt.Sprintf(`Invalid params definition for "%s": "%s".`, tile.Type, string(bParams)))
+		configBag.AddErrors(models.ConfigError{
+			ID:      models.ConfigErrorInvalidFieldValue,
+			Message: fmt.Sprintf(`Invalid params definition for "%s": "%s".`, tile.Type, string(bParams)),
+			Data: models.ConfigErrorData{
+				FieldName:     "params",
+				ConfigExtract: stringify(tile),
+			},
+		})
 	}
-}
-
-// --- Utility functions ---
-func keys(m interface{}) string {
-	keys := reflect.ValueOf(m).MapKeys()
-	strkeys := make([]string, len(keys))
-
-	for i := 0; i < len(keys); i++ {
-		strkeys[i] = fmt.Sprintf(`%v`, keys[i])
-	}
-
-	return strings.Join(strkeys, ",")
 }

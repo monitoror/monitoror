@@ -7,19 +7,8 @@ import (
 )
 
 func TestConfig_AddErrors(t *testing.T) {
-	conf := Config{
-		Errors: []string{},
-	}
+	config := &ConfigBag{}
+	config.AddErrors(ConfigError{})
 
-	conf.AddErrors("error1", "error2")
-	assert.Len(t, conf.Errors, 2)
-}
-
-func TestConfig_AddWarnings(t *testing.T) {
-	conf := Config{
-		Errors: []string{},
-	}
-
-	conf.AddWarnings("warn1", "warn2")
-	assert.Len(t, conf.Warnings, 2)
+	assert.Len(t, config.Errors, 1)
 }

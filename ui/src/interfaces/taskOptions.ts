@@ -7,5 +7,5 @@ export default interface TaskOptions {
   interval?: number,
   initialDelay?: number,
   retryOnFailInterval?: number,
-  onFailedAttemptsCountChange?: (failedAttemptsCount: number) => void,
+  onFailedCallback?: (failedAttemptsCount: number) => void,
 }

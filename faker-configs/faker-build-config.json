@@ -1,6 +1,7 @@
 {
-  "version": 5,
+  "version": "1.0",
   "columns": 4,
+  "zoom": 0.9,
   "tiles": [
     { "type": "GROUP", "rowSpan": 2 ,"label": "Group With Build", "tiles": [
       { "type": "TRAVISCI-BUILD", "params": { "owner": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "previousStatus": "SUCCESS" } },

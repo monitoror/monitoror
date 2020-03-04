@@ -1,7 +1,7 @@
 <svg viewBox="0 0 1220 300" xmlns="http://www.w3.org/2000/svg">
   <style>
     .monitoror-logo-line {
-      stroke-dasharray: 0 1265 0;
+      stroke-dasharray: 0, 1265, 0;
       animation: showMonitororLine 7s both 300ms infinite;
     }
     @keyframes showMonitororLine {

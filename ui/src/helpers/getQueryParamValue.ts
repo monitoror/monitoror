@@ -1,7 +1,7 @@
 export default function getQueryParamValue(
   queryParamName: string,
-  defaultValue: string = '',
-): string {
+  defaultValue?: string,
+): string | undefined {
   const queryParams = window.location.search.substr(1).split('&')
 
   let value = defaultValue

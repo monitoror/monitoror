@@ -2,10 +2,10 @@
   <div class="c-monitoror-tile-icon">
     <svg v-if="isGroup" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
       <path d="M21.41 17.91l-9 4A1.06 1.06 0 0 1 12 22a1 1 0 0 1-.41-.09l-9-4a1 1 0 0 1 .82-1.82L12 19.91l8.59-3.82a1 1 0 0 1 .82 1.82zm.5-6.32a1 1 0 0 0-1.32-.5L12 14.91l-8.59-3.82a1 1 0 0 0-.82 1.82l9 4A1 1 0 0 0 12 17a1.06 1.06 0 0 0 .4-.08l9-4a1 1 0 0 0 .51-1.33zm-.5-3.68l-9 4A1.06 1.06 0 0 1 12 12a1 1 0 0 1-.41-.09l-9-4a1 1 0 0 1 0-1.82l9-4A1.06 1.06 0 0 1 12 2a1 1 0 0 1 .41.09l9 4a.94.94 0 0 1 .5.5 1 1 0 0 1-.5 1.32zM18.54 7L12 4.09 5.46 7 12 9.91z"
-        stroke="var(--tile-background)" stroke-width="0.3" style="transform: translate(-2px, 2px)"></path>
+        stroke="var(--tile-background)" stroke-width="0.3" fill="currentColor" style="transform: translate(-2px, 2px)"></path>
     </svg>
 
-    <svg v-else-if="isHttp" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+    <svg v-else-if="isHttp" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="currentColor">
       <path d="M-.352 82.419V45.581h7.438V60.08H21.66V45.581h7.438v36.838H21.66V66.312H7.086v16.107H-.352zM45.079 82.419V51.813H34.148v-6.232h29.274v6.232H52.517v30.606h-7.438zM76.514 82.419V51.813H65.583v-6.232h29.274v6.232H83.951v30.606h-7.437zM99.656 82.419V45.581h11.936c4.523 0 7.471.185 8.845.553 2.11.553 3.878 1.755 5.302 3.606 1.423 1.851 2.135 4.242 2.135 7.174 0 2.262-.41 4.163-1.231 5.704-.821 1.541-1.864 2.751-3.128 3.631-1.265.879-2.551 1.462-3.857 1.746-1.776.352-4.347.528-7.715.528h-4.849v13.896h-7.438zm7.438-30.606v10.453h4.071c2.931 0 4.891-.192 5.879-.578.989-.385 1.763-.988 2.325-1.809.561-.821.841-1.776.841-2.864 0-1.341-.393-2.446-1.181-3.317-.787-.871-1.784-1.416-2.99-1.634-.888-.167-2.672-.251-5.352-.251h-3.593z"/>
     </svg>
 
@@ -125,16 +125,7 @@
 </script>
 
 <style lang="scss">
-  .c-monitoror-tile-icon {
-    position: relative;
-    width: 40px;
-    height: 40px;
-  }
-
   .c-monitoror-tile-icon svg {
-    position: absolute;
-    bottom: 0;
-    left: 0;
     fill: currentColor;
   }
 </style>

@@ -5,12 +5,10 @@
         {{ label }}
       </div>
 
-      <div class="c-monitoror-sub-tile--status">
-        <monitoror-tile-icon :tile-type="type" class="c-monitoror-sub-tile--icon"></monitoror-tile-icon>
-      </div>
+      <monitoror-tile-icon :tile-type="type" class="c-monitoror-sub-tile--icon"></monitoror-tile-icon>
 
       <template v-if="isRunning || isQueued">
-        <div class="c-monitoror-sub-tile--progress-time">
+        <div class="c-monitoror-sub-tile--progress-time" :class="{'c-monitoror-sub-tile--progress-time__overtime': isOvertime}">
           <template v-if="isRunning">
             {{ progressTime }}
           </template>
@@ -74,19 +72,27 @@
 
       return label
     }
+
+    get progressTime(): string | undefined {
+      if (super.progressTime === undefined) {
+        return
+      }
+
+      return super.progressTime.replace('Overtime: ', '')
+    }
   }
 </script>
 
 <style lang="scss">
   $tile-padding: 15px;
-  $border-radius: 4px;
+  $border-radius: 17px;
 
   .c-monitoror-sub-tile {
     --sub-tile-status-color: var(--color-unknown);
     display: inline-block;
     position: relative;
     margin-right: 7px;
-    font-size: 22px;
+    font-size: 24px;
     font-weight: normal;
 
     &__status-succeeded {
@@ -113,20 +119,21 @@
   .c-monitoror-sub-tile--content {
     position: relative;
     display: inline-block;
-    padding: 2px 15px 2px 35px;
+    padding: 2px 15px 2px 40px;
     color: var(--sub-tile-status-color);
     background: var(--color-background);
-    border-radius: 15px;
+    border: 1px solid var(--color-background);
+    border-radius: $border-radius;
     overflow: hidden;
 
     .c-monitoror-sub-tile__theme-dark & {
-      background: none;
-      border: 1px solid var(--sub-tile-status-color);
+      border-color: var(--sub-tile-status-color);
     }
   }
 
   .c-monitoror-sub-tile--label {
     display: inline-block;
+    font-weight: 600;
   }
 
   .c-monitoror-sub-tile__status-queued .c-monitoror-sub-tile--label,
@@ -144,14 +151,16 @@
     text-align: right;
     font-variant-numeric: tabular-nums;
     padding-left: 15px;
+    bottom: $tile-padding + 4px;
 
     &::first-letter {
       text-transform: uppercase;
     }
   }
 
-  .c-monitoror-sub-tile--progress-time {
-    bottom: $tile-padding + 4px;
+  .c-monitoror-sub-tile--progress-time__overtime {
+    font-weight: 600;
+    opacity: 1;
   }
 
   .c-monitoror-sub-tile--progress {
@@ -197,17 +206,12 @@
     }
   }
 
-  .c-monitoror-sub-tile--status {
+  .c-monitoror-sub-tile--icon {
     position: absolute;
     top: 3px;
     left: 10px;
-    width: 20px;
-    height: 20px;
+    width: 23px;
+    height: 23px;
     border-radius: 100%;
-  }
-
-  .c-monitoror-sub-tile--icon {
-    width: 100%;
-    height: 100%;
   }
 </style>

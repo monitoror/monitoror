@@ -55,12 +55,12 @@ func TestStore(t *testing.T) {
 	}
 
 	// Test GET
-	if assert.NoError(t, store.Get("key", "value")) {
+	if assert.NoError(t, store.Get("key", nil)) {
 		mockStore.AssertNumberOfCalls(t, "Get", 1)
 	}
 
 	// Test SET
-	if assert.NoError(t, store.Set("key", "value", time.Hour)) {
+	if assert.NoError(t, store.Set("key", cache.ResponseCache{}, time.Hour)) {
 		mockStore.AssertNumberOfCalls(t, "Set", 2)
 	}
 

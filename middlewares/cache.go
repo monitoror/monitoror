@@ -19,7 +19,7 @@ import (
 * He is implemented as a decorator on the handler of each route
 *
 * DownstreamCache should be used instead of a timeout response.
-* So we look at the cache in the global error handler (see handlers/error.go)
+* So we look at the cache in the global error handler (see handlers/errors.go)
 *
 * To fill both store at the same time, I implemented a store wrapper that performs every actions on both store
  */
@@ -86,7 +86,12 @@ func (c *upstreamStore) Get(key string, value interface{}) error {
 
 func (c *upstreamStore) Set(key string, val interface{}, expires time.Duration) (err error) {
 	err = c.store.Set(models.UpstreamStoreKeyPrefix+key[1:], val, expires)
-	_ = c.store.Set(models.DownstreamStoreKeyPrefix+key[1:], val, c.downstreamDefaultExpiration)
+
+	// Don't add response in downstream cache when she come from timeout recover to avoid infinite loop
+	if response, ok := val.(cache.ResponseCache); ok && response.Header.Get(models.DownstreamCacheHeader) == "" {
+		_ = c.store.Set(models.DownstreamStoreKeyPrefix+key[1:], val, c.downstreamDefaultExpiration)
+	}
+
 	return
 }
 

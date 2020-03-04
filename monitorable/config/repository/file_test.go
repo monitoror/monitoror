@@ -5,6 +5,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/monitoror/monitoror/monitorable/config/models"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -24,7 +26,20 @@ func TestConfigRepository_GetConfigFromPath(t *testing.T) {
 	}
 }
 
-func TestConfigRepository_GetConfigFromPath_Error(t *testing.T) {
+func TestConfigRepository_UnableToParse(t *testing.T) {
+	tmpFile, err := ioutil.TempFile(os.TempDir(), "monitoror-wrong-file")
+	if assert.NoError(t, err) {
+		defer os.Remove(tmpFile.Name())
+		_, _ = tmpFile.WriteString("xxxxxx")
+
+		repository := NewConfigRepository()
+		_, err := repository.GetConfigFromPath(tmpFile.Name())
+		assert.Error(t, err)
+		assert.Equal(t, "", err.(*models.ConfigUnmarshalError).RawConfig)
+	}
+}
+
+func TestConfigRepository_GetConfigFromPath_MissingFile(t *testing.T) {
 	repository := NewConfigRepository()
 	_, err := repository.GetConfigFromPath("monitoror-missing-file")
 	assert.Error(t, err)
