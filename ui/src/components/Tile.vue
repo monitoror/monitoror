@@ -209,12 +209,13 @@
 </script>
 
 <style lang="scss">
-  $tile-padding: 15px;
   $tile-author-height: 40px;
   $border-radius: 4px;
 
   .c-monitoror-tile {
     --tile-background: var(--color-unknown);
+    --tile-padding: 15px;
+
     position: relative;
     overflow: hidden;
     color: var(--color-text);
@@ -222,15 +223,15 @@
     border-radius: $border-radius;
 
     &__theme-dark {
+      --tile-padding: 18px;
+
       color: var(--tile-background);
       background: none;
-      border: 5px solid var(--tile-background);
-
-      &.c-monitoror-tile__status-queued,
-      &.c-monitoror-tile__status-running {
-        overflow: initial;
-        border-bottom: none;
-      }
+      box-shadow:
+        inset 5px 0 0 var(--tile-background),
+        inset -5px 0 0 var(--tile-background),
+        inset 0 5px 0 var(--tile-background),
+        inset 0 -5px 0 var(--tile-background);
     }
 
     &__empty {
@@ -260,7 +261,7 @@
 
   .c-monitoror-tile--content {
     height: 100%;
-    padding: $tile-padding;
+    padding: var(--tile-padding);
     zoom: var(--zoom);
 
     @media screen and (max-width: 750px) {
@@ -270,6 +271,9 @@
 
   .c-monitoror-tile--label {
     font-size: 32px;
+    line-height: 1.2;
+    font-weight: bold;
+    margin-bottom: 3px;
   }
 
   .c-monitoror-tile--message,
@@ -282,6 +286,11 @@
   .c-monitoror-tile--build-info {
     font-size: 24px;
     font-family: 'JetBrains Mono', monospace;
+    opacity: 0.8;
+
+    .c-monitoror-tile__theme-dark & {
+      opacity: 0.7;
+    }
   }
 
   .c-monitoror-tile--build-info svg {
@@ -299,6 +308,7 @@
     padding-top: 25px;
     text-align: center;
     font-size: 50px;
+    font-weight: bold;
     transform: translate(-50%, -50%);
   }
 
@@ -306,9 +316,9 @@
   .c-monitoror-tile--finished-at,
   .c-monitoror-tile--progress-time {
     position: absolute;
-    right: $tile-padding;
-    bottom: $tile-padding - 6px;
-    font-size: 32px;
+    right: var(--tile-padding);
+    bottom: calc(var(--tile-padding) - 6px);
+    font-size: 30px;
     opacity: 0.8;
     text-align: right;
     font-variant-numeric: tabular-nums;
@@ -321,15 +331,14 @@
   .c-monitoror-tile--author {
     --tile-author-height: 40px;
     position: absolute;
-    right: $tile-padding;
-    bottom: $tile-padding + 35px;
+    right: var(--tile-padding);
+    bottom: calc(var(--tile-padding) + 35px);
     display: inline-block;
     padding: 3px 20px 3px 3px;
-    max-width: calc(100% - 2 * #{$tile-padding});
+    max-width: calc(100% - 2 * var(--tile-padding));
     height: $tile-author-height;
     line-height: $tile-author-height - 6px;
     font-size: 20px;
-    font-weight: normal;
     color: var(--tile-background);
     background: var(--color-background);
     border-radius: $tile-author-height;
@@ -358,7 +367,7 @@
   }
 
   .c-monitoror-tile--progress-time {
-    bottom: $tile-padding + 4px;
+    bottom: calc(var(--tile-padding) + 4px);
   }
 
   .c-monitoror-tile--progress {
@@ -366,16 +375,10 @@
     right: 0;
     left: 0;
     bottom: 0;
-    border-top: 4px solid #2c3e50;
+    border-top: 4px solid var(--color-background);
     background: var(--tile-background) linear-gradient(rgba(#2c3e50, 0.5), rgba(#2c3e50, 0.5));
     overflow: hidden;
     transform: translateZ(0); /* Optimize repaints */
-
-    .c-monitoror-tile__theme-dark & {
-      left: -5px;
-      right: -5px;
-      border-radius: 0 0 $border-radius $border-radius;
-    }
   }
 
   .c-monitoror-tile--progress-bar {
@@ -420,21 +423,27 @@
 
   .c-monitoror-tile--icon {
     position: absolute;
-    bottom: $tile-padding;
-    left: $tile-padding;
+    bottom: var(--tile-padding);
+    left: var(--tile-padding);
     opacity: 0.35;
+    width: 40px;
+    height: 40px;
+  }
+
+  .c-monitoror-tile--icon svg {
+    position: absolute;
+    bottom: 0;
+    left: 0;
   }
 
   .c-monitoror-tile__status-queued .c-monitoror-tile--icon,
   .c-monitoror-tile__status-running .c-monitoror-tile--icon {
-    bottom: $tile-padding + 10px;
+    bottom: calc(var(--tile-padding) + 10px);
   }
 
   .c-monitoror-tile--sub-tiles {
     position: relative;
-    overflow: hidden;
-    height: calc((100vh / var(--rows)) * var(--row-span) - #{2 * $tile-padding + 85});
-    margin-top: 7px;
+    margin-top: 10px;
     z-index: 1;
   }
 </style>

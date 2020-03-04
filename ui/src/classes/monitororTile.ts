@@ -177,6 +177,14 @@ export default abstract class AbstractMonitororTile extends Vue {
     return overtimePrefix + format(date, dateFormat)
   }
 
+  get isOvertime(): boolean {
+    if (this.progressTime === undefined) {
+      return false
+    }
+
+    return this.progressTime.includes('+')
+  }
+
   get progressBarStyle() {
     if (!this.progress) {
       return

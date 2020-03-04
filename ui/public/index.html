@@ -31,7 +31,8 @@
 
   <style>
     :root {
-      --color-background: #2c3e50;
+      --color-background: #132d46;
+      --color-dark-background: #15202b;
       --color-docs-background: #20252a;
       --color-code-background: #171b20;
       --color-cello: #204263;
@@ -55,9 +56,10 @@
       width: 100%;
       background: var(--color-background);
       color: #fff;
-      font-family: Arial, sans-serif;
+      font-family: "Open Sans", sans-serif;
       font-size: 18px;
-      font-weight: bold;
+      font-weight: 600;
+      line-height: 1.2;
     }
 
     *,
@@ -66,6 +68,27 @@
       box-sizing: border-box;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+    }
+
+    @font-face {
+      font-family: 'Open Sans';
+      src: url('./fonts/open-sans-regular.woff2') format('woff2');
+      font-weight: normal;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'Open Sans';
+      src: url('./fonts/open-sans-semibold.woff2') format('woff2');
+      font-weight: 600;
+      font-style: normal;
+    }
+
+    @font-face {
+      font-family: 'Open Sans';
+      src: url('./fonts/open-sans-bold.woff2') format('woff2');
+      font-weight: 700;
+      font-style: normal;
     }
 
     @font-face {

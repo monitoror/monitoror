@@ -76,6 +76,7 @@
 
     get classes() {
       return {
+        ['c-app__theme-' + this.theme]: true,
         'c-app__show-cursor': this.hasConfigVerifyErrors || this.showCursor,
         'c-app__no-scroll': !this.hasConfigVerifyErrors,
         'c-app__config-verify-errors': this.hasConfigVerifyErrors,
@@ -144,6 +145,10 @@
       return this.$store.state.online
     }
 
+    get theme(): string {
+      return this.$store.getters.theme.toString().toLowerCase()
+    }
+
     /*
      * Methods
      */
@@ -193,10 +198,15 @@
   #app {
     height: 100%;
     width: 100%;
+    background: var(--color-background);
 
     --columns: 1;
     --rows: 1;
     --zoom: 1;
+
+    &.c-app__theme-dark {
+      --color-background: var(--color-dark-background);
+    }
 
     &:not(.c-app__show-cursor) {
       cursor: none;
