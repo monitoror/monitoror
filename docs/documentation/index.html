@@ -185,8 +185,7 @@
               Linux <span class="m-documentation--installation-arch">x64</span>
             </td>
             <td>
-              <a class="m-documentation--installation-link" download
-                 href="https://github.com/monitoror/monitoror/releases/latest/download/monitoror-linux-amd64">
+              <a class="m-documentation--installation-link" data-download-platform="linux-amd64">
                 <svg fill="currentColor" viewBox="0 0 72 72">
                   <path d="M64 27v28H8V27H0v36h72V27h-8z"></path>
                   <path d="M32.1 6.7h8v33.6h-8z"></path>
@@ -196,7 +195,7 @@
               </a>
               <br>
               <input data-select-on-click readonly type="text"
-                     value="curl -s -o monitoror https://github.com/monitoror/monitoror/releases/latest/download/monitoror-linux-amd64"/>
+                     value="curl -sL -o monitoror $(curl -s https://api.github.com/repos/monitoror/monitoror/releases/latest | grep 'browser_download_url.*monitoror-linux-amd64' | cut -d: -f2,3 | tr -d \&quot;)"/>
             </td>
           </tr>
           <tr>
@@ -204,8 +203,7 @@
               Linux <span class="m-documentation--installation-arch">ARM</span>
             </td>
             <td>
-              <a class="m-documentation--installation-link" download
-                 href="https://github.com/monitoror/monitoror/releases/latest/download/monitoror-linux-arm">
+              <a class="m-documentation--installation-link" data-download-platform="linux-arm">
                 <svg fill="currentColor" viewBox="0 0 72 72">
                   <path d="M64 27v28H8V27H0v36h72V27h-8z"></path>
                   <path d="M32.1 6.7h8v33.6h-8z"></path>
@@ -215,7 +213,7 @@
               </a>
               <br>
               <input data-select-on-click readonly type="text"
-                     value="curl -s -o monitoror https://github.com/monitoror/monitoror/releases/latest/download/monitoror-linux-arm"/>
+                     value="curl -sL -o monitoror $(curl -s https://api.github.com/repos/monitoror/monitoror/releases/latest | grep 'browser_download_url.*monitoror-linux-arm' | cut -d: -f2,3 | tr -d \&quot;)"/>
             </td>
           </tr>
           <tr>
@@ -223,8 +221,7 @@
               macOS
             </td>
             <td>
-              <a class="m-documentation--installation-link" download
-                 href="https://github.com/monitoror/monitoror/releases/latest/download/monitoror-macos">
+              <a class="m-documentation--installation-link" data-download-platform="macos">
                 <svg fill="currentColor" viewBox="0 0 72 72">
                   <path d="M64 27v28H8V27H0v36h72V27h-8z"></path>
                   <path d="M32.1 6.7h8v33.6h-8z"></path>
@@ -234,7 +231,7 @@
               </a>
               <br>
               <input data-select-on-click readonly type="text"
-                     value="curl -s -o monitoror https://github.com/monitoror/monitoror/releases/latest/download/monitoror-macos"/>
+                     value="curl -sL -o monitoror $(curl -s https://api.github.com/repos/monitoror/monitoror/releases/latest | grep 'browser_download_url.*monitoror-macos' | cut -d: -f2,3 | tr -d \&quot;)"/>
             </td>
           </tr>
           <tr>
@@ -242,8 +239,7 @@
               Windows <span class="m-documentation--installation-arch">x64</span>
             </td>
             <td>
-              <a class="m-documentation--installation-link" download
-                 href="https://github.com/monitoror/monitoror/releases/latest/download/monitoror-windows-amd64.exe">
+              <a class="m-documentation--installation-link" data-download-platform="windows-amd64">
                 <svg fill="currentColor" viewBox="0 0 72 72">
                   <path d="M64 27v28H8V27H0v36h72V27h-8z"></path>
                   <path d="M32.1 6.7h8v33.6h-8z"></path>
@@ -253,7 +249,7 @@
               </a>
               <br>
               <input data-select-on-click readonly type="text"
-                     value="Invoke-WebRequest -OutFile monitoror.exe https://github.com/monitoror/monitoror/releases/latest/download/monitoror-windows-amd64.exe"/>
+                     value="Invoke-WebRequest -OutFile monitoror.exe $(Invoke-WebRequest https://api.github.com/repos/monitoror/monitoror/releases/latest | Select-Object -Expand Content | ConvertFrom-Json | Select-Object -Expand assets | Where-Object {$_.name -Match 'windows'} | Select-Object -Expand browser_download_url)"/>
             </td>
           </tr>
           </tbody>
