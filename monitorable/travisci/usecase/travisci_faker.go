@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"time"
 
+	cmap "github.com/orcaman/concurrent-map"
+
 	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/travisci"
 	travisModels "github.com/monitoror/monitoror/monitorable/travisci/models"
@@ -18,7 +20,7 @@ import (
 
 type (
 	travisCIUsecase struct {
-		timeRefByProject map[string]time.Time
+		timeRefByProject cmap.ConcurrentMap
 	}
 )
 
@@ -32,7 +34,7 @@ var availableBuildStatus = faker.Statuses{
 }
 
 func NewTravisCIUsecase() travisci.Usecase {
-	return &travisCIUsecase{make(map[string]time.Time)}
+	return &travisCIUsecase{cmap.New()}
 }
 
 func (tu *travisCIUsecase) Build(params *travisModels.BuildParams) (tile *models.Tile, err error) {
@@ -84,20 +86,22 @@ func (tu *travisCIUsecase) Build(params *travisModels.BuildParams) (tile *models
 
 func (tu *travisCIUsecase) computeStatus(params *travisModels.BuildParams) models.TileStatus {
 	projectID := fmt.Sprintf("%s-%s-%s", params.Owner, params.Repository, params.Branch)
-	value, ok := tu.timeRefByProject[projectID]
-	if !ok {
-		tu.timeRefByProject[projectID] = faker.GetRefTime()
+	value, ok := tu.timeRefByProject.Get(projectID)
+	if !ok || value == nil {
+		value = faker.GetRefTime()
+		tu.timeRefByProject.Set(projectID, value)
 	}
 
-	return faker.ComputeStatus(value, availableBuildStatus)
+	return faker.ComputeStatus(value.(time.Time), availableBuildStatus)
 }
 
 func (tu *travisCIUsecase) computeDuration(params *travisModels.BuildParams, duration time.Duration) time.Duration {
 	projectID := fmt.Sprintf("%s-%s-%s", params.Owner, params.Repository, params.Branch)
-	value, ok := tu.timeRefByProject[projectID]
-	if !ok {
-		tu.timeRefByProject[projectID] = faker.GetRefTime()
+	value, ok := tu.timeRefByProject.Get(projectID)
+	if !ok || value == nil {
+		value = faker.GetRefTime()
+		tu.timeRefByProject.Set(projectID, value)
 	}
 
-	return faker.ComputeDuration(value, duration)
+	return faker.ComputeDuration(value.(time.Time), duration)
 }

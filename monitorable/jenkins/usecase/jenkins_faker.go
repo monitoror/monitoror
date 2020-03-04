@@ -7,6 +7,8 @@ import (
 	"math/rand"
 	"time"
 
+	cmap "github.com/orcaman/concurrent-map"
+
 	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
 	jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
@@ -20,7 +22,7 @@ import (
 
 type (
 	jenkinsUsecase struct {
-		timeRefByProject map[string]time.Time
+		timeRefByProject cmap.ConcurrentMap
 	}
 )
 
@@ -35,10 +37,10 @@ var availableBuildStatus = faker.Statuses{
 }
 
 func NewJenkinsUsecase() jenkins.Usecase {
-	return &jenkinsUsecase{make(map[string]time.Time)}
+	return &jenkinsUsecase{cmap.New()}
 }
 
-func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (tile *models.Tile, err error) {
+func (ju *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (tile *models.Tile, err error) {
 	tile = models.NewTile(jenkins.JenkinsBuildTileType).WithBuild()
 
 	tile.Label = params.Job
@@ -46,7 +48,7 @@ func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (tile *models
 		tile.Build.Branch = pointer.ToString(git.HumanizeBranch(params.Branch))
 	}
 
-	tile.Status = nonempty.Struct(params.Status, tu.computeStatus(params)).(models.TileStatus)
+	tile.Status = nonempty.Struct(params.Status, ju.computeStatus(params)).(models.TileStatus)
 
 	if tile.Status == models.DisabledStatus {
 		return
@@ -76,7 +78,7 @@ func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (tile *models
 	// Duration / EstimatedDuration
 	if tile.Status == models.RunningStatus {
 		estimatedDuration := nonempty.Duration(time.Duration(params.EstimatedDuration), time.Second*300)
-		tile.Build.Duration = pointer.ToInt64(nonempty.Int64(params.Duration, int64(tu.computeDuration(params, estimatedDuration).Seconds())))
+		tile.Build.Duration = pointer.ToInt64(nonempty.Int64(params.Duration, int64(ju.computeDuration(params, estimatedDuration).Seconds())))
 
 		if tile.Build.PreviousStatus != models.UnknownStatus {
 			tile.Build.EstimatedDuration = pointer.ToInt64(int64(estimatedDuration.Seconds()))
@@ -99,26 +101,28 @@ func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (tile *models
 	return
 }
 
-func (tu *jenkinsUsecase) ListDynamicTile(params interface{}) ([]builder.Result, error) {
+func (ju *jenkinsUsecase) ListDynamicTile(params interface{}) ([]builder.Result, error) {
 	panic("unimplemented")
 }
 
-func (tu *jenkinsUsecase) computeStatus(params *jenkinsModels.BuildParams) models.TileStatus {
+func (ju *jenkinsUsecase) computeStatus(params *jenkinsModels.BuildParams) models.TileStatus {
 	projectID := fmt.Sprintf("%s-%s", params.Job, params.Branch)
-	value, ok := tu.timeRefByProject[projectID]
-	if !ok {
-		tu.timeRefByProject[projectID] = faker.GetRefTime()
+	value, ok := ju.timeRefByProject.Get(projectID)
+	if !ok || value == nil {
+		value = faker.GetRefTime()
+		ju.timeRefByProject.Set(projectID, value)
 	}
 
-	return faker.ComputeStatus(value, availableBuildStatus)
+	return faker.ComputeStatus(value.(time.Time), availableBuildStatus)
 }
 
-func (tu *jenkinsUsecase) computeDuration(params *jenkinsModels.BuildParams, duration time.Duration) time.Duration {
+func (ju *jenkinsUsecase) computeDuration(params *jenkinsModels.BuildParams, duration time.Duration) time.Duration {
 	projectID := fmt.Sprintf("%s-%s", params.Job, params.Branch)
-	value, ok := tu.timeRefByProject[projectID]
-	if !ok {
-		tu.timeRefByProject[projectID] = faker.GetRefTime()
+	value, ok := ju.timeRefByProject.Get(projectID)
+	if !ok || value == nil {
+		value = faker.GetRefTime()
+		ju.timeRefByProject.Set(projectID, value)
 	}
 
-	return faker.ComputeDuration(value, duration)
+	return faker.ComputeDuration(value.(time.Time), duration)
 }
