@@ -1556,6 +1556,10 @@ input {
   background: linear-gradient(to right, #363429, var(--color-warning-dark));
 }
 
+.m-documentation--content .alert-block strong {
+  color: var(--color-warning);
+}
+
 .m-documentation--installation td:first-child {
   font-weight: bold;
 }
