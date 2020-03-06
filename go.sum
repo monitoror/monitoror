@@ -91,6 +91,8 @@ github.com/jsdidierlaurent/azure-devops-go-api/azuredevops v0.0.0-20191016103718
 github.com/jsdidierlaurent/azure-devops-go-api/azuredevops v0.0.0-20191016103718-deea5b1446b8/go.mod h1:SPsWmluDVSxjBq7jVlaCG4nAWY1muXadVpH4xJbbOj0=
 github.com/jsdidierlaurent/echo-middleware v1.0.2 h1:F8mA2b3j84/vgpn6OsHwhSOuyJND9eL/Xnd/E6BFGpw=
 github.com/jsdidierlaurent/echo-middleware v1.0.2/go.mod h1:7KRCXCnk/wqEFjW22H9bMiJ9MsGHaDryJhhBBEAcnEU=
+github.com/jsdidierlaurent/echo-middleware v1.0.3 h1:fo7sXZZQezcYGRBrMnoncIg59fkBuVCpjHA26sG7L5E=
+github.com/jsdidierlaurent/echo-middleware v1.0.3/go.mod h1:McTzQ34uRHGn8P4siRpT3Za5vaPAA4vhfq9UlPlvUoc=
 github.com/jsdidierlaurent/go-pingdom v1.0.1-0.20191016073917-beef4d2f78cd h1:E1u68c9b9vI6o4MkrPO0DWn3gXBmCtHXbWHQCrTGPEY=
 github.com/jsdidierlaurent/go-pingdom v1.0.1-0.20191016073917-beef4d2f78cd/go.mod h1:3FvaNxZUxs3HyQxLXVv90EVsooanR0yeV7mqGeoPru8=
 github.com/jsdidierlaurent/golang-jenkins v0.0.0-20190826091201-0ea4c9df4e09 h1:iqhcRR/AqcVtFw5w1rbm2qfLZYiW9J9H8vsdqvtXbu4=
