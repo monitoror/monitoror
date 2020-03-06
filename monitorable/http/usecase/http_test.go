@@ -57,6 +57,14 @@ func TestHtmlAll_WithoutErrors(t *testing.T) {
 		},
 		{
 			// HTTP Raw with matched regex
+			body: "test",
+			usecaseFunc: func(usecase http.Usecase) (*models.Tile, error) {
+				return usecase.HTTPStatus(&HTTPStatusParams{URL: "toto"})
+			},
+			expectedStatus: models.SuccessStatus, expectedLabel: "toto",
+		},
+		{
+			// HTTP Raw with matched regex
 			body: "errors: 28",
 			usecaseFunc: func(usecase http.Usecase) (*models.Tile, error) {
 				return usecase.HTTPRaw(&HTTPRawParams{URL: "toto", Regex: `errors: (\d*)`})
