@@ -22,6 +22,11 @@ import (
 	_githubModels "github.com/monitoror/monitoror/monitorable/github/models"
 	_githubRepository "github.com/monitoror/monitoror/monitorable/github/repository"
 	_githubUsecase "github.com/monitoror/monitoror/monitorable/github/usecase"
+	"github.com/monitoror/monitoror/monitorable/gitlab"
+	_gitlabDelivery "github.com/monitoror/monitoror/monitorable/gitlab/delivery/http"
+	_gitlabModels "github.com/monitoror/monitoror/monitorable/gitlab/models"
+	_gitlabRepository "github.com/monitoror/monitoror/monitorable/gitlab/repository"
+	_gitlabUsecase "github.com/monitoror/monitoror/monitorable/gitlab/usecase"
 	"github.com/monitoror/monitoror/monitorable/http"
 	_httpDelivery "github.com/monitoror/monitoror/monitorable/http/delivery/http"
 	_httpModels "github.com/monitoror/monitoror/monitorable/http/models"
@@ -90,6 +95,9 @@ func (s *Server) initApis() {
 	}
 	for variant, conf := range s.config.Monitorable.Github {
 		registerTile(s.registerGithub, variant, conf.IsValid())
+	}
+	for variant, conf := range s.config.Monitorable.Gitlab {
+		registerTile(s.registerGitlab, variant, conf.IsValid())
 	}
 }
 
@@ -250,4 +258,27 @@ func (s *Server) registerGithub(variant string) {
 		variant, &_githubModels.ChecksParams{}, routeChecks.Path, githubConfig.InitialMaxDelay)
 	s.configHelper.RegisterDynamicTileWithConfigVariant(github.GithubPullRequestTileType,
 		variant, &_githubModels.PullRequestParams{}, usecase)
+}
+
+func (s *Server) registerGitlab(variant string) {
+	gitlabConfig := s.config.Monitorable.Gitlab[variant]
+	// Custom UpstreamCacheExpiration only for count because gitlab has no-cache for this query and the rate limit is 30req/Hour
+	countCacheExpiration := time.Millisecond * time.Duration(gitlabConfig.CountCacheExpiration)
+
+	repository := _gitlabRepository.NewGitlabRepository(gitlabConfig)
+	usecase := _gitlabUsecase.NewGitlabUsecase(repository)
+	delivery := _gitlabDelivery.NewGitlabDelivery(usecase)
+
+	// Register route to echo
+	gitlabGroup := s.api.Group(fmt.Sprintf("/gitlab/%s", variant))
+	routeCount := gitlabGroup.GET("/count", s.cm.UpstreamCacheHandlerWithExpiration(countCacheExpiration, delivery.GetCount))
+	routePipelines := gitlabGroup.GET("/pipelines", s.cm.UpstreamCacheHandler(delivery.GetPipelines))
+
+	// Register data for config hydration
+	s.configHelper.RegisterTileWithConfigVariant(gitlab.GitlabCountTileType,
+		variant, &_gitlabModels.CountParams{}, routeCount.Path, gitlabConfig.InitialMaxDelay)
+	s.configHelper.RegisterTileWithConfigVariant(gitlab.GitlabPipelinesTileType,
+		variant, &_gitlabModels.PipelinesParams{}, routePipelines.Path, gitlabConfig.InitialMaxDelay)
+	s.configHelper.RegisterDynamicTileWithConfigVariant(gitlab.GitlabPullRequestTileType,
+		variant, &_gitlabModels.MergeRequestParams{}, usecase)
 }

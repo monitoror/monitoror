@@ -39,6 +39,7 @@ type (
 		Jenkins     map[string]*Jenkins
 		AzureDevOps map[string]*AzureDevOps
 		Github      map[string]*Github
+		Gitlab      map[string]*Gitlab
 	}
 
 	Ping struct {
@@ -92,6 +93,13 @@ type (
 	}
 
 	Github struct {
+		Timeout              int // In Millisecond
+		Token                string
+		CountCacheExpiration int // In Millisecond
+		InitialMaxDelay      int // In Millisecond
+	}
+
+	Gitlab struct {
 		Timeout              int // In Millisecond
 		Token                string
 		CountCacheExpiration int // In Millisecond
@@ -185,6 +193,13 @@ func InitConfig() *Config {
 		viper.SetDefault(fmt.Sprintf("Monitorable.Github.%s.InitialMaxDelay", variant), DefaultInitialMaxDelay)
 	}
 
+	// --- Gitlab Configuration ---
+	for variant := range variants["Gitlab"] {
+		viper.SetDefault(fmt.Sprintf("Monitorable.Gitlab.%s.Timeout", variant), 5000)
+		viper.SetDefault(fmt.Sprintf("Monitorable.Gitlab.%s.Token", variant), "")
+		viper.SetDefault(fmt.Sprintf("Monitorable.Gitlab.%s.CountCacheExpiration", variant), 30000)
+		viper.SetDefault(fmt.Sprintf("Monitorable.Gitlab.%s.InitialMaxDelay", variant), DefaultInitialMaxDelay)
+	}
 	_ = viper.Unmarshal(&config)
 
 	return &config
@@ -238,5 +253,9 @@ func (t *AzureDevOps) IsValid() bool {
 }
 
 func (g *Github) IsValid() bool {
+	return g.Token != ""
+}
+
+func (g *Gitlab) IsValid() bool {
 	return g.Token != ""
 }

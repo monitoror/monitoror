@@ -110,3 +110,13 @@ func TestGithub_IsValid(t *testing.T) {
 	config.Monitorable.Github[DefaultVariant].Token = "abcde"
 	assert.True(t, config.Monitorable.Github[DefaultVariant].IsValid())
 }
+
+func TestGitlab_IsValid(t *testing.T) {
+	config := InitConfig()
+
+	config.Monitorable.Gitlab[DefaultVariant].Token = ""
+	assert.False(t, config.Monitorable.Gitlab[DefaultVariant].IsValid())
+
+	config.Monitorable.Gitlab[DefaultVariant].Token = "abcde"
+	assert.True(t, config.Monitorable.Gitlab[DefaultVariant].IsValid())
+}

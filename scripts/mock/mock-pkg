@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-dirs=("pkg/gogithub" "pkg/gojenkins" "pkg/gopingdom" "pkg/gotravis" "pkg/monitoror/validator" "pkg/monitoror/builder")
+dirs=("pkg/gogithub" "pkg/gogitlab" "pkg/gojenkins" "pkg/gopingdom" "pkg/gotravis" "pkg/monitoror/validator" "pkg/monitoror/builder")
 
 # Generate mocks of interfaces find inside directory listed on dirs
 for dir in "${dirs[@]}"; do
