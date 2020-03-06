@@ -24,7 +24,7 @@ Monitoror is a wallboard monitoring app to monitor server status; monitor CI bui
 
 <p align="center">
   <a href="https://demo.monitoror.com">
-    <img src=".assets/monitoror-mockup.svg" alt="" width="70%"> <br>
+    <img src=".assets/monitoror-mockup.svg" alt="" width="70%"/> <br>
     Visit Monitoror live demo
   </a>
 </p>
@@ -85,6 +85,15 @@ See our [development guide](https://monitoror.com/guides/#development)
   </tr>
 </tbody>
 </table>
+
+
+## Support us
+
+You can support Monitoror ongoing development by doing a donation or being a backer or a sponsor:
+
+<a href="https://opencollective.com/monitoror/donate" target="_blank">
+  <img src="https://opencollective.com/monitoror/donate/button@2x.png?color=blue" width="300" alt="Donate via Open Collective"/>
+</a>
 
 
 ## License
