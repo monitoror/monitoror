@@ -7,11 +7,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/monitoror/monitoror/pkg/monitoror/faker"
-
 	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/http"
 	httpModels "github.com/monitoror/monitoror/monitorable/http/models"
+	"github.com/monitoror/monitoror/pkg/monitoror/faker"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
 )
 

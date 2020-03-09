@@ -6,11 +6,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/monitoror/monitoror/pkg/monitoror/faker"
-
 	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/port"
 	portModels "github.com/monitoror/monitoror/monitorable/port/models"
+	"github.com/monitoror/monitoror/pkg/monitoror/faker"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
 )
 

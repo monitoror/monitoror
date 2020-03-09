@@ -4,7 +4,6 @@ import (
 	"io/ioutil"
 	"strings"
 
-	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/monitoror/monitoror/monitorable/config"
 	"github.com/monitoror/monitoror/monitorable/config/models"
 	"github.com/monitoror/monitoror/monitorable/config/repository"
@@ -14,6 +13,8 @@ import (
 	_pingModels "github.com/monitoror/monitoror/monitorable/ping/models"
 	"github.com/monitoror/monitoror/monitorable/port"
 	_portModels "github.com/monitoror/monitoror/monitorable/port/models"
+
+	"github.com/jsdidierlaurent/echo-middleware/cache"
 )
 
 func initConfigUsecase(repository config.Repository, store cache.Store) *configUsecase {

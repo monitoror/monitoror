@@ -8,14 +8,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/monitoror/monitoror/monitorable/github"
-	. "github.com/stretchr/testify/mock"
-
 	"github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/monitorable/github"
 	"github.com/monitoror/monitoror/monitorable/github/mocks"
-	"github.com/stretchr/testify/assert"
 
 	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/assert"
+	. "github.com/stretchr/testify/mock"
 )
 
 func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {

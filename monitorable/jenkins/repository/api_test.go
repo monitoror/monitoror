@@ -4,7 +4,6 @@ import (
 	"errors"
 	"testing"
 
-	gojenkins "github.com/jsdidierlaurent/golang-jenkins"
 	. "github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/models"
 	jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
@@ -12,6 +11,7 @@ import (
 	"github.com/monitoror/monitoror/pkg/gojenkins/mocks"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/gravatar"
 
+	gojenkins "github.com/jsdidierlaurent/golang-jenkins"
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"
 )

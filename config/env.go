@@ -6,9 +6,8 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/labstack/gommon/log"
-
 	"github.com/fatih/structs"
+	"github.com/labstack/gommon/log"
 )
 
 type (

@@ -5,12 +5,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/AlekSi/pointer"
-	"github.com/jsdidierlaurent/echo-middleware/cache"
 	. "github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/pingdom/mocks"
 	pingdomModels "github.com/monitoror/monitoror/monitorable/pingdom/models"
+
+	"github.com/AlekSi/pointer"
+	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"
 )

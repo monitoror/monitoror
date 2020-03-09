@@ -8,12 +8,11 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/monitoror/monitoror/monitorable/pingdom"
-
-	"github.com/labstack/echo/v4"
 	"github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/monitorable/pingdom"
 	"github.com/monitoror/monitoror/monitorable/pingdom/mocks"
 
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"
 )

@@ -5,9 +5,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/monitoror/monitoror/models"
-
 	"github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/travisci"
 	travisModels "github.com/monitoror/monitoror/monitorable/travisci/models"
 	pkgTravis "github.com/monitoror/monitoror/pkg/gotravis"

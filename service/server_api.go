@@ -6,52 +6,51 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/system"
-
 	"github.com/monitoror/monitoror/handlers"
 	"github.com/monitoror/monitoror/monitorable/azuredevops"
-	_azureDevOpsDelivery "github.com/monitoror/monitoror/monitorable/azuredevops/delivery/http"
-	_azureDevOpsModels "github.com/monitoror/monitoror/monitorable/azuredevops/models"
-	_azureDevOpsRepository "github.com/monitoror/monitoror/monitorable/azuredevops/repository"
-	_azureDevOpsUsecase "github.com/monitoror/monitoror/monitorable/azuredevops/usecase"
-	_configDelivery "github.com/monitoror/monitoror/monitorable/config/delivery/http"
-	_configRepository "github.com/monitoror/monitoror/monitorable/config/repository"
-	_configUsecase "github.com/monitoror/monitoror/monitorable/config/usecase"
+	azureDevOpsDelivery "github.com/monitoror/monitoror/monitorable/azuredevops/delivery/http"
+	azureDevOpsModels "github.com/monitoror/monitoror/monitorable/azuredevops/models"
+	azureDevOpsRepository "github.com/monitoror/monitoror/monitorable/azuredevops/repository"
+	azureDevOpsUsecase "github.com/monitoror/monitoror/monitorable/azuredevops/usecase"
+	configDelivery "github.com/monitoror/monitoror/monitorable/config/delivery/http"
+	configRepository "github.com/monitoror/monitoror/monitorable/config/repository"
+	configUsecase "github.com/monitoror/monitoror/monitorable/config/usecase"
 	"github.com/monitoror/monitoror/monitorable/github"
-	_githubDelivery "github.com/monitoror/monitoror/monitorable/github/delivery/http"
-	_githubModels "github.com/monitoror/monitoror/monitorable/github/models"
-	_githubRepository "github.com/monitoror/monitoror/monitorable/github/repository"
-	_githubUsecase "github.com/monitoror/monitoror/monitorable/github/usecase"
+	githubDelivery "github.com/monitoror/monitoror/monitorable/github/delivery/http"
+	githubModels "github.com/monitoror/monitoror/monitorable/github/models"
+	githubRepository "github.com/monitoror/monitoror/monitorable/github/repository"
+	githubUsecase "github.com/monitoror/monitoror/monitorable/github/usecase"
 	"github.com/monitoror/monitoror/monitorable/http"
-	_httpDelivery "github.com/monitoror/monitoror/monitorable/http/delivery/http"
-	_httpModels "github.com/monitoror/monitoror/monitorable/http/models"
-	_httpRepository "github.com/monitoror/monitoror/monitorable/http/repository"
-	_httpUsecase "github.com/monitoror/monitoror/monitorable/http/usecase"
+	httpDelivery "github.com/monitoror/monitoror/monitorable/http/delivery/http"
+	httpModels "github.com/monitoror/monitoror/monitorable/http/models"
+	httpRepository "github.com/monitoror/monitoror/monitorable/http/repository"
+	httpUsecase "github.com/monitoror/monitoror/monitorable/http/usecase"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
 	_jenkinsDelivery "github.com/monitoror/monitoror/monitorable/jenkins/delivery/http"
 	_jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
 	_jenkinsRepository "github.com/monitoror/monitoror/monitorable/jenkins/repository"
 	_jenkinsUsecase "github.com/monitoror/monitoror/monitorable/jenkins/usecase"
 	"github.com/monitoror/monitoror/monitorable/ping"
-	_pingDelivery "github.com/monitoror/monitoror/monitorable/ping/delivery/http"
-	_pingModels "github.com/monitoror/monitoror/monitorable/ping/models"
-	_pingRepository "github.com/monitoror/monitoror/monitorable/ping/repository"
-	_pingUsecase "github.com/monitoror/monitoror/monitorable/ping/usecase"
+	pingDelivery "github.com/monitoror/monitoror/monitorable/ping/delivery/http"
+	pingModels "github.com/monitoror/monitoror/monitorable/ping/models"
+	pingRepository "github.com/monitoror/monitoror/monitorable/ping/repository"
+	pingUsecase "github.com/monitoror/monitoror/monitorable/ping/usecase"
 	"github.com/monitoror/monitoror/monitorable/pingdom"
-	_pingdomDelivery "github.com/monitoror/monitoror/monitorable/pingdom/delivery/http"
-	_pingdomModels "github.com/monitoror/monitoror/monitorable/pingdom/models"
-	_pingdomRepository "github.com/monitoror/monitoror/monitorable/pingdom/repository"
-	_pingdomUsecase "github.com/monitoror/monitoror/monitorable/pingdom/usecase"
+	pingdomDelivery "github.com/monitoror/monitoror/monitorable/pingdom/delivery/http"
+	pingdomModels "github.com/monitoror/monitoror/monitorable/pingdom/models"
+	pingdomRepository "github.com/monitoror/monitoror/monitorable/pingdom/repository"
+	pingdomUsecase "github.com/monitoror/monitoror/monitorable/pingdom/usecase"
 	"github.com/monitoror/monitoror/monitorable/port"
-	_portDelivery "github.com/monitoror/monitoror/monitorable/port/delivery/http"
-	_portModels "github.com/monitoror/monitoror/monitorable/port/models"
-	_portRepository "github.com/monitoror/monitoror/monitorable/port/repository"
-	_portUsecase "github.com/monitoror/monitoror/monitorable/port/usecase"
+	portDelivery "github.com/monitoror/monitoror/monitorable/port/delivery/http"
+	portModels "github.com/monitoror/monitoror/monitorable/port/models"
+	portRepository "github.com/monitoror/monitoror/monitorable/port/repository"
+	portUsecase "github.com/monitoror/monitoror/monitorable/port/usecase"
 	"github.com/monitoror/monitoror/monitorable/travisci"
-	_travisciDelivery "github.com/monitoror/monitoror/monitorable/travisci/delivery/http"
-	_travisciModels "github.com/monitoror/monitoror/monitorable/travisci/models"
-	_travisciRepository "github.com/monitoror/monitoror/monitorable/travisci/repository"
-	_travisciUsecase "github.com/monitoror/monitoror/monitorable/travisci/usecase"
+	travisciDelivery "github.com/monitoror/monitoror/monitorable/travisci/delivery/http"
+	travisciModels "github.com/monitoror/monitoror/monitorable/travisci/models"
+	travisciRepository "github.com/monitoror/monitoror/monitorable/travisci/repository"
+	travisciUsecase "github.com/monitoror/monitoror/monitorable/travisci/usecase"
+	"github.com/monitoror/monitoror/pkg/monitoror/utils/system"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 )
@@ -99,9 +98,9 @@ func (s *Server) registerInfo() {
 }
 
 func (s *Server) registerConfig() {
-	repository := _configRepository.NewConfigRepository()
-	usecase := _configUsecase.NewConfigUsecase(repository, s.store, s.config.DownstreamCacheExpiration)
-	delivery := _configDelivery.NewConfigDelivery(usecase)
+	repository := configRepository.NewConfigRepository()
+	usecase := configUsecase.NewConfigUsecase(repository, s.store, s.config.DownstreamCacheExpiration)
+	delivery := configDelivery.NewConfigDelivery(usecase)
 
 	s.api.GET("/config", delivery.GetConfig)
 
@@ -111,37 +110,37 @@ func (s *Server) registerConfig() {
 func (s *Server) registerPing(variant string) {
 	pingConfig := s.config.Monitorable.Ping[variant]
 
-	repository := _pingRepository.NewPingRepository(pingConfig)
-	usecase := _pingUsecase.NewPingUsecase(repository)
-	delivery := _pingDelivery.NewPingDelivery(usecase)
+	repository := pingRepository.NewPingRepository(pingConfig)
+	usecase := pingUsecase.NewPingUsecase(repository)
+	delivery := pingDelivery.NewPingDelivery(usecase)
 
 	// Register route to echo
 	route := s.api.GET("/ping", s.cm.UpstreamCacheHandler(delivery.GetPing))
 
 	// Register data for config hydration
-	s.configHelper.RegisterTile(ping.PingTileType, &_pingModels.PingParams{}, route.Path, pingConfig.InitialMaxDelay)
+	s.configHelper.RegisterTile(ping.PingTileType, &pingModels.PingParams{}, route.Path, pingConfig.InitialMaxDelay)
 }
 
 func (s *Server) registerPort(variant string) {
 	portConfig := s.config.Monitorable.Port[variant]
 
-	repository := _portRepository.NewPortRepository(portConfig)
-	usecase := _portUsecase.NewPortUsecase(repository)
-	delivery := _portDelivery.NewPortDelivery(usecase)
+	repository := portRepository.NewPortRepository(portConfig)
+	usecase := portUsecase.NewPortUsecase(repository)
+	delivery := portDelivery.NewPortDelivery(usecase)
 
 	// Register route to echo
 	route := s.api.GET("/port", s.cm.UpstreamCacheHandler(delivery.GetPort))
 
 	// Register data for config hydration
-	s.configHelper.RegisterTile(port.PortTileType, &_portModels.PortParams{}, route.Path, portConfig.InitialMaxDelay)
+	s.configHelper.RegisterTile(port.PortTileType, &portModels.PortParams{}, route.Path, portConfig.InitialMaxDelay)
 }
 
 func (s *Server) registerHTTP(variant string) {
 	httpConfig := s.config.Monitorable.HTTP[variant]
 
-	repository := _httpRepository.NewHTTPRepository(httpConfig)
-	usecase := _httpUsecase.NewHTTPUsecase(repository, s.store, s.config.UpstreamCacheExpiration)
-	delivery := _httpDelivery.NewHTTPDelivery(usecase)
+	repository := httpRepository.NewHTTPRepository(httpConfig)
+	usecase := httpUsecase.NewHTTPUsecase(repository, s.store, s.config.UpstreamCacheExpiration)
+	delivery := httpDelivery.NewHTTPDelivery(usecase)
 
 	// Register route to echo
 	httpGroup := s.api.Group("/http")
@@ -151,19 +150,19 @@ func (s *Server) registerHTTP(variant string) {
 
 	// Register data for config hydration
 	s.configHelper.RegisterTile(http.HTTPStatusTileType,
-		&_httpModels.HTTPStatusParams{}, routeStatus.Path, httpConfig.InitialMaxDelay)
+		&httpModels.HTTPStatusParams{}, routeStatus.Path, httpConfig.InitialMaxDelay)
 	s.configHelper.RegisterTile(http.HTTPRawTileType,
-		&_httpModels.HTTPRawParams{}, routeRaw.Path, httpConfig.InitialMaxDelay)
+		&httpModels.HTTPRawParams{}, routeRaw.Path, httpConfig.InitialMaxDelay)
 	s.configHelper.RegisterTile(http.HTTPFormattedTileType,
-		&_httpModels.HTTPFormattedParams{}, routeJSON.Path, httpConfig.InitialMaxDelay)
+		&httpModels.HTTPFormattedParams{}, routeJSON.Path, httpConfig.InitialMaxDelay)
 }
 
 func (s *Server) registerPingdom(variant string) {
 	pingdomConfig := s.config.Monitorable.Pingdom[variant]
 
-	repository := _pingdomRepository.NewPingdomRepository(pingdomConfig)
-	usecase := _pingdomUsecase.NewPingdomUsecase(repository, pingdomConfig, s.store)
-	delivery := _pingdomDelivery.NewPingdomDelivery(usecase)
+	repository := pingdomRepository.NewPingdomRepository(pingdomConfig)
+	usecase := pingdomUsecase.NewPingdomUsecase(repository, pingdomConfig, s.store)
+	delivery := pingdomDelivery.NewPingdomDelivery(usecase)
 
 	// Register route to echo
 	pingdomGroup := s.api.Group(fmt.Sprintf("/pingdom/%s", variant))
@@ -171,17 +170,17 @@ func (s *Server) registerPingdom(variant string) {
 
 	// Register data for config hydration
 	s.configHelper.RegisterTileWithConfigVariant(pingdom.PingdomCheckTileType,
-		variant, &_pingdomModels.CheckParams{}, route.Path, pingdomConfig.InitialMaxDelay)
+		variant, &pingdomModels.CheckParams{}, route.Path, pingdomConfig.InitialMaxDelay)
 	s.configHelper.RegisterDynamicTileWithConfigVariant(pingdom.PingdomChecksTileType,
-		variant, &_pingdomModels.ChecksParams{}, usecase)
+		variant, &pingdomModels.ChecksParams{}, usecase)
 }
 
 func (s *Server) registerTravisCI(variant string) {
 	travisCIConfig := s.config.Monitorable.TravisCI[variant]
 
-	repository := _travisciRepository.NewTravisCIRepository(travisCIConfig)
-	usecase := _travisciUsecase.NewTravisCIUsecase(repository)
-	delivery := _travisciDelivery.NewTravisCIDelivery(usecase)
+	repository := travisciRepository.NewTravisCIRepository(travisCIConfig)
+	usecase := travisciUsecase.NewTravisCIUsecase(repository)
+	delivery := travisciDelivery.NewTravisCIDelivery(usecase)
 
 	// Register route to echo
 	travisCIGroup := s.api.Group(fmt.Sprintf("/travisci/%s", variant))
@@ -189,7 +188,7 @@ func (s *Server) registerTravisCI(variant string) {
 
 	// Register data for config hydration
 	s.configHelper.RegisterTileWithConfigVariant(travisci.TravisCIBuildTileType,
-		variant, &_travisciModels.BuildParams{}, route.Path, travisCIConfig.InitialMaxDelay)
+		variant, &travisciModels.BuildParams{}, route.Path, travisCIConfig.InitialMaxDelay)
 }
 
 func (s *Server) registerJenkins(variant string) {
@@ -213,9 +212,9 @@ func (s *Server) registerJenkins(variant string) {
 func (s *Server) registerAzureDevOps(variant string) {
 	azureDevOpsConfig := s.config.Monitorable.AzureDevOps[variant]
 
-	repository := _azureDevOpsRepository.NewAzureDevOpsRepository(azureDevOpsConfig)
-	usecase := _azureDevOpsUsecase.NewAzureDevOpsUsecase(repository)
-	delivery := _azureDevOpsDelivery.NewAzureDevOpsDelivery(usecase)
+	repository := azureDevOpsRepository.NewAzureDevOpsRepository(azureDevOpsConfig)
+	usecase := azureDevOpsUsecase.NewAzureDevOpsUsecase(repository)
+	delivery := azureDevOpsDelivery.NewAzureDevOpsDelivery(usecase)
 
 	// Register route to echo
 	azureGroup := s.api.Group(fmt.Sprintf("/azuredevops/%s", variant))
@@ -224,9 +223,9 @@ func (s *Server) registerAzureDevOps(variant string) {
 
 	// Register data for config hydration
 	s.configHelper.RegisterTileWithConfigVariant(azuredevops.AzureDevOpsBuildTileType,
-		variant, &_azureDevOpsModels.BuildParams{}, routeBuild.Path, azureDevOpsConfig.InitialMaxDelay)
+		variant, &azureDevOpsModels.BuildParams{}, routeBuild.Path, azureDevOpsConfig.InitialMaxDelay)
 	s.configHelper.RegisterTileWithConfigVariant(azuredevops.AzureDevOpsReleaseTileType,
-		variant, &_azureDevOpsModels.ReleaseParams{}, routeRelease.Path, azureDevOpsConfig.InitialMaxDelay)
+		variant, &azureDevOpsModels.ReleaseParams{}, routeRelease.Path, azureDevOpsConfig.InitialMaxDelay)
 }
 
 func (s *Server) registerGithub(variant string) {
@@ -234,9 +233,9 @@ func (s *Server) registerGithub(variant string) {
 	// Custom UpstreamCacheExpiration only for count because github has no-cache for this query and the rate limit is 30req/Hour
 	countCacheExpiration := time.Millisecond * time.Duration(githubConfig.CountCacheExpiration)
 
-	repository := _githubRepository.NewGithubRepository(githubConfig)
-	usecase := _githubUsecase.NewGithubUsecase(repository)
-	delivery := _githubDelivery.NewGithubDelivery(usecase)
+	repository := githubRepository.NewGithubRepository(githubConfig)
+	usecase := githubUsecase.NewGithubUsecase(repository)
+	delivery := githubDelivery.NewGithubDelivery(usecase)
 
 	// Register route to echo
 	azureGroup := s.api.Group(fmt.Sprintf("/github/%s", variant))
@@ -245,9 +244,9 @@ func (s *Server) registerGithub(variant string) {
 
 	// Register data for config hydration
 	s.configHelper.RegisterTileWithConfigVariant(github.GithubCountTileType,
-		variant, &_githubModels.CountParams{}, routeCount.Path, githubConfig.InitialMaxDelay)
+		variant, &githubModels.CountParams{}, routeCount.Path, githubConfig.InitialMaxDelay)
 	s.configHelper.RegisterTileWithConfigVariant(github.GithubChecksTileType,
-		variant, &_githubModels.ChecksParams{}, routeChecks.Path, githubConfig.InitialMaxDelay)
+		variant, &githubModels.ChecksParams{}, routeChecks.Path, githubConfig.InitialMaxDelay)
 	s.configHelper.RegisterDynamicTileWithConfigVariant(github.GithubPullRequestTileType,
-		variant, &_githubModels.PullRequestParams{}, usecase)
+		variant, &githubModels.PullRequestParams{}, usecase)
 }

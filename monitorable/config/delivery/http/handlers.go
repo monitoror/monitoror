@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/monitoror/monitoror/models"
-
 	"github.com/monitoror/monitoror/monitorable/config"
 	configModels "github.com/monitoror/monitoror/monitorable/config/models"
 

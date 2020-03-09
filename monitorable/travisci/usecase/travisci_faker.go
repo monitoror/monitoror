@@ -6,8 +6,6 @@ import (
 	"fmt"
 	"time"
 
-	cmap "github.com/orcaman/concurrent-map"
-
 	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/travisci"
 	travisModels "github.com/monitoror/monitoror/monitorable/travisci/models"
@@ -16,6 +14,7 @@ import (
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
 
 	"github.com/AlekSi/pointer"
+	cmap "github.com/orcaman/concurrent-map"
 )
 
 type (

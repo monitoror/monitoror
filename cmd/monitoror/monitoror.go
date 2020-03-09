@@ -4,12 +4,12 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/joho/godotenv"
-	"github.com/labstack/gommon/log"
-
 	"github.com/monitoror/monitoror/cli"
 	"github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/service"
+
+	"github.com/joho/godotenv"
+	"github.com/labstack/gommon/log"
 )
 
 func main() {
