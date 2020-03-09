@@ -89,8 +89,6 @@ github.com/jonboulle/clockwork v0.1.0 h1:VKV+ZcuP6l3yW9doeqz6ziZGgcynBVQO+obU0+0
 github.com/jonboulle/clockwork v0.1.0/go.mod h1:Ii8DK3G1RaLaWxj9trq07+26W01tbo22gdxWY5EU2bo=
 github.com/jsdidierlaurent/azure-devops-go-api/azuredevops v0.0.0-20191016103718-deea5b1446b8 h1:3qgHyXNI1ppHyCmKcXhrGmsknGnCaBaDp5yoo6K1SEI=
 github.com/jsdidierlaurent/azure-devops-go-api/azuredevops v0.0.0-20191016103718-deea5b1446b8/go.mod h1:SPsWmluDVSxjBq7jVlaCG4nAWY1muXadVpH4xJbbOj0=
-github.com/jsdidierlaurent/echo-middleware v1.0.2 h1:F8mA2b3j84/vgpn6OsHwhSOuyJND9eL/Xnd/E6BFGpw=
-github.com/jsdidierlaurent/echo-middleware v1.0.2/go.mod h1:7KRCXCnk/wqEFjW22H9bMiJ9MsGHaDryJhhBBEAcnEU=
 github.com/jsdidierlaurent/echo-middleware v1.0.3 h1:fo7sXZZQezcYGRBrMnoncIg59fkBuVCpjHA26sG7L5E=
 github.com/jsdidierlaurent/echo-middleware v1.0.3/go.mod h1:McTzQ34uRHGn8P4siRpT3Za5vaPAA4vhfq9UlPlvUoc=
 github.com/jsdidierlaurent/go-pingdom v1.0.1-0.20191016073917-beef4d2f78cd h1:E1u68c9b9vI6o4MkrPO0DWn3gXBmCtHXbWHQCrTGPEY=
