@@ -125,29 +125,25 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - name: Get the version
+      - name: Get version
         id: get_version
-        run: echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+        run: |
+          echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+
+      - name: Get upload url
+        id: get_uploadurl
+        run: |
+          echo ::set-output name=UPLOAD_URL::$(curl https://api.github.com/repos/monitoror/monitoror/releases/tags/${{ steps.get_version.outputs.VERSION }} --silent | grep -Po '"upload_url":.*?[^\\]",' | cut -d'"' -f4)
 
       - uses: actions/download-artifact@v1
         with:
           name: binaries
 
-      - uses: actions/create-release@v1
-        id: create_release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.get_version.outputs.VERSION }}
-          release_name: v${{ steps.get_version.outputs.VERSION }}
-          draft: true
-          prerelease: true
-
       - uses: actions/upload-release-asset@v1.0.1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ steps.get_uploadurl.outputs.UPLOAD_URL }}
           asset_path: binaries/monitoror-linux-amd64
           asset_name: monitoror-linux-amd64-${{ steps.get_version.outputs.VERSION }}
           asset_content_type: application/x-executable
@@ -156,7 +152,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ steps.get_uploadurl.outputs.UPLOAD_URL }}
           asset_path: binaries/monitoror-linux-arm
           asset_name: monitoror-linux-arm-${{ steps.get_version.outputs.VERSION }}
           asset_content_type: application/x-executable
@@ -165,7 +161,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ steps.get_uploadurl.outputs.UPLOAD_URL }}
           asset_path: binaries/monitoror-windows-amd64.exe
           asset_name: monitoror-windows-amd64-${{ steps.get_version.outputs.VERSION }}.exe
           asset_content_type: application/x-dosexec
@@ -174,7 +170,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ steps.get_uploadurl.outputs.UPLOAD_URL }}
           asset_path: binaries/monitoror-macos
           asset_name: monitoror-macos-${{ steps.get_version.outputs.VERSION }}
           asset_content_type: application/x-mach-binary
