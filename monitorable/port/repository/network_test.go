@@ -4,9 +4,8 @@ import (
 	"errors"
 	"testing"
 
-	pkgNet "github.com/monitoror/monitoror/pkg/net"
-
 	. "github.com/monitoror/monitoror/config"
+	pkgNet "github.com/monitoror/monitoror/pkg/net"
 	"github.com/monitoror/monitoror/pkg/net/mocks"
 
 	"github.com/stretchr/testify/assert"

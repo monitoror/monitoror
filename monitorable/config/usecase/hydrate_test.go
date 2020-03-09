@@ -8,15 +8,13 @@ import (
 	"time"
 
 	"github.com/monitoror/monitoror/monitorable/config/models"
-
-	"github.com/jsdidierlaurent/echo-middleware/cache"
-
 	"github.com/monitoror/monitoror/monitorable/jenkins"
 	_jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/builder"
 	. "github.com/monitoror/monitoror/pkg/monitoror/builder/mocks"
 	mocks2 "github.com/monitoror/monitoror/pkg/monitoror/builder/mocks"
 
+	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"
 )

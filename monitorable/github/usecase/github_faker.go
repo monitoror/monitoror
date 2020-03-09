@@ -7,8 +7,6 @@ import (
 	"math/rand"
 	"time"
 
-	cmap "github.com/orcaman/concurrent-map"
-
 	"github.com/AlekSi/pointer"
 	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/github"
@@ -17,6 +15,8 @@ import (
 	"github.com/monitoror/monitoror/pkg/monitoror/faker"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
+
+	cmap "github.com/orcaman/concurrent-map"
 )
 
 type (

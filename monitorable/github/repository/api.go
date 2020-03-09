@@ -6,15 +6,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/monitoror/monitoror/models"
-
-	githubApi "github.com/google/go-github/github"
 	"github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/github"
 	githubModels "github.com/monitoror/monitoror/monitorable/github/models"
 	"github.com/monitoror/monitoror/pkg/gogithub"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/gravatar"
 
+	githubApi "github.com/google/go-github/github"
 	"github.com/sourcegraph/httpcache"
 	"golang.org/x/oauth2"
 )

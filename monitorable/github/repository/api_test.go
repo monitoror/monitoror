@@ -5,14 +5,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/pkg/gogithub/mocks"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/gravatar"
 
 	. "github.com/AlekSi/pointer"
 	"github.com/google/go-github/github"
-
-	"github.com/monitoror/monitoror/config"
-	"github.com/monitoror/monitoror/pkg/gogithub/mocks"
-
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"
 )

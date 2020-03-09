@@ -7,13 +7,13 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jsdidierlaurent/echo-middleware/cache"
-
 	"github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/models"
 	monitorableConfig "github.com/monitoror/monitoror/monitorable/config"
 	"github.com/monitoror/monitoror/pkg/monitoror/builder"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils"
+
+	"github.com/jsdidierlaurent/echo-middleware/cache"
 )
 
 // Versions

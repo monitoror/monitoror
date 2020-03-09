@@ -6,9 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/monitoror/monitoror/models"
-
 	"github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
 	jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
 	pkgJenkins "github.com/monitoror/monitoror/pkg/gojenkins"

@@ -7,8 +7,6 @@ import (
 	"math/rand"
 	"time"
 
-	cmap "github.com/orcaman/concurrent-map"
-
 	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/azuredevops"
 	azureModels "github.com/monitoror/monitoror/monitorable/azuredevops/models"
@@ -17,6 +15,7 @@ import (
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
 
 	"github.com/AlekSi/pointer"
+	cmap "github.com/orcaman/concurrent-map"
 )
 
 type (

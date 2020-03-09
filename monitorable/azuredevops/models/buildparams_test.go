@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/AlekSi/pointer"
-
 	"github.com/stretchr/testify/assert"
 )
 

@@ -1,8 +1,9 @@
 package cli
 
 import (
-	"github.com/labstack/gommon/color"
 	"github.com/monitoror/monitoror/cli/version"
+
+	"github.com/labstack/gommon/color"
 )
 
 const (

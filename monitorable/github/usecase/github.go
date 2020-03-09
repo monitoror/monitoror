@@ -7,16 +7,15 @@ import (
 	"sort"
 	"time"
 
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/hash"
-
-	"github.com/AlekSi/pointer"
-
 	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/github"
 	githubModels "github.com/monitoror/monitoror/monitorable/github/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/builder"
 	"github.com/monitoror/monitoror/pkg/monitoror/cache"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
+	"github.com/monitoror/monitoror/pkg/monitoror/utils/hash"
+
+	"github.com/AlekSi/pointer"
 )
 
 type (

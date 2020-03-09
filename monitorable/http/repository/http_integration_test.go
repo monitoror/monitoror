@@ -9,11 +9,10 @@ import (
 	"testing"
 	"testing/iotest"
 
+	"github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/test"
 
 	"github.com/stretchr/testify/assert"
-
-	"github.com/monitoror/monitoror/config"
 )
 
 // /!\ this is an integration test /!\

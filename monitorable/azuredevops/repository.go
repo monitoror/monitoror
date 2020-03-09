@@ -1,9 +1,10 @@
 package azuredevops
 
 import (
+	"github.com/monitoror/monitoror/monitorable/azuredevops/models"
+
 	"github.com/jsdidierlaurent/azure-devops-go-api/azuredevops/build"
 	"github.com/jsdidierlaurent/azure-devops-go-api/azuredevops/release"
-	"github.com/monitoror/monitoror/monitorable/azuredevops/models"
 )
 
 type (
