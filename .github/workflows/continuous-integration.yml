@@ -133,7 +133,7 @@ jobs:
       - name: Get upload url
         id: get_uploadurl
         run: |
-          echo ::set-output name=UPLOAD_URL::$(curl https://api.github.com/repos/monitoror/monitoror/releases/tags/${{ steps.get_version.outputs.VERSION }} --silent | grep -Po '"upload_url":.*?[^\\]",' | cut -d'"' -f4)
+          echo ::set-output name=UPLOAD_URL::$(curl https://api.github.com/repos/monitoror/monitoror/releases/tags/${{ steps.get_version.outputs.VERSION }} --silent | grep -Po '"upload_url"\s*:\s*"[^"]+' | cut -d'"' -f4)
 
       - uses: actions/download-artifact@v1
         with:
