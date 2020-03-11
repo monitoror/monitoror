@@ -7,8 +7,9 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/pkg/monitoror/utils/humanize"
 
+	"github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/monitorable/config/models"
 )
 
@@ -64,10 +65,10 @@ func (cu *configUsecase) hydrateTile(configBag *models.ConfigBag, tile *models.T
 		// Array of value
 		if reflect.TypeOf(value).Kind() == reflect.Slice {
 			for _, v := range value.([]interface{}) {
-				urlParams.Add(key, fmt.Sprintf("%v", v))
+				urlParams.Add(key, humanize.Interface(v))
 			}
 		} else {
-			urlParams.Add(key, fmt.Sprintf("%v", value))
+			urlParams.Add(key, humanize.Interface(value))
 		}
 	}
 	tile.URL = fmt.Sprintf("%s?%s", tileConfig.Path, urlParams.Encode())

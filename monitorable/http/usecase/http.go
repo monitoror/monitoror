@@ -11,12 +11,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/monitoror/monitoror/pkg/monitoror/utils/humanize"
+
 	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/http"
 	httpModels "github.com/monitoror/monitoror/monitorable/http/models"
 
 	xml2json "github.com/basgys/goxml2json"
-	"github.com/dustin/go-humanize"
 	"github.com/ghodss/yaml"
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 )
@@ -235,10 +236,5 @@ func lookupKey(params httpModels.FormatedDataProvider, data interface{}) (bool, 
 		return false, ""
 	}
 
-	switch data := data.(type) {
-	case float64:
-		return true, humanize.Ftoa(data)
-	default:
-		return true, fmt.Sprintf("%v", data)
-	}
+	return true, humanize.Interface(data)
 }

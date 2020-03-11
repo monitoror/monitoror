@@ -32,7 +32,8 @@ func TestUsecase_Hydrate(t *testing.T) {
       { "type": "PORT", "params": { "hostname": "bserver.com", "port": 22 } }
     ]},
 		{ "type": "JENKINS-BUILD", "params": { "job": "test" } },
-		{ "type": "JENKINS-BUILD", "configVariant": "variant1", "params": { "job": "test" } }
+		{ "type": "JENKINS-BUILD", "configVariant": "variant1", "params": { "job": "test" } },
+    { "type": "PINGDOM-CHECK", "params": { "id": 10000000 } }
   ]
 }
 `
@@ -63,6 +64,8 @@ func TestUsecase_Hydrate(t *testing.T) {
 	assert.Equal(t, 1000, *config.Config.Tiles[4].InitialMaxDelay)
 	assert.Equal(t, "/jenkins/variant1?job=test", config.Config.Tiles[5].URL)
 	assert.Equal(t, 1000, *config.Config.Tiles[5].InitialMaxDelay)
+	assert.Equal(t, "/pingdom/default?id=10000000", config.Config.Tiles[6].URL)
+	assert.Equal(t, 1000, *config.Config.Tiles[6].InitialMaxDelay)
 }
 
 func TestUsecase_Hydrate_WithDynamic(t *testing.T) {

@@ -11,6 +11,8 @@ import (
 	_jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
 	"github.com/monitoror/monitoror/monitorable/ping"
 	_pingModels "github.com/monitoror/monitoror/monitorable/ping/models"
+	"github.com/monitoror/monitoror/monitorable/pingdom"
+	_pindomModels "github.com/monitoror/monitoror/monitorable/pingdom/models"
 	"github.com/monitoror/monitoror/monitorable/port"
 	_portModels "github.com/monitoror/monitoror/monitorable/port/models"
 
@@ -23,6 +25,7 @@ func initConfigUsecase(repository config.Repository, store cache.Store) *configU
 	usecase.RegisterTile(ping.PingTileType, &_pingModels.PingParams{}, "/ping", 1000)
 	usecase.RegisterTile(port.PortTileType, &_portModels.PortParams{}, "/port", 1000)
 	usecase.RegisterTile(jenkins.JenkinsBuildTileType, &_jenkinsModels.BuildParams{}, "/jenkins/default", 1000)
+	usecase.RegisterTile(pingdom.PingdomCheckTileType, &_pindomModels.CheckParams{}, "/pingdom/default", 1000)
 
 	return usecase.(*configUsecase)
 }
