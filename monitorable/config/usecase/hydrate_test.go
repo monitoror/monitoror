@@ -11,8 +11,7 @@ import (
 	"github.com/monitoror/monitoror/monitorable/jenkins"
 	_jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/builder"
-	. "github.com/monitoror/monitoror/pkg/monitoror/builder/mocks"
-	mocks2 "github.com/monitoror/monitoror/pkg/monitoror/builder/mocks"
+	"github.com/monitoror/monitoror/pkg/monitoror/builder/mocks"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/stretchr/testify/assert"
@@ -86,7 +85,7 @@ func TestUsecase_Hydrate_WithDynamic(t *testing.T) {
 `
 	params := make(map[string]interface{})
 	params["job"] = "test"
-	mockBuilder := new(DynamicTileBuilder)
+	mockBuilder := new(mocks.DynamicTileBuilder)
 	mockBuilder.On("ListDynamicTile", Anything).Return([]builder.Result{{TileType: jenkins.JenkinsBuildTileType, Params: params}}, nil)
 
 	store := cache.NewGoCacheStore(time.Second, time.Second)
@@ -128,7 +127,7 @@ func TestUsecase_Hydrate_WithDynamicEmpty(t *testing.T) {
 `
 	params := make(map[string]interface{})
 	params["job"] = "test"
-	mockBuilder := new(DynamicTileBuilder)
+	mockBuilder := new(mocks.DynamicTileBuilder)
 	mockBuilder.On("ListDynamicTile", Anything).Return([]builder.Result{}, nil)
 
 	store := cache.NewGoCacheStore(time.Second, time.Second)
@@ -164,9 +163,9 @@ func TestUsecase_Hydrate_WithDynamic_WithError(t *testing.T) {
 `
 	params := make(map[string]interface{})
 	params["job"] = "test"
-	mockBuilder := new(DynamicTileBuilder)
+	mockBuilder := new(mocks.DynamicTileBuilder)
 	mockBuilder.On("ListDynamicTile", Anything).Return([]builder.Result{{TileType: jenkins.JenkinsBuildTileType, Params: params}}, nil)
-	mockBuilder2 := new(mocks2.DynamicTileBuilder)
+	mockBuilder2 := new(mocks.DynamicTileBuilder)
 	mockBuilder2.On("ListDynamicTile", Anything).Return(nil, errors.New("unable to find job"))
 
 	store := cache.NewGoCacheStore(time.Second, time.Second)
@@ -206,9 +205,9 @@ func TestUsecase_Hydrate_WithDynamic_WithTimeoutError(t *testing.T) {
 `
 	params := make(map[string]interface{})
 	params["job"] = "test"
-	mockBuilder := new(DynamicTileBuilder)
+	mockBuilder := new(mocks.DynamicTileBuilder)
 	mockBuilder.On("ListDynamicTile", Anything).Return([]builder.Result{{TileType: jenkins.JenkinsBuildTileType, Params: params}}, nil)
-	mockBuilder2 := new(mocks2.DynamicTileBuilder)
+	mockBuilder2 := new(mocks.DynamicTileBuilder)
 	mockBuilder2.On("ListDynamicTile", Anything).Return(nil, context.DeadlineExceeded)
 
 	store := cache.NewGoCacheStore(time.Second, time.Second)
@@ -248,7 +247,7 @@ func TestUsecase_Hydrate_WithDynamic_WithTimeoutCache(t *testing.T) {
 	cacheKey := fmt.Sprintf("%s:%s_%s_%s", DynamicTileStoreKeyPrefix, "JENKINS-MULTIBRANCH", "default", `{"job":"test"}`)
 	_ = usecase.dynamicTileStore.Add(cacheKey, cachedResult, 0)
 
-	mockBuilder := new(DynamicTileBuilder)
+	mockBuilder := new(mocks.DynamicTileBuilder)
 	mockBuilder.On("ListDynamicTile", Anything).Return(nil, context.DeadlineExceeded)
 	usecase.RegisterDynamicTile(jenkins.JenkinsMultiBranchTileType, &_jenkinsModels.MultiBranchParams{}, mockBuilder)
 
