@@ -76,6 +76,10 @@ build-faker-linux-amd64: package-front ## build faker executable linux amd64 (on
 package-front: ## package front directory ui/dist into go source
 	@./scripts/package/front.sh
 
+.PHONY: package-docker
+package-docker: ## package linux amd64 into docker image
+	@./scripts/package/docker.sh
+
 # ============= RUN =============
 .PHONY: run
 run: ## run monitoror

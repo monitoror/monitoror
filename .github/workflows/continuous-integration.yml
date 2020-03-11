@@ -175,3 +175,60 @@ jobs:
           asset_path: binaries/monitoror-macos-${{ steps.init.outputs.VERSION }}
           asset_name: monitoror-macos-${{ steps.init.outputs.VERSION }}
           asset_content_type: application/x-mach-binary
+
+  release-dockerhub:
+    name: Release DockerHub
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      - name: Init
+        id: init
+        run: |
+          VERSION=$(cat VERSION)
+          echo ::set-output name=VERSION::$VERSION
+          echo ::set-output name=MINOR_VERSION::$(echo $VERSION | cut -d "." -f 1,2)
+          echo ::set-output name=MAJOR_VERSION::$(echo $VERSION | cut -d "." -f 1)
+
+
+      - uses: actions/download-artifact@v1
+        with:
+          name: binaries
+
+      - uses: actions-hub/docker/login@master
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Images
+        run: |
+          make package-docker
+          docker tag ${GITHUB_REPOSITORY}:${{ steps.init.outputs.VERSION }} ${GITHUB_REPOSITORY}:${{ steps.init.outputs.MINOR_VERSION }}
+          docker tag ${GITHUB_REPOSITORY}:${{ steps.init.outputs.VERSION }} ${GITHUB_REPOSITORY}:${{ steps.init.outputs.MAJOR_VERSION }}
+          docker tag ${GITHUB_REPOSITORY}:${{ steps.init.outputs.VERSION }} ${GITHUB_REPOSITORY}:latest
+
+      - name: Push to docker hub [X.Y.Z]
+        uses: actions-hub/docker@master
+        with:
+          args: push ${GITHUB_REPOSITORY}:${{ steps.init.outputs.VERSION }}
+
+      - name: Push to docker hub [X.Y]
+        uses: actions-hub/docker@master
+        with:
+          args: push ${GITHUB_REPOSITORY}:${{ steps.init.outputs.MINOR_VERSION }}
+
+      - name: Push to docker hub [X]
+        uses: actions-hub/docker@master
+        with:
+          args: push ${GITHUB_REPOSITORY}:${{ steps.init.outputs.MAJOR_VERSION }}
+
+      - name: Push to docker hub [latest]
+        uses: actions-hub/docker@master
+        with:
+          args: push ${GITHUB_REPOSITORY}:latest
+
+
