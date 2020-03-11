@@ -1,4 +1,0 @@
-#!/usr/bin/env bash
-
-rm -f service/rice-box.go
-rice embed-go -i service/server.go
