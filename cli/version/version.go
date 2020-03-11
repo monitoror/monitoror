@@ -6,4 +6,5 @@ var (
 	Version   = "unknown-version"
 	GitCommit = "unknown-gitcommit"
 	BuildTime = "unknown-buildtime"
+	BuildTags = ""
 )

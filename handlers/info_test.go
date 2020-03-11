@@ -29,7 +29,7 @@ func TestGetInfo(t *testing.T) {
 	handler := NewHTTPInfoDelivery()
 
 	// Create expected value
-	json, err := json.Marshal(models.NewInfoResponse(version.Version, version.GitCommit, version.BuildTime))
+	json, err := json.Marshal(models.NewInfoResponse(version.Version, version.GitCommit, version.BuildTime, version.BuildTags))
 	assert.NoError(t, err, "unable to marshal InfoResponse")
 
 	// Test

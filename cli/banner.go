@@ -12,8 +12,8 @@ const (
     __  ___            _ __
    /  |/  /___  ____  (_) /_____  _________  _____
   / /|_/ / __ \/ __ \/ / __/ __ \/ ___/ __ \/ ___/
- / /  / / /_/ / / / / / /_/ /_/ / /  / /_/ / /
-/_/  /_/\____/_/ /_/_/\__/\____/_/   \____/_/ %s
+ / /  / / /_/ / / / / / /_/ /_/ / /  / /_/ / / %s
+/_/  /_/\____/_/ /_/_/\__/\____/_/   \____/_/  %s
 
 %s
 _____________________________________________________
@@ -23,5 +23,5 @@ _____________________________________________________
 
 func PrintBanner() {
 	colorer := color.New()
-	colorer.Printf(banner, colorer.Red(version.Version), colorer.Blue(website))
+	colorer.Printf(banner, colorer.Green(version.BuildTags), colorer.Green(version.Version), colorer.Blue(website))
 }
