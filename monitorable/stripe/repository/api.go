@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"strconv"
 	"time"
 
 	"github.com/monitoror/monitoror/config"
@@ -27,15 +28,16 @@ func NewStripeRepository(config *config.Stripe) *stripeRepository {
 
 func (r *stripeRepository) GetCount(afterTimestamp string) int {
 	if afterTimestamp == "" || afterTimestamp == "today" {
-		afterTimestamp = string(bod(time.Now().Local()).Unix())
+		afterTimestamp = strconv.FormatInt(bod(time.Now().Local()).Unix(), 10)
 	}
 	params := &stripe.BalanceTransactionListParams{}
 	params.Filters.AddFilter("type", "", "charge")
 	params.Filters.AddFilter("created", "gte", afterTimestamp)
+	params.Filters.AddFilter("limit", "", "100")
 	result := r.stripeClient.BalanceTransaction.List(params)
 	count := 0
 	for result.Next() {
-		count++
+		count = count + 1
 	}
 	return count
 }

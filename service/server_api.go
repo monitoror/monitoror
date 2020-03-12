@@ -51,7 +51,9 @@ import (
 	travisciRepository "github.com/monitoror/monitoror/monitorable/travisci/repository"
 	travisciUsecase "github.com/monitoror/monitoror/monitorable/travisci/usecase"
 
-	// "github.com/monitoror/monitoror/monitorable/stripe"
+	"github.com/monitoror/monitoror/monitorable/stripe"
+	stripeDelivery "github.com/monitoror/monitoror/monitorable/stripe/delivery"
+	stripeModels "github.com/monitoror/monitoror/monitorable/stripe/models"
 	stripeRepository "github.com/monitoror/monitoror/monitorable/stripe/repository"
 	stripeUsecase "github.com/monitoror/monitoror/monitorable/stripe/usecase"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/system"
@@ -93,6 +95,9 @@ func (s *Server) initApis() {
 	}
 	for variant, conf := range s.config.Monitorable.Github {
 		registerTile(s.registerGithub, variant, conf.IsValid())
+	}
+	for variant, conf := range s.config.Monitorable.Stripe {
+		registerTile(s.registerStripe, variant, conf.IsValid())
 	}
 }
 
@@ -260,5 +265,11 @@ func (s *Server) registerStripe(variant string) {
 
 	repository := stripeRepository.NewStripeRepository(stripeConfig)
 	usecase := stripeUsecase.NewStripeUsecase(repository)
+	delivery := stripeDelivery.NewStripeDelivery(usecase)
 
+	azureGroup := s.api.Group(fmt.Sprintf("/stripe/%s", variant))
+	routeCount := azureGroup.GET("/count", s.cm.UpstreamCacheHandler(delivery.GetCount))
+
+	s.configHelper.RegisterTileWithConfigVariant(stripe.StripeCountTileType,
+		variant, &stripeModels.CountParams{}, routeCount.Path, stripeConfig.InitialMaxDelay)
 }

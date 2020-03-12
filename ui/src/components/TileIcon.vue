@@ -121,6 +121,10 @@
         TileType.AzureDevOpsRelease,
       ].includes(this.tileType)
     }
+
+    get isStripe(): boolean {
+      return this.tileType === TileType.StripeCount
+    }
   }
 </script>
 
