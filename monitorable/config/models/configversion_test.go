@@ -34,7 +34,7 @@ func TestConfigVersion_MarshalJSON(t *testing.T) {
 
 		result, err := json.Marshal(version)
 		if assert.NoError(t, err) {
-			assert.Equal(t, fmt.Sprintf(`{"version":"%s"}`, testcase.expectedStr), string(result))
+			assert.Equal(t, fmt.Sprintf(`{"version":%q}`, testcase.expectedStr), string(result))
 		}
 	}
 }
@@ -75,7 +75,7 @@ func TestConfigVersion_UnmarshalJSON(t *testing.T) {
 		},
 	} {
 		version := &TestVersion{}
-		err := json.Unmarshal([]byte(fmt.Sprintf(`{"version":"%s"}`, testcase.strVersion)), &version)
+		err := json.Unmarshal([]byte(fmt.Sprintf(`{"version":%q}`, testcase.strVersion)), &version)
 		if testcase.expectedError != nil {
 			assert.Equal(t, testcase.expectedError, err)
 		} else {

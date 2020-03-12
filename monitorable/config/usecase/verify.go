@@ -25,11 +25,11 @@ func (cu *configUsecase) Verify(configBag *models.ConfigBag) {
 	if configBag.Config.Version.IsLessThan(MinimalVersion) || configBag.Config.Version.IsGreaterThan(CurrentVersion) {
 		configBag.AddErrors(models.ConfigError{
 			ID:      models.ConfigErrorUnsupportedVersion,
-			Message: fmt.Sprintf(`Unsupported configuration version. Minimal supported version is "%s". Current config version is: "%s"`, MinimalVersion, CurrentVersion),
+			Message: fmt.Sprintf(`Unsupported configuration version. Minimal supported version is %q. Current config version is: %q`, MinimalVersion, CurrentVersion),
 			Data: models.ConfigErrorData{
 				FieldName: "version",
 				Value:     stringify(configBag.Config.Version),
-				Expected:  fmt.Sprintf(`"%s" >= version >= "%s"`, MinimalVersion, CurrentVersion),
+				Expected:  fmt.Sprintf(`%q >= version >= %q`, MinimalVersion, CurrentVersion),
 			},
 		})
 		return
@@ -123,7 +123,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Co
 		if groupTile != nil {
 			configBag.AddErrors(models.ConfigError{
 				ID:      models.ConfigErrorUnauthorizedSubtileType,
-				Message: fmt.Sprintf(`Unauthorized "%s" type in %s tile.`, EmptyTileType, GroupTileType),
+				Message: fmt.Sprintf(`Unauthorized %q type in %s tile.`, EmptyTileType, GroupTileType),
 				Data: models.ConfigErrorData{
 					ConfigExtract:          stringify(groupTile),
 					ConfigExtractHighlight: stringify(tile),
@@ -138,7 +138,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Co
 		if groupTile != nil {
 			configBag.AddErrors(models.ConfigError{
 				ID:      models.ConfigErrorUnauthorizedSubtileType,
-				Message: fmt.Sprintf(`Unauthorized "%s" type in %s tile.`, GroupTileType, GroupTileType),
+				Message: fmt.Sprintf(`Unauthorized %q type in %s tile.`, GroupTileType, GroupTileType),
 				Data: models.ConfigErrorData{
 					ConfigExtract:          stringify(groupTile),
 					ConfigExtractHighlight: stringify(tile),
@@ -190,7 +190,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Co
 	if _, exists := cu.tileConfigs[tile.Type]; !exists {
 		configBag.AddErrors(models.ConfigError{
 			ID:      models.ConfigErrorUnknownTileType,
-			Message: fmt.Sprintf(`Unknown "%s" type in tile definition. Must be %s`, tile.Type, keys(cu.tileConfigs)),
+			Message: fmt.Sprintf(`Unknown %q type in tile definition. Must be %s`, tile.Type, keys(cu.tileConfigs)),
 			Data: models.ConfigErrorData{
 				FieldName:     "type",
 				ConfigExtract: stringify(tile),
@@ -226,7 +226,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Co
 		if !exists {
 			configBag.AddErrors(models.ConfigError{
 				ID: models.ConfigErrorUnknownVariant,
-				Message: fmt.Sprintf(`Unknown "%s" variant for %s type in tile definition. Must be %s`,
+				Message: fmt.Sprintf(`Unknown %q variant for %s type in tile definition. Must be %s`,
 					tile.ConfigVariant, tile.Type, keys(cu.tileConfigs[tile.Type])),
 				Data: models.ConfigErrorData{
 					FieldName:     "configVariant",
@@ -242,7 +242,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Co
 		if !exists {
 			configBag.AddErrors(models.ConfigError{
 				ID: models.ConfigErrorUnknownVariant,
-				Message: fmt.Sprintf(`Unknown "%s" variant for %s dynamic type in tile definition. Must be %s`,
+				Message: fmt.Sprintf(`Unknown %q variant for %s dynamic type in tile definition. Must be %s`,
 					tile.ConfigVariant, tile.Type, keys(cu.dynamicTileConfigs[tile.Type])),
 				Data: models.ConfigErrorData{
 					FieldName:     "configVariant",

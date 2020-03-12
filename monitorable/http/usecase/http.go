@@ -114,7 +114,7 @@ func (hu *httpUsecase) httpAll(tileType models.TileType, url string, params inte
 		// Lookup a key
 		if match, content = lookupKey(formattedDataProvider, data); !match {
 			tile.Status = models.FailedStatus
-			tile.Message = fmt.Sprintf(`unable to lookup for key "%s"`, formattedDataProvider.GetKey())
+			tile.Message = fmt.Sprintf(`unable to lookup for key %q`, formattedDataProvider.GetKey())
 			return tile, nil
 		}
 	} else {

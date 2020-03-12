@@ -43,7 +43,7 @@ func (cu *configUsecase) GetConfig(params *models.ConfigParams) *models.ConfigBa
 			Data: models.ConfigErrorData{
 				FieldName: "version",
 				Value:     e.WrongVersion,
-				Expected:  fmt.Sprintf(`"%s" >= version >= "%s"`, MinimalVersion, CurrentVersion),
+				Expected:  fmt.Sprintf(`%q >= version >= %q`, MinimalVersion, CurrentVersion),
 			},
 		})
 	case *models.ConfigUnmarshalError:
