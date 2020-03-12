@@ -12,23 +12,23 @@ type (
 		Version *ConfigVersion `json:"version"`
 		Columns *int           `json:"columns"`
 		Zoom    *float32       `json:"zoom,omitempty"`
-		Tiles   []Tile         `json:"tiles"`
+		Tiles   []ConfigTile   `json:"tiles"`
 	}
 
-	Tile struct {
-		Type   models.TileType        `json:"type"`
-		Params map[string]interface{} `json:"params,omitempty"`
+	ConfigTile struct {
+		Type models.TileType `json:"type"`
 
 		Label      string `json:"label,omitempty"`
 		RowSpan    *int   `json:"rowSpan,omitempty"`
 		ColumnSpan *int   `json:"columnSpan,omitempty"`
 
-		Tiles           []Tile `json:"tiles,omitempty"`
-		URL             string `json:"url,omitempty"`
-		InitialMaxDelay *int   `json:"initialMaxDelay,omitempty"`
+		Tiles           []ConfigTile `json:"tiles,omitempty"`
+		URL             string       `json:"url,omitempty"`
+		InitialMaxDelay *int         `json:"initialMaxDelay,omitempty"`
 
-		// Used by config.hydrate only (will be removed before returning config to UI)
-		ConfigVariant string `json:"configVariant,omitempty"`
+		// Used to validate config and for create api url (will be removed before returning config to UI)
+		Params        map[string]interface{} `json:"params,omitempty"`
+		ConfigVariant string                 `json:"configVariant,omitempty"`
 	}
 
 	ConfigError struct {
@@ -53,6 +53,7 @@ const (
 	ConfigErrorInvalidFieldValue       ConfigErrorID = "ERROR_INVALID_FIELD_VALUE"
 	ConfigErrorMissingRequiredField    ConfigErrorID = "ERROR_MISSING_REQUIRED_FIELD"
 	ConfigErrorUnauthorizedField       ConfigErrorID = "ERROR_UNAUTHORIZED_FIELD"
+	ConfigErrorUnknownField            ConfigErrorID = "ERROR_UNKNOWN_FIELD"
 	ConfigErrorUnauthorizedSubtileType ConfigErrorID = "ERROR_UNAUTHORIZED_SUBTILE_TYPE"
 	ConfigErrorUnableToHydrate         ConfigErrorID = "ERROR_UNABLE_TO_HYDRATE"
 	ConfigErrorUnableToParseConfig     ConfigErrorID = "ERROR_UNABLE_TO_PARSE_CONFIG"

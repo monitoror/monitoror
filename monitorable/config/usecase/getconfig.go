@@ -2,9 +2,17 @@ package usecase
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/monitoror/monitoror/monitorable/config/models"
 )
+
+var unknownFieldRegex *regexp.Regexp
+
+func init() {
+	// Based on: https://github.com/golang/go/blob/release-branch.go1.14/src/encoding/json/decode.go#L755
+	unknownFieldRegex = regexp.MustCompile(`json: unknown field "(.*)"`)
+}
 
 // GetConfig and set default value for Config from repository
 func (cu *configUsecase) GetConfig(params *models.ConfigParams) *models.ConfigBag {
@@ -39,13 +47,32 @@ func (cu *configUsecase) GetConfig(params *models.ConfigParams) *models.ConfigBa
 			},
 		})
 	case *models.ConfigUnmarshalError:
-		configBag.AddErrors(models.ConfigError{
-			ID:      models.ConfigErrorUnableToParseConfig,
-			Message: e.Error(),
-			Data: models.ConfigErrorData{
-				ConfigExtract: e.RawConfig,
-			},
-		})
+		// Check if error is "json: unknown field"
+		if unknownFieldRegex.MatchString(err.Error()) {
+			subMatch := unknownFieldRegex.FindAllStringSubmatch(err.Error(), 1)
+
+			var field = ""
+			if len(subMatch) > 0 && len(subMatch[0]) > 1 {
+				field = subMatch[0][1]
+			}
+
+			configBag.AddErrors(models.ConfigError{
+				ID:      models.ConfigErrorUnknownField,
+				Message: e.Error(),
+				Data: models.ConfigErrorData{
+					FieldName:     field,
+					ConfigExtract: e.RawConfig,
+				},
+			})
+		} else {
+			configBag.AddErrors(models.ConfigError{
+				ID:      models.ConfigErrorUnableToParseConfig,
+				Message: e.Error(),
+				Data: models.ConfigErrorData{
+					ConfigExtract: e.RawConfig,
+				},
+			})
+		}
 	default:
 		configBag.AddErrors(models.ConfigError{
 			ID:      models.ConfigErrorUnexpectedError,

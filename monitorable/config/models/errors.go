@@ -2,6 +2,8 @@ package models
 
 import (
 	"fmt"
+	"reflect"
+	"strings"
 )
 
 // ConfigFileNotFoundError
@@ -34,6 +36,8 @@ type ConfigUnmarshalError struct {
 }
 
 func (e *ConfigUnmarshalError) Error() string {
-	return e.Err.Error()
+	// Hack to hide ConfigWrapper wrapper
+	strError := strings.ReplaceAll(e.Err.Error(), reflect.TypeOf(ConfigWrapper{}).Name(), reflect.TypeOf(Config{}).Name())
+	return strError
 }
 func (e *ConfigUnmarshalError) Unwrap() error { return e.Err }

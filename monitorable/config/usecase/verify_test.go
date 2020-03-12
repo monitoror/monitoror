@@ -15,8 +15,8 @@ import (
 	. "github.com/stretchr/testify/mock"
 )
 
-func initTile(t *testing.T, rawConfig string) (tiles *models.Tile) {
-	tiles = &models.Tile{}
+func initTile(t *testing.T, rawConfig string) (tiles *models.ConfigTile) {
+	tiles = &models.ConfigTile{}
 
 	err := json.Unmarshal([]byte(rawConfig), &tiles)
 	assert.NoError(t, err)
@@ -202,7 +202,7 @@ func TestUsecase_VerifyTile_Failed(t *testing.T) {
 		errorData models.ConfigErrorData
 	}{
 		{
-			rawConfig: `{ "type": "PING", "columnSpan": -1, "params": { "host": "server.com" } }`,
+			rawConfig: `{ "type": "PING", "columnSpan": -1, "params": { "hostname": "server.com" } }`,
 			errorID:   models.ConfigErrorInvalidFieldValue,
 			errorData: models.ConfigErrorData{
 				FieldName: "columnSpan",
@@ -211,7 +211,7 @@ func TestUsecase_VerifyTile_Failed(t *testing.T) {
 			},
 		},
 		{
-			rawConfig: `{ "type": "PING", "rowSpan": -1, "params": { "host": "server.com" } }`,
+			rawConfig: `{ "type": "PING", "rowSpan": -1, "params": { "hostname": "server.com" } }`,
 			errorID:   models.ConfigErrorInvalidFieldValue,
 			errorData: models.ConfigErrorData{
 				FieldName: "rowSpan",
@@ -276,10 +276,18 @@ func TestUsecase_VerifyTile_Failed(t *testing.T) {
 			},
 		},
 		{
-			rawConfig: `{ "type": "PING", "params": { "host": "server.com" } }`,
+			rawConfig: `{ "type": "PING", "params": { } }`,
 			errorID:   models.ConfigErrorInvalidFieldValue,
 			errorData: models.ConfigErrorData{
 				FieldName:     "params",
+				ConfigExtract: `{"type":"PING","configVariant":"default"}`,
+			},
+		},
+		{
+			rawConfig: `{ "type": "PING", "params": { "host": "server.com" } }`,
+			errorID:   models.ConfigErrorUnknownField,
+			errorData: models.ConfigErrorData{
+				FieldName:     "host",
 				ConfigExtract: `{"type":"PING","params":{"host":"server.com"},"configVariant":"default"}`,
 			},
 		},

@@ -92,7 +92,7 @@ func (cu *configUsecase) Verify(configBag *models.ConfigBag) {
 	}
 }
 
-func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Tile, groupTile *models.Tile) {
+func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.ConfigTile, groupTile *models.ConfigTile) {
 	if tile.ColumnSpan != nil && *tile.ColumnSpan <= 0 {
 		configBag.AddErrors(models.ConfigError{
 			ID:      models.ConfigErrorInvalidFieldValue,
@@ -260,13 +260,33 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 	rInstance := reflect.New(rType.Elem()).Interface()
 
 	// Marshal / Unmarshal the map[string]interface{} struct in new instance of Validator
-	bParams, _ := json.Marshal(tile.Params)
-	unmarshalErr := json.Unmarshal(bParams, &rInstance)
+	bytesParams, _ := json.Marshal(tile.Params)
+	unmarshalErr := json.Unmarshal(bytesParams, &rInstance)
+
+	// Marshal / Unmarshal instance of validator into map[string]interface{} to identify unknown fields
+	structParams := make(map[string]interface{})
+	bytesParamInstance, _ := json.Marshal(rInstance)
+	_ = json.Unmarshal(bytesParamInstance, &structParams)
+
+	// Check if struct has unknown fields
+	for field := range tile.Params {
+		if _, ok := structParams[field]; !ok {
+			configBag.AddErrors(models.ConfigError{
+				ID:      models.ConfigErrorUnknownField,
+				Message: fmt.Sprintf(`Unknown %q tile params field.`, field),
+				Data: models.ConfigErrorData{
+					FieldName:     field,
+					ConfigExtract: stringify(tile),
+				},
+			})
+			return
+		}
+	}
 
 	if unmarshalErr != nil || !rInstance.(utils.Validator).IsValid() {
 		configBag.AddErrors(models.ConfigError{
 			ID:      models.ConfigErrorInvalidFieldValue,
-			Message: fmt.Sprintf(`Invalid params definition for "%s": "%s".`, tile.Type, string(bParams)),
+			Message: fmt.Sprintf(`Invalid params definition for %q: %q.`, tile.Type, string(bytesParams)),
 			Data: models.ConfigErrorData{
 				FieldName:     "params",
 				ConfigExtract: stringify(tile),

@@ -1,8 +1,11 @@
 package usecase
 
 import (
+	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"strings"
+	"testing"
 
 	"github.com/monitoror/monitoror/monitorable/config"
 	"github.com/monitoror/monitoror/monitorable/config/models"
@@ -17,6 +20,7 @@ import (
 	_portModels "github.com/monitoror/monitoror/monitorable/port/models"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
+	"github.com/stretchr/testify/assert"
 )
 
 func initConfigUsecase(repository config.Repository, store cache.Store) *configUsecase {
@@ -35,4 +39,31 @@ func readConfig(input string) (configBag *models.ConfigBag, err error) {
 	reader := ioutil.NopCloser(strings.NewReader(input))
 	configBag.Config, err = repository.ReadConfig(reader)
 	return
+}
+
+func TestUsecase_Global_Success(t *testing.T) {
+	rawConfig := fmt.Sprintf(`
+{
+	"version" : %q,
+  "columns": 4,
+  "tiles": [
+		{ "type": "PORT", "label": "Monitoror", "params": {"hostname": "localhost", "port": 8080} }
+  ]
+}
+`, CurrentVersion)
+
+	expectRawConfig := fmt.Sprintf(`{"config":{"version":%q,"columns":4,"tiles":[{"type":"PORT","label":"Monitoror","url":"/port?hostname=localhost\u0026port=8080","initialMaxDelay":1000}]}}`, CurrentVersion)
+
+	config, err := readConfig(rawConfig)
+	if assert.NoError(t, err) {
+		usecase := initConfigUsecase(nil, nil)
+		usecase.Verify(config)
+		usecase.Hydrate(config)
+
+		assert.Len(t, config.Errors, 0)
+
+		marshal, err := json.Marshal(config)
+		assert.NoError(t, err)
+		assert.Equal(t, expectRawConfig, string(marshal))
+	}
 }
