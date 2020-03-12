@@ -26,7 +26,7 @@ func NewStripeRepository(config *config.Stripe) *stripeRepository {
 	}
 }
 
-func (r *stripeRepository) GetCount(afterTimestamp string) int {
+func (r *stripeRepository) GetCount(afterTimestamp string) (float64, int) {
 	if afterTimestamp == "" || afterTimestamp == "today" {
 		afterTimestamp = strconv.FormatInt(bod(time.Now().Local()).Unix(), 10)
 	}
@@ -36,10 +36,13 @@ func (r *stripeRepository) GetCount(afterTimestamp string) int {
 	params.Filters.AddFilter("limit", "", "100")
 	result := r.stripeClient.BalanceTransaction.List(params)
 	count := 0
+	net := 0.0
 	for result.Next() {
+		net = net + float64(result.BalanceTransaction().Net)
 		count = count + 1
 	}
-	return count
+	net = net / 100
+	return net, count
 }
 
 func bod(t time.Time) time.Time {

@@ -27,11 +27,11 @@ func NewStripeUsecase(repository stripe.Repository) stripe.Usecase {
 }
 
 func (su *stripeUsecase) Count() (*models.Tile, error) {
-	tile := models.NewTile(stripe.StripeCountTileType).WithValue(models.NumberUnit)
+	tile := models.NewTile(stripe.StripeCountTileType).WithValue(models.RawUnit)
 	tile.Label = "today"
 
-	count := su.repository.GetCount("today")
+	net, count := su.repository.GetCount("today")
 	tile.Status = models.SuccessStatus
-	tile.Value.Values = append(tile.Value.Values, fmt.Sprintf("%d", count))
+	tile.Value.Values = append(tile.Value.Values, fmt.Sprintf("$%.2f (%d)", net, count))
 	return tile, nil
 }
