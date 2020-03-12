@@ -50,6 +50,10 @@ import (
 	travisciModels "github.com/monitoror/monitoror/monitorable/travisci/models"
 	travisciRepository "github.com/monitoror/monitoror/monitorable/travisci/repository"
 	travisciUsecase "github.com/monitoror/monitoror/monitorable/travisci/usecase"
+
+	// "github.com/monitoror/monitoror/monitorable/stripe"
+	stripeRepository "github.com/monitoror/monitoror/monitorable/stripe/repository"
+	stripeUsecase "github.com/monitoror/monitoror/monitorable/stripe/usecase"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/system"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
@@ -249,4 +253,12 @@ func (s *Server) registerGithub(variant string) {
 		variant, &githubModels.ChecksParams{}, routeChecks.Path, githubConfig.InitialMaxDelay)
 	s.configHelper.RegisterDynamicTileWithConfigVariant(github.GithubPullRequestTileType,
 		variant, &githubModels.PullRequestParams{}, usecase)
+}
+
+func (s *Server) registerStripe(variant string) {
+	stripeConfig := s.config.Monitorable.Stripe[variant]
+
+	repository := stripeRepository.NewStripeRepository(stripeConfig)
+	usecase := stripeUsecase.NewStripeUsecase(repository)
+
 }
