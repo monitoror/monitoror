@@ -100,8 +100,9 @@ type (
 	}
 
 	Stripe struct {
-		Token           string // Secret API key
-		InitialMaxDelay int    // In Millisecond
+		Token                string // Secret API key
+		CountCacheExpiration int    // In Millisecond
+		InitialMaxDelay      int    // In Millisecond
 	}
 )
 
@@ -193,6 +194,7 @@ func InitConfig() *Config {
 
 	for variant := range variants["Stripe"] {
 		viper.SetDefault(fmt.Sprintf("Monitorable.Stripe.%s.Token", variant), "")
+		viper.SetDefault(fmt.Sprintf("Monitorable.Stripe.%s.CountCacheExpiration", variant), 300000)
 		viper.SetDefault(fmt.Sprintf("Monitorable.Stripe.%s.InitialMaxDelay", variant), DefaultInitialMaxDelay)
 	}
 

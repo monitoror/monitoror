@@ -18,6 +18,7 @@ type (
 
 // NewStripeRepository makes a new Stripe connection from an API key
 func NewStripeRepository(config *config.Stripe) *stripeRepository {
+	stripe.DefaultLeveledLogger = &stripe.LeveledLogger{Level: stripe.LevelError}
 	sc := &client.API{}
 	sc.Init(config.Token, nil)
 	return &stripeRepository{

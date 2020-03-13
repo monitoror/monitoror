@@ -262,13 +262,14 @@ func (s *Server) registerGithub(variant string) {
 
 func (s *Server) registerStripe(variant string) {
 	stripeConfig := s.config.Monitorable.Stripe[variant]
+	countCacheExpiration := time.Millisecond * time.Duration(stripeConfig.CountCacheExpiration)
 
 	repository := stripeRepository.NewStripeRepository(stripeConfig)
 	usecase := stripeUsecase.NewStripeUsecase(repository)
 	delivery := stripeDelivery.NewStripeDelivery(usecase)
 
 	azureGroup := s.api.Group(fmt.Sprintf("/stripe/%s", variant))
-	routeCount := azureGroup.GET("/count", s.cm.UpstreamCacheHandler(delivery.GetCount))
+	routeCount := azureGroup.GET("/count", s.cm.UpstreamCacheHandlerWithExpiration(countCacheExpiration, delivery.GetCount))
 
 	s.configHelper.RegisterTileWithConfigVariant(stripe.StripeCountTileType,
 		variant, &stripeModels.CountParams{}, routeCount.Path, stripeConfig.InitialMaxDelay)
