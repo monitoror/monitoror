@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
+# Do not use this script manually, Use makefile
 
-dirs=("pkg/gogithub" "pkg/gojenkins" "pkg/gopingdom" "pkg/gotravis" "pkg/monitoror/validator" "pkg/monitoror/builder")
+######################################################
+# This script is to generate mocks for pkg directory #
+######################################################
+
+dirs=("pkg/gogithub" "pkg/gojenkins" "pkg/gopingdom" "pkg/gotravis" "pkg/monitoror/builder")
 
 # Generate mocks of interfaces find inside directory listed on dirs
 for dir in "${dirs[@]}"; do

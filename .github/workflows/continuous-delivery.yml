@@ -46,7 +46,7 @@ jobs:
         run: |
           # https://github.com/actions/setup-go/issues/14
           export PATH=${PATH}:`go env GOPATH`/bin
-          make build-faker-linux
+          make build-faker-linux-amd64
 
       - uses: actions/upload-artifact@v1
         with:
@@ -62,18 +62,15 @@ jobs:
         with:
           fetch-depth: 1
 
+      - name: Init
+        id: init
+        run: |
+          VERSION=$(cat VERSION)
+          echo ::set-output name=VERSION::$VERSION
+
       - uses: actions/download-artifact@v1
         with:
           name: binaries
-
-      - name: stoping monitoror service
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.DEMO_HOST }}
-          username: ${{ secrets.DEMO_USERNAME }}
-          key: ${{ secrets.DEMO_SSH_KEY }}
-          port: 22
-          script: sudo systemctl stop monitoror
 
       - uses: appleboy/scp-action@master
         with:
@@ -81,18 +78,18 @@ jobs:
           username: ${{ secrets.DEMO_USERNAME }}
           key: ${{ secrets.DEMO_SSH_KEY }}
           port: 22
-          source: "binaries/monitoror-faker-linux-amd64"
-          target: "/opt/monitoror/"
+          source: "binaries/monitoror-linux-amd64-${{ steps.init.outputs.VERSION }}-faker"
+          target: "/tmp/"
           strip_components: 1
 
-      - name: starting monitoror service
-        uses: appleboy/ssh-action@master
+      - uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.DEMO_HOST }}
           username: ${{ secrets.DEMO_USERNAME }}
           key: ${{ secrets.DEMO_SSH_KEY }}
           port: 22
           script: |
-            chmod +x /opt/monitoror/monitoror-faker-linux-amd64
+            sudo systemctl stop monitoror
+            mv -f /tmp/monitoror-linux-amd64-${{ steps.init.outputs.VERSION }}-faker /opt/monitoror/monitoror-linux-amd64-faker
+            chmod +x /opt/monitoror/monitoror-linux-amd64-faker
             sudo systemctl start monitoror
-

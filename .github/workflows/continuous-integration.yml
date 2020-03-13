@@ -125,15 +125,16 @@ jobs:
     needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - name: Get version
-        id: get_version
-        run: |
-          echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
 
-      - name: Get upload url
-        id: get_uploadurl
+      - name: Init
+        id: init
         run: |
-          echo ::set-output name=UPLOAD_URL::$(curl https://api.github.com/repos/monitoror/monitoror/releases/tags/${{ steps.get_version.outputs.VERSION }} --silent | grep -Po '"upload_url"\s*:\s*"[^"]+' | cut -d'"' -f4)
+          VERSION=$(cat VERSION)
+          echo ::set-output name=VERSION::$VERSION
+          echo ::set-output name=UPLOAD_URL::$(curl https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/tags/$VERSION --silent | grep -Po '"upload_url"\s*:\s*"[^"]+' | cut -d'"' -f4)
 
       - uses: actions/download-artifact@v1
         with:
@@ -144,8 +145,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.get_uploadurl.outputs.UPLOAD_URL }}
-          asset_path: binaries/monitoror-linux-amd64
-          asset_name: monitoror-linux-amd64-${{ steps.get_version.outputs.VERSION }}
+          asset_path: binaries/monitoror-linux-amd64-${{ steps.init.outputs.VERSION }}
+          asset_name: monitoror-linux-amd64-${{ steps.init.outputs.VERSION }}
           asset_content_type: application/x-executable
 
       - uses: actions/upload-release-asset@v1.0.1
@@ -153,8 +154,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.get_uploadurl.outputs.UPLOAD_URL }}
-          asset_path: binaries/monitoror-linux-arm
-          asset_name: monitoror-linux-arm-${{ steps.get_version.outputs.VERSION }}
+          asset_path: binaries/monitoror-linux-arm-${{ steps.init.outputs.VERSION }}
+          asset_name: monitoror-linux-arm-${{ steps.init.outputs.VERSION }}
           asset_content_type: application/x-executable
 
       - uses: actions/upload-release-asset@v1.0.1
@@ -162,8 +163,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.get_uploadurl.outputs.UPLOAD_URL }}
-          asset_path: binaries/monitoror-windows-amd64.exe
-          asset_name: monitoror-windows-amd64-${{ steps.get_version.outputs.VERSION }}.exe
+          asset_path: binaries/monitoror-windows-amd64-${{ steps.init.outputs.VERSION }}.exe
+          asset_name: monitoror-windows-amd64-${{ steps.init.outputs.VERSION }}.exe
           asset_content_type: application/x-dosexec
 
       - uses: actions/upload-release-asset@v1.0.1
@@ -171,6 +172,63 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.get_uploadurl.outputs.UPLOAD_URL }}
-          asset_path: binaries/monitoror-macos
-          asset_name: monitoror-macos-${{ steps.get_version.outputs.VERSION }}
+          asset_path: binaries/monitoror-macos-${{ steps.init.outputs.VERSION }}
+          asset_name: monitoror-macos-${{ steps.init.outputs.VERSION }}
           asset_content_type: application/x-mach-binary
+
+  release-dockerhub:
+    name: Release DockerHub
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+        with:
+          fetch-depth: 1
+
+      - name: Init
+        id: init
+        run: |
+          VERSION=$(cat VERSION)
+          echo ::set-output name=VERSION::$VERSION
+          echo ::set-output name=MINOR_VERSION::$(echo $VERSION | cut -d "." -f 1,2)
+          echo ::set-output name=MAJOR_VERSION::$(echo $VERSION | cut -d "." -f 1)
+
+
+      - uses: actions/download-artifact@v1
+        with:
+          name: binaries
+
+      - uses: actions-hub/docker/login@master
+        env:
+          DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Images
+        run: |
+          make package-docker
+          docker tag ${GITHUB_REPOSITORY}:${{ steps.init.outputs.VERSION }} ${GITHUB_REPOSITORY}:${{ steps.init.outputs.MINOR_VERSION }}
+          docker tag ${GITHUB_REPOSITORY}:${{ steps.init.outputs.VERSION }} ${GITHUB_REPOSITORY}:${{ steps.init.outputs.MAJOR_VERSION }}
+          docker tag ${GITHUB_REPOSITORY}:${{ steps.init.outputs.VERSION }} ${GITHUB_REPOSITORY}:latest
+
+      - name: Push to docker hub [X.Y.Z]
+        uses: actions-hub/docker@master
+        with:
+          args: push ${GITHUB_REPOSITORY}:${{ steps.init.outputs.VERSION }}
+
+      - name: Push to docker hub [X.Y]
+        uses: actions-hub/docker@master
+        with:
+          args: push ${GITHUB_REPOSITORY}:${{ steps.init.outputs.MINOR_VERSION }}
+
+      - name: Push to docker hub [X]
+        uses: actions-hub/docker@master
+        with:
+          args: push ${GITHUB_REPOSITORY}:${{ steps.init.outputs.MAJOR_VERSION }}
+
+      - name: Push to docker hub [latest]
+        uses: actions-hub/docker@master
+        with:
+          args: push ${GITHUB_REPOSITORY}:latest
+
+
