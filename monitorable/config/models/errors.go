@@ -37,7 +37,7 @@ type ConfigUnmarshalError struct {
 
 func (e *ConfigUnmarshalError) Error() string {
 	// Hack to hide ConfigWrapper wrapper
-	strError := strings.ReplaceAll(e.Err.Error(), reflect.TypeOf(ConfigWrapper{}).Name(), reflect.TypeOf(Config{}).Name())
+	strError := strings.ReplaceAll(e.Err.Error(), reflect.TypeOf(TempConfig{}).Name(), reflect.TypeOf(Config{}).Name())
 	return strError
 }
 func (e *ConfigUnmarshalError) Unwrap() error { return e.Err }

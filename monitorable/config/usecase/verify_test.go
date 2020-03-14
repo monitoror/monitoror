@@ -15,8 +15,8 @@ import (
 	. "github.com/stretchr/testify/mock"
 )
 
-func initTile(t *testing.T, rawConfig string) (tiles *models.ConfigTile) {
-	tiles = &models.ConfigTile{}
+func initTile(t *testing.T, rawConfig string) (tiles *models.TileConfig) {
+	tiles = &models.TileConfig{}
 
 	err := json.Unmarshal([]byte(rawConfig), &tiles)
 	assert.NoError(t, err)

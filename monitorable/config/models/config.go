@@ -12,21 +12,22 @@ type (
 		Version *ConfigVersion `json:"version"`
 		Columns *int           `json:"columns"`
 		Zoom    *float32       `json:"zoom,omitempty"`
-		Tiles   []ConfigTile   `json:"tiles"`
+		Tiles   []TileConfig   `json:"tiles"`
 	}
 
-	ConfigTile struct {
+	TileConfig struct {
 		Type models.TileType `json:"type"`
 
 		Label      string `json:"label,omitempty"`
 		RowSpan    *int   `json:"rowSpan,omitempty"`
 		ColumnSpan *int   `json:"columnSpan,omitempty"`
 
-		Tiles           []ConfigTile `json:"tiles,omitempty"`
+		Tiles           []TileConfig `json:"tiles,omitempty"`
 		URL             string       `json:"url,omitempty"`
 		InitialMaxDelay *int         `json:"initialMaxDelay,omitempty"`
 
-		// Used to validate config and for create api url (will be removed before returning config to UI)
+		// Used to validate config and to create API URLs
+		// Will be removed before being returned to the UI
 		Params        map[string]interface{} `json:"params,omitempty"`
 		ConfigVariant string                 `json:"configVariant,omitempty"`
 	}
@@ -53,11 +54,11 @@ const (
 	ConfigErrorInvalidFieldValue       ConfigErrorID = "ERROR_INVALID_FIELD_VALUE"
 	ConfigErrorMissingRequiredField    ConfigErrorID = "ERROR_MISSING_REQUIRED_FIELD"
 	ConfigErrorUnauthorizedField       ConfigErrorID = "ERROR_UNAUTHORIZED_FIELD"
-	ConfigErrorUnknownField            ConfigErrorID = "ERROR_UNKNOWN_FIELD"
 	ConfigErrorUnauthorizedSubtileType ConfigErrorID = "ERROR_UNAUTHORIZED_SUBTILE_TYPE"
 	ConfigErrorUnableToHydrate         ConfigErrorID = "ERROR_UNABLE_TO_HYDRATE"
 	ConfigErrorUnableToParseConfig     ConfigErrorID = "ERROR_UNABLE_TO_PARSE_CONFIG"
 	ConfigErrorUnexpectedError         ConfigErrorID = "ERROR_UNEXPECTED"
+	ConfigErrorUnknownField            ConfigErrorID = "ERROR_UNKNOWN_FIELD"
 	ConfigErrorUnknownTileType         ConfigErrorID = "ERROR_UNKNOWN_TILE_TYPE"
 	ConfigErrorUnknownVariant          ConfigErrorID = "ERROR_UNKNOWN_VARIANT"
 	ConfigErrorUnsupportedVersion      ConfigErrorID = "ERROR_UNSUPPORTED_VERSION"

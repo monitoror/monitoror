@@ -92,7 +92,7 @@ func (cu *configUsecase) Verify(configBag *models.ConfigBag) {
 	}
 }
 
-func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.ConfigTile, groupTile *models.ConfigTile) {
+func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.TileConfig, groupTile *models.TileConfig) {
 	if tile.ColumnSpan != nil && *tile.ColumnSpan <= 0 {
 		configBag.AddErrors(models.ConfigError{
 			ID:      models.ConfigErrorInvalidFieldValue,
