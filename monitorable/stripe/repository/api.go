@@ -31,7 +31,7 @@ func (r *stripeRepository) GetCount(afterTimestamp string) (float64, int, error)
 	if afterTimestamp == "" || afterTimestamp == "today" {
 		afterTimestamp = strconv.FormatInt(bod(time.Now().Local()).Unix(), 10)
 	}
-	_, err := strconv.Atoi(afterTimestamp)
+	_, err := strconv.ParseUint(afterTimestamp, 10, 64)
 	if err != nil {
 		return 0, 0, err
 	}
