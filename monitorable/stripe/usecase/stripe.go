@@ -5,6 +5,7 @@ import (
 
 	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorable/stripe"
+	stripeModels "github.com/monitoror/monitoror/monitorable/stripe/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/cache"
 )
 
@@ -26,11 +27,14 @@ func NewStripeUsecase(repository stripe.Repository) stripe.Usecase {
 	}
 }
 
-func (su *stripeUsecase) Count() (*models.Tile, error) {
+func (su *stripeUsecase) Count(params *stripeModels.CountParams) (*models.Tile, error) {
 	tile := models.NewTile(stripe.StripeCountTileType).WithValue(models.RawUnit)
-	tile.Label = "today"
+	tile.Label = "Stripe Count"
 
-	net, count := su.repository.GetCount("today")
+	net, count, err := su.repository.GetCount(params.CreatedAfter)
+	if err != nil {
+		return nil, &models.MonitororError{Err: err, Tile: tile, Message: "timestamp has invalid format"}
+	}
 	tile.Status = models.SuccessStatus
 	tile.Value.Values = append(tile.Value.Values, fmt.Sprintf("$%.2f (%d)", net, count))
 	return tile, nil

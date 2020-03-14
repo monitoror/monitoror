@@ -25,7 +25,7 @@ func (d *StripeDelivery) GetCount(c echo.Context) error {
 		return models.QueryParamsError
 	}
 
-	tile, err := d.stripeUsecase.Count()
+	tile, err := d.stripeUsecase.Count(params)
 	if err != nil {
 		return err
 	}

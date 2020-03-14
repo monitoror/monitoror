@@ -27,9 +27,13 @@ func NewStripeRepository(config *config.Stripe) *stripeRepository {
 	}
 }
 
-func (r *stripeRepository) GetCount(afterTimestamp string) (float64, int) {
+func (r *stripeRepository) GetCount(afterTimestamp string) (float64, int, error) {
 	if afterTimestamp == "" || afterTimestamp == "today" {
 		afterTimestamp = strconv.FormatInt(bod(time.Now().Local()).Unix(), 10)
+	}
+	_, err := strconv.Atoi(afterTimestamp)
+	if err != nil {
+		return 0, 0, err
 	}
 	params := &stripe.BalanceTransactionListParams{}
 	params.Filters.AddFilter("type", "", "charge")
@@ -43,7 +47,7 @@ func (r *stripeRepository) GetCount(afterTimestamp string) (float64, int) {
 		count = count + 1
 	}
 	net = net / 100
-	return net, count
+	return net, count, nil
 }
 
 func bod(t time.Time) time.Time {

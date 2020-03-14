@@ -1,6 +1,9 @@
 package stripe
 
-import "github.com/monitoror/monitoror/models"
+import (
+	"github.com/monitoror/monitoror/models"
+	stripeModels "github.com/monitoror/monitoror/monitorable/stripe/models"
+)
 
 const (
 	StripeCountTileType models.TileType = "STRIPE-COUNT"
@@ -8,6 +11,6 @@ const (
 
 type (
 	Usecase interface {
-		Count() (*models.Tile, error)
+		Count(params *stripeModels.CountParams) (*models.Tile, error)
 	}
 )

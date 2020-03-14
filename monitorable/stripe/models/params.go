@@ -7,5 +7,5 @@ type (
 )
 
 func (p *CountParams) IsValid() bool {
-	return p.CreatedAfter != ""
+	return true
 }
