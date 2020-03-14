@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/monitoror/monitoror/config"
+	stripeLocal "github.com/monitoror/monitoror/monitorable/stripe"
 	"github.com/stripe/stripe-go"
 	"github.com/stripe/stripe-go/client"
 )
@@ -17,7 +18,7 @@ type (
 )
 
 // NewStripeRepository makes a new Stripe connection from an API key
-func NewStripeRepository(config *config.Stripe) *stripeRepository {
+func NewStripeRepository(config *config.Stripe) stripeLocal.Repository {
 	stripe.DefaultLeveledLogger = &stripe.LeveledLogger{Level: stripe.LevelError}
 	sc := &client.API{}
 	sc.Init(config.Token, nil)
