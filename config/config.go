@@ -192,6 +192,7 @@ func InitConfig() *Config {
 		viper.SetDefault(fmt.Sprintf("Monitorable.Github.%s.InitialMaxDelay", variant), DefaultInitialMaxDelay)
 	}
 
+  // --- Stripe Configuration ---
 	for variant := range variants["Stripe"] {
 		viper.SetDefault(fmt.Sprintf("Monitorable.Stripe.%s.Token", variant), "")
 		viper.SetDefault(fmt.Sprintf("Monitorable.Stripe.%s.CountCacheExpiration", variant), 300000)
