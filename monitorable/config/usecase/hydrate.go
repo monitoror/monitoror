@@ -94,7 +94,7 @@ func (cu *configUsecase) hydrateDynamicTile(configBag *models.ConfigBag, tile *m
 
 	// Call builder and add inherited value from Dynamic tile
 	cacheKey := fmt.Sprintf("%s:%s_%s_%s", DynamicTileStoreKeyPrefix, tile.Type, tile.ConfigVariant, string(bParams))
-	results, err := dynamicTileConfig.Builder.ListDynamicTile(rInstance)
+	results, err := dynamicTileConfig.Builder(rInstance)
 	if err != nil {
 		if os.IsTimeout(err) {
 			// Get previous value in cache
@@ -118,7 +118,7 @@ func (cu *configUsecase) hydrateDynamicTile(configBag *models.ConfigBag, tile *m
 		}
 	} else {
 		// Add result in cache
-		_ = cu.dynamicTileStore.Set(cacheKey, results, cu.downstreamStoreExpiration)
+		_ = cu.dynamicTileStore.Set(cacheKey, results, cu.cacheExpiration)
 	}
 
 	var tiles []models.TileConfig

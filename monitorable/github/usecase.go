@@ -16,6 +16,6 @@ type (
 	Usecase interface {
 		Count(params *githubModels.CountParams) (*models.Tile, error)
 		Checks(params *githubModels.ChecksParams) (*models.Tile, error)
-		ListDynamicTile(params interface{}) ([]builder.Result, error)
+		PullRequests(params interface{}) ([]builder.Result, error)
 	}
 )

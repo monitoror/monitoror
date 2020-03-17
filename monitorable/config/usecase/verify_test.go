@@ -5,14 +5,13 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/monitorable/config/models"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
 	_jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/builder"
-	. "github.com/monitoror/monitoror/pkg/monitoror/builder/mocks"
 
 	"github.com/stretchr/testify/assert"
-	. "github.com/stretchr/testify/mock"
 )
 
 func initTile(t *testing.T, rawConfig string) (tiles *models.TileConfig) {
@@ -337,11 +336,12 @@ func TestUsecase_VerifyTile_WithDynamicTile(t *testing.T) {
 
 	params := make(map[string]interface{})
 	params["job"] = "test"
-	mockBuilder := new(DynamicTileBuilder)
-	mockBuilder.On("ListDynamicTile", Anything).Return([]builder.Result{{TileType: jenkins.JenkinsBuildTileType, Params: params}}, nil)
+	mockBuilder := func(_ interface{}) ([]builder.Result, error) {
+		return []builder.Result{{TileType: jenkins.JenkinsBuildTileType, Params: params}}, nil
+	}
 
 	usecase := initConfigUsecase(nil, nil)
-	usecase.RegisterDynamicTile(jenkins.JenkinsMultiBranchTileType, &_jenkinsModels.MultiBranchParams{}, mockBuilder)
+	usecase.RegisterDynamicTile(jenkins.JenkinsMultiBranchTileType, config.DefaultVariant, &_jenkinsModels.MultiBranchParams{}, mockBuilder)
 	usecase.verifyTile(conf, tile, nil)
 
 	assert.Len(t, conf.Errors, 0)
@@ -355,11 +355,12 @@ func TestUsecase_VerifyTile_WithDynamicTile_WithWrongVariant(t *testing.T) {
 
 	params := make(map[string]interface{})
 	params["job"] = "test"
-	mockBuilder := new(DynamicTileBuilder)
-	mockBuilder.On("ListDynamicTile", Anything).Return([]builder.Result{{TileType: jenkins.JenkinsBuildTileType, Params: params}}, nil)
+	mockBuilder := func(_ interface{}) ([]builder.Result, error) {
+		return []builder.Result{{TileType: jenkins.JenkinsBuildTileType, Params: params}}, nil
+	}
 
 	usecase := initConfigUsecase(nil, nil)
-	usecase.RegisterDynamicTile(jenkins.JenkinsMultiBranchTileType, &_jenkinsModels.MultiBranchParams{}, mockBuilder)
+	usecase.RegisterDynamicTile(jenkins.JenkinsMultiBranchTileType, config.DefaultVariant, &_jenkinsModels.MultiBranchParams{}, mockBuilder)
 	usecase.verifyTile(conf, tile, nil)
 
 	if assert.Len(t, conf.Errors, 1) {

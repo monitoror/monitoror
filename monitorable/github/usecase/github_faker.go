@@ -109,7 +109,7 @@ func (gu *githubUsecase) Checks(params *githubModels.ChecksParams) (tile *models
 	return tile, nil
 }
 
-func (gu *githubUsecase) ListDynamicTile(params interface{}) ([]builder.Result, error) {
+func (gu *githubUsecase) PullRequests(params interface{}) ([]builder.Result, error) {
 	panic("unimplemented")
 }
 

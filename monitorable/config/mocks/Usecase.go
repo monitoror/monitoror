@@ -7,11 +7,11 @@ package mocks
 import (
 	builder "github.com/monitoror/monitoror/pkg/monitoror/builder"
 
+	configmodels "github.com/monitoror/monitoror/monitorable/config/models"
+
 	mock "github.com/stretchr/testify/mock"
 
-	models "github.com/monitoror/monitoror/monitorable/config/models"
-
-	monitorormodels "github.com/monitoror/monitoror/models"
+	models "github.com/monitoror/monitoror/models"
 
 	utils "github.com/monitoror/monitoror/pkg/monitoror/utils"
 )
@@ -21,16 +21,21 @@ type Usecase struct {
 	mock.Mock
 }
 
+// DisableTile provides a mock function with given fields: tileType, variant
+func (_m *Usecase) DisableTile(tileType models.TileType, variant string) {
+	_m.Called(tileType, variant)
+}
+
 // GetConfig provides a mock function with given fields: params
-func (_m *Usecase) GetConfig(params *models.ConfigParams) *models.ConfigBag {
+func (_m *Usecase) GetConfig(params *configmodels.ConfigParams) *configmodels.ConfigBag {
 	ret := _m.Called(params)
 
-	var r0 *models.ConfigBag
-	if rf, ok := ret.Get(0).(func(*models.ConfigParams) *models.ConfigBag); ok {
+	var r0 *configmodels.ConfigBag
+	if rf, ok := ret.Get(0).(func(*configmodels.ConfigParams) *configmodels.ConfigBag); ok {
 		r0 = rf(params)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(*models.ConfigBag)
+			r0 = ret.Get(0).(*configmodels.ConfigBag)
 		}
 	}
 
@@ -38,31 +43,21 @@ func (_m *Usecase) GetConfig(params *models.ConfigParams) *models.ConfigBag {
 }
 
 // Hydrate provides a mock function with given fields: _a0
-func (_m *Usecase) Hydrate(_a0 *models.ConfigBag) {
+func (_m *Usecase) Hydrate(_a0 *configmodels.ConfigBag) {
 	_m.Called(_a0)
 }
 
-// RegisterDynamicTile provides a mock function with given fields: tileType, clientConfigValidator, _a2
-func (_m *Usecase) RegisterDynamicTile(tileType monitorormodels.TileType, clientConfigValidator utils.Validator, _a2 builder.DynamicTileBuilder) {
-	_m.Called(tileType, clientConfigValidator, _a2)
+// RegisterDynamicTile provides a mock function with given fields: tileType, variant, clientConfigValidator, _a3
+func (_m *Usecase) RegisterDynamicTile(tileType models.TileType, variant string, clientConfigValidator utils.Validator, _a3 builder.DynamicTileBuilder) {
+	_m.Called(tileType, variant, clientConfigValidator, _a3)
 }
 
-// RegisterDynamicTileWithConfigVariant provides a mock function with given fields: tileType, configVariant, clientConfigValidator, _a3
-func (_m *Usecase) RegisterDynamicTileWithConfigVariant(tileType monitorormodels.TileType, configVariant string, clientConfigValidator utils.Validator, _a3 builder.DynamicTileBuilder) {
-	_m.Called(tileType, configVariant, clientConfigValidator, _a3)
-}
-
-// RegisterTile provides a mock function with given fields: tileType, clientConfigValidator, path, initialMaxDelay
-func (_m *Usecase) RegisterTile(tileType monitorormodels.TileType, clientConfigValidator utils.Validator, path string, initialMaxDelay int) {
-	_m.Called(tileType, clientConfigValidator, path, initialMaxDelay)
-}
-
-// RegisterTileWithConfigVariant provides a mock function with given fields: tileType, variant, clientConfigValidator, path, initialMaxDelay
-func (_m *Usecase) RegisterTileWithConfigVariant(tileType monitorormodels.TileType, variant string, clientConfigValidator utils.Validator, path string, initialMaxDelay int) {
+// RegisterTile provides a mock function with given fields: tileType, variant, clientConfigValidator, path, initialMaxDelay
+func (_m *Usecase) RegisterTile(tileType models.TileType, variant string, clientConfigValidator utils.Validator, path string, initialMaxDelay int) {
 	_m.Called(tileType, variant, clientConfigValidator, path, initialMaxDelay)
 }
 
 // Verify provides a mock function with given fields: _a0
-func (_m *Usecase) Verify(_a0 *models.ConfigBag) {
+func (_m *Usecase) Verify(_a0 *configmodels.ConfigBag) {
 	_m.Called(_a0)
 }

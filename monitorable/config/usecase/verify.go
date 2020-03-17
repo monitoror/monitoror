@@ -219,7 +219,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 
 	// Get the validator for current tile
 	// - for non dynamic tile, the validator is register in tileConfigs
-	// - for dynamic tile, the validator is register in dynamicTileConfigs
+	// - for meta dynamic, the validator is register in dynamicTileConfigs
 	var validator utils.Validator
 	if _, exists := cu.dynamicTileConfigs[tile.Type]; !exists {
 		tileConfig, exists := cu.tileConfigs[tile.Type][tile.ConfigVariant]

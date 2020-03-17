@@ -119,7 +119,7 @@ func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (*models.Tile
 	return tile, nil
 }
 
-func (tu *jenkinsUsecase) ListDynamicTile(params interface{}) ([]builder.Result, error) {
+func (tu *jenkinsUsecase) MultiBranch(params interface{}) ([]builder.Result, error) {
 	mbParams := params.(*jenkinsModels.MultiBranchParams)
 
 	job, err := tu.repository.GetJob(mbParams.Job, "")

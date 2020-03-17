@@ -14,6 +14,6 @@ const (
 type (
 	Usecase interface {
 		Build(params *jenkinsModels.BuildParams) (*models.Tile, error)
-		ListDynamicTile(params interface{}) ([]builder.Result, error)
+		MultiBranch(params interface{}) ([]builder.Result, error)
 	}
 )

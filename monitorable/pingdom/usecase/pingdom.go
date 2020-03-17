@@ -90,7 +90,7 @@ func (pu *pingdomUsecase) Check(params *pingdomModels.CheckParams) (*models.Tile
 	return tile, nil
 }
 
-func (pu *pingdomUsecase) ListDynamicTile(params interface{}) ([]builder.Result, error) {
+func (pu *pingdomUsecase) Checks(params interface{}) ([]builder.Result, error) {
 	lcParams := params.(*pingdomModels.ChecksParams)
 
 	checks, err := pu.loadChecks(lcParams.Tags)

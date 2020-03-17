@@ -127,7 +127,7 @@ func (gu *githubUsecase) Checks(params *githubModels.ChecksParams) (*models.Tile
 	return tile, nil
 }
 
-func (gu *githubUsecase) ListDynamicTile(params interface{}) ([]builder.Result, error) {
+func (gu *githubUsecase) PullRequests(params interface{}) ([]builder.Result, error) {
 	prParams := params.(*githubModels.PullRequestParams)
 
 	pullRequests, err := gu.repository.GetPullRequests(prParams.Owner, prParams.Repository)

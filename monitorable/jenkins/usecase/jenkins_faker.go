@@ -100,7 +100,7 @@ func (ju *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (tile *models
 	return
 }
 
-func (ju *jenkinsUsecase) ListDynamicTile(params interface{}) ([]builder.Result, error) {
+func (ju *jenkinsUsecase) MultiBranch(params interface{}) ([]builder.Result, error) {
 	panic("unimplemented")
 }
 

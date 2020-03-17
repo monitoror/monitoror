@@ -160,7 +160,7 @@ func TestPingdomUsecase_Check_Bulk_WithCache(t *testing.T) {
 	}
 }
 
-func TestPingdomUsecase_ListDynamicTile_Error(t *testing.T) {
+func TestPingdomUsecase_Checks_Error(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetChecks", AnythingOfType("string")).Return(nil, errors.New("boom"))
 
@@ -168,7 +168,7 @@ func TestPingdomUsecase_ListDynamicTile_Error(t *testing.T) {
 	config := &Pingdom{CacheExpiration: 1000}
 	pu := NewPingdomUsecase(mockRepository, config, store)
 
-	results, err := pu.ListDynamicTile(&pingdomModels.ChecksParams{SortBy: "name"})
+	results, err := pu.Checks(&pingdomModels.ChecksParams{SortBy: "name"})
 	if assert.Error(t, err) {
 		assert.Nil(t, results)
 		mockRepository.AssertNumberOfCalls(t, "GetChecks", 1)
@@ -176,7 +176,7 @@ func TestPingdomUsecase_ListDynamicTile_Error(t *testing.T) {
 	}
 }
 
-func TestPingdomUsecase_ListDynamicTile(t *testing.T) {
+func TestPingdomUsecase_Checks(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetChecks", AnythingOfType("string")).
 		Return([]pingdomModels.Check{
@@ -189,7 +189,7 @@ func TestPingdomUsecase_ListDynamicTile(t *testing.T) {
 	config := &Pingdom{CacheExpiration: 1000}
 	pu := NewPingdomUsecase(mockRepository, config, store)
 
-	results, err := pu.ListDynamicTile(&pingdomModels.ChecksParams{SortBy: "name"})
+	results, err := pu.Checks(&pingdomModels.ChecksParams{SortBy: "name"})
 	if assert.NoError(t, err) {
 		assert.NotNil(t, results)
 		assert.Len(t, results, 2)

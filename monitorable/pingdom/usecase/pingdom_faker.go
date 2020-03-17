@@ -40,7 +40,7 @@ func (pu *pingdomUsecase) Check(params *pingdomModels.CheckParams) (tile *models
 	return
 }
 
-func (pu *pingdomUsecase) ListDynamicTile(params interface{}) ([]builder.Result, error) {
+func (pu *pingdomUsecase) Checks(params interface{}) ([]builder.Result, error) {
 	panic("unimplemented")
 }
 

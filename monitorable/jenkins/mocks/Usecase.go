@@ -42,8 +42,8 @@ func (_m *Usecase) Build(params *models.BuildParams) (*monitorormodels.Tile, err
 	return r0, r1
 }
 
-// ListDynamicTile provides a mock function with given fields: params
-func (_m *Usecase) ListDynamicTile(params interface{}) ([]builder.Result, error) {
+// MultiBranch provides a mock function with given fields: params
+func (_m *Usecase) MultiBranch(params interface{}) ([]builder.Result, error) {
 	ret := _m.Called(params)
 
 	var r0 []builder.Result

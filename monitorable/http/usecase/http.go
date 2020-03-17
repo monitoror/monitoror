@@ -27,8 +27,8 @@ type (
 		repository http.Repository
 
 		// Store used for caching request on same url
-		store                   cache.Store
-		upstreamCacheExpiration int
+		store           cache.Store
+		cacheExpiration int
 	}
 )
 
@@ -37,8 +37,8 @@ var (
 	ArrayKeyPartRegex = regexp.MustCompile(`^\[(\d*)]$`)
 )
 
-func NewHTTPUsecase(repository http.Repository, store cache.Store, upstreamCacheExpiration int) http.Usecase {
-	return &httpUsecase{repository, store, upstreamCacheExpiration}
+func NewHTTPUsecase(repository http.Repository, store cache.Store, cacheExpiration int) http.Usecase {
+	return &httpUsecase{repository, store, cacheExpiration}
 }
 
 func (hu *httpUsecase) HTTPStatus(params *httpModels.HTTPStatusParams) (*models.Tile, error) {
@@ -161,7 +161,7 @@ func (hu *httpUsecase) get(url string) (*httpModels.Response, error) {
 	}
 
 	// Adding result in store
-	_ = hu.store.Set(key, *response, time.Millisecond*time.Duration(hu.upstreamCacheExpiration))
+	_ = hu.store.Set(key, *response, time.Millisecond*time.Duration(hu.cacheExpiration))
 
 	return response, nil
 }

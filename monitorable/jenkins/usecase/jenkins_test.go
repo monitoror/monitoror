@@ -226,7 +226,7 @@ func TestBuild_Running(t *testing.T) {
 	}
 }
 
-func TestListDynamicTile_Success(t *testing.T) {
+func TestMultiBranchTile_Success(t *testing.T) {
 	repositoryJob := &jenkinsModels.Job{
 		ID:        job,
 		Buildable: false,
@@ -240,7 +240,7 @@ func TestListDynamicTile_Success(t *testing.T) {
 
 	tu := NewJenkinsUsecase(mockRepository)
 
-	tiles, err := tu.ListDynamicTile(&jenkinsModels.MultiBranchParams{Job: job})
+	tiles, err := tu.MultiBranch(&jenkinsModels.MultiBranchParams{Job: job})
 	if assert.NoError(t, err) {
 		assert.Len(t, tiles, 3)
 		assert.Equal(t, jenkins.JenkinsBuildTileType, tiles[0].TileType)
@@ -254,7 +254,7 @@ func TestListDynamicTile_Success(t *testing.T) {
 		assert.Equal(t, "feat%2Ftest-deploy", tiles[2].Params["branch"])
 	}
 
-	tiles, err = tu.ListDynamicTile(&jenkinsModels.MultiBranchParams{Job: job, Match: "feat/*"})
+	tiles, err = tu.MultiBranch(&jenkinsModels.MultiBranchParams{Job: job, Match: "feat/*"})
 	if assert.NoError(t, err) {
 		assert.Len(t, tiles, 1)
 		assert.Equal(t, jenkins.JenkinsBuildTileType, tiles[0].TileType)
@@ -266,14 +266,14 @@ func TestListDynamicTile_Success(t *testing.T) {
 	mockRepository.AssertExpectations(t)
 }
 
-func TestListDynamicTile_Error(t *testing.T) {
+func TestMultiBranchTile_Error(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetJob", AnythingOfType("string"), AnythingOfType("string")).
 		Return(nil, errors.New("boom"))
 
 	tu := NewJenkinsUsecase(mockRepository)
 
-	_, err := tu.ListDynamicTile(&jenkinsModels.MultiBranchParams{Job: "test"})
+	_, err := tu.MultiBranch(&jenkinsModels.MultiBranchParams{Job: "test"})
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "unable to find job")
 
@@ -281,18 +281,18 @@ func TestListDynamicTile_Error(t *testing.T) {
 	mockRepository.AssertExpectations(t)
 }
 
-func TestListDynamicTile_ErrorWithRegex(t *testing.T) {
+func TestMultiBranchTile_ErrorWithRegex(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetJob", AnythingOfType("string"), AnythingOfType("string")).
 		Return(nil, nil)
 
 	tu := NewJenkinsUsecase(mockRepository)
 
-	_, err := tu.ListDynamicTile(&jenkinsModels.MultiBranchParams{Job: "test", Match: "("})
+	_, err := tu.MultiBranch(&jenkinsModels.MultiBranchParams{Job: "test", Match: "("})
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "error parsing regexp")
 
-	_, err = tu.ListDynamicTile(&jenkinsModels.MultiBranchParams{Job: "test", Unmatch: "("})
+	_, err = tu.MultiBranch(&jenkinsModels.MultiBranchParams{Job: "test", Unmatch: "("})
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "error parsing regexp")
 

@@ -269,14 +269,14 @@ func TestChecks_Running(t *testing.T) {
 	}
 }
 
-func TestListDynamicTile_Error(t *testing.T) {
+func TestPullRequests_Error(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetPullRequests", AnythingOfType("string"), AnythingOfType("string")).
 		Return(nil, errors.New("boom"))
 
 	gu := NewGithubUsecase(mockRepository)
 
-	results, err := gu.ListDynamicTile(&PullRequestParams{Owner: "test", Repository: "test"})
+	results, err := gu.PullRequests(&PullRequestParams{Owner: "test", Repository: "test"})
 	if assert.Error(t, err) {
 		assert.Nil(t, results)
 		assert.IsType(t, &models.MonitororError{}, err)
@@ -286,7 +286,7 @@ func TestListDynamicTile_Error(t *testing.T) {
 	}
 }
 
-func TestListDynamicTile_Success(t *testing.T) {
+func TestPullRequests_Success(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetPullRequests", AnythingOfType("string"), AnythingOfType("string")).
 		Return([]PullRequest{
@@ -300,7 +300,7 @@ func TestListDynamicTile_Success(t *testing.T) {
 
 	gu := NewGithubUsecase(mockRepository)
 
-	results, err := gu.ListDynamicTile(&PullRequestParams{Owner: "test", Repository: "test"})
+	results, err := gu.PullRequests(&PullRequestParams{Owner: "test", Repository: "test"})
 	if assert.NoError(t, err) {
 		assert.NotNil(t, results)
 		assert.Len(t, results, 1)

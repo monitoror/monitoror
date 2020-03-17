@@ -41,8 +41,8 @@ func (_m *Usecase) Check(params *models.CheckParams) (*monitorormodels.Tile, err
 	return r0, r1
 }
 
-// ListDynamicTile provides a mock function with given fields: params
-func (_m *Usecase) ListDynamicTile(params interface{}) ([]builder.Result, error) {
+// Checks provides a mock function with given fields: params
+func (_m *Usecase) Checks(params interface{}) ([]builder.Result, error) {
 	ret := _m.Called(params)
 
 	var r0 []builder.Result

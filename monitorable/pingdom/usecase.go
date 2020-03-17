@@ -14,6 +14,6 @@ const (
 type (
 	Usecase interface {
 		Check(params *pingdomModels.CheckParams) (*models.Tile, error)
-		ListDynamicTile(params interface{}) ([]builder.Result, error)
+		Checks(params interface{}) ([]builder.Result, error)
 	}
 )

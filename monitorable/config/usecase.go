@@ -8,16 +8,14 @@ import (
 )
 
 type (
-	Helper interface {
-		RegisterTile(tileType models.TileType, clientConfigValidator utils.Validator, path string, initialMaxDelay int)
-		RegisterTileWithConfigVariant(tileType models.TileType, variant string, clientConfigValidator utils.Validator, path string, initialMaxDelay int)
-
-		RegisterDynamicTile(tileType models.TileType, clientConfigValidator utils.Validator, builder builder.DynamicTileBuilder)
-		RegisterDynamicTileWithConfigVariant(tileType models.TileType, configVariant string, clientConfigValidator utils.Validator, builder builder.DynamicTileBuilder)
+	Manager interface {
+		RegisterTile(tileType models.TileType, variant string, clientConfigValidator utils.Validator, path string, initialMaxDelay int)
+		RegisterDynamicTile(tileType models.TileType, variant string, clientConfigValidator utils.Validator, builder builder.DynamicTileBuilder)
+		DisableTile(tileType models.TileType, variant string)
 	}
 
 	Usecase interface {
-		Helper
+		Manager
 
 		GetConfig(params *configModels.ConfigParams) *configModels.ConfigBag
 		Verify(config *configModels.ConfigBag)

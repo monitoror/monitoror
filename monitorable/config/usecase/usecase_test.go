@@ -7,17 +7,18 @@ import (
 	"strings"
 	"testing"
 
+	. "github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/monitorable/config"
 	"github.com/monitoror/monitoror/monitorable/config/models"
 	"github.com/monitoror/monitoror/monitorable/config/repository"
 	"github.com/monitoror/monitoror/monitorable/jenkins"
-	_jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
+	jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
 	"github.com/monitoror/monitoror/monitorable/ping"
-	_pingModels "github.com/monitoror/monitoror/monitorable/ping/models"
+	pingModels "github.com/monitoror/monitoror/monitorable/ping/models"
 	"github.com/monitoror/monitoror/monitorable/pingdom"
-	_pindomModels "github.com/monitoror/monitoror/monitorable/pingdom/models"
+	pindomModels "github.com/monitoror/monitoror/monitorable/pingdom/models"
 	"github.com/monitoror/monitoror/monitorable/port"
-	_portModels "github.com/monitoror/monitoror/monitorable/port/models"
+	portModels "github.com/monitoror/monitoror/monitorable/port/models"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/stretchr/testify/assert"
@@ -26,10 +27,10 @@ import (
 func initConfigUsecase(repository config.Repository, store cache.Store) *configUsecase {
 	usecase := NewConfigUsecase(repository, store, 5000)
 
-	usecase.RegisterTile(ping.PingTileType, &_pingModels.PingParams{}, "/ping", 1000)
-	usecase.RegisterTile(port.PortTileType, &_portModels.PortParams{}, "/port", 1000)
-	usecase.RegisterTile(jenkins.JenkinsBuildTileType, &_jenkinsModels.BuildParams{}, "/jenkins/default", 1000)
-	usecase.RegisterTile(pingdom.PingdomCheckTileType, &_pindomModels.CheckParams{}, "/pingdom/default", 1000)
+	usecase.RegisterTile(ping.PingTileType, DefaultVariant, &pingModels.PingParams{}, "/ping", 1000)
+	usecase.RegisterTile(port.PortTileType, DefaultVariant, &portModels.PortParams{}, "/port", 1000)
+	usecase.RegisterTile(jenkins.JenkinsBuildTileType, DefaultVariant, &jenkinsModels.BuildParams{}, "/jenkins/default", 1000)
+	usecase.RegisterTile(pingdom.PingdomCheckTileType, DefaultVariant, &pindomModels.CheckParams{}, "/pingdom/default", 1000)
 
 	return usecase.(*configUsecase)
 }
