@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"net/url"
+	"reflect"
 	"strings"
 
 	"github.com/spf13/viper"
@@ -190,53 +190,17 @@ func InitConfig() *Config {
 	return &config
 }
 
-func (t *Pingdom) IsValid() bool {
-	// Pingdom url can be empty, plugin will use default value
-	if t.URL != "" {
-		if _, err := url.Parse(t.URL); err != nil {
-			return false
+// Maybe move this
+func GetVariantsFromConfig(conf interface{}) []string {
+	var variants []string
+	if reflect.TypeOf(conf).Kind() == reflect.Map {
+		keys := reflect.ValueOf(conf).MapKeys()
+		for _, k := range keys {
+			variants = append(variants, k.String())
 		}
+	} else {
+		variants = append(variants, DefaultVariant)
 	}
 
-	return t.Token != ""
-}
-
-func (t *TravisCI) IsValid() bool {
-	if t.URL == "" {
-		return false
-	}
-
-	if _, err := url.Parse(t.URL); err != nil {
-		return false
-	}
-
-	return true
-}
-
-func (t *Jenkins) IsValid() bool {
-	if t.URL == "" {
-		return false
-	}
-
-	if _, err := url.Parse(t.URL); err != nil {
-		return false
-	}
-
-	return true
-}
-
-func (t *AzureDevOps) IsValid() bool {
-	if t.URL == "" {
-		return false
-	}
-
-	if _, err := url.Parse(t.URL); err != nil {
-		return false
-	}
-
-	return t.Token != ""
-}
-
-func (g *Github) IsValid() bool {
-	return g.Token != ""
+	return variants
 }
