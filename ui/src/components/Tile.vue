@@ -1,6 +1,14 @@
 <template>
   <div class="c-monitoror-tile" :class="classes" :style="styles">
     <div class="c-monitoror-tile--content" v-if="!isEmpty">
+      <trend class="c-monitoror-tile--trend" v-if="isTrend"
+        :data="trendData"
+        :gradient="['#666666', '#000000']"
+        smooth
+        auto-draw
+      >
+      </trend>
+
       <div class="c-monitoror-tile--label">
         {{ label }}
       </div>
@@ -112,6 +120,10 @@
       return styles
     }
 
+    get isTrend(): boolean {
+      return this.unit === TileValueUnit.Trend
+    }
+
     get isEmpty(): boolean {
       return this.type === TileType.Empty
     }
@@ -184,6 +196,13 @@
       return this.value.values
     }
 
+    get trendData(): number[] {
+      if (this.values === undefined || this.unit !== TileValueUnit.Trend) {
+        return []
+      }
+      return JSON.parse(this.values[this.values.length - 1])
+    }
+
     get displayedValue(): string | undefined {
       if (this.values === undefined) {
         return
@@ -194,6 +213,7 @@
         [TileValueUnit.Ratio]: '%',
         [TileValueUnit.Number]: '',
         [TileValueUnit.Raw]: '',
+        [TileValueUnit.Trend]: '',
       }
 
       let value = this.values[this.values.length - 1]
@@ -201,6 +221,13 @@
         value = Math.round(parseFloat(value)).toString()
       } else if (this.unit === TileValueUnit.Ratio) {
         value = (parseFloat(value) * 100).toFixed(2).toString()
+      } else if (this.unit === TileValueUnit.Trend) {
+        const dataArr: number[] = JSON.parse(value)
+        if (dataArr.length >= 1) {
+          value = dataArr[dataArr.length - 1].toFixed(2).toString()
+        } else {
+          value = 'No data'
+        }
       }
 
       return value + UNIT_DISPLAY[this.unit]
@@ -267,6 +294,17 @@
     @media screen and (max-width: 750px) {
       min-height: 160px;
     }
+  }
+
+  .c-monitoror-tile--trend {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    stroke-width: 5px;
+    stroke-linecap: round;
+    stroke-opacity: 20%;
   }
 
   .c-monitoror-tile--label {

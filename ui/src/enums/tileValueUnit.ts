@@ -3,6 +3,7 @@ enum TileValueUnit {
   Ratio = 'RATIO',
   Number = 'NUMBER',
   Raw = 'RAW',
+  Trend = 'TREND',
 }
 
 export default TileValueUnit

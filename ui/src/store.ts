@@ -22,7 +22,9 @@ import Info from '@/interfaces/info'
 import TaskOptions from '@/interfaces/taskOptions'
 import TileConfig from '@/interfaces/tileConfig'
 import TileState from '@/interfaces/tileState'
+import Trend from 'vuetrend'
 
+Vue.use(Trend)
 Vue.use(Vuex)
 
 const API_BASE_PATH = '/api/v1'

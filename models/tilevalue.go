@@ -14,6 +14,7 @@ const (
 	RatioUnit       TileValuesUnit = "RATIO"       // Ratio like 0.8465896
 	NumberUnit      TileValuesUnit = "NUMBER"      // Number in float
 	RawUnit         TileValuesUnit = "RAW"         // String
+	TrendUnit       TileValuesUnit = "TREND"       // Array of timeseries data to draw trend
 )
 
 func (t *Tile) WithValue(unit TileValuesUnit) *Tile {
