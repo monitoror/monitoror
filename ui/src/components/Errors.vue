@@ -31,11 +31,6 @@
             Your configuration URL or path seems broken, please verify it
           </p>
         </template>
-        <template v-else-if="error.id === ConfigErrorId.UnableToParseConfig">
-          <p class="c-monitoror-errors--error-title">
-            Your configuration cannot be parsed, please verify it
-          </p>
-        </template>
         <template v-else-if="error.id === ConfigErrorId.MissingPathOrUrl">
           <p class="c-monitoror-errors--error-title">
             Missing <code>configPath</code> or <code>configUrl</code> query param
@@ -48,11 +43,95 @@
         </template>
 
         <!-- Config verify errors -->
+        <template v-else-if="error.id === ConfigErrorId.FieldTypeMismatch">
+          <p class="c-monitoror-errors--error-title">
+            Type mismatch in
+            <code>{{error.data.fieldName}}</code>
+            field
+          </p>
+          <p>
+            Expected type: <code>{{error.data.expected}}</code>
+          </p>
+          <pre v-if="error.data.configExtract" :data-config-path-or-url="configUrlOrPath"><code
+            v-html="formatConfigExtract(error)"></code></pre>
+          <p class="go-to-documentation">
+            <a href="https://monitoror.com/documentation/" target="_blank">
+              Go to documentation
+            </a>
+          </p>
+        </template>
+        <template v-else-if="error.id === ConfigErrorId.InvalidEscapedCharacter">
+          <p class="c-monitoror-errors--error-title">
+            Invalid escaped character
+            <code>{{error.data.configExtractHighlight}}</code>
+          </p>
+          <p>
+            Try to escape the backslash: <code>\{{error.data.configExtractHighlight}}</code>
+          </p>
+          <pre v-if="error.data.configExtract" :data-config-path-or-url="configUrlOrPath"><code
+            v-html="formatConfigExtract(error)"></code></pre>
+          <p class="go-to-documentation">
+            <a href="https://monitoror.com/documentation/" target="_blank">
+              Go to documentation
+            </a>
+          </p>
+        </template>
+        <template v-else-if="error.id === ConfigErrorId.InvalidFieldValue">
+          <p class="c-monitoror-errors--error-title">
+            Invalid
+            <code>{{error.data.fieldName}}</code>
+            value
+          </p>
+          <pre v-if="error.data.configExtract" :data-config-path-or-url="configUrlOrPath"><code
+            v-html="formatConfigExtract(error)"></code></pre>
+          <p class="go-to-documentation" v-if="getTileDocUrl(error) !== undefined">
+            <a :href="getTileDocUrl(error)" target="_blank">
+              Go to <strong>{{parsedExtractFieldValue(error.data.configExtract, 'type')}}</strong> documentation
+            </a>
+          </p>
+        </template>
         <template v-else-if="error.id === ConfigErrorId.MissingRequiredField">
           <p class="c-monitoror-errors--error-title">
             Missing required <code>{{error.data.fieldName}}</code> field
           </p>
           <pre :data-config-path-or-url="configUrlOrPath"><code v-html="formatConfigExtract(error)"></code></pre>
+          <p class="go-to-documentation">
+            <a href="https://monitoror.com/documentation/" target="_blank">
+              Go to documentation
+            </a>
+          </p>
+        </template>
+        <template v-else-if="error.id === ConfigErrorId.UnableToParseConfig">
+          <p class="c-monitoror-errors--error-title">
+            Your configuration cannot be parsed, please verify it
+          </p>
+          <p>
+            {{error.message}}
+          </p>
+          <pre :data-config-path-or-url="configUrlOrPath"><code v-html="formatConfigExtract(error)"></code></pre>
+          <p class="go-to-documentation">
+            <a href="https://monitoror.com/documentation/" target="_blank">
+              Go to documentation
+            </a>
+          </p>
+        </template>
+        <template v-else-if="error.id === ConfigErrorId.UnknownField">
+          <p class="c-monitoror-errors--error-title">
+            Unknown
+            <code>{{error.data.fieldName}}</code>
+            field name
+          </p>
+          <p
+            v-if="error.data.expected && guessExpectedFieldName(error.data.fieldName, splitList(error.data.expected)) !== undefined">
+            Did you mean
+            <code>{{guessExpectedFieldName(error.data.fieldName, splitList(error.data.expected))}}</code>?
+          </p>
+          <pre :data-config-path-or-url="configUrlOrPath"><code v-html="formatConfigExtract(error)"></code></pre>
+          <p class="go-to-documentation">
+            <a href="https://monitoror.com/documentation/" target="_blank">
+              Go to documentation
+            </a>
+          </p>
         </template>
         <template v-else-if="error.id === ConfigErrorId.UnknownTileType">
           <p class="c-monitoror-errors--error-title">
@@ -82,20 +161,6 @@
           <pre :data-config-path-or-url="configUrlOrPath"><code
             v-html="ellipsisUnnecessaryParams(formatConfigExtract(error))"></code></pre>
         </template>
-        <template v-else-if="error.id === ConfigErrorId.InvalidFieldValue">
-          <p class="c-monitoror-errors--error-title">
-            Invalid
-            <code>{{error.data.fieldName}}</code>
-            value
-          </p>
-          <pre v-if="error.data.configExtract" :data-config-path-or-url="configUrlOrPath"><code
-            v-html="formatConfigExtract(error)"></code></pre>
-          <p class="go-to-documentation" v-if="getTileDocUrl(error) !== undefined">
-            <a :href="getTileDocUrl(error)" target="_blank">
-              Go to <strong>{{parsedExtractFieldValue(error.data.configExtract, 'type')}}</strong> documentation
-            </a>
-          </p>
-        </template>
         <template v-else-if="error.id === ConfigErrorId.UnsupportedVersion">
           <p class="c-monitoror-errors--error-title">
             Invalid
@@ -118,13 +183,19 @@
           <p class="c-monitoror-errors--error-title">
             Unexpected error
           </p>
-          {{error.message}}
+          <p>
+            {{error.message}}
+          </p>
         </template>
         <template v-else>
           <p class="c-monitoror-errors--error-title">
             {{error.message}}
           </p>
-          {{error.id}}
+          <p>
+            {{error.id}}
+          </p>
+          <pre :data-config-path-or-url="configUrlOrPath"><code
+            v-html="formatConfigExtract(error)"></code></pre>
         </template>
       </div>
     </template>
@@ -133,15 +204,15 @@
 
 <script lang="ts">
   import {format} from 'date-fns'
-  import {Component, Vue} from 'vue-property-decorator'
-
-  import CONFIG_VERIFY_ERRORS from '@/constants/configVerifyErrors'
+  import {Component, Vue, Watch} from 'vue-property-decorator'
 
   import ConfigErrorId from '@/enums/configErrorId'
   import ellipsisUnnecessaryParams from '@/helpers/ellipsisUnnecessaryParams'
   import formatConfigExtract from '@/helpers/formatConfigExtract'
   import getTileDocUrl from '@/helpers/getTileDoc'
+  import guessExpectedFieldName from '@/helpers/guessExpectedFieldName'
   import guessExpectedValue from '@/helpers/guessExpectedValue'
+  import hasConfigVerifyErrors from '@/helpers/hasConfigVerifyErrors'
   import parsedExtractFieldValue from '@/helpers/parsedExpectedValue'
   import splitList from '@/helpers/splitList'
   import ConfigError from '@/interfaces/configError'
@@ -179,7 +250,7 @@
     }
 
     get hasConfigVerifyErrors(): boolean {
-      return this.errors.filter((error) => CONFIG_VERIFY_ERRORS.includes(error.id)).length > 0
+      return hasConfigVerifyErrors(this.errors)
     }
 
     get apiBaseUrl(): string {
@@ -198,8 +269,28 @@
     public formatConfigExtract = formatConfigExtract
     public getTileDocUrl = getTileDocUrl
     public guessExpectedValue = guessExpectedValue
+    public guessExpectedFieldName = guessExpectedFieldName
     public parsedExtractFieldValue = parsedExtractFieldValue
     public splitList = splitList
+
+    /*
+     * Watchers
+     */
+
+    @Watch('errors')
+    private async scrollToFirstConfigErrorExtractMark() {
+      await Vue.nextTick()
+      Array.from(document.querySelectorAll('.has-mark')).forEach((errorConfigExtract: Element) => {
+        const pre = errorConfigExtract.parentNode?.parentNode as HTMLElement
+        const mark = pre.querySelector('mark')
+
+        if (mark === null) {
+          return
+        }
+
+        pre.scrollTop = mark.offsetTop - pre.offsetTop
+      })
+    }
   }
 </script>
 
@@ -273,8 +364,8 @@
     .has-mark {
       color: rgba(255, 255, 255, 0.3);
 
-      .code-string,
-      .code-number {
+      .code-string:not(.contains-mark),
+      .code-number:not(.contains-mark) {
         opacity: 0.3;
       }
     }
@@ -296,6 +387,10 @@
       .code-number {
         opacity: 1 !important;
       }
+    }
+
+    .contains-mark mark {
+      margin: 0;
     }
 
     .go-to-documentation {

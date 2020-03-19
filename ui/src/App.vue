@@ -46,10 +46,9 @@
 <script lang="ts">
   import {Component, Vue} from 'vue-property-decorator'
 
-  import CONFIG_VERIFY_ERRORS from '@/constants/configVerifyErrors'
-
   import MonitororErrors from '@/components/Errors.vue'
   import MonitororTile from '@/components/Tile.vue'
+  import hasConfigVerifyErrors from '@/helpers/hasConfigVerifyErrors'
   import ConfigError from '@/interfaces/configError'
   import TileConfig from '@/interfaces/tileConfig'
 
@@ -124,7 +123,7 @@
     }
 
     get hasConfigVerifyErrors(): boolean {
-      return this.errors.filter((error) => CONFIG_VERIFY_ERRORS.includes(error.id)).length > 0
+      return hasConfigVerifyErrors(this.errors)
     }
 
     get loadingProgress(): number {
