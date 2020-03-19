@@ -51,6 +51,8 @@ type (
 
 const (
 	ConfigErrorConfigNotFound          ConfigErrorID = "ERROR_CONFIG_NOT_FOUND"
+	ConfigErrorFieldTypeMismatch       ConfigErrorID = "ERROR_FIELD_TYPE_MISMATCH"
+	ConfigErrorInvalidEscapedCharacter ConfigErrorID = "ERROR_INVALID_ESCAPED_CHARACTER"
 	ConfigErrorInvalidFieldValue       ConfigErrorID = "ERROR_INVALID_FIELD_VALUE"
 	ConfigErrorMissingRequiredField    ConfigErrorID = "ERROR_MISSING_REQUIRED_FIELD"
 	ConfigErrorUnauthorizedField       ConfigErrorID = "ERROR_UNAUTHORIZED_FIELD"

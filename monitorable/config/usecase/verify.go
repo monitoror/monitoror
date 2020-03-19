@@ -277,6 +277,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 				Data: models.ConfigErrorData{
 					FieldName:     field,
 					ConfigExtract: stringify(tile),
+					Expected:      keys(structParams),
 				},
 			})
 			return
