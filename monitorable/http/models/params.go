@@ -16,7 +16,7 @@ type (
 		GetRegexp() *regexp.Regexp
 	}
 
-	FormatedDataProvider interface {
+	FormattedDataProvider interface {
 		GetFormat() string
 		GetKey() string
 	}
@@ -56,8 +56,8 @@ func isValidRegex(regexProvider RegexProvider) bool {
 	return true
 }
 
-func isValidKey(formatedDataProvider FormatedDataProvider) bool {
-	key := formatedDataProvider.GetKey()
+func isValidKey(formattedDataProvider FormattedDataProvider) bool {
+	key := formattedDataProvider.GetKey()
 	if key == "" || key == "." {
 		return false
 	}
@@ -65,8 +65,8 @@ func isValidKey(formatedDataProvider FormatedDataProvider) bool {
 	return true
 }
 
-func isSupportedFormat(formatedDataProvider FormatedDataProvider) bool {
-	format := formatedDataProvider.GetFormat()
+func isSupportedFormat(formattedDataProvider FormattedDataProvider) bool {
+	format := formattedDataProvider.GetFormat()
 	if _, find := slice.Find(supportedFormats, format); !find {
 		return false
 	}
