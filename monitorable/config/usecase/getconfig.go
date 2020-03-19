@@ -17,7 +17,7 @@ func init() {
 	// Based on: https://github.com/golang/go/blob/release-branch.go1.14/src/encoding/json/decode.go#L755
 	unknownFieldRegex = regexp.MustCompile(`json: unknown field "(.*)"`)
 
-	// Based on: https://github.com/golang/go/blob/go1.14/src/encoding/json/scanner.go#L343
+	// Based on: https://github.com/golang/go/blob/go1.14/src/encoding/json/decode.go#L134
 	fieldTypeMismatchRegex = regexp.MustCompile(`json: cannot unmarshal .+ into Go struct field (.+) of type (.+)`)
 
 	// Based on: https://github.com/golang/go/blob/go1.14/src/encoding/json/scanner.go#L343

@@ -289,6 +289,7 @@ func TestUsecase_VerifyTile_Failed(t *testing.T) {
 			errorData: models.ConfigErrorData{
 				FieldName:     "host",
 				ConfigExtract: `{"type":"PING","params":{"host":"server.com"},"configVariant":"default"}`,
+				Expected:      "hostname",
 			},
 		},
 		{
