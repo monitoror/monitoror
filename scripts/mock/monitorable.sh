@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Do not use this script manually, Use makefile
 
+set -e
+
 ##############################################################
 # This script is to generate mocks for monitorable directory #
 ##############################################################
