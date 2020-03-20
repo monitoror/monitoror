@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/jenkins"
+	"github.com/monitoror/monitoror/monitorables/jenkins/api"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/jsdidierlaurent/echo-middleware/cache/mocks"
@@ -99,12 +99,12 @@ func TestHTTPError_MonitororError_WithTile(t *testing.T) {
 	ctx, res := initErrorEcho()
 
 	// Parameters
-	tile := models.NewTile(jenkins.JenkinsBuildTileType)
+	tile := models.NewTile(api.JenkinsBuildTileType)
 	tile.Label = "test jenkins"
 	err := &models.MonitororError{Err: errors.New("boom"), Tile: tile, Message: "rly big boom"}
 
 	// Expected
-	expected := models.NewTile(jenkins.JenkinsBuildTileType)
+	expected := models.NewTile(api.JenkinsBuildTileType)
 	expected.Label = "test jenkins"
 	expected.Status = models.FailedStatus
 	expected.Message = "rly big boom"

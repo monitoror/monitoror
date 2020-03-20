@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
-	"github.com/monitoror/monitoror/handlers"
+	"github.com/monitoror/monitoror/service/handlers"
 
 	"github.com/monitoror/monitoror/models"
 
