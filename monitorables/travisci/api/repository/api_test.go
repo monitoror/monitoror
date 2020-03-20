@@ -4,9 +4,9 @@ import (
 	"errors"
 	"testing"
 
-	. "github.com/monitoror/monitoror/config"
-	"github.com/monitoror/monitoror/models"
-	travisModels "github.com/monitoror/monitoror/monitorable/travisci/models"
+	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/monitorables/travisci/api/models"
+	"github.com/monitoror/monitoror/monitorables/travisci/config"
 	pkgTravis "github.com/monitoror/monitoror/pkg/gotravis"
 	"github.com/monitoror/monitoror/pkg/gotravis/mocks"
 
@@ -17,8 +17,15 @@ import (
 )
 
 func initRepository(t *testing.T, buildsAPI pkgTravis.TravisCI) *travisCIRepository {
-	conf := InitConfig()
-	repository := NewTravisCIRepository(conf.Monitorable.TravisCI[DefaultVariant])
+	conf := &config.TravisCI{
+		URL:             config.Default.URL,
+		Token:           config.Default.Token,
+		GithubToken:     config.Default.GithubToken,
+		Timeout:         config.Default.Timeout,
+		InitialMaxDelay: config.Default.InitialMaxDelay,
+	}
+
+	repository := NewTravisCIRepository(conf)
 
 	apiTravisCIRepository, ok := repository.(*travisCIRepository)
 	if assert.True(t, ok) {
@@ -29,13 +36,16 @@ func initRepository(t *testing.T, buildsAPI pkgTravis.TravisCI) *travisCIReposit
 }
 
 func TestNewApiTravisCIRepository_Panic(t *testing.T) {
-	conf := InitConfig()
-	conf.Monitorable.TravisCI[DefaultVariant].GithubToken = "token"
-	conf.Monitorable.TravisCI[DefaultVariant].URL = ""
-
+	conf := &config.TravisCI{
+		URL:             "",
+		Token:           config.Default.Token,
+		GithubToken:     "token",
+		Timeout:         config.Default.Timeout,
+		InitialMaxDelay: config.Default.InitialMaxDelay,
+	}
 	// Panic because ApiURL is not define
 	assert.Panics(t, func() {
-		_ = NewTravisCIRepository(conf.Monitorable.TravisCI[DefaultVariant])
+		_ = NewTravisCIRepository(conf)
 	})
 }
 
@@ -97,10 +107,10 @@ func TestRepository_GetLastBuildStatus_Success(t *testing.T) {
 		Return([]*travis.Build{travisBuild}, nil, nil)
 
 	// Expected
-	expectedBuild := &travisModels.Build{
+	expectedBuild := &models.Build{
 		ID:     1,
 		Branch: *travisBuild.Branch.Name,
-		Author: models.Author{
+		Author: coreModels.Author{
 			Name:      travisBuild.Commit.Author.Name,
 			AvatarURL: travisBuild.Commit.Author.AvatarURL,
 		},

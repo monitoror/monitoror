@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/travisci"
-	travisModels "github.com/monitoror/monitoror/monitorable/travisci/models"
+	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/monitorables/travisci/api"
+	"github.com/monitoror/monitoror/monitorables/travisci/api/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/faker"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
@@ -24,45 +24,45 @@ type (
 )
 
 var availableBuildStatus = faker.Statuses{
-	{models.SuccessStatus, time.Second * 30},
-	{models.FailedStatus, time.Second * 30},
-	{models.CanceledStatus, time.Second * 20},
-	{models.RunningStatus, time.Second * 60},
-	{models.QueuedStatus, time.Second * 30},
-	{models.WarningStatus, time.Second * 20},
+	{coreModels.SuccessStatus, time.Second * 30},
+	{coreModels.FailedStatus, time.Second * 30},
+	{coreModels.CanceledStatus, time.Second * 20},
+	{coreModels.RunningStatus, time.Second * 60},
+	{coreModels.QueuedStatus, time.Second * 30},
+	{coreModels.WarningStatus, time.Second * 20},
 }
 
-func NewTravisCIUsecase() travisci.Usecase {
+func NewTravisCIUsecase() api.Usecase {
 	return &travisCIUsecase{cmap.New()}
 }
 
-func (tu *travisCIUsecase) Build(params *travisModels.BuildParams) (tile *models.Tile, err error) {
-	tile = models.NewTile(travisci.TravisCIBuildTileType).WithBuild()
+func (tu *travisCIUsecase) Build(params *models.BuildParams) (tile *coreModels.Tile, err error) {
+	tile = coreModels.NewTile(api.TravisCIBuildTileType).WithBuild()
 	tile.Label = params.Repository
 	tile.Build.Branch = pointer.ToString(git.HumanizeBranch(params.Branch))
 
-	tile.Status = nonempty.Struct(params.Status, tu.computeStatus(params)).(models.TileStatus)
+	tile.Status = nonempty.Struct(params.Status, tu.computeStatus(params)).(coreModels.TileStatus)
 
-	if tile.Status == models.WarningStatus {
+	if tile.Status == coreModels.WarningStatus {
 		tile.Message = "Fake error message"
 		return
 	}
 
 	tile.Build.ID = pointer.ToString("12")
-	tile.Build.PreviousStatus = nonempty.Struct(params.PreviousStatus, models.SuccessStatus).(models.TileStatus)
+	tile.Build.PreviousStatus = nonempty.Struct(params.PreviousStatus, coreModels.SuccessStatus).(coreModels.TileStatus)
 
 	// Author
-	if tile.Status == models.FailedStatus {
-		tile.Build.Author = &models.Author{}
+	if tile.Status == coreModels.FailedStatus {
+		tile.Build.Author = &coreModels.Author{}
 		tile.Build.Author.Name = nonempty.String(params.AuthorName, "John Doe")
 		tile.Build.Author.AvatarURL = nonempty.String(params.AuthorAvatarURL, "https://monitoror.com/assets/images/avatar.png")
 	}
 
-	if tile.Status == models.RunningStatus {
+	if tile.Status == coreModels.RunningStatus {
 		estimatedDuration := nonempty.Duration(time.Duration(params.EstimatedDuration), time.Second*300)
 		tile.Build.Duration = pointer.ToInt64(nonempty.Int64(params.Duration, int64(tu.computeDuration(params, estimatedDuration).Seconds())))
 
-		if tile.Build.PreviousStatus != models.UnknownStatus {
+		if tile.Build.PreviousStatus != coreModels.UnknownStatus {
 			tile.Build.EstimatedDuration = pointer.ToInt64(int64(estimatedDuration.Seconds()))
 		} else {
 			tile.Build.EstimatedDuration = pointer.ToInt64(0)
@@ -76,14 +76,14 @@ func (tu *travisCIUsecase) Build(params *travisModels.BuildParams) (tile *models
 		tile.Build.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Now().Add(-time.Second*time.Duration(*tile.Build.Duration))))
 	}
 
-	if tile.Status != models.QueuedStatus && tile.Status != models.RunningStatus {
+	if tile.Status != coreModels.QueuedStatus && tile.Status != coreModels.RunningStatus {
 		tile.Build.FinishedAt = pointer.ToTime(nonempty.Time(params.FinishedAt, tile.Build.StartedAt.Add(time.Minute*5)))
 	}
 
 	return
 }
 
-func (tu *travisCIUsecase) computeStatus(params *travisModels.BuildParams) models.TileStatus {
+func (tu *travisCIUsecase) computeStatus(params *models.BuildParams) coreModels.TileStatus {
 	projectID := fmt.Sprintf("%s-%s-%s", params.Owner, params.Repository, params.Branch)
 	value, ok := tu.timeRefByProject.Get(projectID)
 	if !ok || value == nil {
@@ -94,7 +94,7 @@ func (tu *travisCIUsecase) computeStatus(params *travisModels.BuildParams) model
 	return faker.ComputeStatus(value.(time.Time), availableBuildStatus)
 }
 
-func (tu *travisCIUsecase) computeDuration(params *travisModels.BuildParams, duration time.Duration) time.Duration {
+func (tu *travisCIUsecase) computeDuration(params *models.BuildParams, duration time.Duration) time.Duration {
 	projectID := fmt.Sprintf("%s-%s-%s", params.Owner, params.Repository, params.Branch)
 	value, ok := tu.timeRefByProject.Get(projectID)
 	if !ok || value == nil {

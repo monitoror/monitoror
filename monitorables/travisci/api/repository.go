@@ -1,7 +1,7 @@
-package travisci
+package api
 
 import (
-	"github.com/monitoror/monitoror/monitorable/travisci/models"
+	"github.com/monitoror/monitoror/monitorables/travisci/api/models"
 )
 
 type (
