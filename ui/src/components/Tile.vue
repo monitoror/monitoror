@@ -274,6 +274,7 @@
     line-height: 1.2;
     font-weight: bold;
     margin-bottom: 3px;
+    word-break: break-word;
   }
 
   .c-monitoror-tile--message,
