@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/monitoror/monitoror/api/config/models"
 	"github.com/monitoror/monitoror/config"
-	"github.com/monitoror/monitoror/monitorable/config/models"
-	"github.com/monitoror/monitoror/monitorable/jenkins"
-	_jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
+	jenkinsApi "github.com/monitoror/monitoror/monitorables/jenkins/api"
+	jenkinsModels "github.com/monitoror/monitoror/monitorables/jenkins/api/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/builder"
 
 	"github.com/stretchr/testify/assert"
@@ -34,12 +34,12 @@ func TestUsecase_Verify_Success(t *testing.T) {
 }
 `, CurrentVersion)
 
-	config, err := readConfig(rawConfig)
+	conf, err := readConfig(rawConfig)
 	if assert.NoError(t, err) {
 		usecase := initConfigUsecase(nil, nil)
-		usecase.Verify(config)
+		usecase.Verify(conf)
 
-		assert.Len(t, config.Errors, 0)
+		assert.Len(t, conf.Errors, 0)
 	}
 }
 
@@ -55,13 +55,13 @@ func TestUsecase_Verify_SuccessWithOptionalParameters(t *testing.T) {
 }
 `, CurrentVersion)
 
-	config, err := readConfig(rawConfig)
+	conf, err := readConfig(rawConfig)
 
 	if assert.NoError(t, err) {
 		usecase := initConfigUsecase(nil, nil)
-		usecase.Verify(config)
+		usecase.Verify(conf)
 
-		assert.Len(t, config.Errors, 0)
+		assert.Len(t, conf.Errors, 0)
 	}
 }
 
@@ -337,11 +337,11 @@ func TestUsecase_VerifyTile_WithDynamicTile(t *testing.T) {
 	params := make(map[string]interface{})
 	params["job"] = "test"
 	mockBuilder := func(_ interface{}) ([]builder.Result, error) {
-		return []builder.Result{{TileType: jenkins.JenkinsBuildTileType, Params: params}}, nil
+		return []builder.Result{{TileType: jenkinsApi.JenkinsBuildTileType, Params: params}}, nil
 	}
 
 	usecase := initConfigUsecase(nil, nil)
-	usecase.RegisterDynamicTile(jenkins.JenkinsMultiBranchTileType, config.DefaultVariant, &_jenkinsModels.MultiBranchParams{}, mockBuilder)
+	usecase.EnableDynamicTile(jenkinsApi.JenkinsMultiBranchTileType, config.DefaultVariant, &jenkinsModels.MultiBranchParams{}, mockBuilder)
 	usecase.verifyTile(conf, tile, nil)
 
 	assert.Len(t, conf.Errors, 0)
@@ -356,11 +356,11 @@ func TestUsecase_VerifyTile_WithDynamicTile_WithWrongVariant(t *testing.T) {
 	params := make(map[string]interface{})
 	params["job"] = "test"
 	mockBuilder := func(_ interface{}) ([]builder.Result, error) {
-		return []builder.Result{{TileType: jenkins.JenkinsBuildTileType, Params: params}}, nil
+		return []builder.Result{{TileType: jenkinsApi.JenkinsBuildTileType, Params: params}}, nil
 	}
 
 	usecase := initConfigUsecase(nil, nil)
-	usecase.RegisterDynamicTile(jenkins.JenkinsMultiBranchTileType, config.DefaultVariant, &_jenkinsModels.MultiBranchParams{}, mockBuilder)
+	usecase.EnableDynamicTile(jenkinsApi.JenkinsMultiBranchTileType, config.DefaultVariant, &jenkinsModels.MultiBranchParams{}, mockBuilder)
 	usecase.verifyTile(conf, tile, nil)
 
 	if assert.Len(t, conf.Errors, 1) {

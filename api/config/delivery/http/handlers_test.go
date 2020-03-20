@@ -7,9 +7,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/monitoror/monitoror/api/config/mocks"
+	"github.com/monitoror/monitoror/api/config/models"
 	. "github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/config/mocks"
-	"github.com/monitoror/monitoror/monitorable/config/models"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"

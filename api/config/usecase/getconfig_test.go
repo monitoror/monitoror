@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/monitoror/monitoror/monitorable/config/mocks"
-	"github.com/monitoror/monitoror/monitorable/config/models"
+	"github.com/monitoror/monitoror/api/config/mocks"
+	"github.com/monitoror/monitoror/api/config/models"
 
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"

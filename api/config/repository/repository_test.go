@@ -51,7 +51,7 @@ func TestRepository_ReadConfig_WrongVersion(t *testing.T) {
 `
 	_, err := ReadConfig(strings.NewReader(input))
 	assert.Error(t, err)
-	assert.Equal(t, "json: cannot unmarshal 8 into Go struct field Config.ConfigVersion of type string and X.y format", err.Error())
+	assert.Equal(t, "json: cannot unmarshal 8 into Go struct field CoreConfig.ConfigVersion of type string and X.y format", err.Error())
 }
 
 func TestRepository_ReadConfig_Error_WrongJson(t *testing.T) {

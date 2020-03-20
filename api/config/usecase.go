@@ -1,17 +1,17 @@
 package config
 
 import (
+	configModels "github.com/monitoror/monitoror/api/config/models"
 	"github.com/monitoror/monitoror/models"
-	configModels "github.com/monitoror/monitoror/monitorable/config/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/builder"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils"
 )
 
 type (
 	Manager interface {
-		RegisterTile(tileType models.TileType, variant string, clientConfigValidator utils.Validator, path string, initialMaxDelay int)
-		RegisterDynamicTile(tileType models.TileType, variant string, clientConfigValidator utils.Validator, builder builder.DynamicTileBuilder)
-		DisableTile(tileType models.TileType, variant string)
+		RegisterTile(tileType models.TileType, variant []string, version string)
+		EnableTile(tileType models.TileType, variant string, validator utils.Validator, path string, initialMaxDelay int)
+		EnableDynamicTile(tileType models.TileType, variant string, Validator utils.Validator, builder builder.DynamicTileBuilder)
 	}
 
 	Usecase interface {

@@ -6,8 +6,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/monitoror/monitoror/monitorable/config"
-	"github.com/monitoror/monitoror/monitorable/config/models"
+	"github.com/monitoror/monitoror/api/config"
+	"github.com/monitoror/monitoror/api/config/models"
 )
 
 type (

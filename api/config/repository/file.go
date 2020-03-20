@@ -4,7 +4,7 @@ import (
 	"errors"
 	"os"
 
-	"github.com/monitoror/monitoror/monitorable/config/models"
+	"github.com/monitoror/monitoror/api/config/models"
 )
 
 func (cr *configRepository) GetConfigFromPath(path string) (config *models.Config, err error) {

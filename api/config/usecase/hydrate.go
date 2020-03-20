@@ -7,10 +7,9 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/humanize"
-
+	"github.com/monitoror/monitoror/api/config/models"
 	"github.com/monitoror/monitoror/config"
-	"github.com/monitoror/monitoror/monitorable/config/models"
+	"github.com/monitoror/monitoror/pkg/monitoror/utils/humanize"
 )
 
 func (cu *configUsecase) Hydrate(configBag *models.ConfigBag) {
@@ -27,7 +26,7 @@ func (cu *configUsecase) hydrateTiles(configBag *models.ConfigBag, tiles *[]mode
 			}
 		}
 
-		if _, exists := cu.dynamicTileConfigs[tile.Type]; !exists {
+		if _, exists := cu.configData.dynamicTileConfigs[tile.Type]; !exists {
 			cu.hydrateTile(configBag, tile)
 
 			if tile.Type == GroupTileType && len(tile.Tiles) == 0 {
@@ -57,7 +56,7 @@ func (cu *configUsecase) hydrateTile(configBag *models.ConfigBag, tile *models.T
 		return
 	}
 
-	tileConfig := cu.tileConfigs[tile.Type][tile.ConfigVariant]
+	tileConfig := cu.configData.tileConfigs[tile.Type][tile.ConfigVariant]
 
 	// Change Params by a valid URL
 	urlParams := url.Values{}
@@ -82,7 +81,7 @@ func (cu *configUsecase) hydrateTile(configBag *models.ConfigBag, tile *models.T
 }
 
 func (cu *configUsecase) hydrateDynamicTile(configBag *models.ConfigBag, tile *models.TileConfig) []models.TileConfig {
-	dynamicTileConfig := cu.dynamicTileConfigs[tile.Type][tile.ConfigVariant]
+	dynamicTileConfig := cu.configData.dynamicTileConfigs[tile.Type][tile.ConfigVariant]
 
 	// Create new validator by reflexion
 	rType := reflect.TypeOf(dynamicTileConfig.Validator)

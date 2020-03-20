@@ -3,7 +3,7 @@ package repository
 import (
 	"net/http"
 
-	"github.com/monitoror/monitoror/monitorable/config/models"
+	"github.com/monitoror/monitoror/api/config/models"
 )
 
 func (cr *configRepository) GetConfigFromURL(url string) (config *models.Config, err error) {

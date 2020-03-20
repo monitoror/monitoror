@@ -7,7 +7,7 @@ package mocks
 import (
 	builder "github.com/monitoror/monitoror/pkg/monitoror/builder"
 
-	configmodels "github.com/monitoror/monitoror/monitorable/config/models"
+	configmodels "github.com/monitoror/monitoror/api/config/models"
 
 	mock "github.com/stretchr/testify/mock"
 
@@ -21,9 +21,14 @@ type Usecase struct {
 	mock.Mock
 }
 
-// DisableTile provides a mock function with given fields: tileType, variant
-func (_m *Usecase) DisableTile(tileType models.TileType, variant string) {
-	_m.Called(tileType, variant)
+// EnableDynamicTile provides a mock function with given fields: tileType, variant, Validator, _a3
+func (_m *Usecase) EnableDynamicTile(tileType models.TileType, variant string, Validator utils.Validator, _a3 builder.DynamicTileBuilder) {
+	_m.Called(tileType, variant, Validator, _a3)
+}
+
+// EnableTile provides a mock function with given fields: tileType, variant, validator, path, initialMaxDelay
+func (_m *Usecase) EnableTile(tileType models.TileType, variant string, validator utils.Validator, path string, initialMaxDelay int) {
+	_m.Called(tileType, variant, validator, path, initialMaxDelay)
 }
 
 // GetConfig provides a mock function with given fields: params
@@ -47,14 +52,9 @@ func (_m *Usecase) Hydrate(_a0 *configmodels.ConfigBag) {
 	_m.Called(_a0)
 }
 
-// RegisterDynamicTile provides a mock function with given fields: tileType, variant, clientConfigValidator, _a3
-func (_m *Usecase) RegisterDynamicTile(tileType models.TileType, variant string, clientConfigValidator utils.Validator, _a3 builder.DynamicTileBuilder) {
-	_m.Called(tileType, variant, clientConfigValidator, _a3)
-}
-
-// RegisterTile provides a mock function with given fields: tileType, variant, clientConfigValidator, path, initialMaxDelay
-func (_m *Usecase) RegisterTile(tileType models.TileType, variant string, clientConfigValidator utils.Validator, path string, initialMaxDelay int) {
-	_m.Called(tileType, variant, clientConfigValidator, path, initialMaxDelay)
+// RegisterTile provides a mock function with given fields: tileType, variant, version
+func (_m *Usecase) RegisterTile(tileType models.TileType, variant []string, version string) {
+	_m.Called(tileType, variant, version)
 }
 
 // Verify provides a mock function with given fields: _a0

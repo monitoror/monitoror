@@ -5,9 +5,9 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/monitoror/monitoror/api/config"
+	configModels "github.com/monitoror/monitoror/api/config/models"
 	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/config"
-	configModels "github.com/monitoror/monitoror/monitorable/config/models"
 
 	"github.com/labstack/echo/v4"
 )

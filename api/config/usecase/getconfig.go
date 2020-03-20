@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/fatih/structs"
-	"github.com/monitoror/monitoror/monitorable/config/models"
+	"github.com/monitoror/monitoror/api/config/models"
 )
 
 var unknownFieldRegex *regexp.Regexp

@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/monitoror/monitoror/monitorable/config/models"
+	"github.com/monitoror/monitoror/api/config/models"
 )
 
 type (
