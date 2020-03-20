@@ -5,9 +5,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/monitoror/monitoror/config"
-	"github.com/monitoror/monitoror/monitorable/pingdom"
-	"github.com/monitoror/monitoror/monitorable/pingdom/models"
+	"github.com/monitoror/monitoror/monitorables/pingdom/api"
+	"github.com/monitoror/monitoror/monitorables/pingdom/api/models"
+	"github.com/monitoror/monitoror/monitorables/pingdom/config"
 	"github.com/monitoror/monitoror/pkg/gopingdom"
 
 	pingdomAPI "github.com/jsdidierlaurent/go-pingdom/pingdom"
@@ -22,7 +22,7 @@ type (
 	}
 )
 
-func NewPingdomRepository(config *config.Pingdom) pingdom.Repository {
+func NewPingdomRepository(config *config.Pingdom) api.Repository {
 	client, err := pingdomAPI.NewClientWithConfig(pingdomAPI.ClientConfig{
 		BaseURL:  config.URL,
 		APIToken: config.Token,

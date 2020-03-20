@@ -8,29 +8,26 @@ import (
 	"sync"
 	"time"
 
-	"github.com/jsdidierlaurent/echo-middleware/cache"
-	"github.com/monitoror/monitoror/config"
-	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/pingdom"
-	pingdomModels "github.com/monitoror/monitoror/monitorable/pingdom/models"
+	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/monitorables/pingdom/api"
+	"github.com/monitoror/monitoror/monitorables/pingdom/api/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/builder"
 
+	"github.com/jsdidierlaurent/echo-middleware/cache"
 	uuid "github.com/satori/go.uuid"
 )
 
 type (
 	pingdomUsecase struct {
-		repository pingdom.Repository
+		repository api.Repository
 		// Used to generate store key by repository
 		repositoryUID string
-
-		// Config
-		config *config.Pingdom
 
 		// Mutex for lock multi access on Pingdom
 		sync.Mutex
 		// Used for caching result of pingdom (to avoid bursting query limit)
-		store cache.Store
+		store           cache.Store
+		cacheExpiration int
 	}
 )
 
@@ -44,27 +41,27 @@ const (
 	DownStatus   = "down"
 )
 
-func NewPingdomUsecase(repository pingdom.Repository, config *config.Pingdom, store cache.Store) pingdom.Usecase {
+func NewPingdomUsecase(repository api.Repository, store cache.Store, cacheExpiration int) api.Usecase {
 	return &pingdomUsecase{
-		repository:    repository,
-		repositoryUID: uuid.NewV4().String(),
-		config:        config,
-		store:         store,
+		repository:      repository,
+		repositoryUID:   uuid.NewV4().String(),
+		store:           store,
+		cacheExpiration: cacheExpiration,
 	}
 }
 
-func (pu *pingdomUsecase) Check(params *pingdomModels.CheckParams) (*models.Tile, error) {
-	tile := models.NewTile(pingdom.PingdomCheckTileType)
+func (pu *pingdomUsecase) Check(params *models.CheckParams) (*coreModels.Tile, error) {
+	tile := coreModels.NewTile(api.PingdomCheckTileType)
 
 	checkID := *params.ID
-	var result pingdomModels.Check
+	var result models.Check
 	var tags string
 
 	// Lookup in store for bulk query for this ID, if found, use it
 	if err := pu.store.Get(pu.getTagsByIDStoreKey(checkID), &tags); err == nil {
 		checks, err := pu.loadChecks(tags)
 		if err != nil {
-			return nil, &models.MonitororError{Err: err, Tile: tile, Message: "unable to find checks"}
+			return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: "unable to find checks"}
 		}
 
 		// Find check in array
@@ -78,7 +75,7 @@ func (pu *pingdomUsecase) Check(params *pingdomModels.CheckParams) (*models.Tile
 	{
 		check, err := pu.loadCheck(checkID)
 		if err != nil {
-			return nil, &models.MonitororError{Err: err, Tile: tile, Message: "unable to find check"}
+			return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: "unable to find check"}
 		}
 		result = *check
 	}
@@ -91,11 +88,11 @@ func (pu *pingdomUsecase) Check(params *pingdomModels.CheckParams) (*models.Tile
 }
 
 func (pu *pingdomUsecase) Checks(params interface{}) ([]builder.Result, error) {
-	lcParams := params.(*pingdomModels.ChecksParams)
+	lcParams := params.(*models.ChecksParams)
 
 	checks, err := pu.loadChecks(lcParams.Tags)
 	if err != nil {
-		return nil, &models.MonitororError{Err: err, Message: "unable to list checks"}
+		return nil, &coreModels.MonitororError{Err: err, Message: "unable to list checks"}
 	}
 
 	if lcParams.SortBy == "name" {
@@ -114,7 +111,7 @@ func (pu *pingdomUsecase) Checks(params interface{}) ([]builder.Result, error) {
 			p["id"] = check.ID
 
 			results = append(results, builder.Result{
-				TileType: pingdom.PingdomCheckTileType,
+				TileType: api.PingdomCheckTileType,
 				Label:    check.Name,
 				Params:   p,
 			})
@@ -124,13 +121,13 @@ func (pu *pingdomUsecase) Checks(params interface{}) ([]builder.Result, error) {
 	return results, err
 }
 
-func (pu *pingdomUsecase) loadCheck(id int) (result *pingdomModels.Check, err error) {
+func (pu *pingdomUsecase) loadCheck(id int) (result *models.Check, err error) {
 	// Synchronize to avoid multi call on pingdom api
 	pu.Lock()
 	defer pu.Unlock()
 
 	// Lookup in cache
-	result = &pingdomModels.Check{}
+	result = &models.Check{}
 	key := pu.getCheckStoreKey(id)
 	if err = pu.store.Get(key, result); err == nil {
 		// Cache found, return
@@ -143,12 +140,12 @@ func (pu *pingdomUsecase) loadCheck(id int) (result *pingdomModels.Check, err er
 	}
 
 	// Adding result in store
-	_ = pu.store.Set(key, *result, time.Millisecond*time.Duration(pu.config.CacheExpiration))
+	_ = pu.store.Set(key, *result, time.Millisecond*time.Duration(pu.cacheExpiration))
 
 	return
 }
 
-func (pu *pingdomUsecase) loadChecks(tags string) (results []pingdomModels.Check, err error) {
+func (pu *pingdomUsecase) loadChecks(tags string) (results []models.Check, err error) {
 	// Synchronize to avoid multi call on pingdom api
 	pu.Lock()
 	defer pu.Unlock()
@@ -166,7 +163,7 @@ func (pu *pingdomUsecase) loadChecks(tags string) (results []pingdomModels.Check
 	}
 
 	// Adding result in store
-	_ = pu.store.Set(key, results, time.Millisecond*time.Duration(pu.config.CacheExpiration))
+	_ = pu.store.Set(key, results, time.Millisecond*time.Duration(pu.cacheExpiration))
 
 	return
 }
@@ -183,15 +180,15 @@ func (pu *pingdomUsecase) getTagsByIDStoreKey(id int) string {
 	return fmt.Sprintf("%s:%s-%d", PingdomTagsByIDStoreKeyPrefix, pu.repositoryUID, id)
 }
 
-func parseStatus(status string) models.TileStatus {
+func parseStatus(status string) coreModels.TileStatus {
 	switch status {
 	case UpStatus:
-		return models.SuccessStatus
+		return coreModels.SuccessStatus
 	case DownStatus:
-		return models.FailedStatus
+		return coreModels.FailedStatus
 	case PausedStatus:
-		return models.DisabledStatus
+		return coreModels.DisabledStatus
 	default:
-		return models.UnknownStatus
+		return coreModels.UnknownStatus
 	}
 }

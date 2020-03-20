@@ -1,7 +1,7 @@
-package pingdom
+package api
 
 import (
-	"github.com/monitoror/monitoror/monitorable/pingdom/models"
+	"github.com/monitoror/monitoror/monitorables/pingdom/api/models"
 )
 
 type (

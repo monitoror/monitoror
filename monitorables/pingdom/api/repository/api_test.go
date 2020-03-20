@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	. "github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/monitorables/pingdom/config"
 	pkgPingdom "github.com/monitoror/monitoror/pkg/gopingdom"
 	"github.com/monitoror/monitoror/pkg/gopingdom/mocks"
 
@@ -14,8 +14,14 @@ import (
 )
 
 func initRepository(t *testing.T, checkAPI pkgPingdom.PingdomCheckAPI) *pingdomRepository {
-	conf := InitConfig()
-	repository := NewPingdomRepository(conf.Monitorable.Pingdom[DefaultVariant])
+	conf := &config.Pingdom{
+		URL:             config.Default.URL,
+		Token:           config.Default.Token,
+		Timeout:         config.Default.Timeout,
+		CacheExpiration: config.Default.CacheExpiration,
+		InitialMaxDelay: config.Default.InitialMaxDelay,
+	}
+	repository := NewPingdomRepository(conf)
 
 	apiPingdomRepository, ok := repository.(*pingdomRepository)
 	if assert.True(t, ok) {
@@ -26,10 +32,15 @@ func initRepository(t *testing.T, checkAPI pkgPingdom.PingdomCheckAPI) *pingdomR
 }
 
 func TestPingdomRepository_NewPingdomRepository_Error(t *testing.T) {
-	conf := InitConfig()
-	conf.Monitorable.Pingdom[DefaultVariant].URL = "wrong%url"
+	conf := &config.Pingdom{
+		URL:             "wrong%url",
+		Token:           config.Default.Token,
+		Timeout:         config.Default.Timeout,
+		CacheExpiration: config.Default.CacheExpiration,
+		InitialMaxDelay: config.Default.InitialMaxDelay,
+	}
 
-	assert.Panics(t, func() { _ = NewPingdomRepository(conf.Monitorable.Pingdom[DefaultVariant]) })
+	assert.Panics(t, func() { _ = NewPingdomRepository(conf) })
 }
 
 func TestPingdomRepository_GetPingdomCheck_Success(t *testing.T) {

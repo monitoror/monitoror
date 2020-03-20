@@ -8,9 +8,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/pingdom"
-	"github.com/monitoror/monitoror/monitorable/pingdom/mocks"
+	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/monitorables/pingdom/api"
+	"github.com/monitoror/monitoror/monitorables/pingdom/api/mocks"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -32,9 +32,9 @@ func TestDelivery_GetCheck_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
-	tile := models.NewTile(pingdom.PingdomChecksTileType)
+	tile := coreModels.NewTile(api.PingdomChecksTileType)
 	tile.Label = "check 1"
-	tile.Status = models.SuccessStatus
+	tile.Status = coreModels.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Check", Anything).Return(tile, nil)
@@ -64,7 +64,7 @@ func TestDelivery_GetCheck_QueryParamsError(t *testing.T) {
 	// Test
 	err := handler.GetCheck(ctx)
 	assert.Error(t, err)
-	assert.IsType(t, &models.MonitororError{}, err)
+	assert.IsType(t, &coreModels.MonitororError{}, err)
 }
 
 func TestDelivery_GetCheck_Error(t *testing.T) {
