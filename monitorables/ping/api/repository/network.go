@@ -4,9 +4,9 @@ import (
 	"errors"
 	"time"
 
-	"github.com/monitoror/monitoror/config"
-	"github.com/monitoror/monitoror/monitorable/ping"
-	"github.com/monitoror/monitoror/monitorable/ping/models"
+	"github.com/monitoror/monitoror/monitorables/ping/api"
+	"github.com/monitoror/monitoror/monitorables/ping/api/models"
+	"github.com/monitoror/monitoror/monitorables/ping/config"
 
 	goPing "github.com/sparrc/go-ping"
 )
@@ -17,7 +17,7 @@ type (
 	}
 )
 
-func NewPingRepository(config *config.Ping) ping.Repository {
+func NewPingRepository(config *config.Ping) api.Repository {
 	return &pingRepository{config}
 }
 

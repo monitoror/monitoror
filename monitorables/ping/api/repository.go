@@ -1,7 +1,7 @@
-package ping
+package api
 
 import (
-	"github.com/monitoror/monitoror/monitorable/ping/models"
+	"github.com/monitoror/monitoror/monitorables/ping/api/models"
 )
 
 type (

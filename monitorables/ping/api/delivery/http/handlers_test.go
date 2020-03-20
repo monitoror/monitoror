@@ -8,9 +8,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/monitoror/monitoror/models"
-	. "github.com/monitoror/monitoror/monitorable/ping"
-	"github.com/monitoror/monitoror/monitorable/ping/mocks"
+	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/monitorables/ping/api"
+	"github.com/monitoror/monitoror/monitorables/ping/api/mocks"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -32,8 +32,8 @@ func TestDelivery_PingHandler_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
-	tile := models.NewTile(PingTileType)
-	tile.Status = models.SuccessStatus
+	tile := coreModels.NewTile(api.PingTileType)
+	tile.Status = coreModels.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Ping", Anything).Return(tile, nil)
@@ -63,7 +63,7 @@ func TestDelivery_PingHandler_QueryParamsError(t *testing.T) {
 	// Test
 	err := handler.GetPing(ctx)
 	assert.Error(t, err)
-	assert.IsType(t, &models.MonitororError{}, err)
+	assert.IsType(t, &coreModels.MonitororError{}, err)
 }
 
 func TestDelivery_PingHandler_Error(t *testing.T) {

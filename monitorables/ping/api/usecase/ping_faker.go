@@ -7,9 +7,9 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/ping"
-	pingModels "github.com/monitoror/monitoror/monitorable/ping/models"
+	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/monitorables/ping/api"
+	"github.com/monitoror/monitoror/monitorables/ping/api/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/faker"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
 )
@@ -21,24 +21,24 @@ type (
 )
 
 var availableStatuses = faker.Statuses{
-	{models.SuccessStatus, time.Second * 30},
-	{models.FailedStatus, time.Second * 30},
+	{coreModels.SuccessStatus, time.Second * 30},
+	{coreModels.FailedStatus, time.Second * 30},
 }
 
-func NewPingUsecase() ping.Usecase {
+func NewPingUsecase() api.Usecase {
 	return &pingUsecase{make(map[string]time.Time)}
 }
 
-func (pu *pingUsecase) Ping(params *pingModels.PingParams) (tile *models.Tile, err error) {
-	tile = models.NewTile(ping.PingTileType)
+func (pu *pingUsecase) Ping(params *models.PingParams) (tile *coreModels.Tile, err error) {
+	tile = coreModels.NewTile(api.PingTileType)
 	tile.Label = params.Hostname
 
 	// Code
-	tile.Status = nonempty.Struct(params.Status, pu.computeStatus(params)).(models.TileStatus)
+	tile.Status = nonempty.Struct(params.Status, pu.computeStatus(params)).(coreModels.TileStatus)
 
 	// Message
-	if tile.Status == models.SuccessStatus {
-		tile.WithValue(models.MillisecondUnit)
+	if tile.Status == coreModels.SuccessStatus {
+		tile.WithValue(coreModels.MillisecondUnit)
 		if len(params.ValueValues) != 0 {
 			tile.Value.Values = params.ValueValues
 		} else {
@@ -49,7 +49,7 @@ func (pu *pingUsecase) Ping(params *pingModels.PingParams) (tile *models.Tile, e
 	return
 }
 
-func (pu *pingUsecase) computeStatus(params *pingModels.PingParams) models.TileStatus {
+func (pu *pingUsecase) computeStatus(params *models.PingParams) coreModels.TileStatus {
 	value, ok := pu.timeRefByHostname[params.Hostname]
 	if !ok {
 		pu.timeRefByHostname[params.Hostname] = faker.GetRefTime()
