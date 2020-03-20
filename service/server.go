@@ -5,14 +5,16 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/service/handlers"
+	"github.com/monitoror/monitoror/service/middlewares"
+	"github.com/monitoror/monitoror/service/store"
+
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/color"
 	"github.com/labstack/gommon/log"
-	"github.com/monitoror/monitoror/config"
-	"github.com/monitoror/monitoror/handlers"
-	"github.com/monitoror/monitoror/middlewares"
 )
 
 type (
@@ -20,12 +22,7 @@ type (
 		// Echo Server
 		*echo.Echo
 
-		// Config
-		config *config.Config
-		store  cache.Store
-
-		// Middleware
-		cm *middlewares.CacheMiddleware
+		store *store.Store
 	}
 )
 
@@ -37,22 +34,24 @@ func init() {
 
 // Init create echo server with middlewares, ui, routes
 func Init(config *config.Config) *Server {
-	server := &Server{
-		config: config,
+	s := &Server{
+		store: &store.Store{
+			CoreConfig: config,
+		},
 	}
 
-	server.setupEchoServer()
-	server.setupEchoMiddleware()
+	s.setupEchoServer()
+	s.setupEchoMiddleware()
 
-	InitUI(server)
-	InitApis(server)
+	InitUI(s)
+	InitApis(s)
 
-	return server
+	return s
 }
 
 func (s *Server) Start() {
 	fmt.Println()
-	log.Fatal(s.Echo.Start(fmt.Sprintf(":%d", s.config.Port)))
+	log.Fatal(s.Echo.Start(fmt.Sprintf(":%d", s.store.CoreConfig.Port)))
 }
 
 func (s *Server) setupEchoServer() {
@@ -68,19 +67,19 @@ func (s *Server) setupEchoMiddleware() {
 	s.Use(echoMiddleware.Recover())
 
 	// Log requests
-	if s.config.Env != "production" {
+	if s.store.CoreConfig.Env != "production" {
 		s.Use(echoMiddleware.LoggerWithConfig(echoMiddleware.LoggerConfig{
 			Format: `[-] ` + colorer.Green("${method}") + ` ${uri} status:${status} latency:` + colorer.Green("${latency_human}") + ` error:"${error}"` + "\n",
 		}))
 	}
 
 	// Cache
-	s.store = cache.NewGoCacheStore(time.Minute*5, time.Second) // Default value, always override
-	s.cm = middlewares.NewCacheMiddleware(s.store,
-		time.Millisecond*time.Duration(s.config.DownstreamCacheExpiration),
-		time.Millisecond*time.Duration(s.config.UpstreamCacheExpiration),
+	s.store.CacheStore = cache.NewGoCacheStore(time.Minute*5, time.Second) // Default value, always override
+	s.store.CacheMiddleware = middlewares.NewCacheMiddleware(s.store.CacheStore,
+		time.Millisecond*time.Duration(s.store.CoreConfig.DownstreamCacheExpiration),
+		time.Millisecond*time.Duration(s.store.CoreConfig.UpstreamCacheExpiration),
 	) // Used as Handler wrapper in routes
-	s.Use(s.cm.DownstreamStoreMiddleware())
+	s.Use(s.store.CacheMiddleware.DownstreamStoreMiddleware())
 
 	// CORS
 	s.Use(echoMiddleware.CORSWithConfig(echoMiddleware.CORSConfig{

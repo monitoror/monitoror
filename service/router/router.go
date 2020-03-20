@@ -3,9 +3,8 @@ package router
 import (
 	"fmt"
 
+	"github.com/monitoror/monitoror/service/middlewares"
 	"github.com/monitoror/monitoror/service/options"
-
-	"github.com/monitoror/monitoror/middlewares"
 
 	"github.com/labstack/echo/v4"
 )
@@ -29,8 +28,8 @@ type (
 	}
 )
 
-func NewMonitorableRouter(apiVersion *echo.Group, cm *middlewares.CacheMiddleware) MonitorableRouter {
-	return &router{apiVersion: apiVersion, cacheMiddleware: cm}
+func NewMonitorableRouter(apiVersion *echo.Group, cacheMiddleware *middlewares.CacheMiddleware) MonitorableRouter {
+	return &router{apiVersion: apiVersion, cacheMiddleware: cacheMiddleware}
 }
 
 func (r *router) Group(path, variant string) MonitorableGroup {

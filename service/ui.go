@@ -8,7 +8,7 @@ import (
 )
 
 func InitUI(s *Server) {
-	loadUI := s.config.Env == "production"
+	loadUI := s.store.CoreConfig.Env == "production"
 
 	// TODO LOG
 
