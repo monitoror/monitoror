@@ -6,10 +6,10 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/monitoror/monitoror/config"
-	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/jenkins"
-	jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
+	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/monitorables/jenkins/api"
+	"github.com/monitoror/monitoror/monitorables/jenkins/api/models"
+	"github.com/monitoror/monitoror/monitorables/jenkins/config"
 	pkgJenkins "github.com/monitoror/monitoror/pkg/gojenkins"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/gravatar"
 
@@ -23,7 +23,7 @@ type (
 	}
 )
 
-func NewJenkinsRepository(config *config.Jenkins) jenkins.Repository {
+func NewJenkinsRepository(config *config.Jenkins) api.Repository {
 	var auth *gojenkins.Auth
 	if config.Login != "" {
 		auth = &gojenkins.Auth{
@@ -44,7 +44,7 @@ func NewJenkinsRepository(config *config.Jenkins) jenkins.Repository {
 	}
 }
 
-func (r *jenkinsRepository) GetJob(jobName string, branch string) (job *jenkinsModels.Job, err error) {
+func (r *jenkinsRepository) GetJob(jobName string, branch string) (job *models.Job, err error) {
 	jobID := jobName
 	if branch != "" {
 		jobID = fmt.Sprintf("%s/job/%s", jobName, branch)
@@ -55,7 +55,7 @@ func (r *jenkinsRepository) GetJob(jobName string, branch string) (job *jenkinsM
 		return nil, err
 	}
 
-	job = &jenkinsModels.Job{}
+	job = &models.Job{}
 	job.ID = jobID
 
 	job.Buildable = jenkinsJob.Buildable
@@ -77,13 +77,13 @@ func (r *jenkinsRepository) GetJob(jobName string, branch string) (job *jenkinsM
 }
 
 //GetBuildStatus fetch build information from travis-ci
-func (r *jenkinsRepository) GetLastBuildStatus(job *jenkinsModels.Job) (*jenkinsModels.Build, error) {
+func (r *jenkinsRepository) GetLastBuildStatus(job *models.Job) (*models.Build, error) {
 	jenkinsBuild, err := r.jenkinsAPI.GetLastBuildByJobId(job.ID)
 	if err != nil {
 		return nil, err
 	}
 
-	build := &jenkinsModels.Build{}
+	build := &models.Build{}
 	build.Number = fmt.Sprintf("%d", jenkinsBuild.Number)
 	build.FullName = jenkinsBuild.FullDisplayName
 
@@ -101,7 +101,7 @@ func (r *jenkinsRepository) GetLastBuildStatus(job *jenkinsModels.Job) (*jenkins
 
 	if len(changeSet.Items) > 0 {
 		item := changeSet.Items[0]
-		build.Author = &models.Author{
+		build.Author = &coreModels.Author{
 			Name: item.Author.FullName,
 		}
 

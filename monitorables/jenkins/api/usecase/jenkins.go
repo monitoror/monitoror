@@ -7,9 +7,10 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/jenkins"
-	jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
+	"github.com/monitoror/monitoror/monitorables/jenkins/api"
+
+	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/monitorables/jenkins/api/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/builder"
 	"github.com/monitoror/monitoror/pkg/monitoror/cache"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
@@ -19,7 +20,7 @@ import (
 
 type (
 	jenkinsUsecase struct {
-		repository jenkins.Repository
+		repository api.Repository
 
 		// builds cache. used for save small history of build for stats
 		buildsCache *cache.BuildCache
@@ -28,15 +29,15 @@ type (
 
 const buildCacheSize = 5
 
-func NewJenkinsUsecase(repository jenkins.Repository) jenkins.Usecase {
+func NewJenkinsUsecase(repository api.Repository) api.Usecase {
 	return &jenkinsUsecase{
 		repository,
 		cache.NewBuildCache(buildCacheSize),
 	}
 }
 
-func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (*models.Tile, error) {
-	tile := models.NewTile(jenkins.JenkinsBuildTileType).WithBuild()
+func (tu *jenkinsUsecase) Build(params *models.BuildParams) (*coreModels.Tile, error) {
+	tile := coreModels.NewTile(api.JenkinsBuildTileType).WithBuild()
 
 	tile.Label, _ = url.QueryUnescape(params.Job)
 	if params.Branch != "" {
@@ -46,12 +47,12 @@ func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (*models.Tile
 
 	job, err := tu.repository.GetJob(params.Job, params.Branch)
 	if err != nil {
-		return nil, &models.MonitororError{Err: err, Tile: tile, Message: "unable to find job"}
+		return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: "unable to find job"}
 	}
 
 	// Is Buildable
 	if !job.Buildable {
-		tile.Status = models.DisabledStatus
+		tile.Status = coreModels.DisabledStatus
 		return tile, nil
 	}
 
@@ -60,12 +61,12 @@ func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (*models.Tile
 	if previousStatus != nil {
 		tile.Build.PreviousStatus = *previousStatus
 	} else {
-		tile.Build.PreviousStatus = models.UnknownStatus
+		tile.Build.PreviousStatus = coreModels.UnknownStatus
 	}
 
 	// Queued build
 	if job.InQueue {
-		tile.Status = models.QueuedStatus
+		tile.Status = coreModels.QueuedStatus
 		tile.Build.StartedAt = job.QueuedAt
 		return tile, nil
 	}
@@ -73,7 +74,7 @@ func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (*models.Tile
 	// Get Last Build
 	build, err := tu.repository.GetLastBuildStatus(job)
 	if err != nil || build == nil {
-		return nil, &models.MonitororError{Err: err, Tile: tile, Message: "no build found", ErrorStatus: models.UnknownStatus}
+		return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: "no build found", ErrorStatus: coreModels.UnknownStatus}
 	}
 
 	// Build ID
@@ -81,7 +82,7 @@ func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (*models.Tile
 
 	// Set Status
 	if build.Building {
-		tile.Status = models.RunningStatus
+		tile.Status = coreModels.RunningStatus
 	} else {
 		tile.Status = parseResult(build.Result)
 	}
@@ -90,7 +91,7 @@ func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (*models.Tile
 	tile.Build.StartedAt = pointer.ToTime(build.StartedAt)
 
 	// Set FinishedAt Or Duration
-	if tile.Status != models.RunningStatus {
+	if tile.Status != coreModels.RunningStatus {
 		tile.Build.FinishedAt = pointer.ToTime(build.StartedAt.Add(build.Duration))
 	} else {
 		tile.Build.Duration = pointer.ToInt64(int64(time.Since(build.StartedAt).Seconds()))
@@ -104,15 +105,15 @@ func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (*models.Tile
 	}
 
 	// Set Author
-	if tile.Status == models.FailedStatus && build.Author != nil {
-		tile.Build.Author = &models.Author{
+	if tile.Status == coreModels.FailedStatus && build.Author != nil {
+		tile.Build.Author = &coreModels.Author{
 			Name:      build.Author.Name,
 			AvatarURL: build.Author.AvatarURL,
 		}
 	}
 
 	// Cache Duration when success / failed / warning
-	if tile.Status == models.SuccessStatus || tile.Status == models.FailedStatus || tile.Status == models.WarningStatus {
+	if tile.Status == coreModels.SuccessStatus || tile.Status == coreModels.FailedStatus || tile.Status == coreModels.WarningStatus {
 		tu.buildsCache.Add(params, *tile.Build.ID, tile.Status, build.Duration)
 	}
 
@@ -120,11 +121,11 @@ func (tu *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (*models.Tile
 }
 
 func (tu *jenkinsUsecase) MultiBranch(params interface{}) ([]builder.Result, error) {
-	mbParams := params.(*jenkinsModels.MultiBranchParams)
+	mbParams := params.(*models.MultiBranchParams)
 
 	job, err := tu.repository.GetJob(mbParams.Job, "")
 	if err != nil {
-		return nil, &models.MonitororError{Err: err, Message: "unable to find job"}
+		return nil, &coreModels.MonitororError{Err: err, Message: "unable to find job"}
 	}
 
 	matcher, err := regexp.Compile(mbParams.Match)
@@ -150,7 +151,7 @@ func (tu *jenkinsUsecase) MultiBranch(params interface{}) ([]builder.Result, err
 		p["branch"] = branch
 
 		results = append(results, builder.Result{
-			TileType: jenkins.JenkinsBuildTileType,
+			TileType: api.JenkinsBuildTileType,
 			Params:   p,
 		})
 	}
@@ -158,17 +159,17 @@ func (tu *jenkinsUsecase) MultiBranch(params interface{}) ([]builder.Result, err
 	return results, nil
 }
 
-func parseResult(result string) models.TileStatus {
+func parseResult(result string) coreModels.TileStatus {
 	switch result {
 	case "SUCCESS":
-		return models.SuccessStatus
+		return coreModels.SuccessStatus
 	case "UNSTABLE":
-		return models.WarningStatus
+		return coreModels.WarningStatus
 	case "FAILURE":
-		return models.FailedStatus
+		return coreModels.FailedStatus
 	case "ABORTED":
-		return models.CanceledStatus
+		return coreModels.CanceledStatus
 	default:
-		return models.UnknownStatus
+		return coreModels.UnknownStatus
 	}
 }

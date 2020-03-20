@@ -6,10 +6,9 @@ package mocks
 
 import (
 	builder "github.com/monitoror/monitoror/pkg/monitoror/builder"
-
 	mock "github.com/stretchr/testify/mock"
 
-	models "github.com/monitoror/monitoror/monitorable/jenkins/models"
+	models "github.com/monitoror/monitoror/monitorables/jenkins/api/models"
 
 	monitorormodels "github.com/monitoror/monitoror/models"
 )

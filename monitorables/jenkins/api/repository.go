@@ -1,7 +1,7 @@
-package jenkins
+package api
 
 import (
-	"github.com/monitoror/monitoror/monitorable/jenkins/models"
+	"github.com/monitoror/monitoror/monitorables/jenkins/api/models"
 )
 
 type (

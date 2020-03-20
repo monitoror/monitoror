@@ -7,9 +7,10 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/monitoror/monitoror/monitorables/jenkins/api"
+
 	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/jenkins"
-	jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
+	jenkinsModels "github.com/monitoror/monitoror/monitorables/jenkins/api/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/builder"
 	"github.com/monitoror/monitoror/pkg/monitoror/faker"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
@@ -35,12 +36,12 @@ var availableBuildStatus = faker.Statuses{
 	{models.DisabledStatus, time.Second * 20},
 }
 
-func NewJenkinsUsecase() jenkins.Usecase {
+func NewJenkinsUsecase() api.Usecase {
 	return &jenkinsUsecase{cmap.New()}
 }
 
 func (ju *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (tile *models.Tile, err error) {
-	tile = models.NewTile(jenkins.JenkinsBuildTileType).WithBuild()
+	tile = models.NewTile(api.JenkinsBuildTileType).WithBuild()
 
 	tile.Label = params.Job
 	if params.Branch != "" {

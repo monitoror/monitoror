@@ -4,9 +4,9 @@ import (
 	"errors"
 	"testing"
 
-	. "github.com/monitoror/monitoror/config"
-	"github.com/monitoror/monitoror/models"
-	jenkinsModels "github.com/monitoror/monitoror/monitorable/jenkins/models"
+	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/monitorables/jenkins/api/models"
+	"github.com/monitoror/monitoror/monitorables/jenkins/config"
 	pkgJenkins "github.com/monitoror/monitoror/pkg/gojenkins"
 	"github.com/monitoror/monitoror/pkg/gojenkins/mocks"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/gravatar"
@@ -17,12 +17,16 @@ import (
 )
 
 func initRepository(t *testing.T, buildsAPI pkgJenkins.Jenkins) *jenkinsRepository {
-	conf := InitConfig()
-	conf.Monitorable.Jenkins[DefaultVariant].URL = "http://jenkins.example.com"
-	conf.Monitorable.Jenkins[DefaultVariant].Login = "test"
-	conf.Monitorable.Jenkins[DefaultVariant].Token = "test"
+	conf := &config.Jenkins{
+		URL:             "http://jenkins.example.com",
+		Login:           "test",
+		Token:           "Test",
+		Timeout:         config.Default.Timeout,
+		SSLVerify:       config.Default.SSLVerify,
+		InitialMaxDelay: config.Default.InitialMaxDelay,
+	}
 
-	repository := NewJenkinsRepository(conf.Monitorable.Jenkins[DefaultVariant])
+	repository := NewJenkinsRepository(conf)
 
 	apiJenkinsRepository, ok := repository.(*jenkinsRepository)
 	if assert.True(t, ok) {
@@ -63,7 +67,7 @@ func TestRepository_GetJob_Success(t *testing.T) {
 		Return(jenkinsJob, nil)
 
 	// Expected
-	expectedJob := &jenkinsModels.Job{
+	expectedJob := &models.Job{
 		ID:        "test/job/master",
 		Buildable: true,
 		InQueue:   false,
@@ -96,7 +100,7 @@ func TestRepository_GetJob_SuccessWithQueue(t *testing.T) {
 
 	// Expected
 	date := parseDate(123456789)
-	expectedJob := &jenkinsModels.Job{
+	expectedJob := &models.Job{
 		ID:        "test/job/master",
 		Buildable: true,
 		InQueue:   true,
@@ -128,7 +132,7 @@ func TestRepository_GetJob_SuccessWithBranch(t *testing.T) {
 		Return(jenkinsJob, nil)
 
 	// Expected
-	expectedJob := &jenkinsModels.Job{
+	expectedJob := &models.Job{
 		ID:        "test/job/master",
 		Buildable: false,
 		InQueue:   false,
@@ -154,7 +158,7 @@ func TestRepository_GetLastBuildStatus_Error(t *testing.T) {
 
 	repository := initRepository(t, mocksJenkins)
 	if repository != nil {
-		build, err := repository.GetLastBuildStatus(&jenkinsModels.Job{ID: "test/job/master"})
+		build, err := repository.GetLastBuildStatus(&models.Job{ID: "test/job/master"})
 		assert.Error(t, err)
 		assert.Nil(t, build)
 		mocksJenkins.AssertNumberOfCalls(t, "GetLastBuildByJobId", 1)
@@ -186,10 +190,10 @@ func TestRepository_GetLastBuildStatus_Success(t *testing.T) {
 		Return(jenkinsBuild, nil)
 
 	// Expected
-	expectedBuild := &jenkinsModels.Build{
+	expectedBuild := &models.Build{
 		Number:   "1",
 		FullName: jenkinsBuild.FullDisplayName,
-		Author: &models.Author{
+		Author: &coreModels.Author{
 			Name:      jenkinsBuild.ChangeSets[0].Items[0].Author.FullName,
 			AvatarURL: gravatar.GetGravatarURL(jenkinsBuild.ChangeSets[0].Items[0].AuthorEmail),
 		},
@@ -202,7 +206,7 @@ func TestRepository_GetLastBuildStatus_Success(t *testing.T) {
 
 	repository := initRepository(t, mockJenkins)
 	if repository != nil {
-		build, err := repository.GetLastBuildStatus(&jenkinsModels.Job{ID: "test/job/master"})
+		build, err := repository.GetLastBuildStatus(&models.Job{ID: "test/job/master"})
 		assert.NoError(t, err)
 		assert.Equal(t, expectedBuild, build)
 		mockJenkins.AssertNumberOfCalls(t, "GetLastBuildByJobId", 1)

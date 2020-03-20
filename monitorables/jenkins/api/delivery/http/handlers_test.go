@@ -8,9 +8,9 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/jenkins"
-	"github.com/monitoror/monitoror/monitorable/jenkins/mocks"
+	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/monitorables/jenkins/api"
+	"github.com/monitoror/monitoror/monitorables/jenkins/api/mocks"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -33,8 +33,8 @@ func TestDelivery_GetBuild_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
-	tile := models.NewTile(jenkins.JenkinsBuildTileType)
-	tile.Status = models.SuccessStatus
+	tile := coreModels.NewTile(api.JenkinsBuildTileType)
+	tile.Status = coreModels.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)
 	mockUsecase.On("Build", Anything).Return(tile, nil)
@@ -64,7 +64,7 @@ func TestDelivery_GetBuild_QueryParamsError_MissingGroup(t *testing.T) {
 	// Test
 	err := handler.GetBuild(ctx)
 	assert.Error(t, err)
-	assert.IsType(t, &models.MonitororError{}, err)
+	assert.IsType(t, &coreModels.MonitororError{}, err)
 }
 
 func TestDelivery_GetBuild_Error(t *testing.T) {
