@@ -15,8 +15,8 @@ import (
 	. "github.com/stretchr/testify/mock"
 )
 
-func initTile(t *testing.T, rawConfig string) (tiles *models.Tile) {
-	tiles = &models.Tile{}
+func initTile(t *testing.T, rawConfig string) (tiles *models.TileConfig) {
+	tiles = &models.TileConfig{}
 
 	err := json.Unmarshal([]byte(rawConfig), &tiles)
 	assert.NoError(t, err)
@@ -27,7 +27,7 @@ func initTile(t *testing.T, rawConfig string) (tiles *models.Tile) {
 func TestUsecase_Verify_Success(t *testing.T) {
 	rawConfig := fmt.Sprintf(`
 {
-	"version" : "%s",
+	"version" : %q,
   "columns": 4,
   "tiles": [
 		{ "type": "EMPTY" }
@@ -47,7 +47,7 @@ func TestUsecase_Verify_Success(t *testing.T) {
 func TestUsecase_Verify_SuccessWithOptionalParameters(t *testing.T) {
 	rawConfig := fmt.Sprintf(`
 {
-	"version" : "%s",
+	"version" : %q,
   "columns": 4,
   "zoom": 2.5,
   "tiles": [
@@ -83,7 +83,7 @@ func TestUsecase_Verify_Failed(t *testing.T) {
 			errorData: models.ConfigErrorData{
 				FieldName: "version",
 				Value:     `"0.0"`,
-				Expected:  fmt.Sprintf(`"%s" >= version >= "%s"`, MinimalVersion, CurrentVersion),
+				Expected:  fmt.Sprintf(`%q >= version >= %q`, MinimalVersion, CurrentVersion),
 			},
 		},
 		{
@@ -92,18 +92,18 @@ func TestUsecase_Verify_Failed(t *testing.T) {
 			errorData: models.ConfigErrorData{
 				FieldName: "version",
 				Value:     `"999.999"`,
-				Expected:  fmt.Sprintf(`"%s" >= version >= "%s"`, MinimalVersion, CurrentVersion),
+				Expected:  fmt.Sprintf(`%q >= version >= %q`, MinimalVersion, CurrentVersion),
 			},
 		},
 		{
-			rawConfig: fmt.Sprintf(`{"version": "%s", "tiles": [{ "type": "EMPTY" }]}`, CurrentVersion),
+			rawConfig: fmt.Sprintf(`{"version": %q, "tiles": [{ "type": "EMPTY" }]}`, CurrentVersion),
 			errorID:   models.ConfigErrorMissingRequiredField,
 			errorData: models.ConfigErrorData{
 				FieldName: "columns",
 			},
 		},
 		{
-			rawConfig: fmt.Sprintf(`{"version": "%s", "columns": 0, "tiles": [{ "type": "EMPTY" }]}`, CurrentVersion),
+			rawConfig: fmt.Sprintf(`{"version": %q, "columns": 0, "tiles": [{ "type": "EMPTY" }]}`, CurrentVersion),
 			errorID:   models.ConfigErrorInvalidFieldValue,
 			errorData: models.ConfigErrorData{
 				FieldName: "columns",
@@ -112,7 +112,7 @@ func TestUsecase_Verify_Failed(t *testing.T) {
 			},
 		},
 		{
-			rawConfig: fmt.Sprintf(`{"version": "%s", "columns": 1, "zoom": 0, "tiles": [{ "type": "EMPTY" }]}`, CurrentVersion),
+			rawConfig: fmt.Sprintf(`{"version": %q, "columns": 1, "zoom": 0, "tiles": [{ "type": "EMPTY" }]}`, CurrentVersion),
 			errorID:   models.ConfigErrorInvalidFieldValue,
 			errorData: models.ConfigErrorData{
 				FieldName: "zoom",
@@ -121,7 +121,7 @@ func TestUsecase_Verify_Failed(t *testing.T) {
 			},
 		},
 		{
-			rawConfig: fmt.Sprintf(`{"version": "%s", "columns": 1, "zoom": 20, "tiles": [{ "type": "EMPTY" }]}`, CurrentVersion),
+			rawConfig: fmt.Sprintf(`{"version": %q, "columns": 1, "zoom": 20, "tiles": [{ "type": "EMPTY" }]}`, CurrentVersion),
 			errorID:   models.ConfigErrorInvalidFieldValue,
 			errorData: models.ConfigErrorData{
 				FieldName: "zoom",
@@ -130,18 +130,18 @@ func TestUsecase_Verify_Failed(t *testing.T) {
 			},
 		},
 		{
-			rawConfig: fmt.Sprintf(`{"version": "%s", "columns": 1}`, CurrentVersion),
+			rawConfig: fmt.Sprintf(`{"version": %q, "columns": 1}`, CurrentVersion),
 			errorID:   models.ConfigErrorMissingRequiredField,
 			errorData: models.ConfigErrorData{
 				FieldName: "tiles",
 			},
 		},
 		{
-			rawConfig: fmt.Sprintf(`{"version": "%s", "columns": 1, "tiles": []}`, CurrentVersion),
+			rawConfig: fmt.Sprintf(`{"version": %q, "columns": 1, "tiles": []}`, CurrentVersion),
 			errorID:   models.ConfigErrorInvalidFieldValue,
 			errorData: models.ConfigErrorData{
 				FieldName:     "tiles",
-				ConfigExtract: fmt.Sprintf(`{"version":"%s","columns":1,"tiles":[]}`, CurrentVersion),
+				ConfigExtract: fmt.Sprintf(`{"version":%q,"columns":1,"tiles":[]}`, CurrentVersion),
 			},
 		},
 	} {
@@ -202,7 +202,7 @@ func TestUsecase_VerifyTile_Failed(t *testing.T) {
 		errorData models.ConfigErrorData
 	}{
 		{
-			rawConfig: `{ "type": "PING", "columnSpan": -1, "params": { "host": "server.com" } }`,
+			rawConfig: `{ "type": "PING", "columnSpan": -1, "params": { "hostname": "server.com" } }`,
 			errorID:   models.ConfigErrorInvalidFieldValue,
 			errorData: models.ConfigErrorData{
 				FieldName: "columnSpan",
@@ -211,7 +211,7 @@ func TestUsecase_VerifyTile_Failed(t *testing.T) {
 			},
 		},
 		{
-			rawConfig: `{ "type": "PING", "rowSpan": -1, "params": { "host": "server.com" } }`,
+			rawConfig: `{ "type": "PING", "rowSpan": -1, "params": { "hostname": "server.com" } }`,
 			errorID:   models.ConfigErrorInvalidFieldValue,
 			errorData: models.ConfigErrorData{
 				FieldName: "rowSpan",
@@ -276,11 +276,20 @@ func TestUsecase_VerifyTile_Failed(t *testing.T) {
 			},
 		},
 		{
-			rawConfig: `{ "type": "PING", "params": { "host": "server.com" } }`,
+			rawConfig: `{ "type": "PING", "params": { } }`,
 			errorID:   models.ConfigErrorInvalidFieldValue,
 			errorData: models.ConfigErrorData{
 				FieldName:     "params",
+				ConfigExtract: `{"type":"PING","configVariant":"default"}`,
+			},
+		},
+		{
+			rawConfig: `{ "type": "PING", "params": { "host": "server.com" } }`,
+			errorID:   models.ConfigErrorUnknownField,
+			errorData: models.ConfigErrorData{
+				FieldName:     "host",
 				ConfigExtract: `{"type":"PING","params":{"host":"server.com"},"configVariant":"default"}`,
+				Expected:      "hostname",
 			},
 		},
 		{

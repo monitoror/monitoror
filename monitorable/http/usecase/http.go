@@ -82,7 +82,7 @@ func (hu *httpUsecase) httpAll(tileType models.TileType, url string, params inte
 	var content string
 	var match bool
 
-	if formattedDataProvider, ok := params.(httpModels.FormatedDataProvider); ok {
+	if formattedDataProvider, ok := params.(httpModels.FormattedDataProvider); ok {
 		// Convert XML to JSON if Format == XML
 		if formattedDataProvider.GetFormat() == httpModels.XMLFormat {
 			buffer, err := xml2json.Convert(bytes.NewReader(response.Body))
@@ -114,7 +114,7 @@ func (hu *httpUsecase) httpAll(tileType models.TileType, url string, params inte
 		// Lookup a key
 		if match, content = lookupKey(formattedDataProvider, data); !match {
 			tile.Status = models.FailedStatus
-			tile.Message = fmt.Sprintf(`unable to lookup for key "%s"`, formattedDataProvider.GetKey())
+			tile.Message = fmt.Sprintf(`unable to lookup for key %q`, formattedDataProvider.GetKey())
 			return tile, nil
 		}
 	} else {
@@ -194,7 +194,7 @@ func matchRegex(params httpModels.RegexProvider, str string) (bool, string) {
 
 // extractValue extract value from interface{} (json/yaml/...)
 // the key is in doted format like this ".bloc1."bloc.2".[2].value"
-func lookupKey(params httpModels.FormatedDataProvider, data interface{}) (bool, string) {
+func lookupKey(params httpModels.FormattedDataProvider, data interface{}) (bool, string) {
 	// split key
 	matchedString := KeySplitterRegex.FindAllStringSubmatch(params.GetKey(), -1)
 

@@ -65,9 +65,9 @@ func TestHTTPParams_GetRegex(t *testing.T) {
 	}
 }
 
-func TestHTTPFormattedParams_FormatedDataProvider(t *testing.T) {
+func TestHTTPFormattedParams_FormattedDataProvider(t *testing.T) {
 	for _, testcase := range []struct {
-		params         FormatedDataProvider
+		params         FormattedDataProvider
 		expectedFormat string
 		expectedKey    string
 	}{

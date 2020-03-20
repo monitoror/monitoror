@@ -17,7 +17,7 @@ func (cu *configUsecase) Hydrate(configBag *models.ConfigBag) {
 	cu.hydrateTiles(configBag, &configBag.Config.Tiles)
 }
 
-func (cu *configUsecase) hydrateTiles(configBag *models.ConfigBag, tiles *[]models.Tile) {
+func (cu *configUsecase) hydrateTiles(configBag *models.ConfigBag, tiles *[]models.TileConfig) {
 	for i := 0; i < len(*tiles); i++ {
 		tile := &((*tiles)[i])
 		if tile.Type != EmptyTileType && tile.Type != GroupTileType {
@@ -46,7 +46,7 @@ func (cu *configUsecase) hydrateTiles(configBag *models.ConfigBag, tiles *[]mode
 	}
 }
 
-func (cu *configUsecase) hydrateTile(configBag *models.ConfigBag, tile *models.Tile) {
+func (cu *configUsecase) hydrateTile(configBag *models.ConfigBag, tile *models.TileConfig) {
 	// Empty tile, skip
 	if tile.Type == EmptyTileType {
 		return
@@ -81,7 +81,7 @@ func (cu *configUsecase) hydrateTile(configBag *models.ConfigBag, tile *models.T
 	tile.ConfigVariant = ""
 }
 
-func (cu *configUsecase) hydrateDynamicTile(configBag *models.ConfigBag, tile *models.Tile) []models.Tile {
+func (cu *configUsecase) hydrateDynamicTile(configBag *models.ConfigBag, tile *models.TileConfig) []models.TileConfig {
 	dynamicTileConfig := cu.dynamicTileConfigs[tile.Type][tile.ConfigVariant]
 
 	// Create new validator by reflexion
@@ -121,9 +121,9 @@ func (cu *configUsecase) hydrateDynamicTile(configBag *models.ConfigBag, tile *m
 		_ = cu.dynamicTileStore.Set(cacheKey, results, cu.downstreamStoreExpiration)
 	}
 
-	var tiles []models.Tile
+	var tiles []models.TileConfig
 	for _, result := range results {
-		newTile := models.Tile{
+		newTile := models.TileConfig{
 			Type:          result.TileType,
 			Label:         result.Label,
 			Params:        result.Params,

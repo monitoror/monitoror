@@ -25,11 +25,11 @@ func (cu *configUsecase) Verify(configBag *models.ConfigBag) {
 	if configBag.Config.Version.IsLessThan(MinimalVersion) || configBag.Config.Version.IsGreaterThan(CurrentVersion) {
 		configBag.AddErrors(models.ConfigError{
 			ID:      models.ConfigErrorUnsupportedVersion,
-			Message: fmt.Sprintf(`Unsupported configuration version. Minimal supported version is "%s". Current config version is: "%s"`, MinimalVersion, CurrentVersion),
+			Message: fmt.Sprintf(`Unsupported configuration version. Minimal supported version is %q. Current config version is: %q`, MinimalVersion, CurrentVersion),
 			Data: models.ConfigErrorData{
 				FieldName: "version",
 				Value:     stringify(configBag.Config.Version),
-				Expected:  fmt.Sprintf(`"%s" >= version >= "%s"`, MinimalVersion, CurrentVersion),
+				Expected:  fmt.Sprintf(`%q >= version >= %q`, MinimalVersion, CurrentVersion),
 			},
 		})
 		return
@@ -92,7 +92,7 @@ func (cu *configUsecase) Verify(configBag *models.ConfigBag) {
 	}
 }
 
-func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Tile, groupTile *models.Tile) {
+func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.TileConfig, groupTile *models.TileConfig) {
 	if tile.ColumnSpan != nil && *tile.ColumnSpan <= 0 {
 		configBag.AddErrors(models.ConfigError{
 			ID:      models.ConfigErrorInvalidFieldValue,
@@ -123,7 +123,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 		if groupTile != nil {
 			configBag.AddErrors(models.ConfigError{
 				ID:      models.ConfigErrorUnauthorizedSubtileType,
-				Message: fmt.Sprintf(`Unauthorized "%s" type in %s tile.`, EmptyTileType, GroupTileType),
+				Message: fmt.Sprintf(`Unauthorized %q type in %s tile.`, EmptyTileType, GroupTileType),
 				Data: models.ConfigErrorData{
 					ConfigExtract:          stringify(groupTile),
 					ConfigExtractHighlight: stringify(tile),
@@ -138,7 +138,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 		if groupTile != nil {
 			configBag.AddErrors(models.ConfigError{
 				ID:      models.ConfigErrorUnauthorizedSubtileType,
-				Message: fmt.Sprintf(`Unauthorized "%s" type in %s tile.`, GroupTileType, GroupTileType),
+				Message: fmt.Sprintf(`Unauthorized %q type in %s tile.`, GroupTileType, GroupTileType),
 				Data: models.ConfigErrorData{
 					ConfigExtract:          stringify(groupTile),
 					ConfigExtractHighlight: stringify(tile),
@@ -190,7 +190,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 	if _, exists := cu.tileConfigs[tile.Type]; !exists {
 		configBag.AddErrors(models.ConfigError{
 			ID:      models.ConfigErrorUnknownTileType,
-			Message: fmt.Sprintf(`Unknown "%s" type in tile definition. Must be %s`, tile.Type, keys(cu.tileConfigs)),
+			Message: fmt.Sprintf(`Unknown %q type in tile definition. Must be %s`, tile.Type, keys(cu.tileConfigs)),
 			Data: models.ConfigErrorData{
 				FieldName:     "type",
 				ConfigExtract: stringify(tile),
@@ -226,7 +226,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 		if !exists {
 			configBag.AddErrors(models.ConfigError{
 				ID: models.ConfigErrorUnknownVariant,
-				Message: fmt.Sprintf(`Unknown "%s" variant for %s type in tile definition. Must be %s`,
+				Message: fmt.Sprintf(`Unknown %q variant for %s type in tile definition. Must be %s`,
 					tile.ConfigVariant, tile.Type, keys(cu.tileConfigs[tile.Type])),
 				Data: models.ConfigErrorData{
 					FieldName:     "configVariant",
@@ -242,7 +242,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 		if !exists {
 			configBag.AddErrors(models.ConfigError{
 				ID: models.ConfigErrorUnknownVariant,
-				Message: fmt.Sprintf(`Unknown "%s" variant for %s dynamic type in tile definition. Must be %s`,
+				Message: fmt.Sprintf(`Unknown %q variant for %s dynamic type in tile definition. Must be %s`,
 					tile.ConfigVariant, tile.Type, keys(cu.dynamicTileConfigs[tile.Type])),
 				Data: models.ConfigErrorData{
 					FieldName:     "configVariant",
@@ -260,13 +260,34 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 	rInstance := reflect.New(rType.Elem()).Interface()
 
 	// Marshal / Unmarshal the map[string]interface{} struct in new instance of Validator
-	bParams, _ := json.Marshal(tile.Params)
-	unmarshalErr := json.Unmarshal(bParams, &rInstance)
+	bytesParams, _ := json.Marshal(tile.Params)
+	unmarshalErr := json.Unmarshal(bytesParams, &rInstance)
+
+	// Marshal / Unmarshal instance of validator into map[string]interface{} to identify unknown fields
+	structParams := make(map[string]interface{})
+	bytesParamInstance, _ := json.Marshal(rInstance)
+	_ = json.Unmarshal(bytesParamInstance, &structParams)
+
+	// Check if struct has unknown fields
+	for field := range tile.Params {
+		if _, ok := structParams[field]; !ok {
+			configBag.AddErrors(models.ConfigError{
+				ID:      models.ConfigErrorUnknownField,
+				Message: fmt.Sprintf(`Unknown %q tile params field.`, field),
+				Data: models.ConfigErrorData{
+					FieldName:     field,
+					ConfigExtract: stringify(tile),
+					Expected:      keys(structParams),
+				},
+			})
+			return
+		}
+	}
 
 	if unmarshalErr != nil || !rInstance.(utils.Validator).IsValid() {
 		configBag.AddErrors(models.ConfigError{
 			ID:      models.ConfigErrorInvalidFieldValue,
-			Message: fmt.Sprintf(`Invalid params definition for "%s": "%s".`, tile.Type, string(bParams)),
+			Message: fmt.Sprintf(`Invalid params definition for %q: %q.`, tile.Type, string(bytesParams)),
 			Data: models.ConfigErrorData{
 				FieldName:     "params",
 				ConfigExtract: stringify(tile),

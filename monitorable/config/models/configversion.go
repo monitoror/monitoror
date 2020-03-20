@@ -22,7 +22,7 @@ func (v *ConfigVersion) String() string {
 }
 
 func (v *ConfigVersion) MarshalJSON() ([]byte, error) {
-	return []byte(fmt.Sprintf(`"%s"`, v.String())), nil
+	return []byte(fmt.Sprintf(`%q`, v.String())), nil
 }
 
 func (v *ConfigVersion) UnmarshalJSON(data []byte) error {
@@ -66,11 +66,12 @@ func (v *ConfigVersion) IsLessThanOrEqualTo(v2Str string) bool {
 }
 
 func parseVersion(version string) *ConfigVersion {
+	// Hack to use "X.Y" in test or code instead of "\"X.Y"\"
 	version = strings.ReplaceAll(fmt.Sprintf(`"%s"`, version), `""`, `"`)
 	v := &ConfigVersion{}
 	err := v.UnmarshalJSON([]byte(version))
 	if err != nil {
-		panic(fmt.Sprintf(`Invalid version format used in configversion comparaison function "%s", %v`, version, err))
+		panic(fmt.Sprintf(`Invalid version format used in configversion comparaison function %q, %v`, version, err))
 	}
 
 	return v
