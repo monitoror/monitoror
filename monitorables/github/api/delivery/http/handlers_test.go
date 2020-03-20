@@ -9,8 +9,8 @@ import (
 	"testing"
 
 	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/github"
-	"github.com/monitoror/monitoror/monitorable/github/mocks"
+	"github.com/monitoror/monitoror/monitorables/github/api"
+	"github.com/monitoror/monitoror/monitorables/github/api/mocks"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -32,7 +32,7 @@ func TestDelivery_GetCount_Success(t *testing.T) {
 
 	ctx.QueryParams().Set("query", "test")
 
-	tile := models.NewTile(github.GithubCountTileType)
+	tile := models.NewTile(api.GithubCountTileType)
 	tile.Status = models.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)
@@ -96,7 +96,7 @@ func TestDelivery_GetChecks_Success(t *testing.T) {
 	ctx.QueryParams().Set("repository", "test")
 	ctx.QueryParams().Set("ref", "master")
 
-	tile := models.NewTile(github.GithubChecksTileType)
+	tile := models.NewTile(api.GithubChecksTileType)
 	tile.Status = models.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)

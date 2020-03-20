@@ -3,27 +3,27 @@ package http
 import (
 	"net/http"
 
-	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/github"
-	githubModels "github.com/monitoror/monitoror/monitorable/github/models"
+	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/monitorables/github/api"
+	"github.com/monitoror/monitoror/monitorables/github/api/models"
 
 	"github.com/labstack/echo/v4"
 )
 
 type GithubDelivery struct {
-	githubUsecase github.Usecase
+	githubUsecase api.Usecase
 }
 
-func NewGithubDelivery(p github.Usecase) *GithubDelivery {
+func NewGithubDelivery(p api.Usecase) *GithubDelivery {
 	return &GithubDelivery{p}
 }
 
 func (h *GithubDelivery) GetCount(c echo.Context) error {
 	// Bind / check Params
-	params := &githubModels.CountParams{}
+	params := &models.CountParams{}
 	err := c.Bind(params)
 	if err != nil || !params.IsValid() {
-		return models.QueryParamsError
+		return coreModels.QueryParamsError
 	}
 
 	tile, err := h.githubUsecase.Count(params)
@@ -36,10 +36,10 @@ func (h *GithubDelivery) GetCount(c echo.Context) error {
 
 func (h *GithubDelivery) GetChecks(c echo.Context) error {
 	// Bind / check Params
-	params := &githubModels.ChecksParams{}
+	params := &models.ChecksParams{}
 	err := c.Bind(params)
 	if err != nil || !params.IsValid() {
-		return models.QueryParamsError
+		return coreModels.QueryParamsError
 	}
 
 	tile, err := h.githubUsecase.Checks(params)

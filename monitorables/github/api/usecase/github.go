@@ -7,9 +7,9 @@ import (
 	"sort"
 	"time"
 
-	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/github"
-	githubModels "github.com/monitoror/monitoror/monitorable/github/models"
+	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/monitorables/github/api"
+	"github.com/monitoror/monitoror/monitorables/github/api/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/builder"
 	"github.com/monitoror/monitoror/pkg/monitoror/cache"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
@@ -20,62 +20,62 @@ import (
 
 type (
 	githubUsecase struct {
-		repository github.Repository
+		repository api.Repository
 
 		// builds cache. used for save small history of build for stats
 		buildsCache *cache.BuildCache
 	}
 )
 
-var orderedTileStatus = map[models.TileStatus]int{
-	models.RunningStatus:        0,
-	models.FailedStatus:         1,
-	models.WarningStatus:        2,
-	models.CanceledStatus:       3,
-	models.ActionRequiredStatus: 4,
-	models.QueuedStatus:         5,
-	models.SuccessStatus:        6,
-	models.DisabledStatus:       7,
-	models.UnknownStatus:        8,
+var orderedTileStatus = map[coreModels.TileStatus]int{
+	coreModels.RunningStatus:        0,
+	coreModels.FailedStatus:         1,
+	coreModels.WarningStatus:        2,
+	coreModels.CanceledStatus:       3,
+	coreModels.ActionRequiredStatus: 4,
+	coreModels.QueuedStatus:         5,
+	coreModels.SuccessStatus:        6,
+	coreModels.DisabledStatus:       7,
+	coreModels.UnknownStatus:        8,
 }
 
 const buildCacheSize = 5
 
-func NewGithubUsecase(repository github.Repository) github.Usecase {
+func NewGithubUsecase(repository api.Repository) api.Usecase {
 	return &githubUsecase{
 		repository,
 		cache.NewBuildCache(buildCacheSize),
 	}
 }
 
-func (gu *githubUsecase) Count(params *githubModels.CountParams) (*models.Tile, error) {
-	tile := models.NewTile(github.GithubCountTileType).WithValue(models.NumberUnit)
+func (gu *githubUsecase) Count(params *models.CountParams) (*coreModels.Tile, error) {
+	tile := coreModels.NewTile(api.GithubCountTileType).WithValue(coreModels.NumberUnit)
 	tile.Label = params.Query
 
 	count, err := gu.repository.GetCount(params.Query)
 	if err != nil {
-		return nil, &models.MonitororError{Err: err, Tile: tile, Message: "unable to find count or wrong query"}
+		return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: "unable to find count or wrong query"}
 	}
 
-	tile.Status = models.SuccessStatus
+	tile.Status = coreModels.SuccessStatus
 	tile.Value.Values = append(tile.Value.Values, fmt.Sprintf("%d", count))
 
 	return tile, nil
 }
 
-func (gu *githubUsecase) Checks(params *githubModels.ChecksParams) (*models.Tile, error) {
-	tile := models.NewTile(github.GithubChecksTileType).WithBuild()
+func (gu *githubUsecase) Checks(params *models.ChecksParams) (*coreModels.Tile, error) {
+	tile := coreModels.NewTile(api.GithubChecksTileType).WithBuild()
 	tile.Label = params.Repository
 	tile.Build.Branch = pointer.ToString(git.HumanizeBranch(params.Ref))
 
 	// Request
 	checks, err := gu.repository.GetChecks(params.Owner, params.Repository, params.Ref)
 	if err != nil {
-		return nil, &models.MonitororError{Err: err, Tile: tile, Message: "unable to find ref checks"}
+		return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: "unable to find ref checks"}
 	}
 	if len(checks.Statuses) == 0 && len(checks.Runs) == 0 {
 		// Warning because request was correct but there is no build
-		return nil, &models.MonitororError{Tile: tile, Message: "no ref checks found", ErrorStatus: models.UnknownStatus}
+		return nil, &coreModels.MonitororError{Tile: tile, Message: "no ref checks found", ErrorStatus: coreModels.UnknownStatus}
 	}
 
 	var startedAt, finishedAt *time.Time
@@ -87,14 +87,14 @@ func (gu *githubUsecase) Checks(params *githubModels.ChecksParams) (*models.Tile
 	if previousStatus != nil {
 		tile.Build.PreviousStatus = *previousStatus
 	} else {
-		tile.Build.PreviousStatus = models.UnknownStatus
+		tile.Build.PreviousStatus = coreModels.UnknownStatus
 	}
 
 	// Author
-	if tile.Status == models.FailedStatus && checks.HeadCommit != nil {
+	if tile.Status == coreModels.FailedStatus && checks.HeadCommit != nil {
 		commit, err := gu.repository.GetCommit(params.Owner, params.Repository, *checks.HeadCommit)
 		if err == nil {
-			tile.Build.Author = &models.Author{
+			tile.Build.Author = &coreModels.Author{
 				Name:      commit.Author.Name,
 				AvatarURL: commit.Author.AvatarURL,
 			}
@@ -103,12 +103,12 @@ func (gu *githubUsecase) Checks(params *githubModels.ChecksParams) (*models.Tile
 
 	// StartedAt / FinishedAt
 	tile.Build.StartedAt = startedAt
-	if tile.Status != models.RunningStatus && tile.Status != models.QueuedStatus {
+	if tile.Status != coreModels.RunningStatus && tile.Status != coreModels.QueuedStatus {
 		tile.Build.FinishedAt = finishedAt
 	}
 
 	// Duration
-	if tile.Status == models.RunningStatus {
+	if tile.Status == coreModels.RunningStatus {
 		tile.Build.Duration = pointer.ToInt64(int64(time.Since(*tile.Build.StartedAt).Seconds()))
 
 		estimatedDuration := gu.buildsCache.GetEstimatedDuration(params)
@@ -120,7 +120,7 @@ func (gu *githubUsecase) Checks(params *githubModels.ChecksParams) (*models.Tile
 	}
 
 	// Cache Duration when success / failed
-	if tile.Status == models.SuccessStatus || tile.Status == models.FailedStatus || tile.Status == models.WarningStatus {
+	if tile.Status == coreModels.SuccessStatus || tile.Status == coreModels.FailedStatus || tile.Status == coreModels.WarningStatus {
 		gu.buildsCache.Add(params, id, tile.Status, tile.Build.FinishedAt.Sub(*tile.Build.StartedAt))
 	}
 
@@ -128,11 +128,11 @@ func (gu *githubUsecase) Checks(params *githubModels.ChecksParams) (*models.Tile
 }
 
 func (gu *githubUsecase) PullRequests(params interface{}) ([]builder.Result, error) {
-	prParams := params.(*githubModels.PullRequestParams)
+	prParams := params.(*models.PullRequestParams)
 
 	pullRequests, err := gu.repository.GetPullRequests(prParams.Owner, prParams.Repository)
 	if err != nil {
-		return nil, &models.MonitororError{Err: err, Message: "unable to find pull request"}
+		return nil, &coreModels.MonitororError{Err: err, Message: "unable to find pull request"}
 	}
 
 	var results []builder.Result
@@ -143,7 +143,7 @@ func (gu *githubUsecase) PullRequests(params interface{}) ([]builder.Result, err
 		p["ref"] = pullRequest.Ref
 
 		results = append(results, builder.Result{
-			TileType: github.GithubChecksTileType,
+			TileType: api.GithubChecksTileType,
 			Label:    fmt.Sprintf("PR#%d @ %s", pullRequest.ID, pullRequest.Repository),
 			Params:   p,
 		})
@@ -152,8 +152,8 @@ func (gu *githubUsecase) PullRequests(params interface{}) ([]builder.Result, err
 	return results, nil
 }
 
-func computeChecks(refStatus *githubModels.Checks) (models.TileStatus, *time.Time, *time.Time, string) {
-	var statuses []models.TileStatus
+func computeChecks(refStatus *models.Checks) (coreModels.TileStatus, *time.Time, *time.Time, string) {
+	var statuses []coreModels.TileStatus
 	var startedAt *time.Time = nil
 	var finishedAt *time.Time = nil
 	var ids = ""
@@ -197,51 +197,51 @@ func computeChecks(refStatus *githubModels.Checks) (models.TileStatus, *time.Tim
 
 	ids = hash.GetMD5Hash(ids)
 	if len(statuses) == 0 {
-		return models.UnknownStatus, nil, nil, ids
+		return coreModels.UnknownStatus, nil, nil, ids
 	}
 
 	return statuses[0], startedAt, finishedAt, ids
 }
 
-func parseRun(run *githubModels.Run) models.TileStatus {
+func parseRun(run *models.Run) coreModels.TileStatus {
 	// Based on : https://developer.github.com/v3/checks/runs/
 	switch run.Status {
 	case "in_progress":
-		return models.RunningStatus
+		return coreModels.RunningStatus
 	case "queued":
-		return models.QueuedStatus
+		return coreModels.QueuedStatus
 	case "completed":
 		switch run.Conclusion {
 		case "success":
-			return models.SuccessStatus
+			return coreModels.SuccessStatus
 		case "failure":
-			return models.FailedStatus
+			return coreModels.FailedStatus
 		case "timed_out":
-			return models.FailedStatus
+			return coreModels.FailedStatus
 		case "neutral":
-			return models.WarningStatus
+			return coreModels.WarningStatus
 		case "cancelled":
-			return models.CanceledStatus
+			return coreModels.CanceledStatus
 		case "action_required":
-			return models.ActionRequiredStatus
+			return coreModels.ActionRequiredStatus
 		}
 	}
 
-	return models.UnknownStatus
+	return coreModels.UnknownStatus
 }
 
-func parseStatus(status *githubModels.Status) models.TileStatus {
+func parseStatus(status *models.Status) coreModels.TileStatus {
 	// Based on : https://developer.github.com/v3/repos/statuses/
 	switch status.State {
 	case "success":
-		return models.SuccessStatus
+		return coreModels.SuccessStatus
 	case "failure":
-		return models.FailedStatus
+		return coreModels.FailedStatus
 	case "error":
-		return models.FailedStatus
+		return coreModels.FailedStatus
 	case "pending":
-		return models.RunningStatus
+		return coreModels.RunningStatus
 	}
 
-	return models.UnknownStatus
+	return coreModels.UnknownStatus
 }

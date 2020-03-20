@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/monitoror/monitoror/models"
+	coreModels "github.com/monitoror/monitoror/models"
 )
 
 type (
@@ -18,12 +18,12 @@ type (
 		AuthorName      string `json:"authorName" query:"authorName"`
 		AuthorAvatarURL string `json:"authorAvatarURL" query:"authorAvatarURL"`
 
-		Status            models.TileStatus `json:"status" query:"status"`
-		PreviousStatus    models.TileStatus `json:"previousStatus" query:"previousStatus"`
-		StartedAt         time.Time         `json:"startedAt" query:"startedAt"`
-		FinishedAt        time.Time         `json:"finishedAt" query:"finishedAt"`
-		Duration          int64             `json:"duration" query:"duration"`
-		EstimatedDuration int64             `json:"estimatedDuration" query:"estimatedDuration"`
+		Status            coreModels.TileStatus `json:"status" query:"status"`
+		PreviousStatus    coreModels.TileStatus `json:"previousStatus" query:"previousStatus"`
+		StartedAt         time.Time             `json:"startedAt" query:"startedAt"`
+		FinishedAt        time.Time             `json:"finishedAt" query:"finishedAt"`
+		Duration          int64                 `json:"duration" query:"duration"`
+		EstimatedDuration int64                 `json:"estimatedDuration" query:"estimatedDuration"`
 	}
 )
 

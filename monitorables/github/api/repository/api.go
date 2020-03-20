@@ -6,10 +6,10 @@ import (
 	"strings"
 	"time"
 
-	"github.com/monitoror/monitoror/config"
-	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/github"
-	githubModels "github.com/monitoror/monitoror/monitorable/github/models"
+	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/monitorables/github/api"
+	"github.com/monitoror/monitoror/monitorables/github/api/models"
+	"github.com/monitoror/monitoror/monitorables/github/config"
 	"github.com/monitoror/monitoror/pkg/gogithub"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/gravatar"
 
@@ -30,7 +30,7 @@ type (
 	}
 )
 
-func NewGithubRepository(config *config.Github) github.Repository {
+func NewGithubRepository(config *config.Github) api.Repository {
 	httpClient := &http.Client{
 		Transport: &oauth2.Transport{
 			// Use NewMemoryCacheTransport to save github rate limit
@@ -62,8 +62,8 @@ func (gr *githubRepository) GetCount(query string) (int, error) {
 	return issuesResult.GetTotal(), err
 }
 
-func (gr *githubRepository) GetChecks(owner, repository, ref string) (*githubModels.Checks, error) {
-	checks := &githubModels.Checks{Runs: []githubModels.Run{}, Statuses: []githubModels.Status{}}
+func (gr *githubRepository) GetChecks(owner, repository, ref string) (*models.Checks, error) {
+	checks := &models.Checks{Runs: []models.Run{}, Statuses: []models.Status{}}
 
 	checkRuns, _, err := gr.checksService.ListCheckRunsForRef(context.TODO(), owner, repository, ref, nil)
 	if err != nil {
@@ -72,7 +72,7 @@ func (gr *githubRepository) GetChecks(owner, repository, ref string) (*githubMod
 
 	for _, checkRun := range checkRuns.CheckRuns {
 		if checkRun.Name != nil && checkRun.Status != nil {
-			run := githubModels.Run{
+			run := models.Run{
 				ID:         checkRun.GetID(),
 				Title:      checkRun.GetName(),
 				Status:     checkRun.GetStatus(),
@@ -99,7 +99,7 @@ func (gr *githubRepository) GetChecks(owner, repository, ref string) (*githubMod
 
 	for _, repoStatus := range repoStatuses {
 		if repoStatus.Context != nil && repoStatus.State != nil && repoStatus.CreatedAt != nil && repoStatus.UpdatedAt != nil {
-			status := githubModels.Status{
+			status := models.Status{
 				ID:        repoStatus.GetID(),
 				Title:     repoStatus.GetContext(),
 				State:     repoStatus.GetState(),
@@ -121,15 +121,15 @@ func (gr *githubRepository) GetChecks(owner, repository, ref string) (*githubMod
 	return checks, nil
 }
 
-func (gr *githubRepository) GetPullRequests(owner, repository string) ([]githubModels.PullRequest, error) {
+func (gr *githubRepository) GetPullRequests(owner, repository string) ([]models.PullRequest, error) {
 	pullRequests, _, err := gr.pullRequestService.List(context.TODO(), owner, repository, nil)
 	if err != nil {
 		return nil, err
 	}
 
-	var result []githubModels.PullRequest
+	var result []models.PullRequest
 	for _, pullRequest := range pullRequests {
-		pr := githubModels.PullRequest{
+		pr := models.PullRequest{
 			ID:         pullRequest.GetNumber(),
 			Owner:      owner,
 			Repository: repository,
@@ -142,15 +142,15 @@ func (gr *githubRepository) GetPullRequests(owner, repository string) ([]githubM
 	return result, nil
 }
 
-func (gr *githubRepository) GetCommit(owner, repository, sha string) (*githubModels.Commit, error) {
+func (gr *githubRepository) GetCommit(owner, repository, sha string) (*models.Commit, error) {
 	commit, _, err := gr.gitService.GetCommit(context.TODO(), owner, repository, sha)
 	if err != nil {
 		return nil, err
 	}
 
-	result := &githubModels.Commit{
+	result := &models.Commit{
 		SHA: sha,
-		Author: &models.Author{
+		Author: &coreModels.Author{
 			Name:      commit.Author.GetName(),
 			AvatarURL: gravatar.GetGravatarURL(commit.Author.GetEmail()),
 		},

@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/monitorables/github/config"
 	"github.com/monitoror/monitoror/pkg/gogithub/mocks"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/gravatar"
 
@@ -16,10 +16,14 @@ import (
 )
 
 func initRepository(t *testing.T) *githubRepository {
-	conf := config.InitConfig()
-	conf.Monitorable.Github[config.DefaultVariant].Token = "test"
+	conf := &config.Github{
+		Timeout:              1000,
+		Token:                "xxx",
+		CountCacheExpiration: 10000,
+		InitialMaxDelay:      1000,
+	}
 
-	repository := NewGithubRepository(conf.Monitorable.Github[config.DefaultVariant])
+	repository := NewGithubRepository(conf)
 
 	apiGithubRepository, ok := repository.(*githubRepository)
 	if assert.True(t, ok) {

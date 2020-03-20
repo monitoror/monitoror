@@ -7,15 +7,15 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/AlekSi/pointer"
-	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/github"
-	githubModels "github.com/monitoror/monitoror/monitorable/github/models"
+	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/monitorables/github/api"
+	"github.com/monitoror/monitoror/monitorables/github/api/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/builder"
 	"github.com/monitoror/monitoror/pkg/monitoror/faker"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
 
+	"github.com/AlekSi/pointer"
 	cmap "github.com/orcaman/concurrent-map"
 )
 
@@ -26,25 +26,25 @@ type (
 )
 
 var availableBuildStatus = faker.Statuses{
-	{models.SuccessStatus, time.Second * 30},
-	{models.FailedStatus, time.Second * 30},
-	{models.CanceledStatus, time.Second * 20},
-	{models.RunningStatus, time.Second * 60},
-	{models.QueuedStatus, time.Second * 30},
-	{models.WarningStatus, time.Second * 20},
-	{models.DisabledStatus, time.Second * 20},
-	{models.ActionRequiredStatus, time.Second * 20},
+	{coreModels.SuccessStatus, time.Second * 30},
+	{coreModels.FailedStatus, time.Second * 30},
+	{coreModels.CanceledStatus, time.Second * 20},
+	{coreModels.RunningStatus, time.Second * 60},
+	{coreModels.QueuedStatus, time.Second * 30},
+	{coreModels.WarningStatus, time.Second * 20},
+	{coreModels.DisabledStatus, time.Second * 20},
+	{coreModels.ActionRequiredStatus, time.Second * 20},
 }
 
-func NewGithubUsecase() github.Usecase {
+func NewGithubUsecase() api.Usecase {
 	return &githubUsecase{cmap.New()}
 }
 
-func (gu *githubUsecase) Count(params *githubModels.CountParams) (*models.Tile, error) {
-	tile := models.NewTile(github.GithubCountTileType).WithValue(models.NumberUnit)
+func (gu *githubUsecase) Count(params *models.CountParams) (*coreModels.Tile, error) {
+	tile := coreModels.NewTile(api.GithubCountTileType).WithValue(coreModels.NumberUnit)
 	tile.Label = params.Query
 
-	tile.Status = models.SuccessStatus
+	tile.Status = coreModels.SuccessStatus
 
 	if len(params.ValueValues) != 0 {
 		tile.Value.Values = params.ValueValues
@@ -55,17 +55,17 @@ func (gu *githubUsecase) Count(params *githubModels.CountParams) (*models.Tile, 
 	return tile, nil
 }
 
-func (gu *githubUsecase) Checks(params *githubModels.ChecksParams) (tile *models.Tile, err error) {
-	tile = models.NewTile(github.GithubChecksTileType).WithBuild()
+func (gu *githubUsecase) Checks(params *models.ChecksParams) (tile *coreModels.Tile, err error) {
+	tile = coreModels.NewTile(api.GithubChecksTileType).WithBuild()
 	tile.Label = params.Repository
 
-	tile.Status = nonempty.Struct(params.Status, gu.computeStatus(params)).(models.TileStatus)
+	tile.Status = nonempty.Struct(params.Status, gu.computeStatus(params)).(coreModels.TileStatus)
 
-	if tile.Status == models.DisabledStatus {
+	if tile.Status == coreModels.DisabledStatus {
 		return
 	}
 
-	if tile.Status == models.WarningStatus {
+	if tile.Status == coreModels.WarningStatus {
 		// Warning can be Unstable Build
 		if rand.Intn(2) == 0 {
 			tile.Message = "Fake error message"
@@ -74,21 +74,21 @@ func (gu *githubUsecase) Checks(params *githubModels.ChecksParams) (tile *models
 	}
 
 	tile.Build.Branch = pointer.ToString(git.HumanizeBranch(params.Ref))
-	tile.Build.PreviousStatus = nonempty.Struct(params.PreviousStatus, models.SuccessStatus).(models.TileStatus)
+	tile.Build.PreviousStatus = nonempty.Struct(params.PreviousStatus, coreModels.SuccessStatus).(coreModels.TileStatus)
 
 	// Author
-	if tile.Status == models.FailedStatus {
-		tile.Build.Author = &models.Author{}
+	if tile.Status == coreModels.FailedStatus {
+		tile.Build.Author = &coreModels.Author{}
 		tile.Build.Author.Name = nonempty.String(params.AuthorName, "John Doe")
 		tile.Build.Author.AvatarURL = nonempty.String(params.AuthorAvatarURL, "https://monitoror.com/assets/images/avatar.png")
 	}
 
 	// Duration / EstimatedDuration
-	if tile.Status == models.RunningStatus {
+	if tile.Status == coreModels.RunningStatus {
 		estimatedDuration := nonempty.Duration(time.Duration(params.EstimatedDuration), time.Second*300)
 		tile.Build.Duration = pointer.ToInt64(nonempty.Int64(params.Duration, int64(gu.computeDuration(params, estimatedDuration).Seconds())))
 
-		if tile.Build.PreviousStatus != models.UnknownStatus {
+		if tile.Build.PreviousStatus != coreModels.UnknownStatus {
 			tile.Build.EstimatedDuration = pointer.ToInt64(int64(estimatedDuration.Seconds()))
 		} else {
 			tile.Build.EstimatedDuration = pointer.ToInt64(0)
@@ -102,7 +102,7 @@ func (gu *githubUsecase) Checks(params *githubModels.ChecksParams) (tile *models
 		tile.Build.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Now().Add(-time.Second*time.Duration(*tile.Build.Duration))))
 	}
 
-	if tile.Status != models.QueuedStatus && tile.Status != models.RunningStatus {
+	if tile.Status != coreModels.QueuedStatus && tile.Status != coreModels.RunningStatus {
 		tile.Build.FinishedAt = pointer.ToTime(nonempty.Time(params.FinishedAt, tile.Build.StartedAt.Add(time.Minute*5)))
 	}
 
@@ -113,7 +113,7 @@ func (gu *githubUsecase) PullRequests(params interface{}) ([]builder.Result, err
 	panic("unimplemented")
 }
 
-func (gu *githubUsecase) computeStatus(params *githubModels.ChecksParams) models.TileStatus {
+func (gu *githubUsecase) computeStatus(params *models.ChecksParams) coreModels.TileStatus {
 	projectID := fmt.Sprintf("%s-%s-%s", params.Owner, params.Repository, params.Ref)
 	value, ok := gu.timeRefByProject.Get(projectID)
 	if !ok || value == nil {
@@ -124,7 +124,7 @@ func (gu *githubUsecase) computeStatus(params *githubModels.ChecksParams) models
 	return faker.ComputeStatus(value.(time.Time), availableBuildStatus)
 }
 
-func (gu *githubUsecase) computeDuration(params *githubModels.ChecksParams, duration time.Duration) time.Duration {
+func (gu *githubUsecase) computeDuration(params *models.ChecksParams, duration time.Duration) time.Duration {
 	projectID := fmt.Sprintf("%s-%s-%s", params.Owner, params.Repository, params.Ref)
 	value, ok := gu.timeRefByProject.Get(projectID)
 	if !ok || value == nil {

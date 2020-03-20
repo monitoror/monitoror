@@ -1,6 +1,6 @@
-package github
+package api
 
-import "github.com/monitoror/monitoror/monitorable/github/models"
+import "github.com/monitoror/monitoror/monitorables/github/api/models"
 
 type (
 	Repository interface {
