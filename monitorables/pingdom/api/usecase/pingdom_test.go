@@ -16,7 +16,7 @@ import (
 	. "github.com/stretchr/testify/mock"
 )
 
-func initUsecase(mockRepository *mocks.Repository) api.Usecase {
+func initUsecase(mockRepository api.Repository) api.Usecase {
 	store := cache.NewGoCacheStore(time.Minute*5, time.Second)
 	pu := NewPingdomUsecase(mockRepository, store, 1000)
 	return pu
