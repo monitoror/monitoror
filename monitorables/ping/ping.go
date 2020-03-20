@@ -10,7 +10,7 @@ import (
 	pingModels "github.com/monitoror/monitoror/monitorables/ping/api/models"
 	pingRepository "github.com/monitoror/monitoror/monitorables/ping/api/repository"
 	pingUsecase "github.com/monitoror/monitoror/monitorables/ping/api/usecase"
-	pingCoreConfig "github.com/monitoror/monitoror/monitorables/ping/config"
+	pingConfig "github.com/monitoror/monitoror/monitorables/ping/config"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/system"
 	"github.com/monitoror/monitoror/service/store"
 )
@@ -18,16 +18,16 @@ import (
 type Monitorable struct {
 	store *store.Store
 
-	config map[string]*pingCoreConfig.Ping
+	config map[string]*pingConfig.Ping
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
 	monitorable := &Monitorable{}
 	monitorable.store = store
-	monitorable.config = make(map[string]*pingCoreConfig.Ping)
+	monitorable.config = make(map[string]*pingConfig.Ping)
 
 	// Load core config from env
-	coreConfig.LoadMonitorableConfig(&monitorable.config, pingCoreConfig.Default)
+	coreConfig.LoadMonitorableConfig(&monitorable.config, pingConfig.Default)
 
 	// Register Monitorable Tile in config manager
 	store.UIConfigManager.RegisterTile(api.PingTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)

@@ -12,23 +12,23 @@ import (
 	jenkinsModels "github.com/monitoror/monitoror/monitorables/jenkins/api/models"
 	jenkinsRepository "github.com/monitoror/monitoror/monitorables/jenkins/api/repository"
 	jenkinsUsecase "github.com/monitoror/monitoror/monitorables/jenkins/api/usecase"
-	jenkinsCoreConfig "github.com/monitoror/monitoror/monitorables/jenkins/config"
+	jenkinsConfig "github.com/monitoror/monitoror/monitorables/jenkins/config"
 	"github.com/monitoror/monitoror/service/store"
 )
 
 type Monitorable struct {
 	store *store.Store
 
-	config map[string]*jenkinsCoreConfig.Jenkins
+	config map[string]*jenkinsConfig.Jenkins
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
 	monitorable := &Monitorable{}
 	monitorable.store = store
-	monitorable.config = make(map[string]*jenkinsCoreConfig.Jenkins)
+	monitorable.config = make(map[string]*jenkinsConfig.Jenkins)
 
 	// Load core config from env
-	coreConfig.LoadMonitorableConfig(&monitorable.config, jenkinsCoreConfig.Default)
+	coreConfig.LoadMonitorableConfig(&monitorable.config, jenkinsConfig.Default)
 
 	// Register Monitorable Tile in config manager
 	store.UIConfigManager.RegisterTile(api.JenkinsBuildTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)

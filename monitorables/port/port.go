@@ -10,23 +10,23 @@ import (
 	portModels "github.com/monitoror/monitoror/monitorables/port/api/models"
 	portRepository "github.com/monitoror/monitoror/monitorables/port/api/repository"
 	portUsecase "github.com/monitoror/monitoror/monitorables/port/api/usecase"
-	portCoreConfig "github.com/monitoror/monitoror/monitorables/port/config"
+	portConfig "github.com/monitoror/monitoror/monitorables/port/config"
 	"github.com/monitoror/monitoror/service/store"
 )
 
 type Monitorable struct {
 	store *store.Store
 
-	config map[string]*portCoreConfig.Port
+	config map[string]*portConfig.Port
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
 	monitorable := &Monitorable{}
 	monitorable.store = store
-	monitorable.config = make(map[string]*portCoreConfig.Port)
+	monitorable.config = make(map[string]*portConfig.Port)
 
 	// Load core config from env
-	coreConfig.LoadMonitorableConfig(&monitorable.config, portCoreConfig.Default)
+	coreConfig.LoadMonitorableConfig(&monitorable.config, portConfig.Default)
 
 	// Register Monitorable Tile in config manager
 	store.UIConfigManager.RegisterTile(api.PortTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)

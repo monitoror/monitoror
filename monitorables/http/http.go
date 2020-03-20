@@ -10,23 +10,23 @@ import (
 	httpModels "github.com/monitoror/monitoror/monitorables/http/api/models"
 	httpRepository "github.com/monitoror/monitoror/monitorables/http/api/repository"
 	httpUsecase "github.com/monitoror/monitoror/monitorables/http/api/usecase"
-	httpCoreConfig "github.com/monitoror/monitoror/monitorables/http/config"
+	httpConfig "github.com/monitoror/monitoror/monitorables/http/config"
 	"github.com/monitoror/monitoror/service/store"
 )
 
 type Monitorable struct {
 	store *store.Store
 
-	config map[string]*httpCoreConfig.HTTP
+	config map[string]*httpConfig.HTTP
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
 	monitorable := &Monitorable{}
 	monitorable.store = store
-	monitorable.config = make(map[string]*httpCoreConfig.HTTP)
+	monitorable.config = make(map[string]*httpConfig.HTTP)
 
 	// Load core config from env
-	coreConfig.LoadMonitorableConfig(&monitorable.config, httpCoreConfig.Default)
+	coreConfig.LoadMonitorableConfig(&monitorable.config, httpConfig.Default)
 
 	// Register Monitorable Tile in config manager
 	store.UIConfigManager.RegisterTile(api.HTTPStatusTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)

@@ -12,23 +12,23 @@ import (
 	azuredevopsModels "github.com/monitoror/monitoror/monitorables/azuredevops/api/models"
 	azuredevopsRepository "github.com/monitoror/monitoror/monitorables/azuredevops/api/repository"
 	azuredevopsUsecase "github.com/monitoror/monitoror/monitorables/azuredevops/api/usecase"
-	azuredevopsCoreConfig "github.com/monitoror/monitoror/monitorables/azuredevops/config"
+	azuredevopsConfig "github.com/monitoror/monitoror/monitorables/azuredevops/config"
 	"github.com/monitoror/monitoror/service/store"
 )
 
 type Monitorable struct {
 	store *store.Store
 
-	config map[string]*azuredevopsCoreConfig.AzureDevOps
+	config map[string]*azuredevopsConfig.AzureDevOps
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
 	monitorable := &Monitorable{}
 	monitorable.store = store
-	monitorable.config = make(map[string]*azuredevopsCoreConfig.AzureDevOps)
+	monitorable.config = make(map[string]*azuredevopsConfig.AzureDevOps)
 
 	// Load core config from env
-	coreConfig.LoadMonitorableConfig(&monitorable.config, azuredevopsCoreConfig.Default)
+	coreConfig.LoadMonitorableConfig(&monitorable.config, azuredevopsConfig.Default)
 
 	// Register Monitorable Tile in config manager
 	store.UIConfigManager.RegisterTile(api.AzureDevOpsBuildTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)

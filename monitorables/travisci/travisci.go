@@ -12,23 +12,23 @@ import (
 	travisciModels "github.com/monitoror/monitoror/monitorables/travisci/api/models"
 	travisciRepository "github.com/monitoror/monitoror/monitorables/travisci/api/repository"
 	travisciUsecase "github.com/monitoror/monitoror/monitorables/travisci/api/usecase"
-	travisciCoreConfig "github.com/monitoror/monitoror/monitorables/travisci/config"
+	travisciConfig "github.com/monitoror/monitoror/monitorables/travisci/config"
 	"github.com/monitoror/monitoror/service/store"
 )
 
 type Monitorable struct {
 	store *store.Store
 
-	config map[string]*travisciCoreConfig.TravisCI
+	config map[string]*travisciConfig.TravisCI
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
 	monitorable := &Monitorable{}
 	monitorable.store = store
-	monitorable.config = make(map[string]*travisciCoreConfig.TravisCI)
+	monitorable.config = make(map[string]*travisciConfig.TravisCI)
 
 	// Load core config from env
-	coreConfig.LoadMonitorableConfig(&monitorable.config, travisciCoreConfig.Default)
+	coreConfig.LoadMonitorableConfig(&monitorable.config, travisciConfig.Default)
 
 	// Register Monitorable Tile in config manager
 	store.UIConfigManager.RegisterTile(api.TravisCIBuildTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)

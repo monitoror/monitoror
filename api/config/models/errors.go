@@ -14,9 +14,9 @@ type ConfigFileNotFoundError struct {
 
 func (e *ConfigFileNotFoundError) Error() string {
 	if e.Err != nil {
-		return fmt.Sprintf(`CoreConfig not found at: %s, %v`, e.PathOrURL, e.Err.Error())
+		return fmt.Sprintf(`Config not found at: %s, %v`, e.PathOrURL, e.Err.Error())
 	}
-	return fmt.Sprintf(`CoreConfig not found at: %s`, e.PathOrURL)
+	return fmt.Sprintf(`Config not found at: %s`, e.PathOrURL)
 }
 func (e *ConfigFileNotFoundError) Unwrap() error { return e.Err }
 
@@ -26,7 +26,7 @@ type ConfigVersionFormatError struct {
 }
 
 func (e *ConfigVersionFormatError) Error() string {
-	return fmt.Sprintf(`json: cannot unmarshal %s into Go struct field CoreConfig.ConfigVersion of type string and X.y format`, e.WrongVersion)
+	return fmt.Sprintf(`json: cannot unmarshal %s into Go struct field Config.Version of type string and X.y format`, e.WrongVersion)
 }
 
 //ConfigUnmarshalError

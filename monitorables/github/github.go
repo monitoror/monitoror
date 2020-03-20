@@ -12,7 +12,7 @@ import (
 	githubModels "github.com/monitoror/monitoror/monitorables/github/api/models"
 	githubRepository "github.com/monitoror/monitoror/monitorables/github/api/repository"
 	githubUsecase "github.com/monitoror/monitoror/monitorables/github/api/usecase"
-	githubCoreConfig "github.com/monitoror/monitoror/monitorables/github/config"
+	githubConfig "github.com/monitoror/monitoror/monitorables/github/config"
 	"github.com/monitoror/monitoror/service/options"
 	"github.com/monitoror/monitoror/service/store"
 )
@@ -20,16 +20,16 @@ import (
 type Monitorable struct {
 	store *store.Store
 
-	config map[string]*githubCoreConfig.Github
+	config map[string]*githubConfig.Github
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
 	monitorable := &Monitorable{}
 	monitorable.store = store
-	monitorable.config = make(map[string]*githubCoreConfig.Github)
+	monitorable.config = make(map[string]*githubConfig.Github)
 
 	// Load core config from env
-	coreConfig.LoadMonitorableConfig(&monitorable.config, githubCoreConfig.Default)
+	coreConfig.LoadMonitorableConfig(&monitorable.config, githubConfig.Default)
 
 	// Register Monitorable Tile in config manager
 	store.UIConfigManager.RegisterTile(api.GithubCountTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)

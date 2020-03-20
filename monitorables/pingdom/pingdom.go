@@ -12,23 +12,23 @@ import (
 	pingdomModels "github.com/monitoror/monitoror/monitorables/pingdom/api/models"
 	pingdomRepository "github.com/monitoror/monitoror/monitorables/pingdom/api/repository"
 	pingdomUsecase "github.com/monitoror/monitoror/monitorables/pingdom/api/usecase"
-	pingdomCoreConfig "github.com/monitoror/monitoror/monitorables/pingdom/config"
+	pingdomConfig "github.com/monitoror/monitoror/monitorables/pingdom/config"
 	"github.com/monitoror/monitoror/service/store"
 )
 
 type Monitorable struct {
 	store *store.Store
 
-	config map[string]*pingdomCoreConfig.Pingdom
+	config map[string]*pingdomConfig.Pingdom
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
 	monitorable := &Monitorable{}
 	monitorable.store = store
-	monitorable.config = make(map[string]*pingdomCoreConfig.Pingdom)
+	monitorable.config = make(map[string]*pingdomConfig.Pingdom)
 
 	// Load core config from env
-	coreConfig.LoadMonitorableConfig(&monitorable.config, pingdomCoreConfig.Default)
+	coreConfig.LoadMonitorableConfig(&monitorable.config, pingdomConfig.Default)
 
 	// Register Monitorable Tile in config manager
 	store.UIConfigManager.RegisterTile(api.PingdomCheckTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)
