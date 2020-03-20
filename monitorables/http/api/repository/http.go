@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/monitoror/monitoror/config"
-	httpRepo "github.com/monitoror/monitoror/monitorable/http"
-	"github.com/monitoror/monitoror/monitorable/http/models"
+	"github.com/monitoror/monitoror/monitorables/http/api"
+	"github.com/monitoror/monitoror/monitorables/http/api/models"
+	"github.com/monitoror/monitoror/monitorables/http/config"
 )
 
 type (
@@ -17,7 +17,7 @@ type (
 	}
 )
 
-func NewHTTPRepository(config *config.HTTP) httpRepo.Repository {
+func NewHTTPRepository(config *config.HTTP) api.Repository {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: !config.SSLVerify},
 	}

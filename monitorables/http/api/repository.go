@@ -1,7 +1,7 @@
-package http
+package api
 
 import (
-	"github.com/monitoror/monitoror/monitorable/http/models"
+	"github.com/monitoror/monitoror/monitorables/http/api/models"
 )
 
 type (

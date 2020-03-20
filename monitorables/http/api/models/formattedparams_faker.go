@@ -5,7 +5,7 @@ package models
 import (
 	"regexp"
 
-	"github.com/monitoror/monitoror/models"
+	coreModels "github.com/monitoror/monitoror/models"
 )
 
 type (
@@ -17,10 +17,10 @@ type (
 		StatusCodeMin *int   `json:"statusCodeMin" query:"statusCodeMin"`
 		StatusCodeMax *int   `json:"statusCodeMax" query:"statusCodeMax"`
 
-		Status      models.TileStatus     `json:"status" query:"status"`
-		Message     string                `json:"message" query:"message"`
-		ValueValues []string              `json:"valueValues" query:"valueValues"`
-		ValueUnit   models.TileValuesUnit `json:"valueUnit" query:"valueUnit"`
+		Status      coreModels.TileStatus     `json:"status" query:"status"`
+		Message     string                    `json:"message" query:"message"`
+		ValueValues []string                  `json:"valueValues" query:"valueValues"`
+		ValueUnit   coreModels.TileValuesUnit `json:"valueUnit" query:"valueUnit"`
 	}
 )
 
@@ -50,7 +50,7 @@ func (p *HTTPFormattedParams) GetRegexp() *regexp.Regexp { return getRegexp(p.Ge
 func (p *HTTPFormattedParams) GetKey() string    { return p.Key }
 func (p *HTTPFormattedParams) GetFormat() string { return p.Format }
 
-func (p *HTTPFormattedParams) GetStatus() models.TileStatus        { return p.Status }
-func (p *HTTPFormattedParams) GetMessage() string                  { return p.Message }
-func (p *HTTPFormattedParams) GetValueValues() []string            { return p.ValueValues }
-func (p *HTTPFormattedParams) GetValueUnit() models.TileValuesUnit { return p.ValueUnit }
+func (p *HTTPFormattedParams) GetStatus() coreModels.TileStatus        { return p.Status }
+func (p *HTTPFormattedParams) GetMessage() string                      { return p.Message }
+func (p *HTTPFormattedParams) GetValueValues() []string                { return p.ValueValues }
+func (p *HTTPFormattedParams) GetValueUnit() coreModels.TileValuesUnit { return p.ValueUnit }

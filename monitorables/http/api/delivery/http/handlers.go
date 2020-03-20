@@ -3,28 +3,27 @@ package http
 import (
 	netHttp "net/http"
 
-	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/http"
-	httpModels "github.com/monitoror/monitoror/monitorable/http/models"
+	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/monitorables/http/api"
+	"github.com/monitoror/monitoror/monitorables/http/api/models"
 
 	"github.com/labstack/echo/v4"
 )
 
-//nolint:golint
 type HTTPDelivery struct {
-	httpUsecase http.Usecase
+	httpUsecase api.Usecase
 }
 
-func NewHTTPDelivery(p http.Usecase) *HTTPDelivery {
+func NewHTTPDelivery(p api.Usecase) *HTTPDelivery {
 	return &HTTPDelivery{p}
 }
 
 func (h *HTTPDelivery) GetHTTPStatus(c echo.Context) error {
 	// Bind / Check Params
-	params := &httpModels.HTTPStatusParams{}
+	params := &models.HTTPStatusParams{}
 	err := c.Bind(params)
 	if err != nil || !params.IsValid() {
-		return models.QueryParamsError
+		return coreModels.QueryParamsError
 	}
 
 	tile, err := h.httpUsecase.HTTPStatus(params)
@@ -37,10 +36,10 @@ func (h *HTTPDelivery) GetHTTPStatus(c echo.Context) error {
 
 func (h *HTTPDelivery) GetHTTPRaw(c echo.Context) error {
 	// Bind / Check Params
-	params := &httpModels.HTTPRawParams{}
+	params := &models.HTTPRawParams{}
 	err := c.Bind(params)
 	if err != nil || !params.IsValid() {
-		return models.QueryParamsError
+		return coreModels.QueryParamsError
 	}
 
 	tile, err := h.httpUsecase.HTTPRaw(params)
@@ -53,10 +52,10 @@ func (h *HTTPDelivery) GetHTTPRaw(c echo.Context) error {
 
 func (h *HTTPDelivery) GetHTTPFormatted(c echo.Context) error {
 	// Bind / Check Params
-	params := &httpModels.HTTPFormattedParams{}
+	params := &models.HTTPFormattedParams{}
 	err := c.Bind(params)
 	if err != nil || !params.IsValid() {
-		return models.QueryParamsError
+		return coreModels.QueryParamsError
 	}
 
 	tile, err := h.httpUsecase.HTTPFormatted(params)

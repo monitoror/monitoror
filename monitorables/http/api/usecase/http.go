@@ -11,11 +11,10 @@ import (
 	"strings"
 	"time"
 
+	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/monitorables/http/api"
+	"github.com/monitoror/monitoror/monitorables/http/api/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/humanize"
-
-	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/http"
-	httpModels "github.com/monitoror/monitoror/monitorable/http/models"
 
 	xml2json "github.com/basgys/goxml2json"
 	"github.com/ghodss/yaml"
@@ -24,9 +23,9 @@ import (
 
 type (
 	httpUsecase struct {
-		repository http.Repository
+		repository api.Repository
 
-		// Store used for caching request on same url
+		// store used for caching request on same url
 		store           cache.Store
 		cacheExpiration int
 	}
@@ -37,44 +36,44 @@ var (
 	ArrayKeyPartRegex = regexp.MustCompile(`^\[(\d*)]$`)
 )
 
-func NewHTTPUsecase(repository http.Repository, store cache.Store, cacheExpiration int) http.Usecase {
+func NewHTTPUsecase(repository api.Repository, store cache.Store, cacheExpiration int) api.Usecase {
 	return &httpUsecase{repository, store, cacheExpiration}
 }
 
-func (hu *httpUsecase) HTTPStatus(params *httpModels.HTTPStatusParams) (*models.Tile, error) {
-	return hu.httpAll(http.HTTPStatusTileType, params.URL, params)
+func (hu *httpUsecase) HTTPStatus(params *models.HTTPStatusParams) (*coreModels.Tile, error) {
+	return hu.httpAll(api.HTTPStatusTileType, params.URL, params)
 }
 
-func (hu *httpUsecase) HTTPRaw(params *httpModels.HTTPRawParams) (*models.Tile, error) {
-	return hu.httpAll(http.HTTPRawTileType, params.URL, params)
+func (hu *httpUsecase) HTTPRaw(params *models.HTTPRawParams) (*coreModels.Tile, error) {
+	return hu.httpAll(api.HTTPRawTileType, params.URL, params)
 }
 
-func (hu *httpUsecase) HTTPFormatted(params *httpModels.HTTPFormattedParams) (*models.Tile, error) {
-	return hu.httpAll(http.HTTPFormattedTileType, params.URL, params)
+func (hu *httpUsecase) HTTPFormatted(params *models.HTTPFormattedParams) (*coreModels.Tile, error) {
+	return hu.httpAll(api.HTTPFormattedTileType, params.URL, params)
 }
 
-// httpAll handle all http usecase by checking if params match interfaces listed in models.params
-func (hu *httpUsecase) httpAll(tileType models.TileType, url string, params interface{}) (*models.Tile, error) {
-	tile := models.NewTile(tileType)
+// httpAll handle all http usecase by checking if params match interfaces listed in coreModels.params
+func (hu *httpUsecase) httpAll(tileType coreModels.TileType, url string, params interface{}) (*coreModels.Tile, error) {
+	tile := coreModels.NewTile(tileType)
 	tile.Label = url
-	tile.Status = models.SuccessStatus
+	tile.Status = coreModels.SuccessStatus
 
 	// Download page
 	response, err := hu.get(url)
 	if err != nil {
-		return nil, &models.MonitororError{Err: err, Tile: tile, Message: fmt.Sprintf("unable to get %s", url)}
+		return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: fmt.Sprintf("unable to get %s", url)}
 	}
 
 	// Check Status Code
-	if statusCodeRangeProvider, ok := params.(httpModels.StatusCodesProvider); ok {
+	if statusCodeRangeProvider, ok := params.(models.StatusCodesProvider); ok {
 		if !checkStatusCode(statusCodeRangeProvider, response.StatusCode) {
-			tile.Status = models.FailedStatus
+			tile.Status = coreModels.FailedStatus
 			tile.Message = fmt.Sprintf("status code %d", response.StatusCode)
 			return tile, nil
 		}
 	}
 
-	if tileType == http.HTTPStatusTileType {
+	if tileType == api.HTTPStatusTileType {
 		return tile, nil
 	}
 
@@ -82,12 +81,12 @@ func (hu *httpUsecase) httpAll(tileType models.TileType, url string, params inte
 	var content string
 	var match bool
 
-	if formattedDataProvider, ok := params.(httpModels.FormattedDataProvider); ok {
+	if formattedDataProvider, ok := params.(models.FormattedDataProvider); ok {
 		// Convert XML to JSON if Format == XML
-		if formattedDataProvider.GetFormat() == httpModels.XMLFormat {
+		if formattedDataProvider.GetFormat() == models.XMLFormat {
 			buffer, err := xml2json.Convert(bytes.NewReader(response.Body))
 			if err != nil || strings.TrimSuffix(buffer.String(), "\n") == `""` {
-				tile.Status = models.FailedStatus
+				tile.Status = coreModels.FailedStatus
 				tile.Message = fmt.Sprintf("unable to convert xml to json")
 				return tile, nil
 			}
@@ -96,8 +95,8 @@ func (hu *httpUsecase) httpAll(tileType models.TileType, url string, params inte
 
 		// Select Unmarshaller
 		var unmarshaller func(data []byte, v interface{}) error
-		if formattedDataProvider.GetFormat() == httpModels.JSONFormat ||
-			formattedDataProvider.GetFormat() == httpModels.XMLFormat {
+		if formattedDataProvider.GetFormat() == models.JSONFormat ||
+			formattedDataProvider.GetFormat() == models.XMLFormat {
 			unmarshaller = json.Unmarshal
 		} else {
 			unmarshaller = yaml.Unmarshal
@@ -106,14 +105,14 @@ func (hu *httpUsecase) httpAll(tileType models.TileType, url string, params inte
 		var data interface{}
 		err := unmarshaller(response.Body, &data)
 		if err != nil {
-			tile.Status = models.FailedStatus
+			tile.Status = coreModels.FailedStatus
 			tile.Message = fmt.Sprintf("unable to unmarshal content")
 			return tile, nil
 		}
 
 		// Lookup a key
 		if match, content = lookupKey(formattedDataProvider, data); !match {
-			tile.Status = models.FailedStatus
+			tile.Status = coreModels.FailedStatus
 			tile.Message = fmt.Sprintf(`unable to lookup for key %q`, formattedDataProvider.GetKey())
 			return tile, nil
 		}
@@ -122,20 +121,20 @@ func (hu *httpUsecase) httpAll(tileType models.TileType, url string, params inte
 	}
 
 	// Match regex
-	if regexProvider, ok := params.(httpModels.RegexProvider); ok {
+	if regexProvider, ok := params.(models.RegexProvider); ok {
 		match, matchedContent := matchRegex(regexProvider, content)
 		if match {
 			content = matchedContent
 		} else {
-			tile.Status = models.FailedStatus
+			tile.Status = coreModels.FailedStatus
 		}
 	}
 
 	if content != "" {
 		if _, err := strconv.ParseFloat(content, 64); err == nil {
-			tile.WithValue(models.NumberUnit)
+			tile.WithValue(coreModels.NumberUnit)
 		} else {
-			tile.WithValue(models.RawUnit)
+			tile.WithValue(coreModels.RawUnit)
 		}
 		tile.Value.Values = []string{content}
 	}
@@ -144,11 +143,11 @@ func (hu *httpUsecase) httpAll(tileType models.TileType, url string, params inte
 }
 
 // Adding cache to Repository.Get
-func (hu *httpUsecase) get(url string) (*httpModels.Response, error) {
-	response := &httpModels.Response{}
+func (hu *httpUsecase) get(url string) (*models.Response, error) {
+	response := &models.Response{}
 
 	// Lookup in cache
-	key := fmt.Sprintf("%s:%s", models.UpstreamStoreKeyPrefix, url)
+	key := fmt.Sprintf("%s:%s", coreModels.UpstreamStoreKeyPrefix, url)
 	if err := hu.store.Get(key, response); err == nil {
 		// Cache found, return
 		return response, nil
@@ -168,13 +167,13 @@ func (hu *httpUsecase) get(url string) (*httpModels.Response, error) {
 
 // checkStatusCode check if status code is between min / max
 // if min/max are empty, use default value
-func checkStatusCode(params httpModels.StatusCodesProvider, code int) bool {
+func checkStatusCode(params models.StatusCodesProvider, code int) bool {
 	min, max := params.GetStatusCodes()
 	return min <= code && code <= max
 }
 
 // matchRegex check if string match regex, if the regex match, try to extract first group
-func matchRegex(params httpModels.RegexProvider, str string) (bool, string) {
+func matchRegex(params models.RegexProvider, str string) (bool, string) {
 	regex := params.GetRegexp()
 	if regex == nil {
 		return true, str
@@ -194,7 +193,7 @@ func matchRegex(params httpModels.RegexProvider, str string) (bool, string) {
 
 // extractValue extract value from interface{} (json/yaml/...)
 // the key is in doted format like this ".bloc1."bloc.2".[2].value"
-func lookupKey(params httpModels.FormattedDataProvider, data interface{}) (bool, string) {
+func lookupKey(params models.FormattedDataProvider, data interface{}) (bool, string) {
 	// split key
 	matchedString := KeySplitterRegex.FindAllStringSubmatch(params.GetKey(), -1)
 
