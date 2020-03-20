@@ -4,10 +4,10 @@ import (
 	"context"
 	"time"
 
-	"github.com/monitoror/monitoror/config"
-	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/azuredevops"
-	azureModels "github.com/monitoror/monitoror/monitorable/azuredevops/models"
+	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/monitorables/azuredevops/api"
+	"github.com/monitoror/monitoror/monitorables/azuredevops/api/models"
+	"github.com/monitoror/monitoror/monitorables/azuredevops/config"
 
 	"github.com/AlekSi/pointer"
 	azureDevOpsApi "github.com/jsdidierlaurent/azure-devops-go-api/azuredevops"
@@ -17,7 +17,7 @@ import (
 
 type (
 	azureDevOpsRepository struct {
-		connection azuredevops.Connection
+		connection api.Connection
 		config     *config.AzureDevOps
 	}
 
@@ -34,7 +34,7 @@ func (c *connection) GetReleaseConnection() (release.Client, error) {
 	return release.NewClient(context.TODO(), c.connection)
 }
 
-func NewAzureDevOpsRepository(config *config.AzureDevOps) azuredevops.Repository {
+func NewAzureDevOpsRepository(config *config.AzureDevOps) api.Repository {
 	conn := azureDevOpsApi.NewPatConnection(config.URL, config.Token)
 
 	// Setup timeout
@@ -47,7 +47,7 @@ func NewAzureDevOpsRepository(config *config.AzureDevOps) azuredevops.Repository
 	}
 }
 
-func (r *azureDevOpsRepository) GetBuild(project string, definition int, branch *string) (*azureModels.Build, error) {
+func (r *azureDevOpsRepository) GetBuild(project string, definition int, branch *string) (*models.Build, error) {
 	ids := []int{definition}
 	args := build.GetBuildsArgs{
 		Project:                pointer.ToString(project),
@@ -72,7 +72,7 @@ func (r *azureDevOpsRepository) GetBuild(project string, definition int, branch 
 	}
 	aBuild := aBuilds.Value[0]
 
-	result := &azureModels.Build{
+	result := &models.Build{
 		BuildNumber:    *aBuild.BuildNumber,
 		DefinitionName: *aBuild.Definition.Name,
 	}
@@ -93,7 +93,7 @@ func (r *azureDevOpsRepository) GetBuild(project string, definition int, branch 
 	}
 
 	// Author
-	result.Author = &models.Author{}
+	result.Author = &coreModels.Author{}
 	if aBuild.TriggerInfo != nil {
 		if value, ok := (*aBuild.TriggerInfo)["pr.sender.name"]; ok {
 			result.Author.Name = value
@@ -132,7 +132,7 @@ func (r *azureDevOpsRepository) GetBuild(project string, definition int, branch 
 	return result, nil
 }
 
-func (r *azureDevOpsRepository) GetRelease(project string, definition int) (*azureModels.Release, error) {
+func (r *azureDevOpsRepository) GetRelease(project string, definition int) (*models.Release, error) {
 	args := release.GetDeploymentsArgs{
 		Project:            pointer.ToString(project),
 		DefinitionId:       pointer.ToInt(definition),
@@ -156,7 +156,7 @@ func (r *azureDevOpsRepository) GetRelease(project string, definition int) (*azu
 	}
 	aRelease := aReleases.Value[0]
 
-	result := &azureModels.Release{
+	result := &models.Release{
 		ReleaseNumber:  *aRelease.Release.Name,
 		DefinitionName: *aRelease.ReleaseDefinition.Name,
 		Status:         string(*aRelease.DeploymentStatus),
@@ -164,7 +164,7 @@ func (r *azureDevOpsRepository) GetRelease(project string, definition int) (*azu
 
 	// Author
 	if aRelease.RequestedFor != nil {
-		result.Author = &models.Author{}
+		result.Author = &coreModels.Author{}
 
 		if aRelease.RequestedFor.DisplayName != nil {
 			result.Author.Name = *aRelease.RequestedFor.DisplayName

@@ -8,8 +8,8 @@ import (
 	"time"
 
 	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/azuredevops"
-	azureModels "github.com/monitoror/monitoror/monitorable/azuredevops/models"
+	"github.com/monitoror/monitoror/monitorables/azuredevops/api"
+	azureModels "github.com/monitoror/monitoror/monitorables/azuredevops/api/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/faker"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
@@ -40,12 +40,12 @@ var availableReleaseStatus = faker.Statuses{
 	{models.WarningStatus, time.Second * 20},
 }
 
-func NewAzureDevOpsUsecase() azuredevops.Usecase {
+func NewAzureDevOpsUsecase() api.Usecase {
 	return &azureDevOpsUsecase{cmap.New()}
 }
 
 func (au *azureDevOpsUsecase) Build(params *azureModels.BuildParams) (tile *models.Tile, err error) {
-	tile = models.NewTile(azuredevops.AzureDevOpsBuildTileType).WithBuild()
+	tile = models.NewTile(api.AzureDevOpsBuildTileType).WithBuild()
 	tile.Label = fmt.Sprintf("%s (build-qa-%d)", params.Project, *params.Definition)
 	tile.Build.ID = pointer.ToString("12")
 	tile.Build.Branch = pointer.ToString(git.HumanizeBranch(nonempty.String(*params.Branch, "master")))
@@ -96,7 +96,7 @@ func (au *azureDevOpsUsecase) Build(params *azureModels.BuildParams) (tile *mode
 }
 
 func (au *azureDevOpsUsecase) Release(params *azureModels.ReleaseParams) (tile *models.Tile, err error) {
-	tile = models.NewTile(azuredevops.AzureDevOpsReleaseTileType).WithBuild()
+	tile = models.NewTile(api.AzureDevOpsReleaseTileType).WithBuild()
 	tile.Label = fmt.Sprintf("%s (release-%d)", params.Project, *params.Definition)
 	tile.Build.ID = pointer.ToString("12")
 

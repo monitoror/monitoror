@@ -5,7 +5,7 @@
 package mocks
 
 import (
-	models "github.com/monitoror/monitoror/monitorable/azuredevops/models"
+	models "github.com/monitoror/monitoror/monitorables/azuredevops/api/models"
 	mock "github.com/stretchr/testify/mock"
 )
 

@@ -1,7 +1,7 @@
-package azuredevops
+package api
 
 import (
-	"github.com/monitoror/monitoror/monitorable/azuredevops/models"
+	"github.com/monitoror/monitoror/monitorables/azuredevops/api/models"
 
 	"github.com/jsdidierlaurent/azure-devops-go-api/azuredevops/build"
 	"github.com/jsdidierlaurent/azure-devops-go-api/azuredevops/release"

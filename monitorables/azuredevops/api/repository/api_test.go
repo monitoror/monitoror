@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/monitoror/monitoror/config"
-	"github.com/monitoror/monitoror/monitorable/azuredevops/mocks"
-	"github.com/monitoror/monitoror/monitorable/azuredevops/models"
+	"github.com/monitoror/monitoror/monitorables/azuredevops/api/mocks"
+	"github.com/monitoror/monitoror/monitorables/azuredevops/api/models"
+	"github.com/monitoror/monitoror/monitorables/azuredevops/config"
 	mocksBuild "github.com/monitoror/monitoror/pkg/goazuredevops/build/mocks"
 	mocksRelease "github.com/monitoror/monitoror/pkg/goazuredevops/release/mocks"
 
@@ -21,9 +21,12 @@ import (
 )
 
 func initRepository(t *testing.T, buildClient build.Client, releaseClient release.Client) *azureDevOpsRepository {
-	conf := InitConfig()
-	conf.Monitorable.AzureDevOps[DefaultVariant].URL = "http://azure.example.com"
-	conf.Monitorable.AzureDevOps[DefaultVariant].Token = "test"
+	conf := &config.AzureDevOps{
+		URL:             "http://azure.example.com",
+		Token:           "test",
+		Timeout:         1000,
+		InitialMaxDelay: 1000,
+	}
 
 	mockConnection := new(mocks.Connection)
 	if buildClient != nil {
@@ -40,7 +43,7 @@ func initRepository(t *testing.T, buildClient build.Client, releaseClient releas
 			Return(nil, errors.New("GetReleaseConnectionError"))
 	}
 
-	repository := NewAzureDevOpsRepository(conf.Monitorable.AzureDevOps[DefaultVariant])
+	repository := NewAzureDevOpsRepository(conf)
 
 	apiAzureDevOpsRepository, ok := repository.(*azureDevOpsRepository)
 	if assert.True(t, ok) {

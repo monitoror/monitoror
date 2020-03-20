@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/azuredevops"
-	azureModels "github.com/monitoror/monitoror/monitorable/azuredevops/models"
+	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/monitorables/azuredevops/api"
+	"github.com/monitoror/monitoror/monitorables/azuredevops/api/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/cache"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
 
@@ -17,7 +17,7 @@ import (
 
 type (
 	azureDevOpsUsecase struct {
-		repository azuredevops.Repository
+		repository api.Repository
 
 		// builds cache. used for save small history of build for stats
 		buildsCache *cache.BuildCache
@@ -26,25 +26,25 @@ type (
 
 const buildCacheSize = 5
 
-func NewAzureDevOpsUsecase(repository azuredevops.Repository) azuredevops.Usecase {
+func NewAzureDevOpsUsecase(repository api.Repository) api.Usecase {
 	return &azureDevOpsUsecase{
 		repository,
 		cache.NewBuildCache(buildCacheSize),
 	}
 }
 
-func (au *azureDevOpsUsecase) Build(params *azureModels.BuildParams) (*models.Tile, error) {
-	tile := models.NewTile(azuredevops.AzureDevOpsBuildTileType).WithBuild()
+func (au *azureDevOpsUsecase) Build(params *models.BuildParams) (*coreModels.Tile, error) {
+	tile := coreModels.NewTile(api.AzureDevOpsBuildTileType).WithBuild()
 	// Default label if build not found
 	tile.Label = params.Project
 
 	// Lookup for build
 	build, err := au.repository.GetBuild(params.Project, *params.Definition, params.Branch)
 	if err != nil {
-		return nil, &models.MonitororError{Err: err, Tile: tile, Message: "unable to find build"}
+		return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: "unable to find build"}
 	}
 	if build == nil {
-		return nil, &models.MonitororError{Tile: tile, Message: "no build found", ErrorStatus: models.UnknownStatus}
+		return nil, &coreModels.MonitororError{Tile: tile, Message: "no build found", ErrorStatus: coreModels.UnknownStatus}
 	}
 
 	// Title and Message
@@ -60,12 +60,12 @@ func (au *azureDevOpsUsecase) Build(params *azureModels.BuildParams) (*models.Ti
 	if previousStatus != nil {
 		tile.Build.PreviousStatus = *previousStatus
 	} else {
-		tile.Build.PreviousStatus = models.UnknownStatus
+		tile.Build.PreviousStatus = coreModels.UnknownStatus
 	}
 
 	// Author
-	if tile.Status == models.FailedStatus && build.Author != nil {
-		tile.Build.Author = &models.Author{
+	if tile.Status == coreModels.FailedStatus && build.Author != nil {
+		tile.Build.Author = &coreModels.Author{
 			Name:      build.Author.Name,
 			AvatarURL: build.Author.AvatarURL,
 		}
@@ -73,16 +73,16 @@ func (au *azureDevOpsUsecase) Build(params *azureModels.BuildParams) (*models.Ti
 
 	// StartedAt / FinishedAt
 	tile.Build.StartedAt = build.StartedAt
-	if tile.Status != models.QueuedStatus && tile.Status != models.RunningStatus {
+	if tile.Status != coreModels.QueuedStatus && tile.Status != coreModels.RunningStatus {
 		tile.Build.FinishedAt = build.FinishedAt
 	}
 
-	if tile.Status == models.QueuedStatus {
+	if tile.Status == coreModels.QueuedStatus {
 		tile.Build.StartedAt = build.QueuedAt
 	}
 
 	// Duration / Previous Duration
-	if tile.Status == models.RunningStatus {
+	if tile.Status == coreModels.RunningStatus {
 		tile.Build.Duration = pointer.ToInt64(int64(time.Since(*tile.Build.StartedAt).Seconds()))
 
 		estimatedDuration := au.buildsCache.GetEstimatedDuration(params)
@@ -94,26 +94,26 @@ func (au *azureDevOpsUsecase) Build(params *azureModels.BuildParams) (*models.Ti
 	}
 
 	// Cache Duration when success / failed
-	if tile.Status == models.SuccessStatus || tile.Status == models.FailedStatus {
+	if tile.Status == coreModels.SuccessStatus || tile.Status == coreModels.FailedStatus {
 		au.buildsCache.Add(params, build.BuildNumber, tile.Status, tile.Build.FinishedAt.Sub(*tile.Build.StartedAt))
 	}
 
 	return tile, nil
 }
 
-func (au *azureDevOpsUsecase) Release(params *azureModels.ReleaseParams) (*models.Tile, error) {
-	tile := models.NewTile(azuredevops.AzureDevOpsReleaseTileType).WithBuild()
+func (au *azureDevOpsUsecase) Release(params *models.ReleaseParams) (*coreModels.Tile, error) {
+	tile := coreModels.NewTile(api.AzureDevOpsReleaseTileType).WithBuild()
 	// Default label if build not found
 	tile.Label = params.Project
 
 	// Lookup for release
 	release, err := au.repository.GetRelease(params.Project, *params.Definition)
 	if err != nil {
-		return nil, &models.MonitororError{Err: err, Tile: tile, Message: "unable to find release"}
+		return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: "unable to find release"}
 	}
 	if release == nil {
 		// Warning because request was correct but there is no release
-		return nil, &models.MonitororError{Tile: tile, Message: "no release found", ErrorStatus: models.UnknownStatus}
+		return nil, &coreModels.MonitororError{Tile: tile, Message: "no release found", ErrorStatus: coreModels.UnknownStatus}
 	}
 
 	// Label
@@ -128,12 +128,12 @@ func (au *azureDevOpsUsecase) Release(params *azureModels.ReleaseParams) (*model
 	if previousStatus != nil {
 		tile.Build.PreviousStatus = *previousStatus
 	} else {
-		tile.Build.PreviousStatus = models.UnknownStatus
+		tile.Build.PreviousStatus = coreModels.UnknownStatus
 	}
 
 	// Author
-	if tile.Status == models.FailedStatus && release.Author != nil {
-		tile.Build.Author = &models.Author{
+	if tile.Status == coreModels.FailedStatus && release.Author != nil {
+		tile.Build.Author = &coreModels.Author{
 			Name:      release.Author.Name,
 			AvatarURL: release.Author.AvatarURL,
 		}
@@ -141,11 +141,11 @@ func (au *azureDevOpsUsecase) Release(params *azureModels.ReleaseParams) (*model
 
 	// StartedAt / FinishedAt
 	tile.Build.StartedAt = release.StartedAt
-	if tile.Status != models.RunningStatus && tile.Status != models.QueuedStatus {
+	if tile.Status != coreModels.RunningStatus && tile.Status != coreModels.QueuedStatus {
 		tile.Build.FinishedAt = release.FinishedAt
 	}
 	// Duration
-	if tile.Status == models.RunningStatus {
+	if tile.Status == coreModels.RunningStatus {
 		tile.Build.Duration = pointer.ToInt64(int64(time.Since(*tile.Build.StartedAt).Seconds()))
 
 		estimatedDuration := au.buildsCache.GetEstimatedDuration(params)
@@ -157,49 +157,49 @@ func (au *azureDevOpsUsecase) Release(params *azureModels.ReleaseParams) (*model
 	}
 
 	// Cache Duration when success / failed
-	if tile.Status == models.SuccessStatus || tile.Status == models.FailedStatus || tile.Status == models.WarningStatus {
+	if tile.Status == coreModels.SuccessStatus || tile.Status == coreModels.FailedStatus || tile.Status == coreModels.WarningStatus {
 		au.buildsCache.Add(params, *tile.Build.ID, tile.Status, tile.Build.FinishedAt.Sub(*tile.Build.StartedAt))
 	}
 
 	return tile, nil
 }
 
-func parseBuildResult(status, result string) models.TileStatus {
+func parseBuildResult(status, result string) coreModels.TileStatus {
 	switch status {
 	case "inProgress":
-		return models.RunningStatus
+		return coreModels.RunningStatus
 	case "cancelling":
-		return models.RunningStatus
+		return coreModels.RunningStatus
 	case "notStarted":
-		return models.QueuedStatus
+		return coreModels.QueuedStatus
 	case "completed":
 		switch result {
 		case "succeeded":
-			return models.SuccessStatus
+			return coreModels.SuccessStatus
 		case "partiallySucceeded":
-			return models.WarningStatus
+			return coreModels.WarningStatus
 		case "failed":
-			return models.FailedStatus
+			return coreModels.FailedStatus
 		case "canceled":
-			return models.CanceledStatus
+			return coreModels.CanceledStatus
 		}
 	}
 
-	return models.UnknownStatus
+	return coreModels.UnknownStatus
 }
 
-func parseReleaseStatus(status string) models.TileStatus {
+func parseReleaseStatus(status string) coreModels.TileStatus {
 	switch status {
 	case "failed":
-		return models.FailedStatus
+		return coreModels.FailedStatus
 	case "succeeded":
-		return models.SuccessStatus
+		return coreModels.SuccessStatus
 	case "partiallySucceeded":
-		return models.WarningStatus
+		return coreModels.WarningStatus
 	case "inProgress":
-		return models.RunningStatus
+		return coreModels.RunningStatus
 	}
 
 	// all / notDeployed
-	return models.UnknownStatus
+	return coreModels.UnknownStatus
 }

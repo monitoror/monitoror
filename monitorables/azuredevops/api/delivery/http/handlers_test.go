@@ -9,8 +9,8 @@ import (
 	"testing"
 
 	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/azuredevops"
-	"github.com/monitoror/monitoror/monitorable/azuredevops/mocks"
+	"github.com/monitoror/monitoror/monitorables/azuredevops/api"
+	"github.com/monitoror/monitoror/monitorables/azuredevops/api/mocks"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -33,7 +33,7 @@ func TestDelivery_BuildHandler_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
-	tile := models.NewTile(azuredevops.AzureDevOpsBuildTileType)
+	tile := models.NewTile(api.AzureDevOpsBuildTileType)
 	tile.Status = models.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)
@@ -41,13 +41,13 @@ func TestDelivery_BuildHandler_Success(t *testing.T) {
 	handler := NewAzureDevOpsDelivery(mockUsecase)
 
 	// Expected
-	json, err := json.Marshal(tile)
+	j, err := json.Marshal(tile)
 	assert.NoError(t, err, "unable to marshal tile")
 
 	// Test
 	if assert.NoError(t, handler.GetBuild(ctx)) {
 		assert.Equal(t, http.StatusOK, res.Code)
-		assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
+		assert.Equal(t, string(j), strings.TrimSpace(res.Body.String()))
 		mockUsecase.AssertNumberOfCalls(t, "Build", 1)
 		mockUsecase.AssertExpectations(t)
 	}
@@ -85,7 +85,7 @@ func TestDelivery_GetRelease_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
-	tile := models.NewTile(azuredevops.AzureDevOpsBuildTileType)
+	tile := models.NewTile(api.AzureDevOpsBuildTileType)
 	tile.Status = models.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)
@@ -93,13 +93,13 @@ func TestDelivery_GetRelease_Success(t *testing.T) {
 	handler := NewAzureDevOpsDelivery(mockUsecase)
 
 	// Expected
-	json, err := json.Marshal(tile)
+	j, err := json.Marshal(tile)
 	assert.NoError(t, err, "unable to marshal tile")
 
 	// Test
 	if assert.NoError(t, handler.GetRelease(ctx)) {
 		assert.Equal(t, http.StatusOK, res.Code)
-		assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
+		assert.Equal(t, string(j), strings.TrimSpace(res.Body.String()))
 		mockUsecase.AssertNumberOfCalls(t, "Release", 1)
 		mockUsecase.AssertExpectations(t)
 	}
