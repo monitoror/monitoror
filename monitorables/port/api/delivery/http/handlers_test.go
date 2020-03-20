@@ -9,8 +9,8 @@ import (
 	"testing"
 
 	"github.com/monitoror/monitoror/models"
-	. "github.com/monitoror/monitoror/monitorable/port"
-	"github.com/monitoror/monitoror/monitorable/port/mocks"
+	"github.com/monitoror/monitoror/monitorables/port/api"
+	"github.com/monitoror/monitoror/monitorables/port/api/mocks"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -45,7 +45,7 @@ func TestDelivery_PortHandler_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
-	tile := models.NewTile(PortTileType)
+	tile := models.NewTile(api.PortTileType)
 	tile.Label = "monitoror.example.com:1234"
 	tile.Status = models.SuccessStatus
 

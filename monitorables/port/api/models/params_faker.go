@@ -2,14 +2,14 @@
 
 package models
 
-import "github.com/monitoror/monitoror/models"
+import coreModels "github.com/monitoror/monitoror/models"
 
 type (
 	PortParams struct {
 		Hostname string `json:"hostname" query:"hostname"`
 		Port     int    `json:"port" query:"port"`
 
-		Status models.TileStatus `json:"status" query:"status"`
+		Status coreModels.TileStatus `json:"status" query:"status"`
 	}
 )
 

@@ -1,4 +1,4 @@
-package port
+package api
 
 type (
 	Repository interface {

@@ -3,27 +3,27 @@ package http
 import (
 	"net/http"
 
-	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/monitorable/port"
-	portModels "github.com/monitoror/monitoror/monitorable/port/models"
+	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/monitorables/port/api"
+	"github.com/monitoror/monitoror/monitorables/port/api/models"
 
 	"github.com/labstack/echo/v4"
 )
 
 type PortDelivery struct {
-	portUsecase port.Usecase
+	portUsecase api.Usecase
 }
 
-func NewPortDelivery(p port.Usecase) *PortDelivery {
+func NewPortDelivery(p api.Usecase) *PortDelivery {
 	return &PortDelivery{p}
 }
 
 func (h *PortDelivery) GetPort(c echo.Context) error {
 	// Bind / check Params
-	params := &portModels.PortParams{}
+	params := &models.PortParams{}
 	err := c.Bind(params)
 	if err != nil || !params.IsValid() {
-		return models.QueryParamsError
+		return coreModels.QueryParamsError
 	}
 
 	tile, err := h.portUsecase.Port(params)

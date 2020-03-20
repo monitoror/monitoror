@@ -5,8 +5,8 @@ import (
 	"net"
 	"time"
 
-	"github.com/monitoror/monitoror/config"
-	"github.com/monitoror/monitoror/monitorable/port"
+	"github.com/monitoror/monitoror/monitorables/port/api"
+	"github.com/monitoror/monitoror/monitorables/port/config"
 	pkgNet "github.com/monitoror/monitoror/pkg/net"
 )
 
@@ -17,7 +17,7 @@ type (
 	}
 )
 
-func NewPortRepository(conf *config.Port) port.Repository {
+func NewPortRepository(conf *config.Port) api.Repository {
 	timeout := time.Millisecond * time.Duration(conf.Timeout)
 	return &portRepository{conf, &net.Dialer{Timeout: timeout}}
 }

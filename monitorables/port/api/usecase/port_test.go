@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/monitoror/monitoror/models"
-	. "github.com/monitoror/monitoror/monitorable/port"
-	"github.com/monitoror/monitoror/monitorable/port/mocks"
-	portModels "github.com/monitoror/monitoror/monitorable/port/models"
+	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/monitorables/port/api"
+	"github.com/monitoror/monitoror/monitorables/port/api/mocks"
+	"github.com/monitoror/monitoror/monitorables/port/api/models"
 
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"
@@ -21,15 +21,15 @@ func TestUsecase_CheckPort_Success(t *testing.T) {
 	usecase := NewPortUsecase(mockRepo)
 
 	// Params
-	param := &portModels.PortParams{
+	param := &models.PortParams{
 		Hostname: "monitoror.example.com",
 		Port:     1234,
 	}
 
 	// Expected
-	eTile := models.NewTile(PortTileType)
+	eTile := coreModels.NewTile(api.PortTileType)
 	eTile.Label = fmt.Sprintf("%s:%d", param.Hostname, param.Port)
-	eTile.Status = models.SuccessStatus
+	eTile.Status = coreModels.SuccessStatus
 
 	// Test
 	rTile, err := usecase.Port(param)
@@ -48,15 +48,15 @@ func TestUsecase_CheckPort_Fail(t *testing.T) {
 	usecase := NewPortUsecase(mockRepo)
 
 	// Params
-	param := &portModels.PortParams{
+	param := &models.PortParams{
 		Hostname: "monitoror.example.com",
 		Port:     1234,
 	}
 
 	// Expected
-	eTile := models.NewTile(PortTileType)
+	eTile := coreModels.NewTile(api.PortTileType)
 	eTile.Label = fmt.Sprintf("%s:%d", param.Hostname, param.Port)
-	eTile.Status = models.FailedStatus
+	eTile.Status = coreModels.FailedStatus
 
 	// Test
 	rTile, err := usecase.Port(param)

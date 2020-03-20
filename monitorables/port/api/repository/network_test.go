@@ -4,7 +4,7 @@ import (
 	"errors"
 	"testing"
 
-	. "github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/monitorables/port/config"
 	pkgNet "github.com/monitoror/monitoror/pkg/net"
 	"github.com/monitoror/monitoror/pkg/net/mocks"
 
@@ -13,8 +13,11 @@ import (
 )
 
 func initRepository(t *testing.T, dialer pkgNet.Dialer) *portRepository {
-	conf := InitConfig()
-	repository := NewPortRepository(conf.Monitorable.Port[DefaultVariant])
+	conf := &config.Port{
+		Timeout:         1000,
+		InitialMaxDelay: 1000,
+	}
+	repository := NewPortRepository(conf)
 
 	systemPortRepository, ok := repository.(*portRepository)
 	if assert.True(t, ok) {
