@@ -1,14 +1,22 @@
 package cli
 
 import (
+	"fmt"
+	"strings"
+
+	coreModels "github.com/monitoror/monitoror/models"
+
 	"github.com/monitoror/monitoror/cli/version"
 
 	"github.com/labstack/gommon/color"
 )
 
 const (
-	website = "https://github.com/monitoror/monitoror"
-	banner  = `
+	website           = "https://monitoror.com"
+	developmentGuides = "https://monitoror.com/guides/#development"
+	documentation     = "https://monitoror.com/" + "%s" + "documentation/"
+
+	banner = `
     __  ___            _ __
    /  |/  /___  ____  (_) /_____  _________  _____
   / /|_/ / __ \/ __ \/ / __/ __ \/ ___/ __ \/ ___/
@@ -17,11 +25,95 @@ const (
 
 %s
 _____________________________________________________
-
 `
+	devMode = `
+You are in dev mode
+
+To see UI, run ` + "`yarn serve`" + ` in the ` + "`ui`" + ` folder.
+For more details, read the development guide:
+%s
+_____________________________________________________
+`
+
+	monitorableHeader = `
+Enabled modules
+===============
+`
+
+	monitorableFooter = `
+The module you need is not listed here?
+Please read the module documentation to discover all available modules and see how to enable them:
+%s
+_____________________________________________________
+`
+
+	errorSymbol = `/!\`
 )
 
 func PrintBanner() {
 	colorer := color.New()
 	colorer.Printf(banner, colorer.Green(version.BuildTags), colorer.Green(version.Version), colorer.Blue(website))
+}
+
+func PrintDevMode() {
+	colorer := color.New()
+	colorer.Printf(devMode, colorer.Blue(developmentGuides))
+}
+
+func PrintMonitorableHeader() {
+	colorer := color.New()
+	colorer.Printf(monitorableHeader)
+}
+
+func PrintMonitorable(displayName string, enabledVariants []coreModels.Variant, erroredVariants map[coreModels.Variant]error) {
+	if len(enabledVariants) == 0 && len(erroredVariants) == 0 {
+		return
+	}
+
+	colorer := color.New()
+
+	// Stringify variants
+	var strVariants string
+	if len(enabledVariants) == 1 && enabledVariants[0] == coreModels.DefaultVariant {
+		// Only Default variant, skip
+		strVariants = ""
+	} else {
+		var strDefault string
+		var variantsWithoutDefault []string
+
+		for _, variant := range enabledVariants {
+			if variant == coreModels.DefaultVariant {
+				strDefault = fmt.Sprintf("%s, ", variant)
+			} else {
+				variantsWithoutDefault = append(variantsWithoutDefault, string(variant))
+			}
+		}
+		strVariants = fmt.Sprintf("[%svariants: [%s]]", strDefault, strings.Join(variantsWithoutDefault, ", "))
+	}
+
+	// Print Minitorable and variants
+	colorer.Printf("- %s %s\n", colorer.Green(displayName), strVariants)
+
+	// Print Error
+	for variant, err := range erroredVariants {
+		if variant == coreModels.DefaultVariant {
+			colorer.Printf("   %s Errored %s configuration\n      %s\n", colorer.Red(errorSymbol), variant, err.Error())
+
+		} else {
+			colorer.Printf("   %s Errored %s configuration variant\n      %s\n", colorer.Red(errorSymbol), variant, err.Error())
+		}
+	}
+}
+
+func PrintMonitorableFooter(isProduction bool) {
+	colorer := color.New()
+
+	var documentationVersion string
+	if isProduction {
+		if splittedVersion := strings.Split(version.Version, "."); len(splittedVersion) == 3 {
+			documentationVersion = fmt.Sprintf("%s.%s", splittedVersion[0], splittedVersion[1])
+		}
+	}
+
+	colorer.Printf(monitorableFooter, colorer.Blue(fmt.Sprintf(documentation, documentationVersion)))
 }

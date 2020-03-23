@@ -3,16 +3,15 @@ package service
 import (
 	"net/http"
 
+	"github.com/monitoror/monitoror/cli"
+
 	rice "github.com/GeertJohan/go.rice"
 	"github.com/labstack/echo/v4"
 )
 
 func InitUI(s *Server) {
-	loadUI := s.store.CoreConfig.Env == "production"
-
-	// TODO LOG
-
-	if !loadUI {
+	if s.store.CoreConfig.Env != "production" {
+		cli.PrintDevMode()
 		return
 	}
 

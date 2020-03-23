@@ -43,11 +43,26 @@ func (m *Manager) register(monitorable Monitorable) {
 }
 
 func (m *Manager) EnableMonitorables() {
-	//TODO: LOGS
+	cli.PrintMonitorableHeader()
 
 	for _, monitorable := range m.monitorables {
+		var enabledVariants []coreModels.Variant
+		erroredVariants := make(map[coreModels.Variant]error)
+
 		for _, variant := range monitorable.GetVariants() {
-			monitorable.Enable(variant)
+			valid, err := monitorable.Validate(variant)
+			if err != nil {
+				erroredVariants[variant] = err
+			}
+
+			if valid {
+				monitorable.Enable(variant)
+				enabledVariants = append(enabledVariants, variant)
+			}
 		}
+
+		cli.PrintMonitorable(monitorable.GetDisplayName(), enabledVariants, erroredVariants)
 	}
+
+	cli.PrintMonitorableFooter(m.store.CoreConfig.Env == "production")
 }
