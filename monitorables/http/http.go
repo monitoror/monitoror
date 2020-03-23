@@ -4,7 +4,7 @@ package http
 
 import (
 	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
-	coreConfig "github.com/monitoror/monitoror/config"
+	pkgMonitorable "github.com/monitoror/monitoror/internal/pkg/monitorable"
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/http/api"
 	httpDelivery "github.com/monitoror/monitoror/monitorables/http/api/delivery/http"
@@ -27,7 +27,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	monitorable.config = make(map[coreModels.Variant]*httpConfig.HTTP)
 
 	// Load core config from env
-	coreConfig.LoadMonitorableConfig(&monitorable.config, httpConfig.Default)
+	pkgMonitorable.LoadConfig(&monitorable.config, httpConfig.Default)
 
 	// Register Monitorable Tile in config manager
 	store.UIConfigManager.RegisterTile(api.HTTPStatusTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)
@@ -42,7 +42,7 @@ func (m *Monitorable) GetDisplayName() string {
 }
 
 func (m *Monitorable) GetVariants() []coreModels.Variant {
-	return coreConfig.GetVariantsFromConfig(m.config)
+	return pkgMonitorable.GetVariants(m.config)
 }
 
 func (m *Monitorable) Validate(_ coreModels.Variant) (bool, error) {

@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/monitoror/monitoror/internal/pkg/monitorable/faker"
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/port/api"
 	"github.com/monitoror/monitoror/monitorables/port/api/models"
-	"github.com/monitoror/monitoror/pkg/monitoror/faker"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
+	"github.com/monitoror/monitoror/pkg/nonempty"
 )
 
 type (

@@ -7,13 +7,14 @@ import (
 	"math/rand"
 	"time"
 
+	models2 "github.com/monitoror/monitoror/api/config/models"
+
+	"github.com/monitoror/monitoror/internal/pkg/monitorable/faker"
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/github/api"
 	"github.com/monitoror/monitoror/monitorables/github/api/models"
-	"github.com/monitoror/monitoror/pkg/monitoror/builder"
-	"github.com/monitoror/monitoror/pkg/monitoror/faker"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
+	"github.com/monitoror/monitoror/pkg/git"
+	"github.com/monitoror/monitoror/pkg/nonempty"
 
 	"github.com/AlekSi/pointer"
 	cmap "github.com/orcaman/concurrent-map"
@@ -109,7 +110,7 @@ func (gu *githubUsecase) Checks(params *models.ChecksParams) (tile *coreModels.T
 	return tile, nil
 }
 
-func (gu *githubUsecase) PullRequests(params interface{}) ([]builder.Result, error) {
+func (gu *githubUsecase) PullRequests(params interface{}) ([]models2.DynamicTileResult, error) {
 	panic("unimplemented")
 }
 

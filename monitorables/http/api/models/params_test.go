@@ -4,7 +4,7 @@ import (
 	"regexp"
 	"testing"
 
-	. "github.com/monitoror/monitoror/pkg/monitoror/utils"
+	"github.com/monitoror/monitoror/pkg/validator"
 
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
@@ -12,7 +12,7 @@ import (
 
 func TestHTTPParams_IsValid(t *testing.T) {
 	for _, testcase := range []struct {
-		params   Validator
+		params   validator.SimpleValidator
 		expected bool
 	}{
 		{&HTTPStatusParams{}, false},

@@ -87,7 +87,7 @@ func (r *azureDevOpsRepository) GetBuild(project string, definition int, branch 
 		result.Status = string(*aBuild.Status)
 	}
 
-	// Result
+	// DynamicTileResult
 	if aBuild.Result != nil {
 		result.Result = string(*aBuild.Result)
 	}

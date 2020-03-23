@@ -8,10 +8,11 @@ import (
 	"sync"
 	"time"
 
+	models2 "github.com/monitoror/monitoror/api/config/models"
+
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/pingdom/api"
 	"github.com/monitoror/monitoror/monitorables/pingdom/api/models"
-	"github.com/monitoror/monitoror/pkg/monitoror/builder"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 	uuid "github.com/satori/go.uuid"
@@ -87,7 +88,7 @@ func (pu *pingdomUsecase) Check(params *models.CheckParams) (*coreModels.Tile, e
 	return tile, nil
 }
 
-func (pu *pingdomUsecase) Checks(params interface{}) ([]builder.Result, error) {
+func (pu *pingdomUsecase) Checks(params interface{}) ([]models2.DynamicTileResult, error) {
 	lcParams := params.(*models.ChecksParams)
 
 	checks, err := pu.loadChecks(lcParams.Tags)
@@ -99,7 +100,7 @@ func (pu *pingdomUsecase) Checks(params interface{}) ([]builder.Result, error) {
 		sort.SliceStable(checks, func(i, j int) bool { return checks[i].Name < checks[j].Name })
 	}
 
-	var results []builder.Result
+	var results []models2.DynamicTileResult
 	for _, check := range checks {
 		// Adding id -> tags in the store for one minute. This value will be refresh each time we call this route
 		// This store will be use to find the best route to call for loading check result.
@@ -110,7 +111,7 @@ func (pu *pingdomUsecase) Checks(params interface{}) ([]builder.Result, error) {
 			p := make(map[string]interface{})
 			p["id"] = check.ID
 
-			results = append(results, builder.Result{
+			results = append(results, models2.DynamicTileResult{
 				TileType: api.PingdomCheckTileType,
 				Label:    check.Name,
 				Params:   p,

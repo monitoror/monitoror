@@ -4,7 +4,7 @@ package ping
 
 import (
 	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
-	coreConfig "github.com/monitoror/monitoror/config"
+	pkgMonitorable "github.com/monitoror/monitoror/internal/pkg/monitorable"
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/ping/api"
 	pingDelivery "github.com/monitoror/monitoror/monitorables/ping/api/delivery/http"
@@ -12,7 +12,7 @@ import (
 	pingRepository "github.com/monitoror/monitoror/monitorables/ping/api/repository"
 	pingUsecase "github.com/monitoror/monitoror/monitorables/ping/api/usecase"
 	pingConfig "github.com/monitoror/monitoror/monitorables/ping/config"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/system"
+	"github.com/monitoror/monitoror/pkg/system"
 	"github.com/monitoror/monitoror/service/store"
 )
 
@@ -28,7 +28,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	monitorable.config = make(map[coreModels.Variant]*pingConfig.Ping)
 
 	// Load core config from env
-	coreConfig.LoadMonitorableConfig(&monitorable.config, pingConfig.Default)
+	pkgMonitorable.LoadConfig(&monitorable.config, pingConfig.Default)
 
 	// Register Monitorable Tile in config manager
 	store.UIConfigManager.RegisterTile(api.PingTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)
@@ -41,7 +41,7 @@ func (m *Monitorable) GetDisplayName() string {
 }
 
 func (m *Monitorable) GetVariants() []coreModels.Variant {
-	return coreConfig.GetVariantsFromConfig(m.config)
+	return pkgMonitorable.GetVariants(m.config)
 }
 
 func (m *Monitorable) Validate(_ coreModels.Variant) (bool, error) {

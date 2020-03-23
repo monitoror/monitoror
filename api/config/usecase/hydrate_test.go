@@ -11,7 +11,6 @@ import (
 	coreModels "github.com/monitoror/monitoror/models"
 	jenkinsApi "github.com/monitoror/monitoror/monitorables/jenkins/api"
 	jenkinsModels "github.com/monitoror/monitoror/monitorables/jenkins/api/models"
-	"github.com/monitoror/monitoror/pkg/monitoror/builder"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/stretchr/testify/assert"
@@ -84,8 +83,8 @@ func TestUsecase_Hydrate_WithDynamic(t *testing.T) {
 `
 	params := make(map[string]interface{})
 	params["job"] = "test"
-	mockBuilder := func(_ interface{}) ([]builder.Result, error) {
-		return []builder.Result{{TileType: jenkinsApi.JenkinsBuildTileType, Params: params}}, nil
+	mockBuilder := func(_ interface{}) ([]models.DynamicTileResult, error) {
+		return []models.DynamicTileResult{{TileType: jenkinsApi.JenkinsBuildTileType, Params: params}}, nil
 	}
 
 	store := cache.NewGoCacheStore(time.Second, time.Second)
@@ -125,7 +124,7 @@ func TestUsecase_Hydrate_WithDynamicEmpty(t *testing.T) {
 `
 	params := make(map[string]interface{})
 	params["job"] = "test"
-	mockBuilder := func(_ interface{}) ([]builder.Result, error) { return []builder.Result{}, nil }
+	mockBuilder := func(_ interface{}) ([]models.DynamicTileResult, error) { return []models.DynamicTileResult{}, nil }
 
 	store := cache.NewGoCacheStore(time.Second, time.Second)
 	usecase := initConfigUsecase(nil, store)
@@ -158,10 +157,10 @@ func TestUsecase_Hydrate_WithDynamic_WithError(t *testing.T) {
 `
 	params := make(map[string]interface{})
 	params["job"] = "test"
-	mockBuilder := func(_ interface{}) ([]builder.Result, error) {
-		return []builder.Result{{TileType: jenkinsApi.JenkinsBuildTileType, Params: params}}, nil
+	mockBuilder := func(_ interface{}) ([]models.DynamicTileResult, error) {
+		return []models.DynamicTileResult{{TileType: jenkinsApi.JenkinsBuildTileType, Params: params}}, nil
 	}
-	mockBuilder2 := func(_ interface{}) ([]builder.Result, error) { return nil, errors.New("unable to find job") }
+	mockBuilder2 := func(_ interface{}) ([]models.DynamicTileResult, error) { return nil, errors.New("unable to find job") }
 
 	store := cache.NewGoCacheStore(time.Second, time.Second)
 	usecase := initConfigUsecase(nil, store)
@@ -196,10 +195,10 @@ func TestUsecase_Hydrate_WithDynamic_WithTimeoutError(t *testing.T) {
 `
 	params := make(map[string]interface{})
 	params["job"] = "test"
-	mockBuilder := func(_ interface{}) ([]builder.Result, error) {
-		return []builder.Result{{TileType: jenkinsApi.JenkinsBuildTileType, Params: params}}, nil
+	mockBuilder := func(_ interface{}) ([]models.DynamicTileResult, error) {
+		return []models.DynamicTileResult{{TileType: jenkinsApi.JenkinsBuildTileType, Params: params}}, nil
 	}
-	mockBuilder2 := func(_ interface{}) ([]builder.Result, error) { return nil, context.DeadlineExceeded }
+	mockBuilder2 := func(_ interface{}) ([]models.DynamicTileResult, error) { return nil, context.DeadlineExceeded }
 
 	store := cache.NewGoCacheStore(time.Second, time.Second)
 	usecase := initConfigUsecase(nil, store)
@@ -230,11 +229,11 @@ func TestUsecase_Hydrate_WithDynamic_WithTimeoutCache(t *testing.T) {
 
 	params := make(map[string]interface{})
 	params["job"] = "test"
-	cachedResult := []builder.Result{{TileType: jenkinsApi.JenkinsBuildTileType, Params: params}}
+	cachedResult := []models.DynamicTileResult{{TileType: jenkinsApi.JenkinsBuildTileType, Params: params}}
 	cacheKey := fmt.Sprintf("%s:%s_%s_%s", DynamicTileStoreKeyPrefix, "JENKINS-MULTIBRANCH", "default", `{"job":"test"}`)
 	_ = usecase.dynamicTileStore.Add(cacheKey, cachedResult, 0)
 
-	mockBuilder := func(_ interface{}) ([]builder.Result, error) { return nil, context.DeadlineExceeded }
+	mockBuilder := func(_ interface{}) ([]models.DynamicTileResult, error) { return nil, context.DeadlineExceeded }
 	usecase.EnableDynamicTile(jenkinsApi.JenkinsMultiBranchTileType, coreModels.DefaultVariant, &jenkinsModels.MultiBranchParams{}, mockBuilder)
 
 	config, err := readConfig(input)

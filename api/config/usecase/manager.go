@@ -1,9 +1,9 @@
 package usecase
 
 import (
+	"github.com/monitoror/monitoror/api/config"
 	"github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/pkg/monitoror/builder"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils"
+	"github.com/monitoror/monitoror/pkg/validator"
 )
 
 type (
@@ -14,15 +14,15 @@ type (
 
 	// TileConfig struct is used by GetConfig endpoint to check / hydrate config
 	TileConfig struct {
-		Validator       utils.Validator
+		Validator       validator.SimpleValidator
 		Path            string
 		InitialMaxDelay int
 	}
 
 	// DynamicTileConfig struct is used by GetConfig endpoint to check / hydrate config
 	DynamicTileConfig struct {
-		Validator utils.Validator
-		Builder   builder.DynamicTileBuilder
+		Validator validator.SimpleValidator
+		Builder   config.DynamicTileBuilder
 	}
 )
 
@@ -40,7 +40,7 @@ func (cu *configUsecase) RegisterTile(tileType models.TileType, variant []models
 }
 
 func (cu *configUsecase) EnableTile(
-	tileType models.TileType, variant models.Variant, clientConfigValidator utils.Validator, path string, initialMaxDelay int,
+	tileType models.TileType, variant models.Variant, clientConfigValidator validator.SimpleValidator, path string, initialMaxDelay int,
 ) {
 	value, exists := cu.configData.tileConfigs[tileType]
 	if !exists {
@@ -56,7 +56,7 @@ func (cu *configUsecase) EnableTile(
 }
 
 func (cu *configUsecase) EnableDynamicTile(
-	tileType models.TileType, variant models.Variant, clientConfigValidator utils.Validator, builder builder.DynamicTileBuilder,
+	tileType models.TileType, variant models.Variant, clientConfigValidator validator.SimpleValidator, builder config.DynamicTileBuilder,
 ) {
 	// Used for authorized type
 	cu.configData.tileConfigs[tileType] = nil

@@ -10,7 +10,7 @@ import (
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/travisci/api/mocks"
 	"github.com/monitoror/monitoror/monitorables/travisci/api/models"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
+	"github.com/monitoror/monitoror/pkg/git"
 
 	. "github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"

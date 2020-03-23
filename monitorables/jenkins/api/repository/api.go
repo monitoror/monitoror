@@ -11,7 +11,7 @@ import (
 	"github.com/monitoror/monitoror/monitorables/jenkins/api/models"
 	"github.com/monitoror/monitoror/monitorables/jenkins/config"
 	pkgJenkins "github.com/monitoror/monitoror/pkg/gojenkins"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/gravatar"
+	"github.com/monitoror/monitoror/pkg/gravatar"
 
 	gojenkins "github.com/jsdidierlaurent/golang-jenkins"
 )

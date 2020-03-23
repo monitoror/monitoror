@@ -14,7 +14,7 @@ import (
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/http/api"
 	"github.com/monitoror/monitoror/monitorables/http/api/models"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/humanize"
+	"github.com/monitoror/monitoror/pkg/humanize"
 
 	xml2json "github.com/basgys/goxml2json"
 	"github.com/ghodss/yaml"

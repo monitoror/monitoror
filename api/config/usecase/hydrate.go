@@ -9,7 +9,7 @@ import (
 
 	"github.com/monitoror/monitoror/api/config/models"
 	coreModels "github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/humanize"
+	"github.com/monitoror/monitoror/pkg/humanize"
 )
 
 func (cu *configUsecase) Hydrate(configBag *models.ConfigBag) {

@@ -6,12 +6,13 @@ import (
 	"fmt"
 	"time"
 
+	models2 "github.com/monitoror/monitoror/api/config/models"
+
+	"github.com/monitoror/monitoror/internal/pkg/monitorable/faker"
 	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/pingdom/api"
 	pingdomModels "github.com/monitoror/monitoror/monitorables/pingdom/api/models"
-	"github.com/monitoror/monitoror/pkg/monitoror/builder"
-	"github.com/monitoror/monitoror/pkg/monitoror/faker"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
+	"github.com/monitoror/monitoror/pkg/nonempty"
 )
 
 type (
@@ -40,7 +41,7 @@ func (pu *pingdomUsecase) Check(params *pingdomModels.CheckParams) (tile *models
 	return
 }
 
-func (pu *pingdomUsecase) Checks(params interface{}) ([]builder.Result, error) {
+func (pu *pingdomUsecase) Checks(params interface{}) ([]models2.DynamicTileResult, error) {
 	panic("unimplemented")
 }
 

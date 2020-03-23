@@ -5,9 +5,10 @@ import (
 	"fmt"
 	"reflect"
 
+	validator2 "github.com/monitoror/monitoror/pkg/validator"
+
 	"github.com/monitoror/monitoror/api/config/models"
 	coreModels "github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils"
 )
 
 func (cu *configUsecase) Verify(configBag *models.ConfigBag) {
@@ -220,7 +221,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 	// Get the validator for current tile
 	// - for non dynamic tile, the validator is register in tileConfigs
 	// - for meta dynamic, the validator is register in dynamicTileConfigs
-	var validator utils.Validator
+	var validator validator2.SimpleValidator
 	if _, exists := cu.configData.dynamicTileConfigs[tile.Type]; !exists {
 		tileConfig, exists := cu.configData.tileConfigs[tile.Type][tile.ConfigVariant]
 		if !exists {
@@ -259,7 +260,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 	rType := reflect.TypeOf(validator)
 	rInstance := reflect.New(rType.Elem()).Interface()
 
-	// Marshal / Unmarshal the map[string]interface{} struct in new instance of Validator
+	// Marshal / Unmarshal the map[string]interface{} struct in new instance of SimpleValidator
 	bytesParams, _ := json.Marshal(tile.Params)
 	unmarshalErr := json.Unmarshal(bytesParams, &rInstance)
 
@@ -284,7 +285,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 		}
 	}
 
-	if unmarshalErr != nil || !rInstance.(utils.Validator).IsValid() {
+	if unmarshalErr != nil || !rInstance.(validator2.SimpleValidator).IsValid() {
 		configBag.AddErrors(models.ConfigError{
 			ID:      models.ConfigErrorInvalidFieldValue,
 			Message: fmt.Sprintf(`Invalid params definition for %q: %q.`, tile.Type, string(bytesParams)),

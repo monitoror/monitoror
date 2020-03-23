@@ -10,7 +10,7 @@ import (
 	"testing/iotest"
 
 	"github.com/monitoror/monitoror/monitorables/http/config"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/test"
+	"github.com/monitoror/monitoror/pkg/test"
 
 	"github.com/stretchr/testify/assert"
 )

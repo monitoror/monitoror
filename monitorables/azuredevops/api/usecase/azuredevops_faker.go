@@ -7,12 +7,12 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/monitoror/monitoror/internal/pkg/monitorable/faker"
 	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/azuredevops/api"
 	azureModels "github.com/monitoror/monitoror/monitorables/azuredevops/api/models"
-	"github.com/monitoror/monitoror/pkg/monitoror/faker"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
+	"github.com/monitoror/monitoror/pkg/git"
+	"github.com/monitoror/monitoror/pkg/nonempty"
 
 	"github.com/AlekSi/pointer"
 	cmap "github.com/orcaman/concurrent-map"

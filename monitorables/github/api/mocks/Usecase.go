@@ -5,7 +5,7 @@
 package mocks
 
 import (
-	builder "github.com/monitoror/monitoror/pkg/monitoror/builder"
+	configmodels "github.com/monitoror/monitoror/api/config/models"
 	mock "github.com/stretchr/testify/mock"
 
 	models "github.com/monitoror/monitoror/monitorables/github/api/models"
@@ -65,15 +65,15 @@ func (_m *Usecase) Count(params *models.CountParams) (*monitorormodels.Tile, err
 }
 
 // PullRequests provides a mock function with given fields: params
-func (_m *Usecase) PullRequests(params interface{}) ([]builder.Result, error) {
+func (_m *Usecase) PullRequests(params interface{}) ([]configmodels.DynamicTileResult, error) {
 	ret := _m.Called(params)
 
-	var r0 []builder.Result
-	if rf, ok := ret.Get(0).(func(interface{}) []builder.Result); ok {
+	var r0 []configmodels.DynamicTileResult
+	if rf, ok := ret.Get(0).(func(interface{}) []configmodels.DynamicTileResult); ok {
 		r0 = rf(params)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]builder.Result)
+			r0 = ret.Get(0).([]configmodels.DynamicTileResult)
 		}
 	}
 

@@ -7,13 +7,14 @@ import (
 	"sort"
 	"time"
 
+	models2 "github.com/monitoror/monitoror/api/config/models"
+
+	"github.com/monitoror/monitoror/internal/pkg/monitorable/cache"
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/github/api"
 	"github.com/monitoror/monitoror/monitorables/github/api/models"
-	"github.com/monitoror/monitoror/pkg/monitoror/builder"
-	"github.com/monitoror/monitoror/pkg/monitoror/cache"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/hash"
+	"github.com/monitoror/monitoror/pkg/git"
+	"github.com/monitoror/monitoror/pkg/hash"
 
 	"github.com/AlekSi/pointer"
 )
@@ -127,7 +128,7 @@ func (gu *githubUsecase) Checks(params *models.ChecksParams) (*coreModels.Tile, 
 	return tile, nil
 }
 
-func (gu *githubUsecase) PullRequests(params interface{}) ([]builder.Result, error) {
+func (gu *githubUsecase) PullRequests(params interface{}) ([]models2.DynamicTileResult, error) {
 	prParams := params.(*models.PullRequestParams)
 
 	pullRequests, err := gu.repository.GetPullRequests(prParams.Owner, prParams.Repository)
@@ -135,14 +136,14 @@ func (gu *githubUsecase) PullRequests(params interface{}) ([]builder.Result, err
 		return nil, &coreModels.MonitororError{Err: err, Message: "unable to find pull request"}
 	}
 
-	var results []builder.Result
+	var results []models2.DynamicTileResult
 	for _, pullRequest := range pullRequests {
 		p := make(map[string]interface{})
 		p["owner"] = pullRequest.Owner
 		p["repository"] = pullRequest.Repository
 		p["ref"] = pullRequest.Ref
 
-		results = append(results, builder.Result{
+		results = append(results, models2.DynamicTileResult{
 			TileType: api.GithubChecksTileType,
 			Label:    fmt.Sprintf("PR#%d @ %s", pullRequest.ID, pullRequest.Repository),
 			Params:   p,

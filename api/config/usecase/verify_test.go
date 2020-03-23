@@ -9,7 +9,6 @@ import (
 	coreModels "github.com/monitoror/monitoror/models"
 	jenkinsApi "github.com/monitoror/monitoror/monitorables/jenkins/api"
 	jenkinsModels "github.com/monitoror/monitoror/monitorables/jenkins/api/models"
-	"github.com/monitoror/monitoror/pkg/monitoror/builder"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -336,8 +335,8 @@ func TestUsecase_VerifyTile_WithDynamicTile(t *testing.T) {
 
 	params := make(map[string]interface{})
 	params["job"] = "test"
-	mockBuilder := func(_ interface{}) ([]builder.Result, error) {
-		return []builder.Result{{TileType: jenkinsApi.JenkinsBuildTileType, Params: params}}, nil
+	mockBuilder := func(_ interface{}) ([]models.DynamicTileResult, error) {
+		return []models.DynamicTileResult{{TileType: jenkinsApi.JenkinsBuildTileType, Params: params}}, nil
 	}
 
 	usecase := initConfigUsecase(nil, nil)
@@ -355,8 +354,8 @@ func TestUsecase_VerifyTile_WithDynamicTile_WithWrongVariant(t *testing.T) {
 
 	params := make(map[string]interface{})
 	params["job"] = "test"
-	mockBuilder := func(_ interface{}) ([]builder.Result, error) {
-		return []builder.Result{{TileType: jenkinsApi.JenkinsBuildTileType, Params: params}}, nil
+	mockBuilder := func(_ interface{}) ([]models.DynamicTileResult, error) {
+		return []models.DynamicTileResult{{TileType: jenkinsApi.JenkinsBuildTileType, Params: params}}, nil
 	}
 
 	usecase := initConfigUsecase(nil, nil)

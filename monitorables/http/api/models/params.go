@@ -3,7 +3,7 @@ package models
 import (
 	"regexp"
 
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/slice"
+	"github.com/monitoror/monitoror/pkg/slice"
 )
 
 type (

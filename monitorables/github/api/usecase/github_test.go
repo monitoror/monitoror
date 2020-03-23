@@ -11,7 +11,7 @@ import (
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/github/api/mocks"
 	"github.com/monitoror/monitoror/monitorables/github/api/models"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/hash"
+	"github.com/monitoror/monitoror/pkg/hash"
 
 	. "github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"

@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"net/url"
 
+	pkgMonitorable "github.com/monitoror/monitoror/internal/pkg/monitorable"
+
 	coreModels "github.com/monitoror/monitoror/models"
 
 	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
-	coreConfig "github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/monitorables/travisci/api"
 	travisciDelivery "github.com/monitoror/monitoror/monitorables/travisci/api/delivery/http"
 	travisciModels "github.com/monitoror/monitoror/monitorables/travisci/api/models"
@@ -31,7 +32,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	monitorable.config = make(map[coreModels.Variant]*travisciConfig.TravisCI)
 
 	// Load core config from env
-	coreConfig.LoadMonitorableConfig(&monitorable.config, travisciConfig.Default)
+	pkgMonitorable.LoadConfig(&monitorable.config, travisciConfig.Default)
 
 	// Register Monitorable Tile in config manager
 	store.UIConfigManager.RegisterTile(api.TravisCIBuildTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)
@@ -44,7 +45,7 @@ func (m *Monitorable) GetDisplayName() string {
 }
 
 func (m *Monitorable) GetVariants() []coreModels.Variant {
-	return coreConfig.GetVariantsFromConfig(m.config)
+	return pkgMonitorable.GetVariants(m.config)
 }
 
 func (m *Monitorable) Validate(variant coreModels.Variant) (bool, error) {
@@ -56,7 +57,7 @@ func (m *Monitorable) Validate(variant coreModels.Variant) (bool, error) {
 
 	// Error in URL
 	if _, err := url.Parse(conf.URL); err != nil {
-		return false, fmt.Errorf(`%s contains invalid URL: "%s"`, coreConfig.GetEnvFromMonitorableVariable(conf, variant, "URL"), conf.URL)
+		return false, fmt.Errorf(`%s contains invalid URL: "%s"`, pkgMonitorable.GetEnvName(conf, variant, "URL"), conf.URL)
 	}
 
 	return true, nil

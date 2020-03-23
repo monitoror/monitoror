@@ -11,7 +11,7 @@ import (
 	"github.com/monitoror/monitoror/monitorables/github/api/models"
 	"github.com/monitoror/monitoror/monitorables/github/config"
 	"github.com/monitoror/monitoror/pkg/gogithub"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/gravatar"
+	"github.com/monitoror/monitoror/pkg/gravatar"
 
 	githubApi "github.com/google/go-github/github"
 	"github.com/sourcegraph/httpcache"

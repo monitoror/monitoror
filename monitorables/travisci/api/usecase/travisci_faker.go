@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/monitoror/monitoror/internal/pkg/monitorable/faker"
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/travisci/api"
 	"github.com/monitoror/monitoror/monitorables/travisci/api/models"
-	"github.com/monitoror/monitoror/pkg/monitoror/faker"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/git"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/nonempty"
+	"github.com/monitoror/monitoror/pkg/git"
+	"github.com/monitoror/monitoror/pkg/nonempty"
 
 	"github.com/AlekSi/pointer"
 	cmap "github.com/orcaman/concurrent-map"

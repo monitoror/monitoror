@@ -7,7 +7,7 @@ import (
 
 	"github.com/monitoror/monitoror/monitorables/github/config"
 	"github.com/monitoror/monitoror/pkg/gogithub/mocks"
-	"github.com/monitoror/monitoror/pkg/monitoror/utils/gravatar"
+	"github.com/monitoror/monitoror/pkg/gravatar"
 
 	. "github.com/AlekSi/pointer"
 	"github.com/google/go-github/github"
