@@ -43,16 +43,17 @@ func InitConfig() *Config {
 	var config Config
 
 	// Setup Env
-	viper.AutomaticEnv()
-	viper.SetEnvPrefix(EnvPrefix)
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	v := viper.New()
+	v.AutomaticEnv()
+	v.SetEnvPrefix(EnvPrefix)
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	// Setup default values
 	for _, field := range structs.Fields(defaultConfig) {
-		viper.SetDefault(field.Name(), field.Value())
+		v.SetDefault(field.Name(), field.Value())
 	}
 
-	_ = viper.Unmarshal(&config)
+	_ = v.Unmarshal(&config)
 
 	return &config
 }

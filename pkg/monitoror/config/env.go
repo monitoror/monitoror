@@ -20,6 +20,10 @@ func initEnvAndVariant(envPrefix string, defaultVariant models.Variant, configTy
 	variants := make(Variants)
 	variants[defaultVariant] = true
 
+	if !strings.HasSuffix(envPrefix, "_") {
+		envPrefix = fmt.Sprintf("%s_", envPrefix)
+	}
+
 	// Every env currently set
 	envs := os.Environ()
 
@@ -31,18 +35,18 @@ func initEnvAndVariant(envPrefix string, defaultVariant models.Variant, configTy
 			envKey := splitedEnv[0]
 			envValue := splitedEnv[1]
 
-			envKeyWithoutPrefix := strings.Replace(envKey, fmt.Sprintf("%s_", envPrefix), "", 1)
+			envKeyWithoutPrefix := strings.Replace(envKey, envPrefix, "", 1)
 			splittedEnvKeyWithoutPrefix := strings.Split(envKeyWithoutPrefix, "_")
 
 			// Look if env without prefix start with struct field or variant
 			for i := 0; i < configType.NumField(); i++ {
 				if len(splittedEnvKeyWithoutPrefix) > 1 && strings.ToUpper(configType.Field(i).Name) == splittedEnvKeyWithoutPrefix[1] {
 					// Env has a variant add it to map
-					variants[strings.ToLower(splittedEnvKeyWithoutPrefix[0])] = true
+					variants[models.Variant(strings.ToLower(splittedEnvKeyWithoutPrefix[0]))] = true
 					break
 				} else if strings.ToUpper(configType.Field(i).Name) == splittedEnvKeyWithoutPrefix[0] {
 					// Env don't have variant, add default
-					addDefaultVariant(envKey, fmt.Sprintf("%s_%s_%s", envPrefix, strings.ToUpper(defaultVariant), envKeyWithoutPrefix), envValue)
+					addDefaultVariant(envKey, fmt.Sprintf("%s%s_%s", envPrefix, strings.ToUpper(string(defaultVariant)), envKeyWithoutPrefix), envValue)
 					break
 				}
 			}

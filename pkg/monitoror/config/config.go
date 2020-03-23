@@ -31,9 +31,10 @@ func LoadConfigWithVariant(envPrefix string, defaultVariant models.Variant, conf
 	envPrefix = strings.ToUpper(fmt.Sprintf("%s_%s", envPrefix, unboxedDefaultConfigType.Name()))
 
 	// Setup Env
-	viper.AutomaticEnv()
-	viper.SetEnvPrefix(envPrefix)
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	v := viper.New()
+	v.AutomaticEnv()
+	v.SetEnvPrefix(envPrefix)
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	// Transform Env and define Label for setting default value
 	variants := initEnvAndVariant(envPrefix, defaultVariant, unboxedDefaultConfigType)
@@ -41,9 +42,9 @@ func LoadConfigWithVariant(envPrefix string, defaultVariant models.Variant, conf
 	// Setup default value
 	for variant := range variants {
 		for _, field := range structs.Fields(defaultConf) {
-			viper.SetDefault(fmt.Sprintf("%s.%s", variant, field.Name()), field.Value())
+			v.SetDefault(fmt.Sprintf("%s.%s", variant, field.Name()), field.Value())
 		}
 	}
 
-	_ = viper.Unmarshal(&conf)
+	_ = v.Unmarshal(&conf)
 }
