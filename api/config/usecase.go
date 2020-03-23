@@ -9,9 +9,9 @@ import (
 
 type (
 	Manager interface {
-		RegisterTile(tileType models.TileType, variant []string, version string)
-		EnableTile(tileType models.TileType, variant string, validator utils.Validator, path string, initialMaxDelay int)
-		EnableDynamicTile(tileType models.TileType, variant string, Validator utils.Validator, builder builder.DynamicTileBuilder)
+		RegisterTile(tileType models.TileType, variants []models.Variant, version string)
+		EnableTile(tileType models.TileType, variant models.Variant, validator utils.Validator, path string, initialMaxDelay int)
+		EnableDynamicTile(tileType models.TileType, variant models.Variant, Validator utils.Validator, builder builder.DynamicTileBuilder)
 	}
 
 	Usecase interface {

@@ -6,14 +6,16 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/monitoror/monitoror/models"
+
 	"github.com/labstack/gommon/log"
 )
 
 type (
-	Variants map[string]bool
+	Variants map[models.Variant]bool
 )
 
-func initEnvAndVariant(envPrefix, defaultVariant string, configType reflect.Type) Variants {
+func initEnvAndVariant(envPrefix string, defaultVariant models.Variant, configType reflect.Type) Variants {
 	// We need to Identify every Variant
 	variants := make(Variants)
 	variants[defaultVariant] = true

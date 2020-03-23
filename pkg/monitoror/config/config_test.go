@@ -4,6 +4,8 @@ import (
 	"os"
 	"testing"
 
+	"github.com/monitoror/monitoror/models"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -16,8 +18,8 @@ type TestStruct struct {
 func TestLoadConfig(t *testing.T) {
 	// SETUP
 	prefix := "MO_TEST"
-	defaultVariant := "default"
-	conf := make(map[string]*TestStruct)
+	defaultVariant := models.DefaultVariant
+	conf := make(map[models.Variant]*TestStruct)
 	defaultValue := &TestStruct{ValueA: "default", ValueB: true, ValueC: 1337}
 
 	// ENV

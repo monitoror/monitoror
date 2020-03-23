@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/monitoror/monitoror/api/config/models"
-	"github.com/monitoror/monitoror/config"
+	coreModels "github.com/monitoror/monitoror/models"
 	jenkinsApi "github.com/monitoror/monitoror/monitorables/jenkins/api"
 	jenkinsModels "github.com/monitoror/monitoror/monitorables/jenkins/api/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/builder"
@@ -90,7 +90,7 @@ func TestUsecase_Hydrate_WithDynamic(t *testing.T) {
 
 	store := cache.NewGoCacheStore(time.Second, time.Second)
 	usecase := initConfigUsecase(nil, store)
-	usecase.EnableDynamicTile(jenkinsApi.JenkinsMultiBranchTileType, config.DefaultVariant, &jenkinsModels.MultiBranchParams{}, mockBuilder)
+	usecase.EnableDynamicTile(jenkinsApi.JenkinsMultiBranchTileType, coreModels.DefaultVariant, &jenkinsModels.MultiBranchParams{}, mockBuilder)
 
 	config, err := readConfig(input)
 	assert.NoError(t, err)
@@ -129,7 +129,7 @@ func TestUsecase_Hydrate_WithDynamicEmpty(t *testing.T) {
 
 	store := cache.NewGoCacheStore(time.Second, time.Second)
 	usecase := initConfigUsecase(nil, store)
-	usecase.EnableDynamicTile(jenkinsApi.JenkinsMultiBranchTileType, config.DefaultVariant, &jenkinsModels.MultiBranchParams{}, mockBuilder)
+	usecase.EnableDynamicTile(jenkinsApi.JenkinsMultiBranchTileType, coreModels.DefaultVariant, &jenkinsModels.MultiBranchParams{}, mockBuilder)
 
 	config, err := readConfig(input)
 	assert.NoError(t, err)
@@ -166,7 +166,7 @@ func TestUsecase_Hydrate_WithDynamic_WithError(t *testing.T) {
 	store := cache.NewGoCacheStore(time.Second, time.Second)
 	usecase := initConfigUsecase(nil, store)
 	usecase.EnableTile(jenkinsApi.JenkinsBuildTileType, "variant1", &jenkinsModels.BuildParams{}, "/jenkins/variant1", 1000)
-	usecase.EnableDynamicTile(jenkinsApi.JenkinsMultiBranchTileType, config.DefaultVariant, &jenkinsModels.MultiBranchParams{}, mockBuilder)
+	usecase.EnableDynamicTile(jenkinsApi.JenkinsMultiBranchTileType, coreModels.DefaultVariant, &jenkinsModels.MultiBranchParams{}, mockBuilder)
 	usecase.EnableDynamicTile(jenkinsApi.JenkinsMultiBranchTileType, "variant1", &jenkinsModels.MultiBranchParams{}, mockBuilder2)
 
 	config, err := readConfig(input)
@@ -204,7 +204,7 @@ func TestUsecase_Hydrate_WithDynamic_WithTimeoutError(t *testing.T) {
 	store := cache.NewGoCacheStore(time.Second, time.Second)
 	usecase := initConfigUsecase(nil, store)
 	usecase.EnableTile(jenkinsApi.JenkinsBuildTileType, "variant1", &jenkinsModels.BuildParams{}, "/jenkins/variant1", 1000)
-	usecase.EnableDynamicTile(jenkinsApi.JenkinsMultiBranchTileType, config.DefaultVariant, &jenkinsModels.MultiBranchParams{}, mockBuilder)
+	usecase.EnableDynamicTile(jenkinsApi.JenkinsMultiBranchTileType, coreModels.DefaultVariant, &jenkinsModels.MultiBranchParams{}, mockBuilder)
 	usecase.EnableDynamicTile(jenkinsApi.JenkinsMultiBranchTileType, "variant1", &jenkinsModels.MultiBranchParams{}, mockBuilder2)
 
 	config, err := readConfig(input)
@@ -235,7 +235,7 @@ func TestUsecase_Hydrate_WithDynamic_WithTimeoutCache(t *testing.T) {
 	_ = usecase.dynamicTileStore.Add(cacheKey, cachedResult, 0)
 
 	mockBuilder := func(_ interface{}) ([]builder.Result, error) { return nil, context.DeadlineExceeded }
-	usecase.EnableDynamicTile(jenkinsApi.JenkinsMultiBranchTileType, config.DefaultVariant, &jenkinsModels.MultiBranchParams{}, mockBuilder)
+	usecase.EnableDynamicTile(jenkinsApi.JenkinsMultiBranchTileType, coreModels.DefaultVariant, &jenkinsModels.MultiBranchParams{}, mockBuilder)
 
 	config, err := readConfig(input)
 	if assert.NoError(t, err) {

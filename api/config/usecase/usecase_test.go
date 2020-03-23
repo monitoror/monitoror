@@ -10,7 +10,7 @@ import (
 	"github.com/monitoror/monitoror/api/config"
 	"github.com/monitoror/monitoror/api/config/models"
 	"github.com/monitoror/monitoror/api/config/repository"
-	coreConfig "github.com/monitoror/monitoror/config"
+	coreModels "github.com/monitoror/monitoror/models"
 	jenkinsApi "github.com/monitoror/monitoror/monitorables/jenkins/api"
 	jenkinsModels "github.com/monitoror/monitoror/monitorables/jenkins/api/models"
 	pingApi "github.com/monitoror/monitoror/monitorables/ping/api"
@@ -27,10 +27,10 @@ import (
 func initConfigUsecase(repository config.Repository, store cache.Store) *configUsecase {
 	usecase := NewConfigUsecase(repository, store, 5000)
 
-	usecase.EnableTile(pingApi.PingTileType, coreConfig.DefaultVariant, &pingModels.PingParams{}, "/ping", 1000)
-	usecase.EnableTile(portApi.PortTileType, coreConfig.DefaultVariant, &portModels.PortParams{}, "/port", 1000)
-	usecase.EnableTile(jenkinsApi.JenkinsBuildTileType, coreConfig.DefaultVariant, &jenkinsModels.BuildParams{}, "/jenkins/default", 1000)
-	usecase.EnableTile(pingdomApi.PingdomCheckTileType, coreConfig.DefaultVariant, &pindomModels.CheckParams{}, "/pingdom/default", 1000)
+	usecase.EnableTile(pingApi.PingTileType, coreModels.DefaultVariant, &pingModels.PingParams{}, "/ping", 1000)
+	usecase.EnableTile(portApi.PortTileType, coreModels.DefaultVariant, &portModels.PortParams{}, "/port", 1000)
+	usecase.EnableTile(jenkinsApi.JenkinsBuildTileType, coreModels.DefaultVariant, &jenkinsModels.BuildParams{}, "/jenkins/default", 1000)
+	usecase.EnableTile(pingdomApi.PingdomCheckTileType, coreModels.DefaultVariant, &pindomModels.CheckParams{}, "/pingdom/default", 1000)
 
 	return usecase.(*configUsecase)
 }

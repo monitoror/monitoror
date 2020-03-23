@@ -6,7 +6,7 @@ import (
 	"reflect"
 
 	"github.com/monitoror/monitoror/api/config/models"
-	"github.com/monitoror/monitoror/config"
+	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils"
 )
 
@@ -214,7 +214,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 
 	// Set ConfigVariant to DefaultVariant if empty
 	if tile.ConfigVariant == "" {
-		tile.ConfigVariant = config.DefaultVariant
+		tile.ConfigVariant = coreModels.DefaultVariant
 	}
 
 	// Get the validator for current tile

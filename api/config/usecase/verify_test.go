@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/monitoror/monitoror/api/config/models"
-	"github.com/monitoror/monitoror/config"
+	coreModels "github.com/monitoror/monitoror/models"
 	jenkinsApi "github.com/monitoror/monitoror/monitorables/jenkins/api"
 	jenkinsModels "github.com/monitoror/monitoror/monitorables/jenkins/api/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/builder"
@@ -341,7 +341,7 @@ func TestUsecase_VerifyTile_WithDynamicTile(t *testing.T) {
 	}
 
 	usecase := initConfigUsecase(nil, nil)
-	usecase.EnableDynamicTile(jenkinsApi.JenkinsMultiBranchTileType, config.DefaultVariant, &jenkinsModels.MultiBranchParams{}, mockBuilder)
+	usecase.EnableDynamicTile(jenkinsApi.JenkinsMultiBranchTileType, coreModels.DefaultVariant, &jenkinsModels.MultiBranchParams{}, mockBuilder)
 	usecase.verifyTile(conf, tile, nil)
 
 	assert.Len(t, conf.Errors, 0)
@@ -360,7 +360,7 @@ func TestUsecase_VerifyTile_WithDynamicTile_WithWrongVariant(t *testing.T) {
 	}
 
 	usecase := initConfigUsecase(nil, nil)
-	usecase.EnableDynamicTile(jenkinsApi.JenkinsMultiBranchTileType, config.DefaultVariant, &jenkinsModels.MultiBranchParams{}, mockBuilder)
+	usecase.EnableDynamicTile(jenkinsApi.JenkinsMultiBranchTileType, coreModels.DefaultVariant, &jenkinsModels.MultiBranchParams{}, mockBuilder)
 	usecase.verifyTile(conf, tile, nil)
 
 	if assert.Len(t, conf.Errors, 1) {

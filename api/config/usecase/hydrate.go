@@ -8,7 +8,7 @@ import (
 	"reflect"
 
 	"github.com/monitoror/monitoror/api/config/models"
-	"github.com/monitoror/monitoror/config"
+	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/pkg/monitoror/utils/humanize"
 )
 
@@ -22,7 +22,7 @@ func (cu *configUsecase) hydrateTiles(configBag *models.ConfigBag, tiles *[]mode
 		if tile.Type != EmptyTileType && tile.Type != GroupTileType {
 			// Set ConfigVariant to DefaultVariant if empty
 			if tile.ConfigVariant == "" {
-				tile.ConfigVariant = config.DefaultVariant
+				tile.ConfigVariant = coreModels.DefaultVariant
 			}
 		}
 

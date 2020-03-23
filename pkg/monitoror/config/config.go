@@ -5,12 +5,13 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/fatih/structs"
+	"github.com/monitoror/monitoror/models"
 
+	"github.com/fatih/structs"
 	"github.com/spf13/viper"
 )
 
-func LoadConfigWithVariant(envPrefix, defaultVariant string, conf interface{}, defaultConf interface{}) {
+func LoadConfigWithVariant(envPrefix string, defaultVariant models.Variant, conf interface{}, defaultConf interface{}) {
 	// Verify Params
 	if reflect.ValueOf(conf).Kind() != reflect.Ptr {
 		panic(fmt.Sprintf("wrong LoadConfigWithVariant parameters: conf need to be a pointer of map[string]struct not a %s", reflect.ValueOf(conf).Kind()))

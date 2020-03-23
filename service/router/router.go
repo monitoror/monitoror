@@ -3,6 +3,7 @@ package router
 import (
 	"fmt"
 
+	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/service/middlewares"
 	"github.com/monitoror/monitoror/service/options"
 
@@ -11,7 +12,7 @@ import (
 
 type (
 	MonitorableRouter interface {
-		Group(path, variant string) MonitorableGroup
+		Group(path string, variant coreModels.Variant) MonitorableGroup
 	}
 	MonitorableGroup interface {
 		GET(path string, handlerFunc echo.HandlerFunc, options ...options.RouterOption) *echo.Route
@@ -32,7 +33,7 @@ func NewMonitorableRouter(apiVersion *echo.Group, cacheMiddleware *middlewares.C
 	return &router{apiVersion: apiVersion, cacheMiddleware: cacheMiddleware}
 }
 
-func (r *router) Group(path, variant string) MonitorableGroup {
+func (r *router) Group(path string, variant coreModels.Variant) MonitorableGroup {
 	return &group{router: r, group: r.apiVersion.Group(fmt.Sprintf(`%s/%s`, path, variant))}
 }
 

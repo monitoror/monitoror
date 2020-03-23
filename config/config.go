@@ -14,7 +14,6 @@ import (
 const EnvPrefix = "MO"
 const MonitorablePrefix = "MONITORABLE"
 
-const DefaultVariant = "default"
 const DefaultInitialMaxDelay = 1700
 
 type (
@@ -60,18 +59,18 @@ func InitConfig() *Config {
 
 // -------- Config Utility function ---------
 func LoadMonitorableConfig(conf interface{}, defaultConf interface{}) {
-	pkgConfig.LoadConfigWithVariant(fmt.Sprintf("%s_%s", EnvPrefix, MonitorablePrefix), DefaultVariant, conf, defaultConf)
+	pkgConfig.LoadConfigWithVariant(fmt.Sprintf("%s_%s", EnvPrefix, MonitorablePrefix), models.DefaultVariant, conf, defaultConf)
 }
 
-func GetVariantsFromConfig(conf interface{}) []string {
-	var variants []string
+func GetVariantsFromConfig(conf interface{}) []models.Variant {
+	var variants []models.Variant
 	if reflect.TypeOf(conf).Kind() == reflect.Map {
 		keys := reflect.ValueOf(conf).MapKeys()
 		for _, k := range keys {
-			variants = append(variants, k.String())
+			variants = append(variants, models.Variant(k.String()))
 		}
 	} else {
-		variants = append(variants, DefaultVariant)
+		variants = append(variants, models.DefaultVariant)
 	}
 
 	return variants

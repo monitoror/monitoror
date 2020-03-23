@@ -1,6 +1,6 @@
 package models
 
-import "github.com/monitoror/monitoror/models"
+import coreModels "github.com/monitoror/monitoror/models"
 
 type (
 	ConfigBag struct {
@@ -16,7 +16,7 @@ type (
 	}
 
 	TileConfig struct {
-		Type models.TileType `json:"type"`
+		Type coreModels.TileType `json:"type"`
 
 		Label      string `json:"label,omitempty"`
 		RowSpan    *int   `json:"rowSpan,omitempty"`
@@ -29,7 +29,7 @@ type (
 		// Used to validate config and to create API URLs
 		// Will be removed before being returned to the UI
 		Params        map[string]interface{} `json:"params,omitempty"`
-		ConfigVariant string                 `json:"configVariant,omitempty"`
+		ConfigVariant coreModels.Variant     `json:"configVariant,omitempty"`
 	}
 
 	ConfigError struct {
