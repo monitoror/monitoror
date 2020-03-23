@@ -32,7 +32,7 @@ lint: ## run linter
 mock: mock-monitorable mock-pkg
 
 .PHONY: mock-monitorable
-mock-monitorable: ## generate mocks of monitorable sub-directories
+mock-monitorable: ## generate mocks of monitorables sub-directories
 	@./scripts/mock/monitorable.sh
 
 .PHONY: mock-pkg

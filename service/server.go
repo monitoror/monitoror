@@ -5,6 +5,8 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/monitoror/monitoror/cli"
+
 	"github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/service/handlers"
 	"github.com/monitoror/monitoror/service/middlewares"
@@ -50,13 +52,14 @@ func Init(config *config.Config) *Server {
 }
 
 func (s *Server) Start() {
-	fmt.Println()
+	cli.PrintServerStartup(s.store.CoreConfig.Port)
 	log.Fatal(s.Echo.Start(fmt.Sprintf(":%d", s.store.CoreConfig.Port)))
 }
 
 func (s *Server) setupEchoServer() {
 	s.Echo = echo.New()
 	s.HideBanner = true
+	s.HidePort = true
 
 	// ----- Errors Handler -----
 	s.HTTPErrorHandler = handlers.HTTPErrorHandler

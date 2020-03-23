@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strings"
 
-	coreModels "github.com/monitoror/monitoror/models"
-
 	"github.com/monitoror/monitoror/cli/version"
+	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/pkg/system"
 
 	"github.com/labstack/gommon/color"
 )
@@ -15,6 +15,8 @@ const (
 	website           = "https://monitoror.com"
 	developmentGuides = "https://monitoror.com/guides/#development"
 	documentation     = "https://monitoror.com/" + "%s" + "documentation/"
+
+	errorSymbol = `/!\`
 
 	banner = `
     __  ___            _ __
@@ -46,22 +48,22 @@ Please read the module documentation to discover all available modules and see h
 %s
 _____________________________________________________
 `
-
-	errorSymbol = `/!\`
+	echoStartup = `
+Monitoror is running at:
+`
 )
 
+var colorer = color.New()
+
 func PrintBanner() {
-	colorer := color.New()
 	colorer.Printf(banner, colorer.Green(version.BuildTags), colorer.Green(version.Version), colorer.Blue(website))
 }
 
 func PrintDevMode() {
-	colorer := color.New()
 	colorer.Printf(devMode, colorer.Blue(developmentGuides))
 }
 
 func PrintMonitorableHeader() {
-	colorer := color.New()
 	colorer.Printf(monitorableHeader)
 }
 
@@ -69,8 +71,6 @@ func PrintMonitorable(displayName string, enabledVariants []coreModels.Variant, 
 	if len(enabledVariants) == 0 && len(erroredVariants) == 0 {
 		return
 	}
-
-	colorer := color.New()
 
 	// Stringify variants
 	var strVariants string
@@ -97,23 +97,42 @@ func PrintMonitorable(displayName string, enabledVariants []coreModels.Variant, 
 	// Print Error
 	for variant, err := range erroredVariants {
 		if variant == coreModels.DefaultVariant {
-			colorer.Printf("   %s Errored %s configuration\n      %s\n", colorer.Red(errorSymbol), variant, err.Error())
+			colorer.Printf(" %[1]s Errored %[2]s configuration %[1]s\n     %[3]s\n", colorer.Red(errorSymbol), variant, err.Error())
 
 		} else {
-			colorer.Printf("   %s Errored %s configuration variant\n      %s\n", colorer.Red(errorSymbol), variant, err.Error())
+			colorer.Printf(" %[1]s Errored %[2]s configuration variant %[1]s\n     %[3]s\n", colorer.Red(errorSymbol), variant, err.Error())
 		}
 	}
 }
 
 func PrintMonitorableFooter(isProduction bool) {
-	colorer := color.New()
-
 	var documentationVersion string
 	if isProduction {
 		if splittedVersion := strings.Split(version.Version, "."); len(splittedVersion) == 3 {
-			documentationVersion = fmt.Sprintf("%s.%s", splittedVersion[0], splittedVersion[1])
+			documentationVersion = fmt.Sprintf("%s.%s/", splittedVersion[0], splittedVersion[1])
 		}
 	}
 
 	colorer.Printf(monitorableFooter, colorer.Blue(fmt.Sprintf(documentation, documentationVersion)))
+}
+
+func PrintServerStartup(port int) {
+	color.Print(echoStartup)
+
+	ips, _ := system.ListLocalhostIpv4()
+
+	// in case of empty ips
+	if len(ips) == 0 {
+		ips = append(ips, "127.0.0.1")
+	}
+
+	for _, ip := range ips {
+		if ip == "127.0.0.1" {
+			ip = "localhost"
+		}
+
+		color.Printf("   %s\n", colorer.Blue(fmt.Sprintf("http://%s:%d", ip, port)))
+	}
+
+	color.Println()
 }
