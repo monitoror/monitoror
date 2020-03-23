@@ -1,14 +1,24 @@
 package monitorables
 
 import (
+	"github.com/monitoror/monitoror/cli"
+	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/service/store"
 )
 
 type Monitorable interface {
-	GetVariants() []string
+	//GetDisplayName return monitorable name display in console
+	GetDisplayName() string
 
-	IsValid(variant string) bool
-	Enable(variant string)
+	//GetVariants return variantlist extract from config
+	GetVariants() []coreModels.Variant
+
+	//Validate test if config variant is valid
+	// return false if empty and error if config have an error (ex: wrong url format)
+	Validate(variant coreModels.Variant) (bool, error)
+
+	//Enable monitorable variant (add route to echo and enable tile for config verify / hydrate)
+	Enable(variant coreModels.Variant)
 }
 
 type (

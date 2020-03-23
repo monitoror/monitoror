@@ -5,6 +5,7 @@ package github
 import (
 	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
 	coreConfig "github.com/monitoror/monitoror/config"
+	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/github/api"
 	githubDelivery "github.com/monitoror/monitoror/monitorables/github/api/delivery/http"
 	githubModels "github.com/monitoror/monitoror/monitorables/github/api/models"
@@ -27,8 +28,9 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	return monitorable
 }
 
-func (m *Monitorable) GetVariants() []string       { return []string{coreConfig.DefaultVariant} }
-func (m *Monitorable) IsValid(variant string) bool { return true }
+func (m *Monitorable) GetDisplayName() string                { return "GitHub (faker)" }
+func (m *Monitorable) GetVariants() []string                 { return []coreModels.Variant{coreConfig.DefaultVariant} }
+func (m *Monitorable) Validate(variant string) (bool, error) { return true, nil }
 
 func (m *Monitorable) Enable(variant string) {
 	usecase := githubUsecase.NewGithubUsecase()
@@ -40,6 +42,8 @@ func (m *Monitorable) Enable(variant string) {
 	routeChecks := githubGroup.GET("/checks", delivery.GetChecks)
 
 	// EnableTile data for config hydration
-	m.store.UIConfigManager.EnableTile(api.GithubCountTileType, variant, &githubModels.CountParams{}, routeCount.Path, coreConfig.DefaultInitialMaxDelay)
-	m.store.UIConfigManager.EnableTile(api.GithubChecksTileType, variant, &githubModels.ChecksParams{}, routeChecks.Path, coreConfig.DefaultInitialMaxDelay)
+	m.store.UIConfigManager.EnableTile(api.GithubCountTileType, variant,
+		&githubModels.CountParams{}, routeCount.Path, coreConfig.DefaultInitialMaxDelay)
+	m.store.UIConfigManager.EnableTile(api.GithubChecksTileType, variant,
+		&githubModels.ChecksParams{}, routeChecks.Path, coreConfig.DefaultInitialMaxDelay)
 }

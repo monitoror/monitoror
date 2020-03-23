@@ -3,7 +3,10 @@
 package travisci
 
 import (
+	"fmt"
 	"net/url"
+
+	coreModels "github.com/monitoror/monitoror/models"
 
 	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
 	coreConfig "github.com/monitoror/monitoror/config"
@@ -19,13 +22,13 @@ import (
 type Monitorable struct {
 	store *store.Store
 
-	config map[string]*travisciConfig.TravisCI
+	config map[coreModels.Variant]*travisciConfig.TravisCI
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
 	monitorable := &Monitorable{}
 	monitorable.store = store
-	monitorable.config = make(map[string]*travisciConfig.TravisCI)
+	monitorable.config = make(map[coreModels.Variant]*travisciConfig.TravisCI)
 
 	// Load core config from env
 	coreConfig.LoadMonitorableConfig(&monitorable.config, travisciConfig.Default)
@@ -36,22 +39,30 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	return monitorable
 }
 
-func (m *Monitorable) GetVariants() []string { return coreConfig.GetVariantsFromConfig(m.config) }
-func (m *Monitorable) IsValid(variant string) bool {
-	conf := m.config[variant]
-
-	if conf.URL == "" {
-		return false
-	}
-
-	if _, err := url.Parse(conf.URL); err != nil {
-		return false
-	}
-
-	return true
+func (m *Monitorable) GetDisplayName() string {
+	return "Travis CI"
 }
 
-func (m *Monitorable) Enable(variant string) {
+func (m *Monitorable) GetVariants() []coreModels.Variant {
+	return coreConfig.GetVariantsFromConfig(m.config)
+}
+
+func (m *Monitorable) Validate(variant coreModels.Variant) (bool, error) {
+	conf := m.config[variant]
+	// No configuration set
+	if conf.URL == "" {
+		return false, nil
+	}
+
+	// Error in URL
+	if _, err := url.Parse(conf.URL); err != nil {
+		return false, fmt.Errorf(`%s contains invalid URL: "%s"`, coreConfig.GetEnvFromMonitorableVariable(conf, variant, "URL"), conf.URL)
+	}
+
+	return true, nil
+}
+
+func (m *Monitorable) Enable(variant coreModels.Variant) {
 	conf := m.config[variant]
 
 	repository := travisciRepository.NewTravisCIRepository(conf)
@@ -62,5 +73,6 @@ func (m *Monitorable) Enable(variant string) {
 	route := m.store.MonitorableRouter.Group("/travisci", variant).GET("/build", delivery.GetBuild)
 
 	// EnableTile data for config hydration
-	m.store.UIConfigManager.EnableTile(api.TravisCIBuildTileType, variant, &travisciModels.BuildParams{}, route.Path, conf.InitialMaxDelay)
+	m.store.UIConfigManager.EnableTile(api.TravisCIBuildTileType, variant,
+		&travisciModels.BuildParams{}, route.Path, conf.InitialMaxDelay)
 }

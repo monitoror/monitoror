@@ -5,6 +5,7 @@ package http
 import (
 	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
 	coreConfig "github.com/monitoror/monitoror/config"
+	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/http/api"
 	httpDelivery "github.com/monitoror/monitoror/monitorables/http/api/delivery/http"
 	httpModels "github.com/monitoror/monitoror/monitorables/http/api/models"
@@ -28,8 +29,9 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	return monitorable
 }
 
-func (m *Monitorable) GetVariants() []string { return []string{coreConfig.DefaultVariant} }
-func (m *Monitorable) IsValid(_ string) bool { return true }
+func (m *Monitorable) GetDisplayName() string                { return "HTTP (faker)" }
+func (m *Monitorable) GetVariants() []string                 { return []coreModels.Variant{coreConfig.DefaultVariant} }
+func (m *Monitorable) Validate(variant string) (bool, error) { return true, nil }
 
 func (m *Monitorable) Enable(variant string) {
 	usecase := httpUsecase.NewHTTPUsecase()
@@ -42,7 +44,10 @@ func (m *Monitorable) Enable(variant string) {
 	routeJSON := httpGroup.GET("/formatted", delivery.GetHTTPFormatted)
 
 	// EnableTile data for config hydration
-	m.store.UIConfigManager.EnableTile(api.HTTPStatusTileType, variant, &httpModels.HTTPStatusParams{}, routeStatus.Path, coreConfig.DefaultInitialMaxDelay)
-	m.store.UIConfigManager.EnableTile(api.HTTPRawTileType, variant, &httpModels.HTTPRawParams{}, routeRaw.Path, coreConfig.DefaultInitialMaxDelay)
-	m.store.UIConfigManager.EnableTile(api.HTTPFormattedTileType, variant, &httpModels.HTTPFormattedParams{}, routeJSON.Path, coreConfig.DefaultInitialMaxDelay)
+	m.store.UIConfigManager.EnableTile(api.HTTPStatusTileType, variant,
+		&httpModels.HTTPStatusParams{}, routeStatus.Path, coreConfig.DefaultInitialMaxDelay)
+	m.store.UIConfigManager.EnableTile(api.HTTPRawTileType, variant,
+		&httpModels.HTTPRawParams{}, routeRaw.Path, coreConfig.DefaultInitialMaxDelay)
+	m.store.UIConfigManager.EnableTile(api.HTTPFormattedTileType, variant,
+		&httpModels.HTTPFormattedParams{}, routeJSON.Path, coreConfig.DefaultInitialMaxDelay)
 }

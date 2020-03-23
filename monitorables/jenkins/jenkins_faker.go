@@ -5,6 +5,7 @@ package jenkins
 import (
 	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
 	coreConfig "github.com/monitoror/monitoror/config"
+	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/jenkins/api"
 	jenkinsDelivery "github.com/monitoror/monitoror/monitorables/jenkins/api/delivery/http"
 	jenkinsModels "github.com/monitoror/monitoror/monitorables/jenkins/api/models"
@@ -26,8 +27,9 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	return monitorable
 }
 
-func (m *Monitorable) GetVariants() []string       { return []string{coreConfig.DefaultVariant} }
-func (m *Monitorable) IsValid(variant string) bool { return true }
+func (m *Monitorable) GetDisplayName() string                { return "Jenkins (faker)" }
+func (m *Monitorable) GetVariants() []string                 { return []coreModels.Variant{coreConfig.DefaultVariant} }
+func (m *Monitorable) Validate(variant string) (bool, error) { return true, nil }
 
 func (m *Monitorable) Enable(variant string) {
 	usecase := jenkinsUsecase.NewJenkinsUsecase()
@@ -38,5 +40,6 @@ func (m *Monitorable) Enable(variant string) {
 	route := jenkinsGroup.GET("/build", delivery.GetBuild)
 
 	// EnableTile data for config hydration
-	m.store.UIConfigManager.EnableTile(api.JenkinsBuildTileType, variant, &jenkinsModels.BuildParams{}, route.Path, coreConfig.DefaultInitialMaxDelay)
+	m.store.UIConfigManager.EnableTile(api.JenkinsBuildTileType, variant,
+		&jenkinsModels.BuildParams{}, route.Path, coreConfig.DefaultInitialMaxDelay)
 }

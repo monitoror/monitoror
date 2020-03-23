@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/monitoror/monitoror/models"
 	pkgConfig "github.com/monitoror/monitoror/pkg/monitoror/config"
 
 	"github.com/fatih/structs"
@@ -75,4 +76,21 @@ func GetVariantsFromConfig(conf interface{}) []models.Variant {
 	}
 
 	return variants
+}
+
+func GetEnvFromMonitorableVariable(conf interface{}, variant models.Variant, variableName string) string {
+	// Verify Params
+	if reflect.ValueOf(conf).Kind() != reflect.Ptr {
+		panic(fmt.Sprintf("wrong GetConfigVariableEnv parameters: conf need to be a pointer of struct not a %s", reflect.ValueOf(conf).Kind()))
+	}
+
+	var env string
+	confName := reflect.TypeOf(conf).Elem().Name()
+	if variant == models.DefaultVariant {
+		env = strings.ToUpper(fmt.Sprintf("%s_%s_%s_%s", EnvPrefix, MonitorablePrefix, confName, variableName))
+	} else {
+		env = strings.ToUpper(fmt.Sprintf("%s_%s_%s_%s_%s", EnvPrefix, MonitorablePrefix, confName, variant, variableName))
+	}
+
+	return env
 }

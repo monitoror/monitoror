@@ -5,6 +5,7 @@ package pingdom
 import (
 	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
 	coreConfig "github.com/monitoror/monitoror/config"
+	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/pingdom/api"
 	pingdomDelivery "github.com/monitoror/monitoror/monitorables/pingdom/api/delivery/http"
 	pingdomModels "github.com/monitoror/monitoror/monitorables/pingdom/api/models"
@@ -26,8 +27,9 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	return monitorable
 }
 
-func (m *Monitorable) GetVariants() []string       { return []string{coreConfig.DefaultVariant} }
-func (m *Monitorable) IsValid(variant string) bool { return true }
+func (m *Monitorable) GetDisplayName() string                { return "Pingdom (faker)" }
+func (m *Monitorable) GetVariants() []string                 { return []coreModels.Variant{coreConfig.DefaultVariant} }
+func (m *Monitorable) Validate(variant string) (bool, error) { return true, nil }
 
 func (m *Monitorable) Enable(variant string) {
 	usecase := pingdomUsecase.NewPingdomUsecase()
@@ -37,5 +39,6 @@ func (m *Monitorable) Enable(variant string) {
 	route := m.store.MonitorableRouter.Group("/pingdom", variant).GET("/pingdom", delivery.GetCheck)
 
 	// EnableTile data for config hydration
-	m.store.UIConfigManager.EnableTile(api.PingdomCheckTileType, variant, &pingdomModels.ChecksParams{}, route.Path, coreConfig.DefaultInitialMaxDelay)
+	m.store.UIConfigManager.EnableTile(api.PingdomCheckTileType, variant,
+		&pingdomModels.ChecksParams{}, route.Path, coreConfig.DefaultInitialMaxDelay)
 }

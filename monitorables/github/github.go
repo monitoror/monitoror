@@ -7,6 +7,7 @@ import (
 
 	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
 	coreConfig "github.com/monitoror/monitoror/config"
+	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/github/api"
 	githubDelivery "github.com/monitoror/monitoror/monitorables/github/api/delivery/http"
 	githubModels "github.com/monitoror/monitoror/monitorables/github/api/models"
@@ -20,13 +21,13 @@ import (
 type Monitorable struct {
 	store *store.Store
 
-	config map[string]*githubConfig.Github
+	config map[coreModels.Variant]*githubConfig.Github
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
 	monitorable := &Monitorable{}
 	monitorable.store = store
-	monitorable.config = make(map[string]*githubConfig.Github)
+	monitorable.config = make(map[coreModels.Variant]*githubConfig.Github)
 
 	// Load core config from env
 	coreConfig.LoadMonitorableConfig(&monitorable.config, githubConfig.Default)
@@ -39,13 +40,26 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	return monitorable
 }
 
-func (m *Monitorable) GetVariants() []string { return coreConfig.GetVariantsFromConfig(m.config) }
-func (m *Monitorable) IsValid(variant string) bool {
-	conf := m.config[variant]
-	return conf.Token != ""
+func (m *Monitorable) GetDisplayName() string {
+	return "GitHub"
 }
 
-func (m *Monitorable) Enable(variant string) {
+func (m *Monitorable) GetVariants() []coreModels.Variant {
+	return coreConfig.GetVariantsFromConfig(m.config)
+}
+
+func (m *Monitorable) Validate(variant coreModels.Variant) (bool, error) {
+	conf := m.config[variant]
+
+	// No configuration set
+	if conf.Token == "" {
+		return false, nil
+	}
+
+	return true, nil
+}
+
+func (m *Monitorable) Enable(variant coreModels.Variant) {
 	conf := m.config[variant]
 
 	// Custom UpstreamCacheExpiration only for count because github has no-cache for this query and the rate limit is 30req/Hour
@@ -61,7 +75,10 @@ func (m *Monitorable) Enable(variant string) {
 	routeChecks := githubGroup.GET("/checks", delivery.GetChecks)
 
 	// EnableTile data for config hydration
-	m.store.UIConfigManager.EnableTile(api.GithubCountTileType, variant, &githubModels.CountParams{}, routeCount.Path, conf.InitialMaxDelay)
-	m.store.UIConfigManager.EnableTile(api.GithubChecksTileType, variant, &githubModels.ChecksParams{}, routeChecks.Path, conf.InitialMaxDelay)
-	m.store.UIConfigManager.EnableDynamicTile(api.GithubPullRequestTileType, variant, &githubModels.PullRequestParams{}, usecase.PullRequests)
+	m.store.UIConfigManager.EnableTile(api.GithubCountTileType, variant,
+		&githubModels.CountParams{}, routeCount.Path, conf.InitialMaxDelay)
+	m.store.UIConfigManager.EnableTile(api.GithubChecksTileType, variant,
+		&githubModels.ChecksParams{}, routeChecks.Path, conf.InitialMaxDelay)
+	m.store.UIConfigManager.EnableDynamicTile(api.GithubPullRequestTileType, variant,
+		&githubModels.PullRequestParams{}, usecase.PullRequests)
 }

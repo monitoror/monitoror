@@ -5,6 +5,7 @@ package azuredevops
 import (
 	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
 	coreConfig "github.com/monitoror/monitoror/config"
+	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/azuredevops/api"
 	azuredevopsDelivery "github.com/monitoror/monitoror/monitorables/azuredevops/api/delivery/http"
 	azuredevopsModels "github.com/monitoror/monitoror/monitorables/azuredevops/api/models"
@@ -27,8 +28,9 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	return monitorable
 }
 
-func (m *Monitorable) GetVariants() []string       { return []string{coreConfig.DefaultVariant} }
-func (m *Monitorable) IsValid(variant string) bool { return true }
+func (m *Monitorable) GetDisplayName() string                { return "Azure DevOps (faker)" }
+func (m *Monitorable) GetVariants() []string                 { return []coreModels.Variant{coreConfig.DefaultVariant} }
+func (m *Monitorable) Validate(variant string) (bool, error) { return true, nil }
 
 func (m *Monitorable) Enable(variant string) {
 	usecase := azuredevopsUsecase.NewAzureDevOpsUsecase()
@@ -40,6 +42,8 @@ func (m *Monitorable) Enable(variant string) {
 	routeRelease := azureGroup.GET("/release", delivery.GetRelease)
 
 	// EnableTile data for config hydration
-	m.store.UIConfigManager.EnableTile(api.AzureDevOpsBuildTileType, variant, &azuredevopsModels.BuildParams{}, routeBuild.Path, coreConfig.DefaultInitialMaxDelay)
-	m.store.UIConfigManager.EnableTile(api.AzureDevOpsReleaseTileType, variant, &azuredevopsModels.ReleaseParams{}, routeRelease.Path, coreConfig.DefaultInitialMaxDelay)
+	m.store.UIConfigManager.EnableTile(api.AzureDevOpsBuildTileType, variant,
+		&azuredevopsModels.BuildParams{}, routeBuild.Path, coreConfig.DefaultInitialMaxDelay)
+	m.store.UIConfigManager.EnableTile(api.AzureDevOpsReleaseTileType, variant,
+		&azuredevopsModels.ReleaseParams{}, routeRelease.Path, coreConfig.DefaultInitialMaxDelay)
 }

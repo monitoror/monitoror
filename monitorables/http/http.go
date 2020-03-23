@@ -5,6 +5,7 @@ package http
 import (
 	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
 	coreConfig "github.com/monitoror/monitoror/config"
+	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/http/api"
 	httpDelivery "github.com/monitoror/monitoror/monitorables/http/api/delivery/http"
 	httpModels "github.com/monitoror/monitoror/monitorables/http/api/models"
@@ -17,13 +18,13 @@ import (
 type Monitorable struct {
 	store *store.Store
 
-	config map[string]*httpConfig.HTTP
+	config map[coreModels.Variant]*httpConfig.HTTP
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
 	monitorable := &Monitorable{}
 	monitorable.store = store
-	monitorable.config = make(map[string]*httpConfig.HTTP)
+	monitorable.config = make(map[coreModels.Variant]*httpConfig.HTTP)
 
 	// Load core config from env
 	coreConfig.LoadMonitorableConfig(&monitorable.config, httpConfig.Default)
@@ -36,10 +37,19 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	return monitorable
 }
 
-func (m *Monitorable) GetVariants() []string { return coreConfig.GetVariantsFromConfig(m.config) }
-func (m *Monitorable) IsValid(_ string) bool { return true }
+func (m *Monitorable) GetDisplayName() string {
+	return "HTTP"
+}
 
-func (m *Monitorable) Enable(variant string) {
+func (m *Monitorable) GetVariants() []coreModels.Variant {
+	return coreConfig.GetVariantsFromConfig(m.config)
+}
+
+func (m *Monitorable) Validate(_ coreModels.Variant) (bool, error) {
+	return true, nil
+}
+
+func (m *Monitorable) Enable(variant coreModels.Variant) {
 	conf := m.config[variant]
 
 	repository := httpRepository.NewHTTPRepository(conf)
@@ -53,7 +63,10 @@ func (m *Monitorable) Enable(variant string) {
 	routeJSON := httpGroup.GET("/formatted", delivery.GetHTTPFormatted)
 
 	// EnableTile data for config hydration
-	m.store.UIConfigManager.EnableTile(api.HTTPStatusTileType, variant, &httpModels.HTTPStatusParams{}, routeStatus.Path, conf.InitialMaxDelay)
-	m.store.UIConfigManager.EnableTile(api.HTTPRawTileType, variant, &httpModels.HTTPRawParams{}, routeRaw.Path, conf.InitialMaxDelay)
-	m.store.UIConfigManager.EnableTile(api.HTTPFormattedTileType, variant, &httpModels.HTTPFormattedParams{}, routeJSON.Path, conf.InitialMaxDelay)
+	m.store.UIConfigManager.EnableTile(api.HTTPStatusTileType, variant,
+		&httpModels.HTTPStatusParams{}, routeStatus.Path, conf.InitialMaxDelay)
+	m.store.UIConfigManager.EnableTile(api.HTTPRawTileType, variant,
+		&httpModels.HTTPRawParams{}, routeRaw.Path, conf.InitialMaxDelay)
+	m.store.UIConfigManager.EnableTile(api.HTTPFormattedTileType, variant,
+		&httpModels.HTTPFormattedParams{}, routeJSON.Path, conf.InitialMaxDelay)
 }

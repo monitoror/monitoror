@@ -5,6 +5,7 @@ package port
 import (
 	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
 	coreConfig "github.com/monitoror/monitoror/config"
+	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/port/api"
 	portDelivery "github.com/monitoror/monitoror/monitorables/port/api/delivery/http"
 	portModels "github.com/monitoror/monitoror/monitorables/port/api/models"
@@ -26,8 +27,9 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	return monitorable
 }
 
-func (m *Monitorable) GetVariants() []string { return []string{coreConfig.DefaultVariant} }
-func (m *Monitorable) IsValid(_ string) bool { return true }
+func (m *Monitorable) GetDisplayName() string                { return "Port (faker)" }
+func (m *Monitorable) GetVariants() []string                 { return []coreModels.Variant{coreConfig.DefaultVariant} }
+func (m *Monitorable) Validate(variant string) (bool, error) { return true, nil }
 
 func (m *Monitorable) Enable(variant string) {
 	usecase := portUsecase.NewPortUsecase()
@@ -37,5 +39,6 @@ func (m *Monitorable) Enable(variant string) {
 	route := m.store.MonitorableRouter.Group("/port", variant).GET("/port", delivery.GetPort)
 
 	// EnableTile data for config hydration
-	m.store.UIConfigManager.EnableTile(api.PortTileType, variant, &portModels.PortParams{}, route.Path, coreConfig.DefaultInitialMaxDelay)
+	m.store.UIConfigManager.EnableTile(api.PortTileType, variant,
+		&portModels.PortParams{}, route.Path, coreConfig.DefaultInitialMaxDelay)
 }

@@ -5,6 +5,7 @@ package travisci
 import (
 	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
 	coreConfig "github.com/monitoror/monitoror/config"
+	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/travisci/api"
 	travisciDelivery "github.com/monitoror/monitoror/monitorables/travisci/api/delivery/http"
 	travisciModels "github.com/monitoror/monitoror/monitorables/travisci/api/models"
@@ -26,8 +27,9 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	return monitorable
 }
 
-func (m *Monitorable) GetVariants() []string       { return []string{coreConfig.DefaultVariant} }
-func (m *Monitorable) IsValid(variant string) bool { return true }
+func (m *Monitorable) GetDisplayName() string                { return "Travis CI (faker)" }
+func (m *Monitorable) GetVariants() []string                 { return []coreModels.Variant{coreConfig.DefaultVariant} }
+func (m *Monitorable) Validate(variant string) (bool, error) { return true, nil }
 
 func (m *Monitorable) Enable(variant string) {
 	usecase := travisciUsecase.NewTravisCIUsecase()
@@ -37,5 +39,6 @@ func (m *Monitorable) Enable(variant string) {
 	route := m.store.MonitorableRouter.Group("/travisci", variant).GET("/build", delivery.GetBuild)
 
 	// EnableTile data for config hydration
-	m.store.UIConfigManager.EnableTile(api.TravisCIBuildTileType, variant, &travisciModels.BuildParams{}, route.Path, coreConfig.DefaultInitialMaxDelay)
+	m.store.UIConfigManager.EnableTile(api.TravisCIBuildTileType, variant,
+		&travisciModels.BuildParams{}, route.Path, coreConfig.DefaultInitialMaxDelay)
 }

@@ -5,6 +5,7 @@ package ping
 import (
 	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
 	coreConfig "github.com/monitoror/monitoror/config"
+	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/ping/api"
 	pingDelivery "github.com/monitoror/monitoror/monitorables/ping/api/delivery/http"
 	pingModels "github.com/monitoror/monitoror/monitorables/ping/api/models"
@@ -18,13 +19,13 @@ import (
 type Monitorable struct {
 	store *store.Store
 
-	config map[string]*pingConfig.Ping
+	config map[coreModels.Variant]*pingConfig.Ping
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
 	monitorable := &Monitorable{}
 	monitorable.store = store
-	monitorable.config = make(map[string]*pingConfig.Ping)
+	monitorable.config = make(map[coreModels.Variant]*pingConfig.Ping)
 
 	// Load core config from env
 	coreConfig.LoadMonitorableConfig(&monitorable.config, pingConfig.Default)
@@ -35,10 +36,19 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	return monitorable
 }
 
-func (m *Monitorable) GetVariants() []string { return coreConfig.GetVariantsFromConfig(m.config) }
-func (m *Monitorable) IsValid(_ string) bool { return system.IsRawSocketAvailable() }
+func (m *Monitorable) GetDisplayName() string {
+	return "Ping"
+}
 
-func (m *Monitorable) Enable(variant string) {
+func (m *Monitorable) GetVariants() []coreModels.Variant {
+	return coreConfig.GetVariantsFromConfig(m.config)
+}
+
+func (m *Monitorable) Validate(_ coreModels.Variant) (bool, error) {
+	return system.IsRawSocketAvailable(), nil
+}
+
+func (m *Monitorable) Enable(variant coreModels.Variant) {
 	conf := m.config[variant]
 
 	repository := pingRepository.NewPingRepository(conf)
@@ -49,5 +59,6 @@ func (m *Monitorable) Enable(variant string) {
 	route := m.store.MonitorableRouter.Group("/ping", variant).GET("/ping", delivery.GetPing)
 
 	// EnableTile data for config hydration
-	m.store.UIConfigManager.EnableTile(api.PingTileType, variant, &pingModels.PingParams{}, route.Path, conf.InitialMaxDelay)
+	m.store.UIConfigManager.EnableTile(api.PingTileType, variant,
+		&pingModels.PingParams{}, route.Path, conf.InitialMaxDelay)
 }
