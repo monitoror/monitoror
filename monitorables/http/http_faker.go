@@ -38,10 +38,10 @@ func (m *Monitorable) Enable(variant string) {
 	delivery := httpDelivery.NewHTTPDelivery(usecase)
 
 	// EnableTile route to echo
-	httpGroup := m.store.MonitorableRouter.Group("/http", variant)
-	routeStatus := httpGroup.GET("/status", delivery.GetHTTPStatus)
-	routeRaw := httpGroup.GET("/raw", delivery.GetHTTPRaw)
-	routeJSON := httpGroup.GET("/formatted", delivery.GetHTTPFormatted)
+	routerGroup := m.store.MonitorableRouter.RouterGroup("/http", variant)
+	routeStatus := routerGroup.GET("/status", delivery.GetHTTPStatus)
+	routeRaw := routerGroup.GET("/raw", delivery.GetHTTPRaw)
+	routeJSON := routerGroup.GET("/formatted", delivery.GetHTTPFormatted)
 
 	// EnableTile data for config hydration
 	m.store.UIConfigManager.EnableTile(api.HTTPStatusTileType, variant,

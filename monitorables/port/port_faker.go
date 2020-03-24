@@ -36,7 +36,7 @@ func (m *Monitorable) Enable(variant string) {
 	delivery := portDelivery.NewPortDelivery(usecase)
 
 	// EnableTile route to echo
-	route := m.store.MonitorableRouter.Group("/port", variant).GET("/port", delivery.GetPort)
+	route := m.store.MonitorableRouter.RouterGroup("/port", variant).GET("/port", delivery.GetPort)
 
 	// EnableTile data for config hydration
 	m.store.UIConfigManager.EnableTile(api.PortTileType, variant,

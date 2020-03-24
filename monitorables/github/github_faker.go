@@ -37,9 +37,9 @@ func (m *Monitorable) Enable(variant string) {
 	delivery := githubDelivery.NewGithubDelivery(usecase)
 
 	// EnableTile route to echo
-	githubGroup := m.store.MonitorableRouter.Group("/github", variant)
-	routeCount := githubGroup.GET("/count", delivery.GetCount)
-	routeChecks := githubGroup.GET("/checks", delivery.GetChecks)
+	routerGroup := m.store.MonitorableRouter.RouterGroup("/github", variant)
+	routeCount := routerGroup.GET("/count", delivery.GetCount)
+	routeChecks := routerGroup.GET("/checks", delivery.GetChecks)
 
 	// EnableTile data for config hydration
 	m.store.UIConfigManager.EnableTile(api.GithubCountTileType, variant,

@@ -36,7 +36,7 @@ func (m *Monitorable) Enable(variant string) {
 	delivery := pingdomDelivery.NewPingdomDelivery(usecase)
 
 	// EnableTile route to echo
-	route := m.store.MonitorableRouter.Group("/pingdom", variant).GET("/pingdom", delivery.GetCheck)
+	route := m.store.MonitorableRouter.RouterGroup("/pingdom", variant).GET("/pingdom", delivery.GetCheck)
 
 	// EnableTile data for config hydration
 	m.store.UIConfigManager.EnableTile(api.PingdomCheckTileType, variant,

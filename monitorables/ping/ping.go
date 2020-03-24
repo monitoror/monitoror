@@ -56,7 +56,7 @@ func (m *Monitorable) Enable(variant coreModels.Variant) {
 	delivery := pingDelivery.NewPingDelivery(usecase)
 
 	// EnableTile route to echo
-	route := m.store.MonitorableRouter.Group("/ping", variant).GET("/ping", delivery.GetPing)
+	route := m.store.MonitorableRouter.RouterGroup("/ping", variant).GET("/ping", delivery.GetPing)
 
 	// EnableTile data for config hydration
 	m.store.UIConfigManager.EnableTile(api.PingTileType, variant,
