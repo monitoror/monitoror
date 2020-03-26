@@ -37,7 +37,8 @@ func (m *Monitorable) Enable(variant coreModels.VariantName) {
 	delivery := travisciDelivery.NewTravisCIDelivery(usecase)
 
 	// EnableTile route to echo
-	route := m.store.MonitorableRouter.RouterGroup("/travisci", variant).GET("/build", delivery.GetBuild)
+	routeGroup := m.store.MonitorableRouter.Group("/travisci", variant)
+	route := routeGroup.GET("/build", delivery.GetBuild)
 
 	// EnableTile data for config hydration
 	m.store.UIConfigManager.EnableTile(api.TravisCIBuildTileType, variant,

@@ -71,9 +71,9 @@ func (m *Monitorable) Enable(variant coreModels.VariantName) {
 	delivery := githubDelivery.NewGithubDelivery(usecase)
 
 	// EnableTile route to echo
-	routerGroup := m.store.MonitorableRouter.RouterGroup("/github", variant)
-	routeCount := routerGroup.GET("/count", delivery.GetCount, options.WithCustomCacheExpiration(countCacheExpiration))
-	routeChecks := routerGroup.GET("/checks", delivery.GetChecks)
+	routeGroup := m.store.MonitorableRouter.Group("/github", variant)
+	routeCount := routeGroup.GET("/count", delivery.GetCount, options.WithCustomCacheExpiration(countCacheExpiration))
+	routeChecks := routeGroup.GET("/checks", delivery.GetChecks)
 
 	// EnableTile data for config hydration
 	m.store.UIConfigManager.EnableTile(api.GithubCountTileType, variant,

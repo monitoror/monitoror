@@ -73,8 +73,8 @@ func (m *Monitorable) Enable(variant coreModels.VariantName) {
 	delivery := jenkinsDelivery.NewJenkinsDelivery(usecase)
 
 	// EnableTile route to echo
-	routerGroup := m.store.MonitorableRouter.RouterGroup("/jenkins", variant)
-	route := routerGroup.GET("/build", delivery.GetBuild)
+	routeGroup := m.store.MonitorableRouter.Group("/jenkins", variant)
+	route := routeGroup.GET("/build", delivery.GetBuild)
 
 	// EnableTile data for config hydration
 	m.store.UIConfigManager.EnableTile(api.JenkinsBuildTileType, variant,

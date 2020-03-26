@@ -39,9 +39,9 @@ func (m *Monitorable) Enable(variant coreModels.VariantName) {
 	delivery := azuredevopsDelivery.NewAzureDevOpsDelivery(usecase)
 
 	// EnableTile route to echo
-	routerGroup := m.store.MonitorableRouter.RouterGroup("/azuredevops", variant)
-	routeBuild := routerGroup.GET("/build", delivery.GetBuild)
-	routeRelease := routerGroup.GET("/release", delivery.GetRelease)
+	routeGroup := m.store.MonitorableRouter.Group("/azuredevops", variant)
+	routeBuild := routeGroup.GET("/build", delivery.GetBuild)
+	routeRelease := routeGroup.GET("/release", delivery.GetRelease)
 
 	// EnableTile data for config hydration
 	m.store.UIConfigManager.EnableTile(api.AzureDevOpsBuildTileType, variant,
