@@ -7,7 +7,6 @@ require (
 	github.com/GeertJohan/go.rice v1.0.0
 	github.com/basgys/goxml2json v1.1.0
 	github.com/bitly/go-simplejson v0.5.0 // indirect
-	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 // indirect
 	github.com/bradfitz/gomemcache v0.0.0-20190329173943-551aad21a668 // indirect
 	github.com/dustin/go-humanize v1.0.0
 	github.com/fatih/structs v1.1.0
