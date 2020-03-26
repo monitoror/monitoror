@@ -53,7 +53,7 @@ func (m *Monitorable) Validate(variant coreModels.VariantName) (bool, error) {
 	conf := m.config[variant]
 
 	// No configuration set
-	if conf.URL == "" && conf.Token == "" {
+	if conf.URL == pingdomConfig.Default.URL && conf.Token == "" {
 		return false, nil
 	}
 
