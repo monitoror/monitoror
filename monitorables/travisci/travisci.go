@@ -50,11 +50,6 @@ func (m *Monitorable) GetVariants() []coreModels.VariantName {
 
 func (m *Monitorable) Validate(variant coreModels.VariantName) (bool, error) {
 	conf := m.config[variant]
-	// No configuration set
-	if conf.URL == "" {
-		return false, nil
-	}
-
 	// Error in URL
 	if _, err := url.Parse(conf.URL); err != nil {
 		return false, fmt.Errorf(`%s contains invalid URL: "%s"`, pkgMonitorable.GetEnvName(conf, variant, "URL"), conf.URL)
