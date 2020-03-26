@@ -11,7 +11,7 @@ import (
 	"github.com/monitoror/monitoror/monitorables/travisci"
 )
 
-func (m *Manager) init() {
+func (m *Manager) RegisterMonitorables() {
 	// ------------ AZURE DEVOPS ------------
 	m.register(azuredevops.NewMonitorable(m.store))
 	// ------------ GITHUB ------------

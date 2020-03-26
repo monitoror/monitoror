@@ -31,5 +31,6 @@ func InitApis(s *Server) {
 
 	// ------------- MONITORABLES ------------- //
 	monitorableManager := monitorables.NewMonitorableManager(s.store)
+	monitorableManager.RegisterMonitorables()
 	monitorableManager.EnableMonitorables()
 }

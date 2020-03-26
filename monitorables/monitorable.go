@@ -30,12 +30,7 @@ type (
 )
 
 func NewMonitorableManager(store *store.Store) *Manager {
-	manager := &Manager{store: store}
-
-	// Register all monitorables
-	manager.init()
-
-	return manager
+	return &Manager{store: store}
 }
 
 func (m *Manager) register(monitorable Monitorable) {
