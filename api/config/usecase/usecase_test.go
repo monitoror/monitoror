@@ -27,6 +27,11 @@ import (
 func initConfigUsecase(repository config.Repository, store cache.Store) *configUsecase {
 	usecase := NewConfigUsecase(repository, store, 5000)
 
+	usecase.RegisterTile(pingApi.PingTileType, []coreModels.VariantName{coreModels.DefaultVariant}, MinimalVersion)
+	usecase.RegisterTile(portApi.PortTileType, []coreModels.VariantName{coreModels.DefaultVariant}, MinimalVersion)
+	usecase.RegisterTile(jenkinsApi.JenkinsBuildTileType, []coreModels.VariantName{coreModels.DefaultVariant}, MinimalVersion)
+	usecase.RegisterTile(pingdomApi.PingdomCheckTileType, []coreModels.VariantName{coreModels.DefaultVariant}, MinimalVersion)
+
 	usecase.EnableTile(pingApi.PingTileType, coreModels.DefaultVariant, &pingModels.PingParams{}, "/ping", 1000)
 	usecase.EnableTile(portApi.PortTileType, coreModels.DefaultVariant, &portModels.PortParams{}, "/port", 1000)
 	usecase.EnableTile(jenkinsApi.JenkinsBuildTileType, coreModels.DefaultVariant, &jenkinsModels.BuildParams{}, "/jenkins/default", 1000)

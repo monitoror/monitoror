@@ -37,6 +37,7 @@ func TestUsecase_Hydrate(t *testing.T) {
 
 	store := cache.NewGoCacheStore(time.Second, time.Second)
 	usecase := initConfigUsecase(nil, store)
+	usecase.RegisterTile(jenkinsApi.JenkinsBuildTileType, []coreModels.VariantName{"variant1"}, MinimalVersion)
 	usecase.EnableTile(jenkinsApi.JenkinsBuildTileType, "variant1", &jenkinsModels.BuildParams{}, "/jenkins/variant1", 1000)
 
 	config, err := readConfig(input)
@@ -164,6 +165,8 @@ func TestUsecase_Hydrate_WithDynamic_WithError(t *testing.T) {
 
 	store := cache.NewGoCacheStore(time.Second, time.Second)
 	usecase := initConfigUsecase(nil, store)
+	usecase.RegisterTile(jenkinsApi.JenkinsBuildTileType, []coreModels.VariantName{"variant1"}, MinimalVersion)
+	usecase.RegisterTile(jenkinsApi.JenkinsMultiBranchTileType, []coreModels.VariantName{coreModels.DefaultVariant, "variant1"}, MinimalVersion)
 	usecase.EnableTile(jenkinsApi.JenkinsBuildTileType, "variant1", &jenkinsModels.BuildParams{}, "/jenkins/variant1", 1000)
 	usecase.EnableDynamicTile(jenkinsApi.JenkinsMultiBranchTileType, coreModels.DefaultVariant, &jenkinsModels.MultiBranchParams{}, mockBuilder)
 	usecase.EnableDynamicTile(jenkinsApi.JenkinsMultiBranchTileType, "variant1", &jenkinsModels.MultiBranchParams{}, mockBuilder2)
@@ -202,6 +205,8 @@ func TestUsecase_Hydrate_WithDynamic_WithTimeoutError(t *testing.T) {
 
 	store := cache.NewGoCacheStore(time.Second, time.Second)
 	usecase := initConfigUsecase(nil, store)
+	usecase.RegisterTile(jenkinsApi.JenkinsBuildTileType, []coreModels.VariantName{"variant1"}, MinimalVersion)
+	usecase.RegisterTile(jenkinsApi.JenkinsMultiBranchTileType, []coreModels.VariantName{coreModels.DefaultVariant, "variant1"}, MinimalVersion)
 	usecase.EnableTile(jenkinsApi.JenkinsBuildTileType, "variant1", &jenkinsModels.BuildParams{}, "/jenkins/variant1", 1000)
 	usecase.EnableDynamicTile(jenkinsApi.JenkinsMultiBranchTileType, coreModels.DefaultVariant, &jenkinsModels.MultiBranchParams{}, mockBuilder)
 	usecase.EnableDynamicTile(jenkinsApi.JenkinsMultiBranchTileType, "variant1", &jenkinsModels.MultiBranchParams{}, mockBuilder2)

@@ -38,6 +38,7 @@ func initConfigData() *ConfigData {
 
 func (cu *configUsecase) RegisterTile(tileType coreModels.TileType, variant []coreModels.VariantName, version models.RawVersion) {
 	// TODO
+	var _ = ""
 }
 
 func (cu *configUsecase) EnableTile(
