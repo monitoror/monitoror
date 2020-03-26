@@ -29,7 +29,7 @@ type (
 		// Used to validate config and to create API URLs
 		// Will be removed before being returned to the UI
 		Params        map[string]interface{} `json:"params,omitempty"`
-		ConfigVariant coreModels.Variant     `json:"configVariant,omitempty"`
+		ConfigVariant coreModels.VariantName `json:"configVariant,omitempty"`
 	}
 
 	ConfigError struct {

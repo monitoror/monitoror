@@ -17,11 +17,11 @@ type MonitorableRouter struct {
 }
 
 // RouterGroup provides a mock function with given fields: path, variant
-func (_m *MonitorableRouter) RouterGroup(path string, variant models.Variant) router.MonitorableRouterGroup {
+func (_m *MonitorableRouter) RouterGroup(path string, variant models.VariantName) router.MonitorableRouterGroup {
 	ret := _m.Called(path, variant)
 
 	var r0 router.MonitorableRouterGroup
-	if rf, ok := ret.Get(0).(func(string, models.Variant) router.MonitorableRouterGroup); ok {
+	if rf, ok := ret.Get(0).(func(string, models.VariantName) router.MonitorableRouterGroup); ok {
 		r0 = rf(path, variant)
 	} else {
 		if ret.Get(0) != nil {

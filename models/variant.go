@@ -1,5 +1,5 @@
 package models
 
-type Variant string
+type VariantName string
 
-var DefaultVariant Variant = "default"
+var DefaultVariant VariantName = "default"

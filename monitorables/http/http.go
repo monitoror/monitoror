@@ -18,13 +18,13 @@ import (
 type Monitorable struct {
 	store *store.Store
 
-	config map[coreModels.Variant]*httpConfig.HTTP
+	config map[coreModels.VariantName]*httpConfig.HTTP
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
 	monitorable := &Monitorable{}
 	monitorable.store = store
-	monitorable.config = make(map[coreModels.Variant]*httpConfig.HTTP)
+	monitorable.config = make(map[coreModels.VariantName]*httpConfig.HTTP)
 
 	// Load core config from env
 	pkgMonitorable.LoadConfig(&monitorable.config, httpConfig.Default)
@@ -41,15 +41,15 @@ func (m *Monitorable) GetDisplayName() string {
 	return "HTTP"
 }
 
-func (m *Monitorable) GetVariants() []coreModels.Variant {
+func (m *Monitorable) GetVariants() []coreModels.VariantName {
 	return pkgMonitorable.GetVariants(m.config)
 }
 
-func (m *Monitorable) Validate(_ coreModels.Variant) (bool, error) {
+func (m *Monitorable) Validate(_ coreModels.VariantName) (bool, error) {
 	return true, nil
 }
 
-func (m *Monitorable) Enable(variant coreModels.Variant) {
+func (m *Monitorable) Enable(variant coreModels.VariantName) {
 	conf := m.config[variant]
 
 	repository := httpRepository.NewHTTPRepository(conf)

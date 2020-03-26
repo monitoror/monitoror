@@ -17,15 +17,16 @@ func LoadConfig(conf interface{}, defaultConf interface{}) {
 }
 
 //GetVariants extract variants from monitorable config
-func GetVariants(conf interface{}) []models.Variant {
-	var variants []models.Variant
-	if reflect.TypeOf(conf).Kind() == reflect.Map {
-		keys := reflect.ValueOf(conf).MapKeys()
-		for _, k := range keys {
-			variants = append(variants, models.Variant(k.String()))
-		}
-	} else {
-		variants = append(variants, models.DefaultVariant)
+func GetVariants(conf interface{}) []models.VariantName {
+	// Verify Params
+	if reflect.ValueOf(conf).Kind() != reflect.Map {
+		panic(fmt.Sprintf("wrong GetVariants parameters: conf need to be a map[coreModels.VariantName] not a %s", reflect.ValueOf(conf).Kind()))
+	}
+
+	var variants []models.VariantName
+	keys := reflect.ValueOf(conf).MapKeys()
+	for _, k := range keys {
+		variants = append(variants, models.VariantName(k.String()))
 	}
 
 	return variants
@@ -33,7 +34,7 @@ func GetVariants(conf interface{}) []models.Variant {
 
 //GetEnv rebuild Env variable from config variable
 //a little dirty, but I don't know how to do better
-func GetEnvName(conf interface{}, variant models.Variant, variableName string) string {
+func GetEnvName(conf interface{}, variant models.VariantName, variableName string) string {
 	// Verify Params
 	if reflect.ValueOf(conf).Kind() != reflect.Ptr {
 		panic(fmt.Sprintf("wrong GetConfigVariableEnv parameters: conf need to be a pointer of struct not a %s", reflect.ValueOf(conf).Kind()))

@@ -19,7 +19,7 @@ func TestLoadConfig(t *testing.T) {
 	// SETUP
 	prefix := "MO_TEST"
 	defaultVariant := models.DefaultVariant
-	conf := make(map[models.Variant]*TestStruct)
+	conf := make(map[models.VariantName]*TestStruct)
 	defaultValue := &TestStruct{ValueA: "default", ValueB: true, ValueC: 1337}
 
 	// ENV

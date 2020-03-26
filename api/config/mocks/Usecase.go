@@ -21,12 +21,12 @@ type Usecase struct {
 }
 
 // EnableDynamicTile provides a mock function with given fields: tileType, variant, Validator, builder
-func (_m *Usecase) EnableDynamicTile(tileType models.TileType, variant models.Variant, Validator validator.SimpleValidator, builder config.DynamicTileBuilder) {
+func (_m *Usecase) EnableDynamicTile(tileType models.TileType, variant models.VariantName, Validator validator.SimpleValidator, builder config.DynamicTileBuilder) {
 	_m.Called(tileType, variant, Validator, builder)
 }
 
 // EnableTile provides a mock function with given fields: tileType, variant, _a2, path, initialMaxDelay
-func (_m *Usecase) EnableTile(tileType models.TileType, variant models.Variant, _a2 validator.SimpleValidator, path string, initialMaxDelay int) {
+func (_m *Usecase) EnableTile(tileType models.TileType, variant models.VariantName, _a2 validator.SimpleValidator, path string, initialMaxDelay int) {
 	_m.Called(tileType, variant, _a2, path, initialMaxDelay)
 }
 
@@ -52,7 +52,7 @@ func (_m *Usecase) Hydrate(_a0 *configmodels.ConfigBag) {
 }
 
 // RegisterTile provides a mock function with given fields: tileType, variants, version
-func (_m *Usecase) RegisterTile(tileType models.TileType, variants []models.Variant, version string) {
+func (_m *Usecase) RegisterTile(tileType models.TileType, variants []models.VariantName, version configmodels.RawVersion) {
 	_m.Called(tileType, variants, version)
 }
 

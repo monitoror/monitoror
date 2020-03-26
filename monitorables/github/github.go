@@ -22,13 +22,13 @@ import (
 type Monitorable struct {
 	store *store.Store
 
-	config map[coreModels.Variant]*githubConfig.Github
+	config map[coreModels.VariantName]*githubConfig.Github
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
 	monitorable := &Monitorable{}
 	monitorable.store = store
-	monitorable.config = make(map[coreModels.Variant]*githubConfig.Github)
+	monitorable.config = make(map[coreModels.VariantName]*githubConfig.Github)
 
 	// Load core config from env
 	pkgMonitorable.LoadConfig(&monitorable.config, githubConfig.Default)
@@ -45,11 +45,11 @@ func (m *Monitorable) GetDisplayName() string {
 	return "GitHub"
 }
 
-func (m *Monitorable) GetVariants() []coreModels.Variant {
+func (m *Monitorable) GetVariants() []coreModels.VariantName {
 	return pkgMonitorable.GetVariants(m.config)
 }
 
-func (m *Monitorable) Validate(variant coreModels.Variant) (bool, error) {
+func (m *Monitorable) Validate(variant coreModels.VariantName) (bool, error) {
 	conf := m.config[variant]
 
 	// No configuration set
@@ -60,7 +60,7 @@ func (m *Monitorable) Validate(variant coreModels.Variant) (bool, error) {
 	return true, nil
 }
 
-func (m *Monitorable) Enable(variant coreModels.Variant) {
+func (m *Monitorable) Enable(variant coreModels.VariantName) {
 	conf := m.config[variant]
 
 	// Custom UpstreamCacheExpiration only for count because github has no-cache for this query and the rate limit is 30req/Hour

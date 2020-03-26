@@ -8,7 +8,8 @@ import (
 	"time"
 
 	"github.com/monitoror/monitoror/api/config"
-	"github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/api/config/models"
+	coreModels "github.com/monitoror/monitoror/models"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 )
@@ -18,12 +19,12 @@ const (
 	CurrentVersion = Version1000
 	MinimalVersion = Version1000
 
-	Version1000 = "1.0" // Initial version
+	Version1000 models.RawVersion = "1.0" // Initial version
 )
 
 const (
-	EmptyTileType models.TileType = "EMPTY"
-	GroupTileType models.TileType = "GROUP"
+	EmptyTileType coreModels.TileType = "EMPTY"
+	GroupTileType coreModels.TileType = "GROUP"
 
 	DynamicTileStoreKeyPrefix = "monitoror.config.dynamicTile.key"
 )
@@ -41,7 +42,7 @@ type (
 )
 
 func NewConfigUsecase(repository config.Repository, store cache.Store, cacheExpiration int) config.Usecase {
-	tileConfigs := make(map[models.TileType]map[string]*TileConfig)
+	tileConfigs := make(map[coreModels.TileType]map[string]*TileConfig)
 
 	// Used for authorized type
 	tileConfigs[EmptyTileType] = nil

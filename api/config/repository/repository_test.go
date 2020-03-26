@@ -5,6 +5,8 @@ import (
 	"testing"
 	"testing/iotest"
 
+	"github.com/monitoror/monitoror/api/config/models"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -30,7 +32,7 @@ func TestRepository_ReadConfig_Success(t *testing.T) {
 	config, err := ReadConfig(strings.NewReader(input))
 
 	assert.NoError(t, err)
-	assert.Equal(t, "1.8", config.Version.String())
+	assert.Equal(t, models.RawVersion("1.8"), config.Version.ToVersion())
 	assert.Equal(t, 4, *config.Columns)
 }
 

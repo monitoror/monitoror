@@ -5,6 +5,7 @@ package jenkins
 import (
 	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
 	coreConfig "github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/internal/pkg/monitorable"
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/jenkins/api"
 	jenkinsDelivery "github.com/monitoror/monitoror/monitorables/jenkins/api/delivery/http"
@@ -14,6 +15,8 @@ import (
 )
 
 type Monitorable struct {
+	monitorable.DefaultMonitorableFaker
+
 	store *store.Store
 }
 
@@ -27,11 +30,9 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	return monitorable
 }
 
-func (m *Monitorable) GetDisplayName() string                { return "Jenkins (faker)" }
-func (m *Monitorable) GetVariants() []string                 { return []coreModels.Variant{coreConfig.DefaultVariant} }
-func (m *Monitorable) Validate(variant string) (bool, error) { return true, nil }
+func (m *Monitorable) GetDisplayName() string { return "Jenkins (faker)" }
 
-func (m *Monitorable) Enable(variant string) {
+func (m *Monitorable) Enable(variant coreModels.VariantName) {
 	usecase := jenkinsUsecase.NewJenkinsUsecase()
 	delivery := jenkinsDelivery.NewJenkinsDelivery(usecase)
 

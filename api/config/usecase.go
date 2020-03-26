@@ -8,9 +8,9 @@ import (
 
 type (
 	Manager interface {
-		RegisterTile(tileType coreModels.TileType, variants []coreModels.Variant, version string)
-		EnableTile(tileType coreModels.TileType, variant coreModels.Variant, validator validator.SimpleValidator, path string, initialMaxDelay int)
-		EnableDynamicTile(tileType coreModels.TileType, variant coreModels.Variant, Validator validator.SimpleValidator, builder DynamicTileBuilder)
+		RegisterTile(tileType coreModels.TileType, variants []coreModels.VariantName, version models.RawVersion)
+		EnableTile(tileType coreModels.TileType, variant coreModels.VariantName, validator validator.SimpleValidator, path string, initialMaxDelay int)
+		EnableDynamicTile(tileType coreModels.TileType, variant coreModels.VariantName, Validator validator.SimpleValidator, builder DynamicTileBuilder)
 	}
 	DynamicTileBuilder func(params interface{}) ([]models.DynamicTileResult, error)
 

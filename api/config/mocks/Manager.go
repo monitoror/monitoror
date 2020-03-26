@@ -6,6 +6,8 @@ package mocks
 
 import (
 	config "github.com/monitoror/monitoror/api/config"
+	configmodels "github.com/monitoror/monitoror/api/config/models"
+
 	mock "github.com/stretchr/testify/mock"
 
 	models "github.com/monitoror/monitoror/models"
@@ -19,16 +21,16 @@ type Manager struct {
 }
 
 // EnableDynamicTile provides a mock function with given fields: tileType, variant, Validator, builder
-func (_m *Manager) EnableDynamicTile(tileType models.TileType, variant models.Variant, Validator validator.SimpleValidator, builder config.DynamicTileBuilder) {
+func (_m *Manager) EnableDynamicTile(tileType models.TileType, variant models.VariantName, Validator validator.SimpleValidator, builder config.DynamicTileBuilder) {
 	_m.Called(tileType, variant, Validator, builder)
 }
 
 // EnableTile provides a mock function with given fields: tileType, variant, _a2, path, initialMaxDelay
-func (_m *Manager) EnableTile(tileType models.TileType, variant models.Variant, _a2 validator.SimpleValidator, path string, initialMaxDelay int) {
+func (_m *Manager) EnableTile(tileType models.TileType, variant models.VariantName, _a2 validator.SimpleValidator, path string, initialMaxDelay int) {
 	_m.Called(tileType, variant, _a2, path, initialMaxDelay)
 }
 
 // RegisterTile provides a mock function with given fields: tileType, variants, version
-func (_m *Manager) RegisterTile(tileType models.TileType, variants []models.Variant, version string) {
+func (_m *Manager) RegisterTile(tileType models.TileType, variants []models.VariantName, version configmodels.RawVersion) {
 	_m.Called(tileType, variants, version)
 }

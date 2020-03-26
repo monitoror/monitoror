@@ -87,7 +87,7 @@ func TestConfigVersion_UnmarshalJSON(t *testing.T) {
 
 func TestConfigVersion_IsEqualTo(t *testing.T) {
 	for _, testcase := range []struct {
-		v1, v2 string
+		v1, v2 RawVersion
 		equal  bool
 	}{
 		{v1: "1.0", v2: "1.0", equal: true},
@@ -101,7 +101,7 @@ func TestConfigVersion_IsEqualTo(t *testing.T) {
 
 func TestConfigVersion_IsGreaterThan(t *testing.T) {
 	for _, testcase := range []struct {
-		v1, v2  string
+		v1, v2  RawVersion
 		greater bool
 	}{
 		{v1: "1.0", v2: "1.0", greater: false},
@@ -118,7 +118,7 @@ func TestConfigVersion_IsGreaterThan(t *testing.T) {
 
 func TestConfigVersion_IsGreaterThanOrEqualTo(t *testing.T) {
 	for _, testcase := range []struct {
-		v1, v2         string
+		v1, v2         RawVersion
 		greaterOrEqual bool
 	}{
 		{v1: "1.0", v2: "1.0", greaterOrEqual: true},
@@ -135,7 +135,7 @@ func TestConfigVersion_IsGreaterThanOrEqualTo(t *testing.T) {
 
 func TestConfigVersion_IsLessThan(t *testing.T) {
 	for _, testcase := range []struct {
-		v1, v2 string
+		v1, v2 RawVersion
 		less   bool
 	}{
 		{v1: "1.0", v2: "1.0", less: false},
@@ -152,7 +152,7 @@ func TestConfigVersion_IsLessThan(t *testing.T) {
 
 func TestConfigVersion_IsLessThanOrEqualTo(t *testing.T) {
 	for _, testcase := range []struct {
-		v1, v2      string
+		v1, v2      RawVersion
 		lessOrEqual bool
 	}{
 		{v1: "1.0", v2: "1.0", lessOrEqual: true},

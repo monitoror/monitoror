@@ -2,14 +2,15 @@ package usecase
 
 import (
 	"github.com/monitoror/monitoror/api/config"
-	"github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/api/config/models"
+	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/pkg/validator"
 )
 
 type (
 	ConfigData struct {
-		tileConfigs        map[models.TileType]map[models.Variant]*TileConfig
-		dynamicTileConfigs map[models.TileType]map[models.Variant]*DynamicTileConfig
+		tileConfigs        map[coreModels.TileType]map[coreModels.VariantName]*TileConfig
+		dynamicTileConfigs map[coreModels.TileType]map[coreModels.VariantName]*DynamicTileConfig
 	}
 
 	// TileConfig struct is used by GetConfig endpoint to check / hydrate config
@@ -30,21 +31,21 @@ func initConfigData() *ConfigData {
 	// TODO
 
 	return &ConfigData{
-		tileConfigs:        make(map[models.TileType]map[models.Variant]*TileConfig),
-		dynamicTileConfigs: make(map[models.TileType]map[models.Variant]*DynamicTileConfig),
+		tileConfigs:        make(map[coreModels.TileType]map[coreModels.VariantName]*TileConfig),
+		dynamicTileConfigs: make(map[coreModels.TileType]map[coreModels.VariantName]*DynamicTileConfig),
 	}
 }
 
-func (cu *configUsecase) RegisterTile(tileType models.TileType, variant []models.Variant, version string) {
+func (cu *configUsecase) RegisterTile(tileType coreModels.TileType, variant []coreModels.VariantName, version models.RawVersion) {
 	// TODO
 }
 
 func (cu *configUsecase) EnableTile(
-	tileType models.TileType, variant models.Variant, clientConfigValidator validator.SimpleValidator, path string, initialMaxDelay int,
+	tileType coreModels.TileType, variant coreModels.VariantName, clientConfigValidator validator.SimpleValidator, path string, initialMaxDelay int,
 ) {
 	value, exists := cu.configData.tileConfigs[tileType]
 	if !exists {
-		value = make(map[models.Variant]*TileConfig)
+		value = make(map[coreModels.VariantName]*TileConfig)
 		cu.configData.tileConfigs[tileType] = value
 	}
 
@@ -56,14 +57,14 @@ func (cu *configUsecase) EnableTile(
 }
 
 func (cu *configUsecase) EnableDynamicTile(
-	tileType models.TileType, variant models.Variant, clientConfigValidator validator.SimpleValidator, builder config.DynamicTileBuilder,
+	tileType coreModels.TileType, variant coreModels.VariantName, clientConfigValidator validator.SimpleValidator, builder config.DynamicTileBuilder,
 ) {
 	// Used for authorized type
 	cu.configData.tileConfigs[tileType] = nil
 
 	value, exists := cu.configData.dynamicTileConfigs[tileType]
 	if !exists {
-		value = make(map[models.Variant]*DynamicTileConfig)
+		value = make(map[coreModels.VariantName]*DynamicTileConfig)
 	}
 
 	value[variant] = &DynamicTileConfig{

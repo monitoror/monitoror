@@ -23,13 +23,13 @@ import (
 type Monitorable struct {
 	store *store.Store
 
-	config map[coreModels.Variant]*pingdomConfig.Pingdom
+	config map[coreModels.VariantName]*pingdomConfig.Pingdom
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
 	monitorable := &Monitorable{}
 	monitorable.store = store
-	monitorable.config = make(map[coreModels.Variant]*pingdomConfig.Pingdom)
+	monitorable.config = make(map[coreModels.VariantName]*pingdomConfig.Pingdom)
 
 	// Load core config from env
 	pkgMonitorable.LoadConfig(&monitorable.config, pingdomConfig.Default)
@@ -45,11 +45,11 @@ func (m *Monitorable) GetDisplayName() string {
 	return "Pingdom"
 }
 
-func (m *Monitorable) GetVariants() []coreModels.Variant {
+func (m *Monitorable) GetVariants() []coreModels.VariantName {
 	return pkgMonitorable.GetVariants(m.config)
 }
 
-func (m *Monitorable) Validate(variant coreModels.Variant) (bool, error) {
+func (m *Monitorable) Validate(variant coreModels.VariantName) (bool, error) {
 	conf := m.config[variant]
 
 	// No configuration set
@@ -70,7 +70,7 @@ func (m *Monitorable) Validate(variant coreModels.Variant) (bool, error) {
 	return true, nil
 }
 
-func (m *Monitorable) Enable(variant coreModels.Variant) {
+func (m *Monitorable) Enable(variant coreModels.VariantName) {
 	conf := m.config[variant]
 
 	repository := pingdomRepository.NewPingdomRepository(conf)

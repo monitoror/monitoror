@@ -12,10 +12,10 @@ import (
 )
 
 type (
-	Variants map[models.Variant]bool
+	Variants map[models.VariantName]bool
 )
 
-func initEnvAndVariant(envPrefix string, defaultVariant models.Variant, configType reflect.Type) Variants {
+func initEnvAndVariant(envPrefix string, defaultVariant models.VariantName, configType reflect.Type) Variants {
 	// We need to Identify every Variant
 	variants := make(Variants)
 	variants[defaultVariant] = true
@@ -42,7 +42,7 @@ func initEnvAndVariant(envPrefix string, defaultVariant models.Variant, configTy
 			for i := 0; i < configType.NumField(); i++ {
 				if len(splittedEnvKeyWithoutPrefix) > 1 && strings.ToUpper(configType.Field(i).Name) == splittedEnvKeyWithoutPrefix[1] {
 					// Env has a variant add it to map
-					variants[models.Variant(strings.ToLower(splittedEnvKeyWithoutPrefix[0]))] = true
+					variants[models.VariantName(strings.ToLower(splittedEnvKeyWithoutPrefix[0]))] = true
 					break
 				} else if strings.ToUpper(configType.Field(i).Name) == splittedEnvKeyWithoutPrefix[0] {
 					// Env don't have variant, add default

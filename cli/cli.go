@@ -67,7 +67,7 @@ func PrintMonitorableHeader() {
 	colorer.Printf(monitorableHeader)
 }
 
-func PrintMonitorable(displayName string, enabledVariants []coreModels.Variant, erroredVariants map[coreModels.Variant]error) {
+func PrintMonitorable(displayName string, enabledVariants []coreModels.VariantName, erroredVariants map[coreModels.VariantName]error) {
 	if len(enabledVariants) == 0 && len(erroredVariants) == 0 {
 		return
 	}
