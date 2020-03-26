@@ -6,7 +6,6 @@ import (
 
 	"github.com/monitoror/monitoror/cli/version"
 	coreModels "github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/pkg/system"
 
 	"github.com/labstack/gommon/color"
 )
@@ -98,7 +97,6 @@ func PrintMonitorable(displayName string, enabledVariants []coreModels.VariantNa
 	for variant, err := range erroredVariants {
 		if variant == coreModels.DefaultVariant {
 			colorer.Printf(" %[1]s Errored %[2]s configuration %[1]s\n     %[3]s\n", colorer.Red(errorSymbol), variant, err.Error())
-
 		} else {
 			colorer.Printf(" %[1]s Errored %[2]s configuration variant %[1]s\n     %[3]s\n", colorer.Red(errorSymbol), variant, err.Error())
 		}
@@ -116,23 +114,9 @@ func PrintMonitorableFooter(isProduction bool) {
 	colorer.Printf(monitorableFooter, colorer.Blue(fmt.Sprintf(documentation, documentationVersion)))
 }
 
-func PrintServerStartup(port int) {
-	color.Print(echoStartup)
-
-	ips, _ := system.ListLocalhostIpv4()
-
-	// in case of empty ips
-	if len(ips) == 0 {
-		ips = append(ips, "127.0.0.1")
-	}
-
-	for _, ip := range ips {
-		if ip == "127.0.0.1" {
-			ip = "localhost"
-		}
-
-		color.Printf("   %s\n", colorer.Blue(fmt.Sprintf("http://%s:%d", ip, port)))
-	}
-
-	color.Println()
+func PrintServerStartup(ip string, port int) {
+	colorer.Printf(echoStartup)
+	colorer.Printf("   %s\n", colorer.Blue(fmt.Sprintf("http://localhost:%d", port)))
+	colorer.Printf("   %s\n", colorer.Blue(fmt.Sprintf("http://%s:%d", ip, port)))
+	colorer.Println()
 }

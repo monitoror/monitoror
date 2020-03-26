@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -11,8 +12,8 @@ func TestIsRawSocketAvailable(t *testing.T) {
 	assert.NotPanics(t, func() { IsRawSocketAvailable() })
 }
 
-func TestListLocalhostIpv4(t *testing.T) {
-	ips, err := ListLocalhostIpv4()
-	assert.NoError(t, err)
-	assert.Contains(t, ips, "127.0.0.1")
+func TestGetNetworkIp(t *testing.T) {
+	ip := GetNetworkIP()
+	fmt.Println(ip)
+	assert.NotEmpty(t, ip)
 }

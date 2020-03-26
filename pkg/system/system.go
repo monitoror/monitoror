@@ -11,26 +11,9 @@ func IsRawSocketAvailable() bool {
 	return err == nil
 }
 
-// ListLocalhostIpv4 list IP of every local network interfaces
-func ListLocalhostIpv4() ([]string, error) {
-	var ips []string
-	ifaces, err := net.Interfaces()
-	if err != nil {
-		return nil, err
-	}
-
-	for _, i := range ifaces {
-		addrs, err := i.Addrs()
-		if err != nil {
-			return nil, err
-		}
-
-		for _, addr := range addrs {
-			if ip, ok := addr.(*net.IPNet); ok && ip.IP.To4() != nil {
-				ips = append(ips, ip.IP.String())
-			}
-		}
-	}
-
-	return ips, nil
+func GetNetworkIP() string {
+	conn, _ := net.Dial("udp", "255.255.255.255:80")
+	defer conn.Close()
+	networkIP := conn.LocalAddr().(*net.UDPAddr).IP
+	return networkIP.To4().String()
 }

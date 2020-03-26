@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/monitoror/monitoror/cli"
-
 	"github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/pkg/system"
 	"github.com/monitoror/monitoror/service/handlers"
 	"github.com/monitoror/monitoror/service/middlewares"
 	"github.com/monitoror/monitoror/service/store"
@@ -52,7 +52,7 @@ func Init(config *config.Config) *Server {
 }
 
 func (s *Server) Start() {
-	cli.PrintServerStartup(s.store.CoreConfig.Port)
+	cli.PrintServerStartup(system.GetNetworkIP(), s.store.CoreConfig.Port)
 	log.Fatal(s.Echo.Start(fmt.Sprintf(":%d", s.store.CoreConfig.Port)))
 }
 
