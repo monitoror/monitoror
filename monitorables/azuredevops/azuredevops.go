@@ -57,12 +57,12 @@ func (m *Monitorable) Validate(variant coreModels.VariantName) (bool, error) {
 
 	// Error in URL
 	if _, err := url.Parse(conf.URL); err != nil {
-		return false, fmt.Errorf(`%s contains invalid URL: "%s"`, pkgMonitorable.GetEnvName(conf, variant, "URL"), conf.URL)
+		return false, fmt.Errorf(`%s contains invalid URL: "%s"`, pkgMonitorable.BuildMonitorableEnvKey(conf, variant, "URL"), conf.URL)
 	}
 
 	// Error in Token
 	if conf.Token == "" {
-		return false, fmt.Errorf(`%s is required, no value founds`, pkgMonitorable.GetEnvName(conf, variant, "TOKEN"))
+		return false, fmt.Errorf(`%s is required, no value founds`, pkgMonitorable.BuildMonitorableEnvKey(conf, variant, "TOKEN"))
 	}
 
 	return true, nil

@@ -34,10 +34,10 @@ func TestGetVariants(t *testing.T) {
 	assert.Panics(t, func() { GetVariants("test") })
 }
 
-func TestGetEnvName(t *testing.T) {
-	assert.Equal(t, "MO_MONITORABLE_PING_TEST_TEST", GetEnvName(pingConfig.Default, "test", "test"))
-	assert.Equal(t, "MO_MONITORABLE_PING_TEST", GetEnvName(pingConfig.Default, coreModels.DefaultVariant, "test"))
+func TestBuildMonitorableEnvKey(t *testing.T) {
+	assert.Equal(t, "MO_MONITORABLE_PING_TEST_TEST", BuildMonitorableEnvKey(pingConfig.Default, "test", "test"))
+	assert.Equal(t, "MO_MONITORABLE_PING_TEST", BuildMonitorableEnvKey(pingConfig.Default, coreModels.DefaultVariant, "test"))
 	assert.Panics(t, func() {
-		GetEnvName("test", "test", "test")
+		BuildMonitorableEnvKey("test", "test", "test")
 	})
 }

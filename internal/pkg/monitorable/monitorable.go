@@ -32,9 +32,9 @@ func GetVariants(conf interface{}) []models.VariantName {
 	return variants
 }
 
-//GetEnv rebuild Env variable from config variable
+//BuildMonitorableEnvKey rebuild Env variable from config variable
 //a little dirty, but I don't know how to do better
-func GetEnvName(conf interface{}, variant models.VariantName, variableName string) string {
+func BuildMonitorableEnvKey(conf interface{}, variant models.VariantName, variableName string) string {
 	// Verify Params
 	if reflect.ValueOf(conf).Kind() != reflect.Ptr {
 		panic(fmt.Sprintf("wrong GetConfigVariableEnv parameters: conf need to be a pointer of struct not a %s", reflect.ValueOf(conf).Kind()))
