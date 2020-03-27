@@ -12,8 +12,14 @@ func IsRawSocketAvailable() bool {
 }
 
 func GetNetworkIP() string {
-	conn, _ := net.Dial("udp", "255.255.255.255:80")
-	defer conn.Close()
-	networkIP := conn.LocalAddr().(*net.UDPAddr).IP
-	return networkIP.To4().String()
+	ip := "0.0.0.0"
+
+	conn, err := net.Dial("udp", "255.255.255.255:80")
+	if err == nil {
+		defer conn.Close()
+		networkIP := conn.LocalAddr().(*net.UDPAddr).IP
+		ip = networkIP.To4().String()
+	}
+
+	return ip
 }
