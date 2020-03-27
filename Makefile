@@ -29,15 +29,8 @@ lint: ## run linter
 
 # ============= MOCKS =============
 .PHONY: mock
-mock: mock-monitorable mock-pkg
-
-.PHONY: mock-monitorable
-mock-monitorable: ## generate mocks of monitorable sub-directories
-	@./scripts/mock/monitorable.sh
-
-.PHONY: mock-pkg
-mock-pkg: ## generate mocks of pkg directory listed in scripts/mock/mock-pkg
-	@./scripts/mock/pkg.sh
+mock: ## generate mocks
+	@./scripts/mock/mock.sh
 
 # ============= BUILDS =============
 .PHONY: build

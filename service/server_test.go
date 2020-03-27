@@ -3,52 +3,35 @@ package service
 import (
 	"testing"
 
-	"github.com/GeertJohan/go.rice/embedded"
 	"github.com/monitoror/monitoror/config"
+
+	"github.com/GeertJohan/go.rice/embedded"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestInit(t *testing.T) {
-	conf := config.InitConfig()
-	conf.Env = "test"
-	server := Init(conf)
-	assert.NotNil(t, server.Echo)
-}
+// /!\ this is an integration test /!\
+// Note : It may be necessary to separate them from unit tests
 
-func TestInitFront_Panic(t *testing.T) {
-	conf := config.InitConfig()
-	conf.Env = "production"
-
-	server := &Server{
-		config: conf,
-	}
-	server.initEcho()
-
-	delete(embedded.EmbeddedBoxes, "../ui/dist")
-	assert.Panics(t, func() {
-		server.initUI()
+func TestInit_Dev(t *testing.T) {
+	assert.NotPanics(t, func() {
+		Init(&config.Config{Env: "develop"})
 	})
 }
 
-func TestInitFront_Success(t *testing.T) {
-	conf := config.InitConfig()
-	conf.Env = "production"
+func TestInit_Prod_WithoutRicebox(t *testing.T) {
+	delete(embedded.EmbeddedBoxes, "../ui/dist")
+	assert.Panics(t, func() {
+		Init(&config.Config{Env: "production"})
+	})
+}
 
-	server := &Server{
-		config: conf,
-	}
-	server.initEcho()
-
+func TestInit_Prod_WithRicebox(t *testing.T) {
 	delete(embedded.EmbeddedBoxes, "../ui/dist")
 	embedded.RegisterEmbeddedBox("../ui/dist", &embedded.EmbeddedBox{
 		Name: "../ui/dist",
 	})
 	defer delete(embedded.EmbeddedBoxes, "../ui/dist")
-
-	server.initUI()
-}
-
-func TestRegisterTile(t *testing.T) {
-	registerTile(func(s string) { assert.False(t, true) }, "TEST", false)
-	registerTile(func(s string) { assert.True(t, true) }, "TEST", true)
+	assert.NotPanics(t, func() {
+		Init(&config.Config{Env: "production"})
+	})
 }
