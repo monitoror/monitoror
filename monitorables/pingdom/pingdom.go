@@ -83,7 +83,7 @@ func (m *Monitorable) Enable(variant coreModels.VariantName) {
 
 	// EnableTile data for config hydration
 	m.store.UIConfigManager.EnableTile(api.PingdomCheckTileType, variant,
-		&pingdomModels.ChecksParams{}, route.Path, conf.InitialMaxDelay)
+		&pingdomModels.CheckParams{}, route.Path, conf.InitialMaxDelay)
 	m.store.UIConfigManager.EnableDynamicTile(api.PingdomChecksTileType, variant,
 		&pingdomModels.ChecksParams{}, usecase.Checks)
 }
