@@ -12,18 +12,18 @@ source ./scripts/setup-variables.sh
 # Override OS/ARCH
 if [[ $# -eq 1 ]]; then
   if [[ $1 == "linux/amd64" ]]; then
-    GOOS=linux
-    GOARCH=amd64
+    export GOOS=linux
+    export GOARCH=amd64
   elif [[ $1 == "linux/ARMv5" ]]; then
-    GOOS=linux
-    GOARCH=arm
-    GOARM=5
+    export GOOS=linux
+    export GOARCH=arm
+    export GOARM=5
   elif [[ $1 == "windows" ]]; then
-    GOOS=windows
-    GOARCH=amd64
+    export GOOS=windows
+    export GOARCH=amd64
   elif [[ $1 == "macos" ]]; then
-    GOOS=darwin
-    GOARCH=amd64
+    export GOOS=darwin
+    export GOARCH=amd64
   fi
 fi
 
