@@ -30,7 +30,7 @@ func TestPrintMonitorable(t *testing.T) {
 
 func TestPrintMonitorableFooter(t *testing.T) {
 	version.Version = "0.0.0"
-	PrintMonitorableFooter(true)
+	PrintMonitorableFooter(true, 3)
 }
 
 func TestPrintServerStartup(t *testing.T) {

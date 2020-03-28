@@ -40,6 +40,8 @@ func (m *Manager) register(monitorable Monitorable) {
 func (m *Manager) EnableMonitorables() {
 	cli.PrintMonitorableHeader()
 
+	nonEnabledMonitorableCount := 0
+
 	for _, monitorable := range m.monitorables {
 		var enabledVariants []coreModels.VariantName
 		erroredVariants := make(map[coreModels.VariantName]error)
@@ -56,8 +58,12 @@ func (m *Manager) EnableMonitorables() {
 			}
 		}
 
+		if len(enabledVariants) == 0 && len(erroredVariants) == 0 {
+			nonEnabledMonitorableCount++
+		}
+
 		cli.PrintMonitorable(monitorable.GetDisplayName(), enabledVariants, erroredVariants)
 	}
 
-	cli.PrintMonitorableFooter(m.store.CoreConfig.Env == "production")
+	cli.PrintMonitorableFooter(m.store.CoreConfig.Env == "production", nonEnabledMonitorableCount)
 }
