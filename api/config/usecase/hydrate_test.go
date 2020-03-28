@@ -78,6 +78,9 @@ func TestUsecase_Hydrate_WithDynamic(t *testing.T) {
     ]},
     { "type": "GROUP", "label": "...", "tiles": [
     	{ "type": "JENKINS-MULTIBRANCH", "params": {"job": "test"}}
+    ]},
+    { "type": "GROUP", "label": "...", "tiles": [
+    	{ "type": "JENKINS-MULTIBRANCH", "label": "Test Label", "params": {"job": "test"}}
     ]}
   ]
 }
@@ -98,16 +101,23 @@ func TestUsecase_Hydrate_WithDynamic(t *testing.T) {
 	usecase.Hydrate(config)
 	assert.Len(t, config.Errors, 0)
 
-	assert.Equal(t, 3, len(config.Config.Tiles))
+	assert.Equal(t, 4, len(config.Config.Tiles))
 	assert.Equal(t, jenkinsApi.JenkinsBuildTileType, config.Config.Tiles[0].Type)
 	assert.Equal(t, "/jenkins/default?job=test", config.Config.Tiles[0].URL)
 	assert.Equal(t, 1000, *config.Config.Tiles[0].InitialMaxDelay)
+	assert.Equal(t, "", config.Config.Tiles[2].Tiles[0].Label)
 	assert.Equal(t, jenkinsApi.JenkinsBuildTileType, config.Config.Tiles[1].Tiles[1].Type)
 	assert.Equal(t, "/jenkins/default?job=test", config.Config.Tiles[1].Tiles[1].URL)
 	assert.Equal(t, 1000, *config.Config.Tiles[1].Tiles[1].InitialMaxDelay)
+	assert.Equal(t, "", config.Config.Tiles[2].Tiles[0].Label)
 	assert.Equal(t, jenkinsApi.JenkinsBuildTileType, config.Config.Tiles[2].Tiles[0].Type)
 	assert.Equal(t, "/jenkins/default?job=test", config.Config.Tiles[2].Tiles[0].URL)
 	assert.Equal(t, 1000, *config.Config.Tiles[2].Tiles[0].InitialMaxDelay)
+	assert.Equal(t, "", config.Config.Tiles[2].Tiles[0].Label)
+	assert.Equal(t, jenkinsApi.JenkinsBuildTileType, config.Config.Tiles[3].Tiles[0].Type)
+	assert.Equal(t, "/jenkins/default?job=test", config.Config.Tiles[3].Tiles[0].URL)
+	assert.Equal(t, 1000, *config.Config.Tiles[3].Tiles[0].InitialMaxDelay)
+	assert.Equal(t, "Test Label", config.Config.Tiles[3].Tiles[0].Label)
 }
 
 func TestUsecase_Hydrate_WithDynamicEmpty(t *testing.T) {

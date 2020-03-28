@@ -34,9 +34,8 @@ func NewJenkinsRepository(config *config.Jenkins) api.Repository {
 	}
 
 	// Remove last /
-	if strings.HasSuffix(config.URL, "/") {
-		config.URL = strings.TrimRight(config.URL, "/")
-	}
+	config.URL = strings.TrimRight(config.URL, "/")
+
 	jenkins := gojenkins.NewJenkins(auth, config.URL)
 
 	// Override transport

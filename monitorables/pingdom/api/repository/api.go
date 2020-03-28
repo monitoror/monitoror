@@ -25,9 +25,7 @@ type (
 
 func NewPingdomRepository(config *config.Pingdom) api.Repository {
 	// Remove last /
-	if strings.HasSuffix(config.URL, "/") {
-		config.URL = strings.TrimRight(config.URL, "/")
-	}
+	config.URL = strings.TrimRight(config.URL, "/")
 
 	client, err := pingdomAPI.NewClientWithConfig(pingdomAPI.ClientConfig{
 		BaseURL:  config.URL,
