@@ -2,6 +2,8 @@ package repository
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"time"
 
 	coreModels "github.com/monitoror/monitoror/models"
@@ -48,6 +50,11 @@ func NewAzureDevOpsRepository(config *config.AzureDevOps) api.Repository {
 }
 
 func (r *azureDevOpsRepository) GetBuild(project string, definition int, branch *string) (*models.Build, error) {
+	// Inject "refs/heads/" in branch name
+	if branch != nil && !strings.HasPrefix(*branch, "refs/") {
+		branch = pointer.ToString(fmt.Sprintf("refs/heads/%s", *branch))
+	}
+
 	ids := []int{definition}
 	args := build.GetBuildsArgs{
 		Project:                pointer.ToString(project),

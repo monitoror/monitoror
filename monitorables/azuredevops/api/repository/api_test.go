@@ -125,7 +125,7 @@ func TestRepository_GetBuild_Success(t *testing.T) {
 				Definition: &build.DefinitionReference{
 					Name: ToString("definitionName"),
 				},
-				SourceBranch: ToString("master"),
+				SourceBranch: ToString("refs/heads/master"),
 				Status:       &build.BuildStatusValues.Completed,
 				Result:       &build.BuildResultValues.Succeeded,
 				TriggerInfo:  &author,
@@ -144,7 +144,7 @@ func TestRepository_GetBuild_Success(t *testing.T) {
 	expectedBuild := &models.Build{
 		BuildNumber:    "1",
 		DefinitionName: "definitionName",
-		Branch:         "master",
+		Branch:         "refs/heads/master",
 		Author:         nil,
 		Status:         "completed",
 		Result:         "succeeded",
