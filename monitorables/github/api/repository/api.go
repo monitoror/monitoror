@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 
@@ -42,6 +43,11 @@ func NewGithubRepository(config *config.Github) api.Repository {
 
 	// Init Github Client
 	client := githubApi.NewClient(httpClient)
+
+	// Set baseURL
+	baseURL, _ := url.Parse(config.URL)
+	client.BaseURL = baseURL
+	client.UploadURL = nil
 
 	return &githubRepository{
 		searchService:       client.Search,
