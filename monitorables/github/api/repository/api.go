@@ -44,8 +44,13 @@ func NewGithubRepository(config *config.Github) api.Repository {
 	// Init Github Client
 	client := githubApi.NewClient(httpClient)
 
+	// Add / if missing
+	if !strings.HasSuffix(config.URL, "/") {
+		config.URL += "/"
+	}
+
 	// Set baseURL
-	baseURL, _ := url.Parse(config.URL)
+	baseURL, _ := url.Parse(config.URL) // Err check already done in Monitorable.Validate
 	client.BaseURL = baseURL
 	client.UploadURL = nil
 

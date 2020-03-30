@@ -37,6 +37,11 @@ func (c *connection) GetReleaseConnection() (release.Client, error) {
 }
 
 func NewAzureDevOpsRepository(config *config.AzureDevOps) api.Repository {
+	// Remove last /
+	if strings.HasSuffix(config.URL, "/") {
+		config.URL = strings.TrimRight(config.URL, "/")
+	}
+
 	conn := azureDevOpsApi.NewPatConnection(config.URL, config.Token)
 
 	// Setup timeout

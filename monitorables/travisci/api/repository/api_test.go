@@ -18,7 +18,7 @@ import (
 
 func initRepository(t *testing.T, buildsAPI pkgTravis.TravisCI) *travisCIRepository {
 	conf := &config.TravisCI{
-		URL:             config.Default.URL,
+		URL:             "https://travis.exemple.com",
 		Token:           config.Default.Token,
 		GithubToken:     config.Default.GithubToken,
 		Timeout:         config.Default.Timeout,
@@ -26,6 +26,8 @@ func initRepository(t *testing.T, buildsAPI pkgTravis.TravisCI) *travisCIReposit
 	}
 
 	repository := NewTravisCIRepository(conf)
+
+	assert.Equal(t, "https://travis.exemple.com/", conf.URL)
 
 	apiTravisCIRepository, ok := repository.(*travisCIRepository)
 	if assert.True(t, ok) {

@@ -22,7 +22,7 @@ import (
 
 func initRepository(t *testing.T, buildClient build.Client, releaseClient release.Client) *azureDevOpsRepository {
 	conf := &config.AzureDevOps{
-		URL:             "http://azure.example.com",
+		URL:             "http://azure.example.com/",
 		Token:           "test",
 		Timeout:         1000,
 		InitialMaxDelay: 1000,
@@ -44,6 +44,8 @@ func initRepository(t *testing.T, buildClient build.Client, releaseClient releas
 	}
 
 	repository := NewAzureDevOpsRepository(conf)
+
+	assert.Equal(t, "http://azure.example.com", conf.URL)
 
 	apiAzureDevOpsRepository, ok := repository.(*azureDevOpsRepository)
 	if assert.True(t, ok) {

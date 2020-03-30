@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	coreModels "github.com/monitoror/monitoror/models"
@@ -31,8 +32,14 @@ func NewJenkinsRepository(config *config.Jenkins) api.Repository {
 			ApiToken: config.Token,
 		}
 	}
+
+	// Remove last /
+	if strings.HasSuffix(config.URL, "/") {
+		config.URL = strings.TrimRight(config.URL, "/")
+	}
 	jenkins := gojenkins.NewJenkins(auth, config.URL)
 
+	// Override transport
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: !config.SSLVerify},
 	}

@@ -17,13 +17,16 @@ import (
 
 func initRepository(t *testing.T) *githubRepository {
 	conf := &config.Github{
-		Timeout:              1000,
+		URL:                  "https://github.example.com",
 		Token:                "xxx",
+		Timeout:              1000,
 		CountCacheExpiration: 10000,
 		InitialMaxDelay:      1000,
 	}
 
 	repository := NewGithubRepository(conf)
+
+	assert.Equal(t, "https://github.example.com/", conf.URL)
 
 	apiGithubRepository, ok := repository.(*githubRepository)
 	if assert.True(t, ok) {

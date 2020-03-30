@@ -18,7 +18,7 @@ import (
 
 func initRepository(t *testing.T, buildsAPI pkgJenkins.Jenkins) *jenkinsRepository {
 	conf := &config.Jenkins{
-		URL:             "http://jenkins.example.com",
+		URL:             "http://jenkins.example.com/",
 		Login:           "test",
 		Token:           "Test",
 		Timeout:         config.Default.Timeout,
@@ -27,6 +27,8 @@ func initRepository(t *testing.T, buildsAPI pkgJenkins.Jenkins) *jenkinsReposito
 	}
 
 	repository := NewJenkinsRepository(conf)
+
+	assert.Equal(t, "http://jenkins.example.com", conf.URL)
 
 	apiJenkinsRepository, ok := repository.(*jenkinsRepository)
 	if assert.True(t, ok) {
