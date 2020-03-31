@@ -131,6 +131,11 @@ func (cu *configUsecase) hydrateDynamicTile(configBag *models.ConfigBag, tile *m
 			RowSpan:       tile.RowSpan,
 		}
 
+		// Override tile if dynamicTile has a label
+		if tile.Label != "" {
+			newTile.Label = tile.Label
+		}
+
 		tiles = append(tiles, newTile)
 	}
 
