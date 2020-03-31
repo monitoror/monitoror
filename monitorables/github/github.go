@@ -3,11 +3,12 @@
 package github
 
 import (
+	"fmt"
+	"net/url"
 	"time"
 
-	pkgMonitorable "github.com/monitoror/monitoror/internal/pkg/monitorable"
-
 	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
+	pkgMonitorable "github.com/monitoror/monitoror/internal/pkg/monitorable"
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/github/api"
 	githubDelivery "github.com/monitoror/monitoror/monitorables/github/api/delivery/http"
@@ -53,8 +54,18 @@ func (m *Monitorable) Validate(variant coreModels.VariantName) (bool, error) {
 	conf := m.config[variant]
 
 	// No configuration set
-	if conf.Token == "" {
+	if conf.URL == githubConfig.Default.URL && conf.Token == "" {
 		return false, nil
+	}
+
+	// Error in URL
+	if _, err := url.Parse(conf.URL); err != nil {
+		return false, fmt.Errorf(`%s contains invalid URL: "%s"`, pkgMonitorable.BuildMonitorableEnvKey(conf, variant, "URL"), conf.URL)
+	}
+
+	// Error in Token
+	if conf.Token == "" {
+		return false, fmt.Errorf(`%s is required, no value founds`, pkgMonitorable.BuildMonitorableEnvKey(conf, variant, "TOKEN"))
 	}
 
 	return true, nil

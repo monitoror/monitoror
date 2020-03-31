@@ -13,7 +13,12 @@ func TestNewMonitorable(t *testing.T) {
 	mockRouter, mockRouterGroup, mockConfigManager, s := test.InitMockAndStore()
 
 	// init Env
+	// OK
 	_ = os.Setenv("MO_MONITORABLE_GITHUB_VARIANT0_TOKEN", "xxx")
+	// Missing Token
+	_ = os.Setenv("MO_MONITORABLE_GITHUB_VARIANT1_URL", "https://github.example.com/")
+	// Url broken
+	_ = os.Setenv("MO_MONITORABLE_GITHUB_VARIANT2_URL", "url%sgithub.example.com/")
 
 	// NewMonitorable
 	monitorable := NewMonitorable(s)
@@ -23,7 +28,12 @@ func TestNewMonitorable(t *testing.T) {
 	assert.NotNil(t, monitorable.GetDisplayName())
 
 	// GetVariants and check
-	assert.Len(t, monitorable.GetVariants(), 2)
+	if assert.Len(t, monitorable.GetVariants(), 4) {
+		_, err := monitorable.Validate("variant1")
+		assert.Error(t, err)
+		_, err = monitorable.Validate("variant2")
+		assert.Error(t, err)
+	}
 
 	// Enable
 	for _, variant := range monitorable.GetVariants() {

@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	coreModels "github.com/monitoror/monitoror/models"
@@ -24,6 +25,11 @@ type (
 )
 
 func NewTravisCIRepository(config *config.TravisCI) api.Repository {
+	// Add / if missing
+	if !strings.HasSuffix(config.URL, "/") {
+		config.URL += "/"
+	}
+
 	client := travis.NewClient(config.URL, config.Token)
 
 	// Using Github token if exist

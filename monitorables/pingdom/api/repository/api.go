@@ -3,6 +3,7 @@ package repository
 import (
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/monitoror/monitoror/monitorables/pingdom/api"
@@ -23,6 +24,9 @@ type (
 )
 
 func NewPingdomRepository(config *config.Pingdom) api.Repository {
+	// Remove last /
+	config.URL = strings.TrimRight(config.URL, "/")
+
 	client, err := pingdomAPI.NewClientWithConfig(pingdomAPI.ClientConfig{
 		BaseURL:  config.URL,
 		APIToken: config.Token,

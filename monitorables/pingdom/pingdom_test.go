@@ -18,7 +18,7 @@ func TestNewMonitorable(t *testing.T) {
 	// Missing Token
 	_ = os.Setenv("MO_MONITORABLE_PINGDOM_VARIANT1_URL", "https://pingdom.example.com")
 	// Url broken
-	_ = os.Setenv("MO_MONITORABLE_PINGDOM_VARIANT2_URL", "url%spingdom.example.com/myProject2")
+	_ = os.Setenv("MO_MONITORABLE_PINGDOM_VARIANT2_URL", "url%spingdom.example.com")
 
 	// NewMonitorable
 	monitorable := NewMonitorable(s)

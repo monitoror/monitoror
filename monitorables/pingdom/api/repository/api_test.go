@@ -15,13 +15,15 @@ import (
 
 func initRepository(t *testing.T, checkAPI pkgPingdom.PingdomCheckAPI) *pingdomRepository {
 	conf := &config.Pingdom{
-		URL:             config.Default.URL,
+		URL:             "https://pingdom.example.com/",
 		Token:           config.Default.Token,
 		Timeout:         config.Default.Timeout,
 		CacheExpiration: config.Default.CacheExpiration,
 		InitialMaxDelay: config.Default.InitialMaxDelay,
 	}
 	repository := NewPingdomRepository(conf)
+
+	assert.Equal(t, "https://pingdom.example.com", conf.URL)
 
 	apiPingdomRepository, ok := repository.(*pingdomRepository)
 	if assert.True(t, ok) {
