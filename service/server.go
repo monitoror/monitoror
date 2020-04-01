@@ -35,10 +35,11 @@ func init() {
 }
 
 // Init create echo server with middlewares, ui, routes
-func Init(config *config.Config) *Server {
+func Init(config *config.Config, cli cli.CLI) *Server {
 	s := &Server{
 		store: &store.Store{
 			CoreConfig: config,
+			Cli:        cli,
 		},
 	}
 
@@ -52,7 +53,7 @@ func Init(config *config.Config) *Server {
 }
 
 func (s *Server) Start() {
-	cli.PrintServerStartup(system.GetNetworkIP(), s.store.CoreConfig.Port)
+	s.store.Cli.PrintServerStartup(system.GetNetworkIP(), s.store.CoreConfig.Port)
 	log.Fatal(s.Echo.Start(fmt.Sprintf(":%d", s.store.CoreConfig.Port)))
 }
 

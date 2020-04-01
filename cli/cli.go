@@ -40,6 +40,7 @@ const (
 
 	monitorableHeader = `
 ENABLED MONITORABLES
+
 `
 
 	monitorableFooterTitle = `%d more monitorables were ignored`
@@ -52,29 +53,49 @@ Check the documentation to know how to enabled them:
 	echoStartup = `
 
 Monitoror is running at:
+  %s
+  %s
+
 `
+)
+
+type CLI interface {
+	PrintBanner()
+	PrintDevMode()
+	PrintMonitorableHeader()
+	PrintMonitorable(displayName string, enabledVariants []coreModels.VariantName, erroredVariants map[coreModels.VariantName]error)
+	PrintMonitorableFooter(isProduction bool, nonEnabledMonitorableCount int)
+	PrintServerStartup(ip string, port int)
+}
+
+type (
+	MonitororCLI struct{}
 )
 
 var colorer = color.New()
 
-func PrintBanner() {
+func New() *MonitororCLI {
+	return &MonitororCLI{}
+}
+
+func (cli *MonitororCLI) PrintBanner() {
 	var tagFlag = ""
-	if len(version.BuildTags) > 0 {
+	if version.BuildTags != "" {
 		tagFlag = colorer.Inverse(" " + version.BuildTags + " ")
 	}
 
 	colorer.Printf(banner, tagFlag, colorer.Green(version.Version), colorer.Blue(website))
 }
 
-func PrintDevMode() {
+func (cli *MonitororCLI) PrintDevMode() {
 	colorer.Printf(devMode, colorer.Yellow(devModeTitle), colorer.Green(uiStartCommand), colorer.Blue(developmentGuides))
 }
 
-func PrintMonitorableHeader() {
-	colorer.Println(colorer.Black(colorer.Green(monitorableHeader)))
+func (cli *MonitororCLI) PrintMonitorableHeader() {
+	colorer.Printf(colorer.Black(colorer.Green(monitorableHeader)))
 }
 
-func PrintMonitorable(displayName string, enabledVariants []coreModels.VariantName, erroredVariants map[coreModels.VariantName]error) {
+func (cli *MonitororCLI) PrintMonitorable(displayName string, enabledVariants []coreModels.VariantName, erroredVariants map[coreModels.VariantName]error) {
 	if len(enabledVariants) == 0 && len(erroredVariants) == 0 {
 		return
 	}
@@ -96,7 +117,7 @@ func PrintMonitorable(displayName string, enabledVariants []coreModels.VariantNa
 				variantsWithoutDefault = append(variantsWithoutDefault, string(variant))
 			}
 		}
-		if strDefault != "" || len(variantsWithoutDefault) > 0 {
+		if len(variantsWithoutDefault) > 0 {
 			strVariants = fmt.Sprintf("[%svariants: [%s]]", strDefault, strings.Join(variantsWithoutDefault, ", "))
 		}
 	}
@@ -123,7 +144,11 @@ func PrintMonitorable(displayName string, enabledVariants []coreModels.VariantNa
 	}
 }
 
-func PrintMonitorableFooter(isProduction bool, nonEnabledMonitorableCount int) {
+func (cli *MonitororCLI) PrintMonitorableFooter(isProduction bool, nonEnabledMonitorableCount int) {
+	if nonEnabledMonitorableCount == 0 {
+		return
+	}
+
 	var documentationVersion string
 	if isProduction {
 		if splittedVersion := strings.Split(version.Version, "."); len(splittedVersion) == 3 {
@@ -132,12 +157,17 @@ func PrintMonitorableFooter(isProduction bool, nonEnabledMonitorableCount int) {
 	}
 
 	coloredMonitororFooterTitle := colorer.Yellow(fmt.Sprintf(monitorableFooterTitle, nonEnabledMonitorableCount))
-	colorer.Printf(monitorableFooter, coloredMonitororFooterTitle, colorer.Blue(fmt.Sprintf(documentation, documentationVersion)))
+	colorer.Printf(
+		monitorableFooter,
+		coloredMonitororFooterTitle,
+		colorer.Blue(fmt.Sprintf(documentation, documentationVersion)),
+	)
 }
 
-func PrintServerStartup(ip string, port int) {
-	colorer.Printf(echoStartup)
-	colorer.Printf("  %s\n", colorer.Blue(fmt.Sprintf("http://localhost:%d", port)))
-	colorer.Printf("  %s\n", colorer.Blue(fmt.Sprintf("http://%s:%d", ip, port)))
-	colorer.Println()
+func (cli *MonitororCLI) PrintServerStartup(ip string, port int) {
+	colorer.Printf(
+		echoStartup,
+		colorer.Blue(fmt.Sprintf("http://localhost:%d", port)),
+		colorer.Blue(fmt.Sprintf("http://%s:%d", ip, port)),
+	)
 }

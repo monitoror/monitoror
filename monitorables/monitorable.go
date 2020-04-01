@@ -1,7 +1,6 @@
 package monitorables
 
 import (
-	"github.com/monitoror/monitoror/cli"
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/service/store"
 )
@@ -10,7 +9,7 @@ type Monitorable interface {
 	//GetDisplayName return monitorable name display in console
 	GetDisplayName() string
 
-	//GetVariants return variantlist extract from config
+	//GetVariants return variant list extract from config
 	GetVariants() []coreModels.VariantName
 
 	//Validate test if config variant is valid
@@ -38,7 +37,7 @@ func (m *Manager) register(monitorable Monitorable) {
 }
 
 func (m *Manager) EnableMonitorables() {
-	cli.PrintMonitorableHeader()
+	m.store.Cli.PrintMonitorableHeader()
 
 	nonEnabledMonitorableCount := 0
 
@@ -62,8 +61,8 @@ func (m *Manager) EnableMonitorables() {
 			nonEnabledMonitorableCount++
 		}
 
-		cli.PrintMonitorable(monitorable.GetDisplayName(), enabledVariants, erroredVariants)
+		m.store.Cli.PrintMonitorable(monitorable.GetDisplayName(), enabledVariants, erroredVariants)
 	}
 
-	cli.PrintMonitorableFooter(m.store.CoreConfig.Env == "production", nonEnabledMonitorableCount)
+	m.store.Cli.PrintMonitorableFooter(m.store.CoreConfig.Env == "production", nonEnabledMonitorableCount)
 }

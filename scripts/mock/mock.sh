@@ -27,6 +27,14 @@ for dir in api/*/; do
       -note "If you want to rebuild this file, make mock"
 done
 
+# cli
+rm -rf cli/mocks
+mockery \
+  -dir cli \
+  -output cli/mocks \
+  -all \
+  -note "If you want to rebuild this file, make mock"
+
 # service
 rm -rf service/mocks
 mockery \
