@@ -3,9 +3,9 @@ package service
 import (
 	"testing"
 
-	"github.com/monitoror/monitoror/config"
-
 	"github.com/GeertJohan/go.rice/embedded"
+	"github.com/monitoror/monitoror/cli"
+	"github.com/monitoror/monitoror/config"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -14,14 +14,14 @@ import (
 
 func TestInit_Dev(t *testing.T) {
 	assert.NotPanics(t, func() {
-		Init(&config.Config{Env: "develop"})
+		Init(&config.Config{Env: "develop"}, cli.New())
 	})
 }
 
 func TestInit_Prod_WithoutRicebox(t *testing.T) {
 	delete(embedded.EmbeddedBoxes, "../ui/dist")
 	assert.Panics(t, func() {
-		Init(&config.Config{Env: "production"})
+		Init(&config.Config{Env: "production"}, cli.New())
 	})
 }
 
@@ -32,6 +32,6 @@ func TestInit_Prod_WithRicebox(t *testing.T) {
 	})
 	defer delete(embedded.EmbeddedBoxes, "../ui/dist")
 	assert.NotPanics(t, func() {
-		Init(&config.Config{Env: "production"})
+		Init(&config.Config{Env: "production"}, cli.New())
 	})
 }

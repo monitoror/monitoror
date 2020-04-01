@@ -62,7 +62,7 @@ func (m *Monitorable) Validate(variant coreModels.VariantName) (bool, error) {
 
 	// Error in Token
 	if conf.Token == "" {
-		return false, fmt.Errorf(`%s is required, no value founds`, pkgMonitorable.BuildMonitorableEnvKey(conf, variant, "TOKEN"))
+		return false, fmt.Errorf(`%s is required, no value found`, pkgMonitorable.BuildMonitorableEnvKey(conf, variant, "TOKEN"))
 	}
 
 	return true, nil

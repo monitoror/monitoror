@@ -28,10 +28,11 @@ func main() {
 	// GetConfig GetConfig from File/Env
 	conf := config.InitConfig()
 
-	// Banner
+	// CLI
+	cli := cli.New()
 	cli.PrintBanner()
 
 	// Start Service
-	server := service.Init(conf)
+	server := service.Init(conf, cli)
 	server.Start()
 }

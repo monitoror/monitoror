@@ -2,6 +2,7 @@ package store
 
 import (
 	uiConfig "github.com/monitoror/monitoror/api/config"
+	"github.com/monitoror/monitoror/cli"
 	coreConfig "github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/service/middlewares"
 	"github.com/monitoror/monitoror/service/router"
@@ -12,12 +13,15 @@ import (
 type (
 	// Store is used to share Data in every monitorable
 	Store struct {
+		// CLI helper
+		Cli cli.CLI
+
 		// Global CoreConfig
 		CoreConfig *coreConfig.Config
 
 		// CacheStore for every memory persistent data
 		CacheStore cache.Store
-		// MidCacheMiddlewaredleware using CacheStore to return cached data
+		// CacheMiddleware using CacheStore to return cached data
 		CacheMiddleware *middlewares.CacheMiddleware
 
 		// MonitorableRouter helper wrapping echo Router monitorable
