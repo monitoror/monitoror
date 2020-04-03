@@ -1,3 +1,5 @@
+//go:generate mockery -name Repository
+
 package api
 
 import "github.com/monitoror/monitoror/monitorables/github/api/models"

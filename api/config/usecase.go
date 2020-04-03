@@ -1,3 +1,5 @@
+//go:generate mockery -name Manager|Usecase
+
 package config
 
 import (

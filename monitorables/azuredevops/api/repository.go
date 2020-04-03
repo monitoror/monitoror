@@ -1,3 +1,5 @@
+//go:generate mockery -name Connection|Repository
+
 package api
 
 import (

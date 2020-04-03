@@ -1,3 +1,5 @@
+//go:generate mockery -name SearchService
+
 package gogithub
 
 import (

@@ -1,3 +1,5 @@
+//go:generate mockery -name RouterOption -output ../mocks
+
 package options
 
 import (

@@ -1,3 +1,5 @@
+//go:generate mockery -name Usecase
+
 package api
 
 import (

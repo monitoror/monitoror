@@ -1,3 +1,5 @@
+//go:generate mockery -name PullRequestService
+
 package gogithub
 
 import (

@@ -1,3 +1,5 @@
+//go:generate mockery -name Dialer
+
 package net
 
 import "net"

@@ -1,3 +1,5 @@
+//go:generate mockery -name Jenkins
+
 package gojenkins
 
 import (
