@@ -28,41 +28,41 @@ lint: ## run linter
 	@./scripts/test/lint.sh
 
 # ============= MOCKS =============
-.PHONY: mock
-mock: ## generate mocks
-	@./scripts/mock/mock.sh
+.PHONY: mocks
+mocks: ## generate mocks
+	@./scripts/mocks.sh
 
 # ============= BUILDS =============
 .PHONY: build
 build: package-front ## build executable for current environment
-	@./scripts/build/build.sh
+	@./scripts/build.sh
 
 .PHONY: build-cross
 build-cross: package-front ## build all executables
-	@./scripts/build/build.sh linux/amd64
-	@./scripts/build/build.sh linux/ARMv5
-	@./scripts/build/build.sh windows
-	@./scripts/build/build.sh macos
+	@./scripts/build.sh linux/amd64
+	@./scripts/build.sh linux/ARMv5
+	@./scripts/build.sh windows
+	@./scripts/build.sh macos
 
 .PHONY: build-linux-amd64
 build-linux-amd64: package-front ## build executable for Linux
-	@./scripts/build/build.sh linux/amd64
+	@./scripts/build.sh linux/amd64
 
 .PHONY: build-linux-ARMv5
 build-linux-ARMv5: package-front ## build executable for Raspberry Pi (ARM V5)
-	@./scripts/build/build.sh linux/ARMv5
+	@./scripts/build.sh linux/ARMv5
 
 .PHONY: build-windows
 build-windows: package-front ## build executable for Windows
-	@./scripts/build/build.sh windows
+	@./scripts/build.sh windows
 
 .PHONY: build-macos
 build-macos: package-front ## build executable for MacOs
-	@./scripts/build/build.sh macos
+	@./scripts/build.sh macos
 
 .PHONY: build-faker-linux-amd64
 build-faker-linux-amd64: package-front ## build faker executable linux amd64 (only for demo)
-	@MB_GO_TAGS="faker" ./scripts/build/build.sh linux/amd64
+	@MB_GO_TAGS="faker" ./scripts/build.sh linux/amd64
 
 # ============= PACKAGE =============
 .PHONY: package-front
@@ -76,16 +76,16 @@ package-docker: ## package linux amd64 into docker image
 # ============= RUN =============
 .PHONY: run
 run: ## run monitoror
-	@./scripts/run/run.sh
+	@./scripts/run.sh
 
 .PHONY: run-faker
 run-faker: ## run monitoror in faker mode
-	@MB_GO_TAGS="faker"  ./scripts/run/run.sh
+	@MB_GO_TAGS="faker"  ./scripts/run.sh
 
 # ============= VERSION =============
 .PHONY: version
 version: ## bump version of monitoror
-	@./scripts/version/bump.sh
+	@./scripts/bump-version.sh
 
 # ============= TOOLING =============
 .PHONY: clean
