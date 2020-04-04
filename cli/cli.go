@@ -1,3 +1,5 @@
+//go:generate mockery -name CLI
+
 package cli
 
 import (

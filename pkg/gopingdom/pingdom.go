@@ -1,3 +1,5 @@
+//go:generate mockery -name PingdomCheckAPI
+
 package gopingdom
 
 import "github.com/jsdidierlaurent/go-pingdom/pingdom"

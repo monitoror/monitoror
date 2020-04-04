@@ -1,3 +1,5 @@
+//go:generate mockery -name MonitorableRouter|MonitorableRouterGroup  -output ../mocks
+
 package router
 
 import (
