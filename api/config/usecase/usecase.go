@@ -14,14 +14,6 @@ import (
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 )
 
-// Versions
-const (
-	CurrentVersion = Version1000
-	MinimalVersion = Version1000
-
-	Version1000 models.RawVersion = "1.0" // Initial version
-)
-
 const (
 	EmptyTileType coreModels.TileType = "EMPTY"
 	GroupTileType coreModels.TileType = "GROUP"
