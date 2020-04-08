@@ -7,6 +7,7 @@ require (
 	github.com/GeertJohan/go.rice v1.0.0
 	github.com/basgys/goxml2json v1.1.0
 	github.com/bitly/go-simplejson v0.5.0 // indirect
+	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 // indirect
 	github.com/bradfitz/gomemcache v0.0.0-20190329173943-551aad21a668 // indirect
 	github.com/dustin/go-humanize v1.0.0
 	github.com/fatih/structs v1.1.0
@@ -21,7 +22,6 @@ require (
 	github.com/labstack/echo/v4 v4.1.7
 	github.com/labstack/gommon v0.2.9
 	github.com/orcaman/concurrent-map v0.0.0-20190314100340-2693aad1ed75
-	github.com/prometheus/common v0.4.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/shuheiktgw/go-travis v0.2.2
 	github.com/sourcegraph/httpcache v0.0.0-20160524185540-16db777d8ebe
