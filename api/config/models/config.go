@@ -50,20 +50,22 @@ type (
 )
 
 const (
-	ConfigErrorConfigNotFound          ConfigErrorID = "ERROR_CONFIG_NOT_FOUND"
-	ConfigErrorFieldTypeMismatch       ConfigErrorID = "ERROR_FIELD_TYPE_MISMATCH"
-	ConfigErrorInvalidEscapedCharacter ConfigErrorID = "ERROR_INVALID_ESCAPED_CHARACTER"
-	ConfigErrorInvalidFieldValue       ConfigErrorID = "ERROR_INVALID_FIELD_VALUE"
-	ConfigErrorMissingRequiredField    ConfigErrorID = "ERROR_MISSING_REQUIRED_FIELD"
-	ConfigErrorUnauthorizedField       ConfigErrorID = "ERROR_UNAUTHORIZED_FIELD"
-	ConfigErrorUnauthorizedSubtileType ConfigErrorID = "ERROR_UNAUTHORIZED_SUBTILE_TYPE"
-	ConfigErrorUnableToHydrate         ConfigErrorID = "ERROR_UNABLE_TO_HYDRATE"
-	ConfigErrorUnableToParseConfig     ConfigErrorID = "ERROR_UNABLE_TO_PARSE_CONFIG"
-	ConfigErrorUnexpectedError         ConfigErrorID = "ERROR_UNEXPECTED"
-	ConfigErrorUnknownField            ConfigErrorID = "ERROR_UNKNOWN_FIELD"
-	ConfigErrorUnknownTileType         ConfigErrorID = "ERROR_UNKNOWN_TILE_TYPE"
-	ConfigErrorUnknownVariant          ConfigErrorID = "ERROR_UNKNOWN_VARIANT"
-	ConfigErrorUnsupportedVersion      ConfigErrorID = "ERROR_UNSUPPORTED_VERSION"
+	ConfigErrorConfigNotFound           ConfigErrorID = "ERROR_CONFIG_NOT_FOUND"
+	ConfigErrorDisabledVariant          ConfigErrorID = "ERROR_DISABLED_VARIANT"
+	ConfigErrorFieldTypeMismatch        ConfigErrorID = "ERROR_FIELD_TYPE_MISMATCH"
+	ConfigErrorInvalidEscapedCharacter  ConfigErrorID = "ERROR_INVALID_ESCAPED_CHARACTER"
+	ConfigErrorInvalidFieldValue        ConfigErrorID = "ERROR_INVALID_FIELD_VALUE"
+	ConfigErrorMissingRequiredField     ConfigErrorID = "ERROR_MISSING_REQUIRED_FIELD"
+	ConfigErrorUnauthorizedField        ConfigErrorID = "ERROR_UNAUTHORIZED_FIELD"
+	ConfigErrorUnauthorizedSubtileType  ConfigErrorID = "ERROR_UNAUTHORIZED_SUBTILE_TYPE"
+	ConfigErrorUnableToHydrate          ConfigErrorID = "ERROR_UNABLE_TO_HYDRATE"
+	ConfigErrorUnableToParseConfig      ConfigErrorID = "ERROR_UNABLE_TO_PARSE_CONFIG"
+	ConfigErrorUnexpectedError          ConfigErrorID = "ERROR_UNEXPECTED"
+	ConfigErrorUnknownField             ConfigErrorID = "ERROR_UNKNOWN_FIELD"
+	ConfigErrorUnknownGeneratorTileType ConfigErrorID = "ERROR_UNKNOWN_GENERATOR_TILE_TYPE"
+	ConfigErrorUnknownTileType          ConfigErrorID = "ERROR_UNKNOWN_TILE_TYPE"
+	ConfigErrorUnknownVariant           ConfigErrorID = "ERROR_UNKNOWN_VARIANT"
+	ConfigErrorUnsupportedVersion       ConfigErrorID = "ERROR_UNSUPPORTED_VERSION"
 )
 
 func (c *ConfigBag) AddErrors(errors ...ConfigError) {

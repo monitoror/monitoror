@@ -10,7 +10,7 @@ import (
 
 func TestNewMonitorable(t *testing.T) {
 	// init Store
-	mockRouter, mockRouterGroup, mockConfigManager, s := test.InitMockAndStore()
+	store, mockMonitorableHelper := test.InitMockAndStore()
 
 	// init Env
 	// OK
@@ -21,7 +21,7 @@ func TestNewMonitorable(t *testing.T) {
 	_ = os.Setenv("MO_MONITORABLE_PINGDOM_VARIANT2_URL", "url%spingdom.example.com")
 
 	// NewMonitorable
-	monitorable := NewMonitorable(s)
+	monitorable := NewMonitorable(store)
 	assert.NotNil(t, monitorable)
 
 	// GetDisplayName
@@ -43,9 +43,6 @@ func TestNewMonitorable(t *testing.T) {
 	}
 
 	// Test calls
-	mockRouter.AssertNumberOfCalls(t, "Group", 1)
-	mockRouterGroup.AssertNumberOfCalls(t, "GET", 1)
-	mockConfigManager.AssertNumberOfCalls(t, "RegisterTile", 2)
-	mockConfigManager.AssertNumberOfCalls(t, "EnableTile", 1)
-	mockConfigManager.AssertNumberOfCalls(t, "EnableDynamicTile", 1)
+	mockMonitorableHelper.RouterAssertNumberOfCalls(t, 1, 1)
+	mockMonitorableHelper.TileSettingsManagerAssertNumberOfCalls(t, 1, 1, 1, 1)
 }

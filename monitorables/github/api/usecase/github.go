@@ -7,8 +7,7 @@ import (
 	"sort"
 	"time"
 
-	models2 "github.com/monitoror/monitoror/api/config/models"
-
+	uiConfigModels "github.com/monitoror/monitoror/api/config/models"
 	"github.com/monitoror/monitoror/internal/pkg/monitorable/cache"
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/github/api"
@@ -128,25 +127,24 @@ func (gu *githubUsecase) Checks(params *models.ChecksParams) (*coreModels.Tile, 
 	return tile, nil
 }
 
-func (gu *githubUsecase) PullRequests(params interface{}) ([]models2.DynamicTileResult, error) {
-	prParams := params.(*models.PullRequestParams)
+func (gu *githubUsecase) PullRequestsGenerator(params interface{}) ([]uiConfigModels.GeneratedTile, error) {
+	prParams := params.(*models.PullRequestGeneratorParams)
 
 	pullRequests, err := gu.repository.GetPullRequests(prParams.Owner, prParams.Repository)
 	if err != nil {
 		return nil, &coreModels.MonitororError{Err: err, Message: "unable to find pull request"}
 	}
 
-	var results []models2.DynamicTileResult
+	var results []uiConfigModels.GeneratedTile
 	for _, pullRequest := range pullRequests {
-		p := make(map[string]interface{})
-		p["owner"] = pullRequest.Owner
-		p["repository"] = pullRequest.Repository
-		p["ref"] = pullRequest.Ref
+		p := &models.ChecksParams{}
+		p.Owner = pullRequest.Owner
+		p.Repository = pullRequest.Repository
+		p.Ref = pullRequest.Ref
 
-		results = append(results, models2.DynamicTileResult{
-			TileType: api.GithubChecksTileType,
-			Label:    fmt.Sprintf("PR#%d @ %s", pullRequest.ID, pullRequest.Repository),
-			Params:   p,
+		results = append(results, uiConfigModels.GeneratedTile{
+			Label:  fmt.Sprintf("PR#%d @ %s", pullRequest.ID, pullRequest.Repository),
+			Params: p,
 		})
 	}
 

@@ -6,11 +6,12 @@ import (
 	"fmt"
 	"net/url"
 
+	uiConfig "github.com/monitoror/monitoror/api/config"
+	"github.com/monitoror/monitoror/api/config/versions"
 	pkgMonitorable "github.com/monitoror/monitoror/internal/pkg/monitorable"
 
 	coreModels "github.com/monitoror/monitoror/models"
 
-	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
 	"github.com/monitoror/monitoror/monitorables/pingdom/api"
 	pingdomDelivery "github.com/monitoror/monitoror/monitorables/pingdom/api/delivery/http"
 	pingdomModels "github.com/monitoror/monitoror/monitorables/pingdom/api/models"
@@ -24,21 +25,25 @@ type Monitorable struct {
 	store *store.Store
 
 	config map[coreModels.VariantName]*pingdomConfig.Pingdom
+
+	// Config tile settings
+	checkTileSetting          uiConfig.TileEnabler
+	checkGeneratorTileSetting uiConfig.TileGeneratorEnabler
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
-	monitorable := &Monitorable{}
-	monitorable.store = store
-	monitorable.config = make(map[coreModels.VariantName]*pingdomConfig.Pingdom)
+	m := &Monitorable{}
+	m.store = store
+	m.config = make(map[coreModels.VariantName]*pingdomConfig.Pingdom)
 
 	// Load core config from env
-	pkgMonitorable.LoadConfig(&monitorable.config, pingdomConfig.Default)
+	pkgMonitorable.LoadConfig(&m.config, pingdomConfig.Default)
 
 	// Register Monitorable Tile in config manager
-	store.UIConfigManager.RegisterTile(api.PingdomCheckTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)
-	store.UIConfigManager.RegisterTile(api.PingdomChecksTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)
+	m.checkTileSetting = store.TileSettingManager.Register(api.PingdomCheckTileType, versions.MinimalVersion, m.GetVariants())
+	m.checkGeneratorTileSetting = store.TileSettingManager.RegisterGenerator(api.PingdomCheckTileType, versions.MinimalVersion, m.GetVariants())
 
-	return monitorable
+	return m
 }
 
 func (m *Monitorable) GetDisplayName() string {
@@ -82,8 +87,6 @@ func (m *Monitorable) Enable(variant coreModels.VariantName) {
 	route := routeGroup.GET("/pingdom", delivery.GetCheck)
 
 	// EnableTile data for config hydration
-	m.store.UIConfigManager.EnableTile(api.PingdomCheckTileType, variant,
-		&pingdomModels.CheckParams{}, route.Path, conf.InitialMaxDelay)
-	m.store.UIConfigManager.EnableDynamicTile(api.PingdomChecksTileType, variant,
-		&pingdomModels.ChecksParams{}, usecase.Checks)
+	m.checkTileSetting.Enable(variant, &pingdomModels.CheckParams{}, route.Path, conf.InitialMaxDelay)
+	m.checkGeneratorTileSetting.Enable(variant, &pingdomModels.CheckGeneratorParams{}, usecase.CheckGenerator)
 }

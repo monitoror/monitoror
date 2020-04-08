@@ -25,7 +25,7 @@ func InitApis(s *Server) {
 	apiGroup.GET("/config", s.store.CacheMiddleware.UpstreamCacheHandler(confDelivery.GetConfig))
 
 	// ---------------------------------- //
-	s.store.UIConfigManager = confUsecase
+	s.store.TileSettingManager = confUsecase
 	s.store.MonitorableRouter = router.NewMonitorableRouter(apiGroup, s.store.CacheMiddleware)
 	// ---------------------------------- //
 

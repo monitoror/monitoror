@@ -3,7 +3,8 @@
 package github
 
 import (
-	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
+	uiConfig "github.com/monitoror/monitoror/api/config"
+	"github.com/monitoror/monitoror/api/config/versions"
 	coreConfig "github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/internal/pkg/monitorable"
 	coreModels "github.com/monitoror/monitoror/models"
@@ -18,17 +19,21 @@ type Monitorable struct {
 	monitorable.DefaultMonitorableFaker
 
 	store *store.Store
+
+	// Config tile settings
+	countTypeSetting  uiConfig.TileEnabler
+	checksTypeSetting uiConfig.TileEnabler
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
-	monitorable := &Monitorable{}
-	monitorable.store = store
+	m := &Monitorable{}
+	m.store = store
 
 	// Register Monitorable Tile in config manager
-	store.UIConfigManager.RegisterTile(api.GithubCountTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)
-	store.UIConfigManager.RegisterTile(api.GithubChecksTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)
+	m.countTypeSetting = store.TileSettingManager.Register(api.GithubCountTileType, versions.MinimalVersion, m.GetVariants())
+	m.checksTypeSetting = store.TileSettingManager.Register(api.GithubChecksTileType, versions.MinimalVersion, m.GetVariants())
 
-	return monitorable
+	return m
 }
 
 func (m *Monitorable) GetDisplayName() string {
@@ -45,8 +50,6 @@ func (m *Monitorable) Enable(variant coreModels.VariantName) {
 	routeChecks := routeGroup.GET("/checks", delivery.GetChecks)
 
 	// EnableTile data for config hydration
-	m.store.UIConfigManager.EnableTile(api.GithubCountTileType, variant,
-		&githubModels.CountParams{}, routeCount.Path, coreConfig.DefaultInitialMaxDelay)
-	m.store.UIConfigManager.EnableTile(api.GithubChecksTileType, variant,
-		&githubModels.ChecksParams{}, routeChecks.Path, coreConfig.DefaultInitialMaxDelay)
+	m.countTypeSetting.Enable(variant, &githubModels.CountParams{}, routeCount.Path, coreConfig.DefaultInitialMaxDelay)
+	m.checksTypeSetting.Enable(variant, &githubModels.ChecksParams{}, routeChecks.Path, coreConfig.DefaultInitialMaxDelay)
 }

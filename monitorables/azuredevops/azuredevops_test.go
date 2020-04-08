@@ -10,7 +10,7 @@ import (
 
 func TestNewMonitorable(t *testing.T) {
 	// init Store
-	mockRouter, mockRouterGroup, mockConfigManager, s := test.InitMockAndStore()
+	store, mockMonitorableHelper := test.InitMockAndStore()
 
 	// init Env
 	// OK
@@ -22,7 +22,7 @@ func TestNewMonitorable(t *testing.T) {
 	_ = os.Setenv("MO_MONITORABLE_AZUREDEVOPS_VARIANT2_URL", "url%sazure.example.com/myProject2")
 
 	// NewMonitorable
-	monitorable := NewMonitorable(s)
+	monitorable := NewMonitorable(store)
 	assert.NotNil(t, monitorable)
 
 	// GetDisplayName
@@ -44,9 +44,6 @@ func TestNewMonitorable(t *testing.T) {
 	}
 
 	// Test calls
-	mockRouter.AssertNumberOfCalls(t, "Group", 1)
-	mockRouterGroup.AssertNumberOfCalls(t, "GET", 2)
-	mockConfigManager.AssertNumberOfCalls(t, "RegisterTile", 2)
-	mockConfigManager.AssertNumberOfCalls(t, "EnableTile", 2)
-	mockConfigManager.AssertNumberOfCalls(t, "EnableDynamicTile", 0)
+	mockMonitorableHelper.RouterAssertNumberOfCalls(t, 1, 2)
+	mockMonitorableHelper.TileSettingsManagerAssertNumberOfCalls(t, 2, 0, 2, 0)
 }

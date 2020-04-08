@@ -39,16 +39,16 @@ func (_m *Usecase) Check(params *models.CheckParams) (*monitorormodels.Tile, err
 	return r0, r1
 }
 
-// Checks provides a mock function with given fields: params
-func (_m *Usecase) Checks(params interface{}) ([]configmodels.DynamicTileResult, error) {
+// CheckGenerator provides a mock function with given fields: params
+func (_m *Usecase) CheckGenerator(params interface{}) ([]configmodels.GeneratedTile, error) {
 	ret := _m.Called(params)
 
-	var r0 []configmodels.DynamicTileResult
-	if rf, ok := ret.Get(0).(func(interface{}) []configmodels.DynamicTileResult); ok {
+	var r0 []configmodels.GeneratedTile
+	if rf, ok := ret.Get(0).(func(interface{}) []configmodels.GeneratedTile); ok {
 		r0 = rf(params)
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).([]configmodels.DynamicTileResult)
+			r0 = ret.Get(0).([]configmodels.GeneratedTile)
 		}
 	}
 

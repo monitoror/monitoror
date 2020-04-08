@@ -6,8 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	models2 "github.com/monitoror/monitoror/api/config/models"
-
+	uiConfigModels "github.com/monitoror/monitoror/api/config/models"
 	"github.com/monitoror/monitoror/internal/pkg/monitorable/faker"
 	"github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/pingdom/api"
@@ -41,7 +40,7 @@ func (pu *pingdomUsecase) Check(params *pingdomModels.CheckParams) (tile *models
 	return
 }
 
-func (pu *pingdomUsecase) Checks(params interface{}) ([]models2.DynamicTileResult, error) {
+func (pu *pingdomUsecase) CheckGenerator(params interface{}) ([]uiConfigModels.GeneratedTile, error) {
 	panic("unimplemented")
 }
 

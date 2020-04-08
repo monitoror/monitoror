@@ -7,12 +7,10 @@ import (
 	"math/rand"
 	"time"
 
-	models2 "github.com/monitoror/monitoror/api/config/models"
-
-	"github.com/monitoror/monitoror/monitorables/jenkins/api"
-
+	uiConfigModels "github.com/monitoror/monitoror/api/config/models"
 	"github.com/monitoror/monitoror/internal/pkg/monitorable/faker"
 	"github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/monitorables/jenkins/api"
 	jenkinsModels "github.com/monitoror/monitoror/monitorables/jenkins/api/models"
 	"github.com/monitoror/monitoror/pkg/git"
 	"github.com/monitoror/monitoror/pkg/nonempty"
@@ -102,7 +100,7 @@ func (ju *jenkinsUsecase) Build(params *jenkinsModels.BuildParams) (tile *models
 	return
 }
 
-func (ju *jenkinsUsecase) MultiBranch(params interface{}) ([]models2.DynamicTileResult, error) {
+func (tu *jenkinsUsecase) BuildGenerator(params interface{}) ([]uiConfigModels.GeneratedTile, error) {
 	panic("unimplemented")
 }
 

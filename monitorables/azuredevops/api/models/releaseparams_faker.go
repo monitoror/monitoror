@@ -5,6 +5,7 @@ package models
 import (
 	"time"
 
+	uiConfigModels "github.com/monitoror/monitoror/api/config/models"
 	"github.com/monitoror/monitoror/models"
 )
 
@@ -25,6 +26,16 @@ type (
 	}
 )
 
-func (p *ReleaseParams) IsValid() bool {
-	return p.Project != "" && p.Definition != nil
+func (p *ReleaseParams) Validate(_ *uiConfigModels.ConfigVersion) *uiConfigModels.ConfigError {
+	// TODO
+
+	if p.Project == "" {
+		return &uiConfigModels.ConfigError{}
+	}
+
+	if p.Definition == nil {
+		return &uiConfigModels.ConfigError{}
+	}
+
+	return nil
 }

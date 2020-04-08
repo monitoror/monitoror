@@ -5,12 +5,13 @@ import (
 	"testing"
 
 	"github.com/monitoror/monitoror/internal/pkg/monitorable/test"
+
 	"github.com/stretchr/testify/assert"
 )
 
 func TestNewMonitorable(t *testing.T) {
 	// init Store
-	mockRouter, mockRouterGroup, mockConfigManager, s := test.InitMockAndStore()
+	store, mockMonitorableHelper := test.InitMockAndStore()
 
 	// init Env
 	// OK
@@ -21,7 +22,7 @@ func TestNewMonitorable(t *testing.T) {
 	_ = os.Setenv("MO_MONITORABLE_GITHUB_VARIANT2_URL", "url%sgithub.example.com/")
 
 	// NewMonitorable
-	monitorable := NewMonitorable(s)
+	monitorable := NewMonitorable(store)
 	assert.NotNil(t, monitorable)
 
 	// GetDisplayName
@@ -43,9 +44,6 @@ func TestNewMonitorable(t *testing.T) {
 	}
 
 	// Test calls
-	mockRouter.AssertNumberOfCalls(t, "Group", 1)
-	mockRouterGroup.AssertNumberOfCalls(t, "GET", 2)
-	mockConfigManager.AssertNumberOfCalls(t, "RegisterTile", 3)
-	mockConfigManager.AssertNumberOfCalls(t, "EnableTile", 2)
-	mockConfigManager.AssertNumberOfCalls(t, "EnableDynamicTile", 1)
+	mockMonitorableHelper.RouterAssertNumberOfCalls(t, 1, 2)
+	mockMonitorableHelper.TileSettingsManagerAssertNumberOfCalls(t, 2, 1, 2, 1)
 }

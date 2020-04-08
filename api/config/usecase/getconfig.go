@@ -6,7 +6,9 @@ import (
 	"strings"
 
 	"github.com/fatih/structs"
+
 	"github.com/monitoror/monitoror/api/config/models"
+	"github.com/monitoror/monitoror/api/config/versions"
 )
 
 var unknownFieldRegex *regexp.Regexp
@@ -53,7 +55,7 @@ func (cu *configUsecase) GetConfig(params *models.ConfigParams) *models.ConfigBa
 			Data: models.ConfigErrorData{
 				FieldName: "version",
 				Value:     e.WrongVersion,
-				Expected:  fmt.Sprintf(`%q >= version >= %q`, MinimalVersion, CurrentVersion),
+				Expected:  fmt.Sprintf(`%q >= version >= %q`, versions.MinimalVersion, versions.CurrentVersion),
 			},
 		})
 	case *models.ConfigUnmarshalError:

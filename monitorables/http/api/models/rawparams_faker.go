@@ -5,6 +5,7 @@ package models
 import (
 	"regexp"
 
+	uiConfigModels "github.com/monitoror/monitoror/api/config/models"
 	coreModels "github.com/monitoror/monitoror/models"
 )
 
@@ -22,12 +23,18 @@ type (
 	}
 )
 
-func (p *HTTPRawParams) IsValid() bool {
+func (p *HTTPRawParams) Validate(_ *uiConfigModels.ConfigVersion) *uiConfigModels.ConfigError {
+	// TODO
+
 	if !isValid(p.URL, p) {
-		return false
+		return &uiConfigModels.ConfigError{}
 	}
 
-	return isValidRegex(p)
+	if !isValidRegex(p) {
+		return &uiConfigModels.ConfigError{}
+	}
+
+	return nil
 }
 
 func (p *HTTPRawParams) GetStatusCodes() (min int, max int) {

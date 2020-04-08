@@ -28,6 +28,6 @@ type (
 		MonitorableRouter router.MonitorableRouter
 
 		// MonitorableConfigManager used to register Tile for verify / hydrate
-		UIConfigManager uiConfig.Manager
+		TileSettingManager uiConfig.TileSettingManager
 	}
 )

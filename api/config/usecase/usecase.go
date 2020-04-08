@@ -18,7 +18,7 @@ const (
 	EmptyTileType coreModels.TileType = "EMPTY"
 	GroupTileType coreModels.TileType = "GROUP"
 
-	DynamicTileStoreKeyPrefix = "monitoror.config.dynamicTile.key"
+	TileGeneratorStoreKeyPrefix = "monitoror.config.tileGenerator.key"
 )
 
 type (
@@ -27,24 +27,24 @@ type (
 
 		configData *ConfigData
 
-		// dynamic tile cache. used in case of timeout
-		dynamicTileStore cache.Store
-		cacheExpiration  time.Duration
+		// generator tile cache. used in case of timeout
+		generatorTileStore cache.Store
+		cacheExpiration    time.Duration
 	}
 )
 
 func NewConfigUsecase(repository config.Repository, store cache.Store, cacheExpiration int) config.Usecase {
-	tileConfigs := make(map[coreModels.TileType]map[string]*TileConfig)
+	tileConfigs := make(map[coreModels.TileType]map[string]*models.TileConfig)
 
 	// Used for authorized type
 	tileConfigs[EmptyTileType] = nil
 	tileConfigs[GroupTileType] = nil
 
 	return &configUsecase{
-		repository:       repository,
-		configData:       initConfigData(),
-		dynamicTileStore: store,
-		cacheExpiration:  time.Millisecond * time.Duration(cacheExpiration),
+		repository:         repository,
+		configData:         initConfigData(),
+		generatorTileStore: store,
+		cacheExpiration:    time.Millisecond * time.Duration(cacheExpiration),
 	}
 }
 

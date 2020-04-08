@@ -26,7 +26,7 @@ func (cu *configUsecase) hydrateTiles(configBag *models.ConfigBag, tiles *[]mode
 			}
 		}
 
-		if _, exists := cu.configData.dynamicTileConfigs[tile.Type]; !exists {
+		if _, exists := cu.configData.tileGeneratorSettings[tile.Type]; !exists {
 			cu.hydrateTile(configBag, tile)
 
 			if tile.Type == GroupTileType && len(tile.Tiles) == 0 {
@@ -34,10 +34,10 @@ func (cu *configUsecase) hydrateTiles(configBag *models.ConfigBag, tiles *[]mode
 				i--
 			}
 		} else {
-			dynamicTiles := cu.hydrateDynamicTile(configBag, tile)
+			generatorTiles := cu.hydrateGeneratorTile(configBag, tile)
 
-			// Remove DynamicTile config and add real dynamic tiles in array
-			temp := append((*tiles)[:i], dynamicTiles...)
+			// Remove Generator tile config and add real generated tiles in array
+			temp := append((*tiles)[:i], generatorTiles...)
 			*tiles = append(temp, (*tiles)[i+1:]...)
 
 			i--
@@ -56,7 +56,7 @@ func (cu *configUsecase) hydrateTile(configBag *models.ConfigBag, tile *models.T
 		return
 	}
 
-	tileConfig := cu.configData.tileConfigs[tile.Type][tile.ConfigVariant]
+	variantSetting := cu.configData.tileSettings[tile.Type].Variants[tile.ConfigVariant]
 
 	// Change Params by a valid URL
 	urlParams := url.Values{}
@@ -70,37 +70,38 @@ func (cu *configUsecase) hydrateTile(configBag *models.ConfigBag, tile *models.T
 			urlParams.Add(key, humanize.Interface(value))
 		}
 	}
-	tile.URL = fmt.Sprintf("%s?%s", tileConfig.Path, urlParams.Encode())
+	tile.URL = fmt.Sprintf("%s?%s", *variantSetting.RoutePath, urlParams.Encode())
 
 	// Add initial max delay from config
-	tile.InitialMaxDelay = &tileConfig.InitialMaxDelay
+	tile.InitialMaxDelay = variantSetting.InitialMaxDelay
 
 	// Remove Params / Variant
 	tile.Params = nil
 	tile.ConfigVariant = ""
 }
 
-func (cu *configUsecase) hydrateDynamicTile(configBag *models.ConfigBag, tile *models.TileConfig) []models.TileConfig {
-	dynamicTileConfig := cu.configData.dynamicTileConfigs[tile.Type][tile.ConfigVariant]
+func (cu *configUsecase) hydrateGeneratorTile(configBag *models.ConfigBag, tile *models.TileConfig) []models.TileConfig {
+	tileGeneratorsetting := cu.configData.tileGeneratorSettings[tile.Type]
+	variantGeneratorSetting := tileGeneratorsetting.Variants[tile.ConfigVariant]
 
 	// Create new validator by reflexion
-	rType := reflect.TypeOf(dynamicTileConfig.Validator)
+	rType := reflect.TypeOf(variantGeneratorSetting.GeneratorParamsValidator)
 	rInstance := reflect.New(rType.Elem()).Interface()
 
 	// Marshal / Unmarshal the map[string]interface{} struct in new instance of Validator
 	bParams, _ := json.Marshal(tile.Params)
 	_ = json.Unmarshal(bParams, &rInstance)
 
-	// Call builder and add inherited value from Dynamic tile
-	cacheKey := fmt.Sprintf("%s:%s_%s_%s", DynamicTileStoreKeyPrefix, tile.Type, tile.ConfigVariant, string(bParams))
-	results, err := dynamicTileConfig.Builder(rInstance)
+	// Call builder and add inherited value from generator tile
+	cacheKey := fmt.Sprintf("%s:%s_%s_%s", TileGeneratorStoreKeyPrefix, tile.Type, tile.ConfigVariant, string(bParams))
+	results, err := variantGeneratorSetting.GeneratorFunction(rInstance)
 	if err != nil {
 		if os.IsTimeout(err) {
 			// Get previous value in cache
-			if err := cu.dynamicTileStore.Get(cacheKey, &results); err != nil {
+			if err := cu.generatorTileStore.Get(cacheKey, &results); err != nil {
 				configBag.AddErrors(models.ConfigError{
 					ID:      models.ConfigErrorUnableToHydrate,
-					Message: fmt.Sprintf(`Error while listing %s dynamic tiles (params: %s). Timeout or host unreachable`, tile.Type, string(bParams)),
+					Message: fmt.Sprintf(`Error while generating %s tiles (params: %s). Timeout or host unreachable`, tile.Type, string(bParams)),
 					Data: models.ConfigErrorData{
 						ConfigExtract: stringify(tile),
 					},
@@ -109,7 +110,7 @@ func (cu *configUsecase) hydrateDynamicTile(configBag *models.ConfigBag, tile *m
 		} else {
 			configBag.AddErrors(models.ConfigError{
 				ID:      models.ConfigErrorUnableToHydrate,
-				Message: fmt.Sprintf(`Error while listing %s dynamic tiles (params: %s). %v`, tile.Type, string(bParams), err),
+				Message: fmt.Sprintf(`Error while generating %s tiles (params: %s). %v`, tile.Type, string(bParams), err),
 				Data: models.ConfigErrorData{
 					ConfigExtract: stringify(tile),
 				},
@@ -117,21 +118,24 @@ func (cu *configUsecase) hydrateDynamicTile(configBag *models.ConfigBag, tile *m
 		}
 	} else {
 		// Add result in cache
-		_ = cu.dynamicTileStore.Set(cacheKey, results, cu.cacheExpiration)
+		_ = cu.generatorTileStore.Set(cacheKey, results, cu.cacheExpiration)
 	}
 
 	var tiles []models.TileConfig
 	for _, result := range results {
 		newTile := models.TileConfig{
-			Type:          result.TileType,
+			Type:          tileGeneratorsetting.GeneratedTileType,
 			Label:         result.Label,
-			Params:        result.Params,
+			Params:        make(map[string]interface{}),
 			ConfigVariant: tile.ConfigVariant,
 			ColumnSpan:    tile.ColumnSpan,
 			RowSpan:       tile.RowSpan,
 		}
 
-		// Override tile if dynamicTile has a label
+		bParams, _ = json.Marshal(result.Params)
+		_ = json.Unmarshal(bParams, &newTile.Params)
+
+		// Override tile if generated tile has a label
 		if tile.Label != "" {
 			newTile.Label = tile.Label
 		}

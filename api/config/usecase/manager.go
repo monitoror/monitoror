@@ -1,76 +1,155 @@
 package usecase
 
 import (
+	"fmt"
+
 	"github.com/monitoror/monitoror/api/config"
 	"github.com/monitoror/monitoror/api/config/models"
 	coreModels "github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/pkg/validator"
 )
 
 type (
 	ConfigData struct {
-		tileConfigs        map[coreModels.TileType]map[coreModels.VariantName]*TileConfig
-		dynamicTileConfigs map[coreModels.TileType]map[coreModels.VariantName]*DynamicTileConfig
+		tileSettings          map[coreModels.TileType]*TileSetting
+		tileGeneratorSettings map[coreModels.TileType]*TileGeneratorSetting
 	}
 
-	// TileConfig struct is used by GetConfig endpoint to check / hydrate config
-	TileConfig struct {
-		Validator       validator.SimpleValidator
-		Path            string
-		InitialMaxDelay int
+	Variant interface {
+		IsEnabled() bool
+		GetValidator() models.ParamsValidator
 	}
 
-	// DynamicTileConfig struct is used by GetConfig endpoint to check / hydrate config
-	DynamicTileConfig struct {
-		Validator validator.SimpleValidator
-		Builder   config.DynamicTileBuilder
+	TileSetting struct {
+		//TileType
+		TileType coreModels.TileType
+		//MinimalVersion is the version that makes the tile available
+		MinimalVersion models.RawVersion
+		//Variants list all registered variants (can be available or not)
+		Variants map[coreModels.VariantName]*VariantSettings
+	}
+
+	VariantSettings struct {
+		//Enabled define if variant is enabled
+		Enabled bool
+
+		//VariantName
+		VariantName coreModels.VariantName
+
+		//Route path of the api endpoint for this tile. Used by hydrate
+		RoutePath *string
+		//InitialMaxDelay is forward to ui to delay initial requests
+		InitialMaxDelay *int
+		//ParamsValidator is used to validate given params
+		ParamsValidator models.ParamsValidator
+	}
+
+	TileGeneratorSetting struct {
+		//TileType
+		TileType coreModels.TileType
+		//TileType
+		GeneratedTileType coreModels.TileType
+		//MinimalVersion is the version that makes the tile available
+		MinimalVersion models.RawVersion
+		//Variants list all registered variants (can be available or not)
+		Variants map[coreModels.VariantName]*VariantGeneratorSettings
+	}
+
+	VariantGeneratorSettings struct {
+		//Enabled define if variant is enabled
+		Enabled bool
+
+		//VariantName
+		VariantName coreModels.VariantName
+
+		//GeneratorFunction function used to generate tile config
+		GeneratorFunction models.TileGeneratorFunction
+		//GeneratorParamsValidator is used to validate given params for generator
+		GeneratorParamsValidator models.ParamsValidator
 	}
 )
 
 func initConfigData() *ConfigData {
-	// TODO
-
 	return &ConfigData{
-		tileConfigs:        make(map[coreModels.TileType]map[coreModels.VariantName]*TileConfig),
-		dynamicTileConfigs: make(map[coreModels.TileType]map[coreModels.VariantName]*DynamicTileConfig),
+		tileSettings:          make(map[coreModels.TileType]*TileSetting),
+		tileGeneratorSettings: make(map[coreModels.TileType]*TileGeneratorSetting),
 	}
 }
 
-func (cu *configUsecase) RegisterTile(tileType coreModels.TileType, variant []coreModels.VariantName, version models.RawVersion) {
-	// TODO
-	var _ = ""
+func (cu *configUsecase) Register(tileType coreModels.TileType, minimalVersion models.RawVersion, variants []coreModels.VariantName) config.TileEnabler {
+	tileSetting := &TileSetting{
+		TileType:       tileType,
+		MinimalVersion: minimalVersion,
+		Variants:       make(map[coreModels.VariantName]*VariantSettings),
+	}
+
+	// Register Variant with Enabled False
+	for _, variant := range variants {
+		tileSetting.Variants[variant] = &VariantSettings{
+			VariantName: variant,
+		}
+	}
+
+	cu.configData.tileSettings[tileType] = tileSetting
+
+	return tileSetting
 }
 
-func (cu *configUsecase) EnableTile(
-	tileType coreModels.TileType, variant coreModels.VariantName, clientConfigValidator validator.SimpleValidator, path string, initialMaxDelay int,
-) {
-	value, exists := cu.configData.tileConfigs[tileType]
+func (cu *configUsecase) RegisterGenerator(generatedTileType coreModels.TileType, minimalVersion models.RawVersion, variants []coreModels.VariantName) config.TileGeneratorEnabler {
+	tileType := coreModels.NewGeneratorTileType(generatedTileType)
+	tileSetting := &TileGeneratorSetting{
+		TileType:          tileType,
+		GeneratedTileType: generatedTileType,
+		MinimalVersion:    minimalVersion,
+		Variants:          make(map[coreModels.VariantName]*VariantGeneratorSettings),
+	}
+
+	// Register Variant with Enabled False
+	for _, variant := range variants {
+		tileSetting.Variants[variant] = &VariantGeneratorSettings{
+			VariantName: variant,
+		}
+	}
+
+	cu.configData.tileGeneratorSettings[tileType] = tileSetting
+
+	return tileSetting
+}
+
+func (ts *TileSetting) Enable(variant coreModels.VariantName, paramsValidator models.ParamsValidator, routePath string, initialMaxDelay int) {
+	variantSetting, exists := ts.Variants[variant]
 	if !exists {
-		value = make(map[coreModels.VariantName]*TileConfig)
-		cu.configData.tileConfigs[tileType] = value
+		panic(fmt.Sprintf("unable to enable unknown variant: %s for tile: %s. register it before.", variant, ts.TileType))
 	}
 
-	value[variant] = &TileConfig{
-		Path:            path,
-		Validator:       clientConfigValidator,
-		InitialMaxDelay: initialMaxDelay,
-	}
+	variantSetting.Enabled = true
+	variantSetting.ParamsValidator = paramsValidator
+	variantSetting.RoutePath = &routePath
+	variantSetting.InitialMaxDelay = &initialMaxDelay
 }
 
-func (cu *configUsecase) EnableDynamicTile(
-	tileType coreModels.TileType, variant coreModels.VariantName, clientConfigValidator validator.SimpleValidator, builder config.DynamicTileBuilder,
-) {
-	// Used for authorized type
-	cu.configData.tileConfigs[tileType] = nil
-
-	value, exists := cu.configData.dynamicTileConfigs[tileType]
+func (ts *TileGeneratorSetting) Enable(variant coreModels.VariantName, generatorParamsValidator models.ParamsValidator, tileGeneratorFunction models.TileGeneratorFunction) {
+	variantSetting, exists := ts.Variants[variant]
 	if !exists {
-		value = make(map[coreModels.VariantName]*DynamicTileConfig)
+		panic(fmt.Sprintf("unable to enable unknown variant: %s for tile: %s. register it before.", variant, ts.TileType))
 	}
 
-	value[variant] = &DynamicTileConfig{
-		Validator: clientConfigValidator,
-		Builder:   builder,
-	}
-	cu.configData.dynamicTileConfigs[tileType] = value
+	variantSetting.Enabled = true
+	variantSetting.GeneratorParamsValidator = generatorParamsValidator
+	variantSetting.GeneratorFunction = tileGeneratorFunction
+}
+
+func (v *VariantSettings) IsEnabled() bool {
+	return v.Enabled
+}
+
+func (v *VariantSettings) GetValidator() models.ParamsValidator {
+	return v.ParamsValidator
+}
+
+func (v *VariantGeneratorSettings) IsEnabled() bool {
+	return v.Enabled
+}
+
+func (v *VariantGeneratorSettings) GetValidator() models.ParamsValidator {
+	return v.GeneratorParamsValidator
 }

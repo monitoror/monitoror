@@ -3,7 +3,8 @@
 package http
 
 import (
-	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
+	uiConfig "github.com/monitoror/monitoror/api/config"
+	"github.com/monitoror/monitoror/api/config/versions"
 	pkgMonitorable "github.com/monitoror/monitoror/internal/pkg/monitorable"
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/http/api"
@@ -19,22 +20,27 @@ type Monitorable struct {
 	store *store.Store
 
 	config map[coreModels.VariantName]*httpConfig.HTTP
+
+	// Config tile settings
+	statusTileSetting    uiConfig.TileEnabler
+	rawTileSetting       uiConfig.TileEnabler
+	formattedTileSetting uiConfig.TileEnabler
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
-	monitorable := &Monitorable{}
-	monitorable.store = store
-	monitorable.config = make(map[coreModels.VariantName]*httpConfig.HTTP)
+	m := &Monitorable{}
+	m.store = store
+	m.config = make(map[coreModels.VariantName]*httpConfig.HTTP)
 
 	// Load core config from env
-	pkgMonitorable.LoadConfig(&monitorable.config, httpConfig.Default)
+	pkgMonitorable.LoadConfig(&m.config, httpConfig.Default)
 
 	// Register Monitorable Tile in config manager
-	store.UIConfigManager.RegisterTile(api.HTTPStatusTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)
-	store.UIConfigManager.RegisterTile(api.HTTPRawTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)
-	store.UIConfigManager.RegisterTile(api.HTTPFormattedTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)
+	m.statusTileSetting = store.TileSettingManager.Register(api.HTTPStatusTileType, versions.MinimalVersion, m.GetVariants())
+	m.rawTileSetting = store.TileSettingManager.Register(api.HTTPRawTileType, versions.MinimalVersion, m.GetVariants())
+	m.formattedTileSetting = store.TileSettingManager.Register(api.HTTPFormattedTileType, versions.MinimalVersion, m.GetVariants())
 
-	return monitorable
+	return m
 }
 
 func (m *Monitorable) GetDisplayName() string {
@@ -63,10 +69,7 @@ func (m *Monitorable) Enable(variant coreModels.VariantName) {
 	routeJSON := routeGroup.GET("/formatted", delivery.GetHTTPFormatted)
 
 	// EnableTile data for config hydration
-	m.store.UIConfigManager.EnableTile(api.HTTPStatusTileType, variant,
-		&httpModels.HTTPStatusParams{}, routeStatus.Path, conf.InitialMaxDelay)
-	m.store.UIConfigManager.EnableTile(api.HTTPRawTileType, variant,
-		&httpModels.HTTPRawParams{}, routeRaw.Path, conf.InitialMaxDelay)
-	m.store.UIConfigManager.EnableTile(api.HTTPFormattedTileType, variant,
-		&httpModels.HTTPFormattedParams{}, routeJSON.Path, conf.InitialMaxDelay)
+	m.statusTileSetting.Enable(variant, &httpModels.HTTPStatusParams{}, routeStatus.Path, conf.InitialMaxDelay)
+	m.rawTileSetting.Enable(variant, &httpModels.HTTPRawParams{}, routeRaw.Path, conf.InitialMaxDelay)
+	m.formattedTileSetting.Enable(variant, &httpModels.HTTPFormattedParams{}, routeJSON.Path, conf.InitialMaxDelay)
 }

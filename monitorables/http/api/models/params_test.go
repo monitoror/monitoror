@@ -4,16 +4,17 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/monitoror/monitoror/pkg/validator"
+	uiConfigModels "github.com/monitoror/monitoror/api/config/models"
+	"github.com/monitoror/monitoror/internal/pkg/monitorable/validator"
 
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHTTPParams_IsValid(t *testing.T) {
+func TestHTTPParams_GetFormat(t *testing.T) {
 	for _, testcase := range []struct {
-		params   validator.SimpleValidator
-		expected bool
+		params uiConfigModels.ParamsValidator
+		valid  bool
 	}{
 		{&HTTPStatusParams{}, false},
 		{&HTTPStatusParams{URL: "toto"}, true},
@@ -38,7 +39,12 @@ func TestHTTPParams_IsValid(t *testing.T) {
 		{&HTTPFormattedParams{URL: "toto", Format: "JSON", Key: "key", Regex: "("}, false},
 		{&HTTPFormattedParams{URL: "toto", Format: "JSON", Key: "key", Regex: "(.*)"}, true},
 	} {
-		assert.Equal(t, testcase.expected, testcase.params.IsValid())
+		err := validator.Validate(testcase.params)
+		if testcase.valid {
+			assert.NoError(t, err)
+		} else {
+			assert.Error(t, err)
+		}
 	}
 }
 

@@ -6,8 +6,8 @@ import (
 	"net/http"
 
 	"github.com/monitoror/monitoror/api/config"
-	configModels "github.com/monitoror/monitoror/api/config/models"
-	"github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/api/config/models"
+	coreModels "github.com/monitoror/monitoror/models"
 
 	"github.com/labstack/echo/v4"
 )
@@ -22,10 +22,10 @@ func NewConfigDelivery(cu config.Usecase) *ConfigDelivery {
 
 func (h *ConfigDelivery) GetConfig(c echo.Context) error {
 	// Bind / check Params
-	params := &configModels.ConfigParams{}
+	params := &models.ConfigParams{}
 	err := c.Bind(params)
 	if err != nil || !params.IsValid() {
-		return models.QueryParamsError
+		return coreModels.ParamsError
 	}
 
 	configBag := h.configUsecase.GetConfig(params)

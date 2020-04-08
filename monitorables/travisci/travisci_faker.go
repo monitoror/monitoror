@@ -3,7 +3,8 @@
 package travisci
 
 import (
-	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
+	uiConfig "github.com/monitoror/monitoror/api/config"
+	"github.com/monitoror/monitoror/api/config/versions"
 	coreConfig "github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/internal/pkg/monitorable"
 	coreModels "github.com/monitoror/monitoror/models"
@@ -18,16 +19,19 @@ type Monitorable struct {
 	monitorable.DefaultMonitorableFaker
 
 	store *store.Store
+
+	// Config tile settings
+	buildTileSetting uiConfig.TileEnabler
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
-	monitorable := &Monitorable{}
-	monitorable.store = store
+	m := &Monitorable{}
+	m.store = store
 
 	// Register Monitorable Tile in config manager
-	store.UIConfigManager.RegisterTile(api.TravisCIBuildTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)
+	m.buildTileSetting = store.TileSettingManager.Register(api.TravisCIBuildTileType, versions.MinimalVersion, m.GetVariants())
 
-	return monitorable
+	return m
 }
 
 func (m *Monitorable) GetDisplayName() string { return "Travis CI (faker)" }
@@ -41,6 +45,5 @@ func (m *Monitorable) Enable(variant coreModels.VariantName) {
 	route := routeGroup.GET("/build", delivery.GetBuild)
 
 	// EnableTile data for config hydration
-	m.store.UIConfigManager.EnableTile(api.TravisCIBuildTileType, variant,
-		&travisciModels.BuildParams{}, route.Path, coreConfig.DefaultInitialMaxDelay)
+	m.buildTileSetting.Enable(variant, &travisciModels.BuildParams{}, route.Path, coreConfig.DefaultInitialMaxDelay)
 }

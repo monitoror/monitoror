@@ -3,7 +3,8 @@
 package port
 
 import (
-	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
+	uiConfig "github.com/monitoror/monitoror/api/config"
+	"github.com/monitoror/monitoror/api/config/versions"
 	coreConfig "github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/internal/pkg/monitorable"
 	coreModels "github.com/monitoror/monitoror/models"
@@ -18,16 +19,19 @@ type Monitorable struct {
 	monitorable.DefaultMonitorableFaker
 
 	store *store.Store
+
+	// Config tile settings
+	portTileSetting uiConfig.TileEnabler
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
-	monitorable := &Monitorable{}
-	monitorable.store = store
+	m := &Monitorable{}
+	m.store = store
 
 	// Register Monitorable Tile in config manager
-	store.UIConfigManager.RegisterTile(api.PortTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)
+	m.portTileSetting = store.TileSettingManager.Register(api.PortTileType, versions.MinimalVersion, m.GetVariants())
 
-	return monitorable
+	return m
 }
 
 func (m *Monitorable) GetDisplayName() string { return "Port (faker)" }
@@ -41,6 +45,5 @@ func (m *Monitorable) Enable(variant coreModels.VariantName) {
 	route := routeGroup.GET("/port", delivery.GetPort)
 
 	// EnableTile data for config hydration
-	m.store.UIConfigManager.EnableTile(api.PortTileType, variant,
-		&portModels.PortParams{}, route.Path, coreConfig.DefaultInitialMaxDelay)
+	m.portTileSetting.Enable(variant, &portModels.PortParams{}, route.Path, coreConfig.DefaultInitialMaxDelay)
 }

@@ -6,11 +6,10 @@ import (
 	"fmt"
 	"net/url"
 
+	uiConfig "github.com/monitoror/monitoror/api/config"
+	"github.com/monitoror/monitoror/api/config/versions"
 	pkgMonitorable "github.com/monitoror/monitoror/internal/pkg/monitorable"
-
 	coreModels "github.com/monitoror/monitoror/models"
-
-	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
 	"github.com/monitoror/monitoror/monitorables/jenkins/api"
 	jenkinsDelivery "github.com/monitoror/monitoror/monitorables/jenkins/api/delivery/http"
 	jenkinsModels "github.com/monitoror/monitoror/monitorables/jenkins/api/models"
@@ -24,21 +23,25 @@ type Monitorable struct {
 	store *store.Store
 
 	config map[coreModels.VariantName]*jenkinsConfig.Jenkins
+
+	// Config tile settings
+	buildTileSetting          uiConfig.TileEnabler
+	buildGeneratorTileSetting uiConfig.TileGeneratorEnabler
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
-	monitorable := &Monitorable{}
-	monitorable.store = store
-	monitorable.config = make(map[coreModels.VariantName]*jenkinsConfig.Jenkins)
+	m := &Monitorable{}
+	m.store = store
+	m.config = make(map[coreModels.VariantName]*jenkinsConfig.Jenkins)
 
 	// Load core config from env
-	pkgMonitorable.LoadConfig(&monitorable.config, jenkinsConfig.Default)
+	pkgMonitorable.LoadConfig(&m.config, jenkinsConfig.Default)
 
 	// Register Monitorable Tile in config manager
-	store.UIConfigManager.RegisterTile(api.JenkinsBuildTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)
-	store.UIConfigManager.RegisterTile(api.JenkinsMultiBranchTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)
+	m.buildTileSetting = store.TileSettingManager.Register(api.JenkinsBuildTileType, versions.MinimalVersion, m.GetVariants())
+	m.buildGeneratorTileSetting = store.TileSettingManager.RegisterGenerator(api.JenkinsBuildTileType, versions.MinimalVersion, m.GetVariants())
 
-	return monitorable
+	return m
 }
 
 func (m *Monitorable) GetDisplayName() string {
@@ -77,8 +80,6 @@ func (m *Monitorable) Enable(variant coreModels.VariantName) {
 	route := routeGroup.GET("/build", delivery.GetBuild)
 
 	// EnableTile data for config hydration
-	m.store.UIConfigManager.EnableTile(api.JenkinsBuildTileType, variant,
-		&jenkinsModels.BuildParams{}, route.Path, conf.InitialMaxDelay)
-	m.store.UIConfigManager.EnableDynamicTile(api.JenkinsMultiBranchTileType, variant,
-		&jenkinsModels.MultiBranchParams{}, usecase.MultiBranch)
+	m.buildTileSetting.Enable(variant, &jenkinsModels.BuildParams{}, route.Path, conf.InitialMaxDelay)
+	m.buildGeneratorTileSetting.Enable(variant, &jenkinsModels.BuildGeneratorParams{}, usecase.BuildGenerator)
 }

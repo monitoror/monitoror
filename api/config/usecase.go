@@ -1,23 +1,28 @@
-//go:generate mockery -name Manager|Usecase
+//go:generate mockery -name TileSettingManager|TileEnabler|TileGeneratorEnabler|Usecase
 
 package config
 
 import (
 	"github.com/monitoror/monitoror/api/config/models"
 	coreModels "github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/pkg/validator"
 )
 
 type (
-	Manager interface {
-		RegisterTile(tileType coreModels.TileType, variants []coreModels.VariantName, version models.RawVersion)
-		EnableTile(tileType coreModels.TileType, variant coreModels.VariantName, validator validator.SimpleValidator, path string, initialMaxDelay int)
-		EnableDynamicTile(tileType coreModels.TileType, variant coreModels.VariantName, Validator validator.SimpleValidator, builder DynamicTileBuilder)
+	TileSettingManager interface {
+		Register(tileType coreModels.TileType, minimalVersion models.RawVersion, variants []coreModels.VariantName) TileEnabler
+		RegisterGenerator(tileType coreModels.TileType, minimalVersion models.RawVersion, variants []coreModels.VariantName) TileGeneratorEnabler
 	}
-	DynamicTileBuilder func(params interface{}) ([]models.DynamicTileResult, error)
+
+	TileEnabler interface {
+		Enable(variant coreModels.VariantName, paramsValidator models.ParamsValidator, routePath string, initialMaxDelay int)
+	}
+
+	TileGeneratorEnabler interface {
+		Enable(variant coreModels.VariantName, generatorParamsValidator models.ParamsValidator, tileGeneratorFunction models.TileGeneratorFunction)
+	}
 
 	Usecase interface {
-		Manager
+		TileSettingManager
 
 		GetConfig(params *models.ConfigParams) *models.ConfigBag
 		Verify(config *models.ConfigBag)

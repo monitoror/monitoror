@@ -53,7 +53,7 @@ func TestDelivery_BuildHandler_Success(t *testing.T) {
 	}
 }
 
-func TestDelivery_BuildHandler_QueryParamsError_MissingGroup(t *testing.T) {
+func TestDelivery_BuildHandler_QueryParamsError_MissingProject(t *testing.T) {
 	// Init
 	ctx, _ := initEcho()
 	ctx.QueryParams().Del("project")
@@ -105,7 +105,7 @@ func TestDelivery_GetRelease_Success(t *testing.T) {
 	}
 }
 
-func TestDelivery_GetRelease_QueryParamsError_MissingGroup(t *testing.T) {
+func TestDelivery_GetRelease_QueryParamsError_MissingProject(t *testing.T) {
 	// Init
 	ctx, _ := initEcho()
 	ctx.QueryParams().Del("project")

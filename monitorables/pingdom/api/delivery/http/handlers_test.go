@@ -32,7 +32,7 @@ func TestDelivery_GetCheck_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
-	tile := coreModels.NewTile(api.PingdomChecksTileType)
+	tile := coreModels.NewTile(api.PingdomCheckTileType)
 	tile.Label = "check 1"
 	tile.Status = coreModels.SuccessStatus
 

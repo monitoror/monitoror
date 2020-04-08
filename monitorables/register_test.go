@@ -8,10 +8,11 @@ import (
 
 func TestManager_RegisterMonitorables(t *testing.T) {
 	// init Store
-	_, _, mockConfigManager, s := test.InitMockAndStore()
-	manager := &Manager{store: s}
+	store, mockMonitorableHelper := test.InitMockAndStore()
+	manager := &Manager{store: store}
 	manager.RegisterMonitorables()
 
-	tileTypeCount := 15
-	mockConfigManager.AssertNumberOfCalls(t, "RegisterTile", tileTypeCount)
+	tileTypeCount := 12
+	tileGeneratorCount := 3
+	mockMonitorableHelper.TileSettingsManagerAssertNumberOfCalls(t, tileTypeCount, tileGeneratorCount, 0, 0)
 }

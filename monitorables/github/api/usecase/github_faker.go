@@ -7,8 +7,7 @@ import (
 	"math/rand"
 	"time"
 
-	models2 "github.com/monitoror/monitoror/api/config/models"
-
+	uiConfigModels "github.com/monitoror/monitoror/api/config/models"
 	"github.com/monitoror/monitoror/internal/pkg/monitorable/faker"
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/github/api"
@@ -110,7 +109,7 @@ func (gu *githubUsecase) Checks(params *models.ChecksParams) (tile *coreModels.T
 	return tile, nil
 }
 
-func (gu *githubUsecase) PullRequests(params interface{}) ([]models2.DynamicTileResult, error) {
+func (gu *githubUsecase) PullRequestsGenerator(params interface{}) ([]uiConfigModels.GeneratedTile, error) {
 	panic("unimplemented")
 }
 

@@ -2,7 +2,11 @@
 
 package models
 
-import "fmt"
+import (
+	"fmt"
+
+	uiConfigModels "github.com/monitoror/monitoror/api/config/models"
+)
 
 type (
 	ChecksParams struct {
@@ -12,8 +16,22 @@ type (
 	}
 )
 
-func (p *ChecksParams) IsValid() bool {
-	return p.Owner != "" && p.Repository != "" && p.Ref != ""
+func (p *ChecksParams) Validate(_ *uiConfigModels.ConfigVersion) *uiConfigModels.ConfigError {
+	// TODO
+
+	if p.Owner == "" {
+		return &uiConfigModels.ConfigError{}
+	}
+
+	if p.Repository == "" {
+		return &uiConfigModels.ConfigError{}
+	}
+
+	if p.Ref == "" {
+		return &uiConfigModels.ConfigError{}
+	}
+
+	return nil
 }
 
 // Used by cache as identifier

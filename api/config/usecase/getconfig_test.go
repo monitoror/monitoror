@@ -7,6 +7,7 @@ import (
 
 	"github.com/monitoror/monitoror/api/config/mocks"
 	"github.com/monitoror/monitoror/api/config/models"
+	"github.com/monitoror/monitoror/api/config/versions"
 
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"
@@ -59,7 +60,7 @@ func TestUsecase_GetConfig_WithError(t *testing.T) {
 			errorData: models.ConfigErrorData{
 				Value:     "18",
 				FieldName: "version",
-				Expected:  fmt.Sprintf("%q >= version >= %q", MinimalVersion, CurrentVersion),
+				Expected:  fmt.Sprintf("%q >= version >= %q", versions.MinimalVersion, versions.CurrentVersion),
 			},
 		},
 		{

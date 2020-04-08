@@ -6,11 +6,12 @@ import (
 	"fmt"
 	"net/url"
 
+	uiConfig "github.com/monitoror/monitoror/api/config"
+	"github.com/monitoror/monitoror/api/config/versions"
 	pkgMonitorable "github.com/monitoror/monitoror/internal/pkg/monitorable"
 
 	coreModels "github.com/monitoror/monitoror/models"
 
-	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
 	"github.com/monitoror/monitoror/monitorables/travisci/api"
 	travisciDelivery "github.com/monitoror/monitoror/monitorables/travisci/api/delivery/http"
 	travisciModels "github.com/monitoror/monitoror/monitorables/travisci/api/models"
@@ -24,20 +25,23 @@ type Monitorable struct {
 	store *store.Store
 
 	config map[coreModels.VariantName]*travisciConfig.TravisCI
+
+	// Config tile settings
+	buildTileSetting uiConfig.TileEnabler
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
-	monitorable := &Monitorable{}
-	monitorable.store = store
-	monitorable.config = make(map[coreModels.VariantName]*travisciConfig.TravisCI)
+	m := &Monitorable{}
+	m.store = store
+	m.config = make(map[coreModels.VariantName]*travisciConfig.TravisCI)
 
 	// Load core config from env
-	pkgMonitorable.LoadConfig(&monitorable.config, travisciConfig.Default)
+	pkgMonitorable.LoadConfig(&m.config, travisciConfig.Default)
 
 	// Register Monitorable Tile in config manager
-	store.UIConfigManager.RegisterTile(api.TravisCIBuildTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)
+	m.buildTileSetting = store.TileSettingManager.Register(api.TravisCIBuildTileType, versions.MinimalVersion, m.GetVariants())
 
-	return monitorable
+	return m
 }
 
 func (m *Monitorable) GetDisplayName() string {
@@ -70,6 +74,5 @@ func (m *Monitorable) Enable(variant coreModels.VariantName) {
 	route := routeGroup.GET("/build", delivery.GetBuild)
 
 	// EnableTile data for config hydration
-	m.store.UIConfigManager.EnableTile(api.TravisCIBuildTileType, variant,
-		&travisciModels.BuildParams{}, route.Path, conf.InitialMaxDelay)
+	m.buildTileSetting.Enable(variant, &travisciModels.BuildParams{}, route.Path, conf.InitialMaxDelay)
 }

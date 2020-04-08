@@ -3,7 +3,8 @@
 package ping
 
 import (
-	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
+	uiConfig "github.com/monitoror/monitoror/api/config"
+	"github.com/monitoror/monitoror/api/config/versions"
 	pkgMonitorable "github.com/monitoror/monitoror/internal/pkg/monitorable"
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/ping/api"
@@ -20,20 +21,23 @@ type Monitorable struct {
 	store *store.Store
 
 	config map[coreModels.VariantName]*pingConfig.Ping
+
+	// Config tile settings
+	pingTileSetting uiConfig.TileEnabler
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
-	monitorable := &Monitorable{}
-	monitorable.store = store
-	monitorable.config = make(map[coreModels.VariantName]*pingConfig.Ping)
+	m := &Monitorable{}
+	m.store = store
+	m.config = make(map[coreModels.VariantName]*pingConfig.Ping)
 
 	// Load core config from env
-	pkgMonitorable.LoadConfig(&monitorable.config, pingConfig.Default)
+	pkgMonitorable.LoadConfig(&m.config, pingConfig.Default)
 
 	// Register Monitorable Tile in config manager
-	store.UIConfigManager.RegisterTile(api.PingTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)
+	m.pingTileSetting = store.TileSettingManager.Register(api.PingTileType, versions.MinimalVersion, m.GetVariants())
 
-	return monitorable
+	return m
 }
 
 func (m *Monitorable) GetDisplayName() string {
@@ -60,6 +64,5 @@ func (m *Monitorable) Enable(variant coreModels.VariantName) {
 	route := routeGroup.GET("/ping", delivery.GetPing)
 
 	// EnableTile data for config hydration
-	m.store.UIConfigManager.EnableTile(api.PingTileType, variant,
-		&pingModels.PingParams{}, route.Path, conf.InitialMaxDelay)
+	m.pingTileSetting.Enable(variant, &pingModels.PingParams{}, route.Path, conf.InitialMaxDelay)
 }

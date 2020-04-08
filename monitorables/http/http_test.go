@@ -10,10 +10,10 @@ import (
 
 func TestNewMonitorable(t *testing.T) {
 	// init Store
-	mockRouter, mockRouterGroup, mockConfigManager, s := test.InitMockAndStore()
+	store, mockMonitorableHelper := test.InitMockAndStore()
 
 	// NewMonitorable
-	monitorable := NewMonitorable(s)
+	monitorable := NewMonitorable(store)
 	assert.NotNil(t, monitorable)
 
 	// GetDisplayName
@@ -30,9 +30,6 @@ func TestNewMonitorable(t *testing.T) {
 	}
 
 	// Test calls
-	mockRouter.AssertNumberOfCalls(t, "Group", 1)
-	mockRouterGroup.AssertNumberOfCalls(t, "GET", 3)
-	mockConfigManager.AssertNumberOfCalls(t, "RegisterTile", 3)
-	mockConfigManager.AssertNumberOfCalls(t, "EnableTile", 3)
-	mockConfigManager.AssertNumberOfCalls(t, "EnableDynamicTile", 0)
+	mockMonitorableHelper.RouterAssertNumberOfCalls(t, 1, 3)
+	mockMonitorableHelper.TileSettingsManagerAssertNumberOfCalls(t, 3, 0, 3, 0)
 }

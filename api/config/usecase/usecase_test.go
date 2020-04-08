@@ -10,6 +10,7 @@ import (
 	"github.com/monitoror/monitoror/api/config"
 	"github.com/monitoror/monitoror/api/config/models"
 	"github.com/monitoror/monitoror/api/config/repository"
+	"github.com/monitoror/monitoror/api/config/versions"
 	coreModels "github.com/monitoror/monitoror/models"
 	jenkinsApi "github.com/monitoror/monitoror/monitorables/jenkins/api"
 	jenkinsModels "github.com/monitoror/monitoror/monitorables/jenkins/api/models"
@@ -27,15 +28,14 @@ import (
 func initConfigUsecase(repository config.Repository, store cache.Store) *configUsecase {
 	usecase := NewConfigUsecase(repository, store, 5000)
 
-	usecase.RegisterTile(pingApi.PingTileType, []coreModels.VariantName{coreModels.DefaultVariant}, MinimalVersion)
-	usecase.RegisterTile(portApi.PortTileType, []coreModels.VariantName{coreModels.DefaultVariant}, MinimalVersion)
-	usecase.RegisterTile(jenkinsApi.JenkinsBuildTileType, []coreModels.VariantName{coreModels.DefaultVariant}, MinimalVersion)
-	usecase.RegisterTile(pingdomApi.PingdomCheckTileType, []coreModels.VariantName{coreModels.DefaultVariant}, MinimalVersion)
-
-	usecase.EnableTile(pingApi.PingTileType, coreModels.DefaultVariant, &pingModels.PingParams{}, "/ping", 1000)
-	usecase.EnableTile(portApi.PortTileType, coreModels.DefaultVariant, &portModels.PortParams{}, "/port", 1000)
-	usecase.EnableTile(jenkinsApi.JenkinsBuildTileType, coreModels.DefaultVariant, &jenkinsModels.BuildParams{}, "/jenkins/default", 1000)
-	usecase.EnableTile(pingdomApi.PingdomCheckTileType, coreModels.DefaultVariant, &pindomModels.CheckParams{}, "/pingdom/default", 1000)
+	usecase.Register(pingApi.PingTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
+		Enable(coreModels.DefaultVariant, &pingModels.PingParams{}, "/ping/default/ping", 1000)
+	usecase.Register(portApi.PortTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
+		Enable(coreModels.DefaultVariant, &portModels.PortParams{}, "/port/default/port", 1000)
+	usecase.Register(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant, "disabledVariant"}).
+		Enable(coreModels.DefaultVariant, &jenkinsModels.BuildParams{}, "/jenkins/default/build", 1000)
+	usecase.Register(pingdomApi.PingdomCheckTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
+		Enable(coreModels.DefaultVariant, &pindomModels.CheckParams{}, "/pingdom/default/check", 1000)
 
 	return usecase.(*configUsecase)
 }
@@ -56,9 +56,9 @@ func TestUsecase_Global_Success(t *testing.T) {
 		{ "type": "PORT", "label": "Monitoror", "params": {"hostname": "localhost", "port": 8080} }
   ]
 }
-`, CurrentVersion)
+`, versions.CurrentVersion)
 
-	expectRawConfig := fmt.Sprintf(`{"config":{"version":%q,"columns":4,"tiles":[{"type":"PORT","label":"Monitoror","url":"/port?hostname=localhost\u0026port=8080","initialMaxDelay":1000}]}}`, CurrentVersion)
+	expectRawConfig := fmt.Sprintf(`{"config":{"version":%q,"columns":4,"tiles":[{"type":"PORT","label":"Monitoror","url":"/port/default/port?hostname=localhost\u0026port=8080","initialMaxDelay":1000}]}}`, versions.CurrentVersion)
 
 	config, err := readConfig(rawConfig)
 	if assert.NoError(t, err) {
