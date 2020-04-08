@@ -6,8 +6,8 @@ import (
 
 // Versions
 const (
-	CurrentVersion = Version1000
-	MinimalVersion = Version1000
+	CurrentVersion = Version2000
+	MinimalVersion = Version2000
 
-	Version1000 models.RawVersion = "1.0" // Initial version
+	Version2000 models.RawVersion = "2.0" // Initial version
 )
