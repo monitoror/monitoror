@@ -61,16 +61,21 @@ Monitoror is running at:
 `
 )
 
-type CLI interface {
-	PrintBanner()
-	PrintDevMode()
-	PrintMonitorableHeader()
-	PrintMonitorable(displayName string, enabledVariants []coreModels.VariantName, erroredVariants map[coreModels.VariantName]error)
-	PrintMonitorableFooter(isProduction bool, nonEnabledMonitorableCount int)
-	PrintServerStartup(ip string, port int)
-}
-
 type (
+	CLI interface {
+		PrintBanner()
+		PrintDevMode()
+		PrintMonitorableHeader()
+		PrintMonitorable(displayName string, enabledVariants []coreModels.VariantName, erroredVariants []ErroredVariant)
+		PrintMonitorableFooter(isProduction bool, nonEnabledMonitorableCount int)
+		PrintServerStartup(ip string, port int)
+	}
+
+	ErroredVariant struct {
+		VariantName coreModels.VariantName
+		Err         error
+	}
+
 	MonitororCLI struct{}
 )
 
@@ -97,7 +102,7 @@ func (cli *MonitororCLI) PrintMonitorableHeader() {
 	colorer.Printf(colorer.Black(colorer.Green(monitorableHeader)))
 }
 
-func (cli *MonitororCLI) PrintMonitorable(displayName string, enabledVariants []coreModels.VariantName, erroredVariants map[coreModels.VariantName]error) {
+func (cli *MonitororCLI) PrintMonitorable(displayName string, enabledVariants []coreModels.VariantName, erroredVariants []ErroredVariant) {
 	if len(enabledVariants) == 0 && len(erroredVariants) == 0 {
 		return
 	}
@@ -137,11 +142,11 @@ func (cli *MonitororCLI) PrintMonitorable(displayName string, enabledVariants []
 	colorer.Printf("  %s %s %s\n", prefixStatus, monitorableName, colorer.Grey(strVariants))
 
 	// Print Error
-	for variant, err := range erroredVariants {
-		if variant == coreModels.DefaultVariant {
-			colorer.Printf(colorer.Red("    %s Errored %s configuration\n        %s\n"), errorSymbol, variant, err.Error())
+	for _, erroredVariant := range erroredVariants {
+		if erroredVariant.VariantName == coreModels.DefaultVariant {
+			colorer.Printf(colorer.Red("    %s Errored %s configuration\n        %s\n"), errorSymbol, erroredVariant.VariantName, erroredVariant.Err.Error())
 		} else {
-			colorer.Printf(colorer.Red("    %s Errored \"%s\" variant configuration\n        %s\n"), errorSymbol, variant, err.Error())
+			colorer.Printf(colorer.Red("    %s Errored \"%s\" variant configuration\n        %s\n"), errorSymbol, erroredVariant.VariantName, erroredVariant.Err.Error())
 		}
 	}
 }

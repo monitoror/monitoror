@@ -1,6 +1,7 @@
 package monitorables
 
 import (
+	"github.com/monitoror/monitoror/cli"
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/service/store"
 )
@@ -43,12 +44,12 @@ func (m *Manager) EnableMonitorables() {
 
 	for _, monitorable := range m.monitorables {
 		var enabledVariants []coreModels.VariantName
-		erroredVariants := make(map[coreModels.VariantName]error)
+		var erroredVariants []cli.ErroredVariant
 
 		for _, variant := range monitorable.GetVariants() {
 			valid, err := monitorable.Validate(variant)
 			if err != nil {
-				erroredVariants[variant] = err
+				erroredVariants = append(erroredVariants, cli.ErroredVariant{VariantName: variant, Err: err})
 			}
 
 			if valid {
