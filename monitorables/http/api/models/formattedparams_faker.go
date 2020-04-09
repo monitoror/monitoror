@@ -14,9 +14,9 @@ type (
 		URL           string `json:"url" query:"url"`
 		Format        string `json:"format" query:"format"`
 		Key           string `json:"key" query:"key"`
-		Regex         string `json:"regex" query:"regex"`
-		StatusCodeMin *int   `json:"statusCodeMin" query:"statusCodeMin"`
-		StatusCodeMax *int   `json:"statusCodeMax" query:"statusCodeMax"`
+		Regex         string `json:"regex,omitempty" query:"regex"`
+		StatusCodeMin *int   `json:"statusCodeMin,omitempty" query:"statusCodeMin"`
+		StatusCodeMax *int   `json:"statusCodeMax,omitempty" query:"statusCodeMax"`
 
 		Status      coreModels.TileStatus     `json:"status" query:"status"`
 		Message     string                    `json:"message" query:"message"`

@@ -13,7 +13,7 @@ type (
 	BuildParams struct {
 		Project    string  `json:"project" query:"project"`
 		Definition *int    `json:"definition" query:"definition"`
-		Branch     *string `json:"branch" query:"branch"`
+		Branch     *string `json:"branch,omitempty" query:"branch"`
 
 		AuthorName      string `json:"authorName" query:"authorName"`
 		AuthorAvatarURL string `json:"authorAvatarURL" query:"authorAvatarURL"`

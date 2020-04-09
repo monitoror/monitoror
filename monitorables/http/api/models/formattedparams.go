@@ -13,9 +13,9 @@ type (
 		URL           string `json:"url" query:"url"`
 		Format        string `json:"format" query:"format"`
 		Key           string `json:"key" query:"key"`
-		Regex         string `json:"regex,omitempty" query:"regex,omitempty"`
-		StatusCodeMin *int   `json:"statusCodeMin,omitempty" query:"statusCodeMin,omitempty"`
-		StatusCodeMax *int   `json:"statusCodeMax,omitempty" query:"statusCodeMax,omitempty"`
+		Regex         string `json:"regex,omitempty" query:"regex"`
+		StatusCodeMin *int   `json:"statusCodeMin,omitempty" query:"statusCodeMin"`
+		StatusCodeMax *int   `json:"statusCodeMax,omitempty" query:"statusCodeMax"`
 	}
 )
 

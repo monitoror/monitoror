@@ -8,9 +8,12 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/AlekSi/pointer"
+
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/pingdom/api"
 	"github.com/monitoror/monitoror/monitorables/pingdom/api/mocks"
+	"github.com/monitoror/monitoror/monitorables/pingdom/api/models"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -37,7 +40,7 @@ func TestDelivery_GetCheck_Success(t *testing.T) {
 	tile.Status = coreModels.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("Check", Anything).Return(tile, nil)
+	mockUsecase.On("Check", &models.CheckParams{ID: pointer.ToInt(123456)}).Return(tile, nil)
 	handler := NewPingdomDelivery(mockUsecase)
 
 	// Expected

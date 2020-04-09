@@ -6,8 +6,8 @@ import (
 
 type (
 	CheckGeneratorParams struct {
-		Tags   string `json:"tags,omitempty" query:"tags,omitempty"`
-		SortBy string `json:"sortBy,omitempty" query:"sortBy,omitempty"`
+		Tags   string `json:"tags,omitempty" query:"tags"`
+		SortBy string `json:"sortBy,omitempty" query:"sortBy"`
 	}
 )
 

@@ -11,6 +11,7 @@ import (
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/ping/api"
 	"github.com/monitoror/monitoror/monitorables/ping/api/mocks"
+	"github.com/monitoror/monitoror/monitorables/ping/api/models"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -36,7 +37,7 @@ func TestDelivery_PingHandler_Success(t *testing.T) {
 	tile.Status = coreModels.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("Ping", Anything).Return(tile, nil)
+	mockUsecase.On("Ping", &models.PingParams{Hostname: "monitoror.example.com"}).Return(tile, nil)
 	handler := NewPingDelivery(mockUsecase)
 
 	// Expected

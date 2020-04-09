@@ -11,8 +11,8 @@ type (
 		Job string `json:"job" query:"job"`
 
 		// Using Match / Unmatch filter instead of one filter because Golang's standard regex library doesn't have negative look ahead.
-		Match   string `json:"match,omitempty" query:"match,omitempty"`
-		Unmatch string `json:"unmatch,omitempty" query:"unmatch,omitempty"`
+		Match   string `json:"match,omitempty" query:"match"`
+		Unmatch string `json:"unmatch,omitempty" query:"unmatch"`
 	}
 )
 

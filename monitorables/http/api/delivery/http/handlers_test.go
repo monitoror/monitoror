@@ -8,6 +8,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/AlekSi/pointer"
+
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/http/api"
 	"github.com/monitoror/monitoror/monitorables/http/api/mocks"
@@ -27,6 +29,62 @@ func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 	ctx = e.NewContext(req, res)
 
 	return
+}
+
+func TestQueryParams_HTTPStatusParams(t *testing.T) {
+	ctx, _ := initEcho()
+	ctx.QueryParams().Set("url", "http://monitoror.example.com")
+	ctx.QueryParams().Set("statusCodeMin", "300")
+	ctx.QueryParams().Set("statusCodeMax", "400")
+
+	mockUsecase := new(mocks.Usecase)
+	mockUsecase.On("HTTPStatus", &models.HTTPStatusParams{
+		URL:           "http://monitoror.example.com",
+		StatusCodeMin: pointer.ToInt(300),
+		StatusCodeMax: pointer.ToInt(400),
+	}).Return(nil, nil)
+	handler := NewHTTPDelivery(mockUsecase)
+	assert.NoError(t, handler.GetHTTPStatus(ctx))
+}
+
+func TestQueryParams_HTTPRawParams(t *testing.T) {
+	ctx, _ := initEcho()
+	ctx.QueryParams().Set("url", "http://monitoror.example.com")
+	ctx.QueryParams().Set("regex", "test")
+	ctx.QueryParams().Set("statusCodeMin", "300")
+	ctx.QueryParams().Set("statusCodeMax", "400")
+
+	mockUsecase := new(mocks.Usecase)
+	mockUsecase.On("HTTPRaw", &models.HTTPRawParams{
+		URL:           "http://monitoror.example.com",
+		Regex:         "test",
+		StatusCodeMin: pointer.ToInt(300),
+		StatusCodeMax: pointer.ToInt(400),
+	}).Return(nil, nil)
+	handler := NewHTTPDelivery(mockUsecase)
+	assert.NoError(t, handler.GetHTTPRaw(ctx))
+}
+
+func TestQueryParams_HTTPFormattedParams(t *testing.T) {
+	ctx, _ := initEcho()
+	ctx.QueryParams().Set("url", "http://monitoror.example.com")
+	ctx.QueryParams().Set("key", "key")
+	ctx.QueryParams().Set("format", "JSON")
+	ctx.QueryParams().Set("regex", "test")
+	ctx.QueryParams().Set("statusCodeMin", "300")
+	ctx.QueryParams().Set("statusCodeMax", "400")
+
+	mockUsecase := new(mocks.Usecase)
+	mockUsecase.On("HTTPFormatted", &models.HTTPFormattedParams{
+		URL:           "http://monitoror.example.com",
+		Regex:         "test",
+		Key:           "key",
+		Format:        models.JSONFormat,
+		StatusCodeMin: pointer.ToInt(300),
+		StatusCodeMax: pointer.ToInt(400),
+	}).Return(nil, nil)
+	handler := NewHTTPDelivery(mockUsecase)
+	assert.NoError(t, handler.GetHTTPFormatted(ctx))
 }
 
 func Test_httpHttpDelivery_GetHttp_MissingParams(t *testing.T) {

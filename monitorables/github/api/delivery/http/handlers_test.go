@@ -8,9 +8,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/monitoror/monitoror/models"
+	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/github/api"
 	"github.com/monitoror/monitoror/monitorables/github/api/mocks"
+	"github.com/monitoror/monitoror/monitorables/github/api/models"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -32,11 +33,11 @@ func TestDelivery_GetCount_Success(t *testing.T) {
 
 	ctx.QueryParams().Set("query", "test")
 
-	tile := models.NewTile(api.GithubCountTileType)
-	tile.Status = models.SuccessStatus
+	tile := coreModels.NewTile(api.GithubCountTileType)
+	tile.Status = coreModels.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("Count", Anything).Return(tile, nil)
+	mockUsecase.On("Count", &models.CountParams{Query: "test"}).Return(tile, nil)
 	handler := NewGithubDelivery(mockUsecase)
 
 	// Expected
@@ -63,7 +64,7 @@ func TestDelivery_GetCount_MissingParams(t *testing.T) {
 	err := handler.GetCount(ctx)
 	if assert.Error(t, err) {
 		assert.Equal(t, http.StatusOK, res.Code)
-		assert.IsType(t, &models.MonitororError{}, err)
+		assert.IsType(t, &coreModels.MonitororError{}, err)
 		mockUsecase.AssertNumberOfCalls(t, "Count", 0)
 		mockUsecase.AssertExpectations(t)
 	}
@@ -96,11 +97,11 @@ func TestDelivery_GetChecks_Success(t *testing.T) {
 	ctx.QueryParams().Set("repository", "test")
 	ctx.QueryParams().Set("ref", "master")
 
-	tile := models.NewTile(api.GithubChecksTileType)
-	tile.Status = models.SuccessStatus
+	tile := coreModels.NewTile(api.GithubChecksTileType)
+	tile.Status = coreModels.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("Checks", Anything).Return(tile, nil)
+	mockUsecase.On("Checks", &models.ChecksParams{Owner: "test", Repository: "test", Ref: "master"}).Return(tile, nil)
 	handler := NewGithubDelivery(mockUsecase)
 
 	// Expected
@@ -127,7 +128,7 @@ func TestDelivery_GetChecks_MissingParams(t *testing.T) {
 	err := handler.GetChecks(ctx)
 	if assert.Error(t, err) {
 		assert.Equal(t, http.StatusOK, res.Code)
-		assert.IsType(t, &models.MonitororError{}, err)
+		assert.IsType(t, &coreModels.MonitororError{}, err)
 		mockUsecase.AssertNumberOfCalls(t, "Checks", 0)
 		mockUsecase.AssertExpectations(t)
 	}

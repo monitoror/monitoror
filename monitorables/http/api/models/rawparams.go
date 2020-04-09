@@ -11,9 +11,9 @@ import (
 type (
 	HTTPRawParams struct {
 		URL           string `json:"url" query:"url"`
-		StatusCodeMin *int   `json:"statusCodeMin,omitempty" query:"statusCodeMin,omitempty"`
-		StatusCodeMax *int   `json:"statusCodeMax,omitempty" query:"statusCodeMax,omitempty"`
-		Regex         string `json:"regex,omitempty" query:"regex,omitempty"`
+		Regex         string `json:"regex,omitempty" query:"regex"`
+		StatusCodeMin *int   `json:"statusCodeMin,omitempty" query:"statusCodeMin"`
+		StatusCodeMax *int   `json:"statusCodeMax,omitempty" query:"statusCodeMax"`
 	}
 )
 

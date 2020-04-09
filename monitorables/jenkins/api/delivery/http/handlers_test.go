@@ -11,6 +11,7 @@ import (
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/jenkins/api"
 	"github.com/monitoror/monitoror/monitorables/jenkins/api/mocks"
+	"github.com/monitoror/monitoror/monitorables/jenkins/api/models"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -23,8 +24,8 @@ func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 	res = httptest.NewRecorder()
 	ctx = e.NewContext(req, res)
 
-	ctx.QueryParams().Set("job", "master")
-	ctx.QueryParams().Set("parent", "test")
+	ctx.QueryParams().Set("job", "test")
+	ctx.QueryParams().Set("branch", "master")
 
 	return
 }
@@ -37,7 +38,7 @@ func TestDelivery_GetBuild_Success(t *testing.T) {
 	tile.Status = coreModels.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("Build", Anything).Return(tile, nil)
+	mockUsecase.On("Build", &models.BuildParams{Job: "test", Branch: "master"}).Return(tile, nil)
 	handler := NewJenkinsDelivery(mockUsecase)
 
 	// Expected
