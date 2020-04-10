@@ -84,7 +84,7 @@ func TestUsecase_Verify_Failed(t *testing.T) {
 			errorData: models.ConfigErrorData{
 				FieldName: "version",
 				Value:     `"0.0"`,
-				Expected:  fmt.Sprintf(`%q >= version >= %q`, versions.MinimalVersion, versions.CurrentVersion),
+				Expected:  fmt.Sprintf(`%q <= version <= %q`, versions.MinimalVersion, versions.CurrentVersion),
 			},
 		},
 		{
@@ -93,7 +93,7 @@ func TestUsecase_Verify_Failed(t *testing.T) {
 			errorData: models.ConfigErrorData{
 				FieldName: "version",
 				Value:     `"999.999"`,
-				Expected:  fmt.Sprintf(`%q >= version >= %q`, versions.MinimalVersion, versions.CurrentVersion),
+				Expected:  fmt.Sprintf(`%q <= version <= %q`, versions.MinimalVersion, versions.CurrentVersion),
 			},
 		},
 		{

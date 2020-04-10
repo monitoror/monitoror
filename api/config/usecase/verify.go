@@ -30,7 +30,7 @@ func (cu *configUsecase) Verify(configBag *models.ConfigBag) {
 			Data: models.ConfigErrorData{
 				FieldName: "version",
 				Value:     stringify(configBag.Config.Version),
-				Expected:  fmt.Sprintf(`%q >= version >= %q`, versions.MinimalVersion, versions.CurrentVersion),
+				Expected:  fmt.Sprintf(`%q <= version <= %q`, versions.MinimalVersion, versions.CurrentVersion),
 			},
 		})
 		return
