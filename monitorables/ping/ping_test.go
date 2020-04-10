@@ -18,13 +18,13 @@ func TestNewMonitorable(t *testing.T) {
 	// GetDisplayName
 	assert.NotNil(t, monitorable.GetDisplayName())
 
-	// GetVariants and check
-	assert.Len(t, monitorable.GetVariants(), 1)
+	// GetVariantNames and check
+	assert.Len(t, monitorable.GetVariantNames(), 1)
 
 	// Enable
-	for _, variant := range monitorable.GetVariants() {
-		_, _ = monitorable.Validate(variant) // Skip validate because is always false in test
-		monitorable.Enable(variant)
+	for _, variantName := range monitorable.GetVariantNames() {
+		_, _ = monitorable.Validate(variantName) // Skip validate because is always false in test
+		monitorable.Enable(variantName)
 	}
 
 	// Test calls

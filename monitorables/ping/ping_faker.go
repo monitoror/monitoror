@@ -29,20 +29,19 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	m.store = store
 
 	// Register Monitorable Tile in config manager
-	m.pingTileSetting = store.TileSettingManager.Register(api.PingTileType, versions.MinimalVersion, m.GetVariants())
+	m.pingTileSetting = store.TileSettingManager.Register(api.PingTileType, versions.MinimalVersion, m.GetVariantNames())
 
 	return m
 }
 
 func (m *Monitorable) GetDisplayName() string { return "Ping (faker)" }
 
-func (m *Monitorable) Enable(variant coreModels.VariantName) {
-
+func (m *Monitorable) Enable(variantName coreModels.VariantName) {
 	usecase := pingUsecase.NewPingUsecase()
 	delivery := pingDelivery.NewPingDelivery(usecase)
 
 	// EnableTile route to echo
-	routeGroup := m.store.MonitorableRouter.Group("/ping", variant)
+	routeGroup := m.store.MonitorableRouter.Group("/ping", variantName)
 	route := routeGroup.GET("/ping", delivery.GetPing)
 
 	// EnableTile data for config hydration

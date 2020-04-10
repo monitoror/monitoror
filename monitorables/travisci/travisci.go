@@ -39,7 +39,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	pkgMonitorable.LoadConfig(&m.config, travisciConfig.Default)
 
 	// Register Monitorable Tile in config manager
-	m.buildTileSetting = store.TileSettingManager.Register(api.TravisCIBuildTileType, versions.MinimalVersion, m.GetVariants())
+	m.buildTileSetting = store.TileSettingManager.Register(api.TravisCIBuildTileType, versions.MinimalVersion, m.GetVariantNames())
 
 	return m
 }
@@ -48,29 +48,29 @@ func (m *Monitorable) GetDisplayName() string {
 	return "Travis CI"
 }
 
-func (m *Monitorable) GetVariants() []coreModels.VariantName {
+func (m *Monitorable) GetVariantNames() []coreModels.VariantName {
 	return pkgMonitorable.GetVariants(m.config)
 }
 
-func (m *Monitorable) Validate(variant coreModels.VariantName) (bool, error) {
-	conf := m.config[variant]
+func (m *Monitorable) Validate(variantName coreModels.VariantName) (bool, error) {
+	conf := m.config[variantName]
 	// Error in URL
 	if _, err := url.Parse(conf.URL); err != nil {
-		return false, fmt.Errorf(`%s contains invalid URL: "%s"`, pkgMonitorable.BuildMonitorableEnvKey(conf, variant, "URL"), conf.URL)
+		return false, fmt.Errorf(`%s contains invalid URL: "%s"`, pkgMonitorable.BuildMonitorableEnvKey(conf, variantName, "URL"), conf.URL)
 	}
 
 	return true, nil
 }
 
-func (m *Monitorable) Enable(variant coreModels.VariantName) {
-	conf := m.config[variant]
+func (m *Monitorable) Enable(variantName coreModels.VariantName) {
+	conf := m.config[variantName]
 
 	repository := travisciRepository.NewTravisCIRepository(conf)
 	usecase := travisciUsecase.NewTravisCIUsecase(repository)
 	delivery := travisciDelivery.NewTravisCIDelivery(usecase)
 
 	// EnableTile route to echo
-	routeGroup := m.store.MonitorableRouter.Group("/travisci", variant)
+	routeGroup := m.store.MonitorableRouter.Group("/travisci", variantName)
 	route := routeGroup.GET("/build", delivery.GetBuild)
 
 	// EnableTile data for config hydration

@@ -102,14 +102,14 @@ func (cli *MonitororCLI) PrintMonitorableHeader() {
 	colorer.Printf(colorer.Black(colorer.Green(monitorableHeader)))
 }
 
-func (cli *MonitororCLI) PrintMonitorable(displayName string, enabledVariants []coreModels.VariantName, erroredVariants []ErroredVariant) {
-	if len(enabledVariants) == 0 && len(erroredVariants) == 0 {
+func (cli *MonitororCLI) PrintMonitorable(displayName string, enabledVariantNames []coreModels.VariantName, erroredVariants []ErroredVariant) {
+	if len(enabledVariantNames) == 0 && len(erroredVariants) == 0 {
 		return
 	}
 
 	// Stringify variants
 	var strVariants string
-	if len(enabledVariants) == 1 && enabledVariants[0] == coreModels.DefaultVariant {
+	if len(enabledVariantNames) == 1 && enabledVariantNames[0] == coreModels.DefaultVariant {
 		if len(erroredVariants) > 0 {
 			strVariants = "[default]"
 		}
@@ -117,11 +117,11 @@ func (cli *MonitororCLI) PrintMonitorable(displayName string, enabledVariants []
 		var strDefault string
 		var variantsWithoutDefault []string
 
-		for _, variant := range enabledVariants {
-			if variant == coreModels.DefaultVariant {
-				strDefault = fmt.Sprintf("%s, ", variant)
+		for _, variantName := range enabledVariantNames {
+			if variantName == coreModels.DefaultVariant {
+				strDefault = fmt.Sprintf("%s, ", variantName)
 			} else {
-				variantsWithoutDefault = append(variantsWithoutDefault, string(variant))
+				variantsWithoutDefault = append(variantsWithoutDefault, string(variantName))
 			}
 		}
 		if len(variantsWithoutDefault) > 0 {
@@ -132,7 +132,7 @@ func (cli *MonitororCLI) PrintMonitorable(displayName string, enabledVariants []
 	// Print Monitorable and variants
 	prefixStatus := colorer.Green("✓")
 	if len(erroredVariants) > 0 {
-		if len(enabledVariants) > 0 {
+		if len(enabledVariantNames) > 0 {
 			prefixStatus = colorer.Yellow("!")
 		} else {
 			prefixStatus = colorer.Red("✕")

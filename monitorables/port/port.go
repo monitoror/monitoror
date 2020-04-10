@@ -34,7 +34,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	pkgMonitorable.LoadConfig(&m.config, portConfig.Default)
 
 	// Register Monitorable Tile in config manager
-	m.portTileSetting = store.TileSettingManager.Register(api.PortTileType, versions.MinimalVersion, m.GetVariants())
+	m.portTileSetting = store.TileSettingManager.Register(api.PortTileType, versions.MinimalVersion, m.GetVariantNames())
 
 	return m
 }
@@ -43,7 +43,7 @@ func (m *Monitorable) GetDisplayName() string {
 	return "Port"
 }
 
-func (m *Monitorable) GetVariants() []coreModels.VariantName {
+func (m *Monitorable) GetVariantNames() []coreModels.VariantName {
 	return pkgMonitorable.GetVariants(m.config)
 }
 
@@ -51,15 +51,15 @@ func (m *Monitorable) Validate(_ coreModels.VariantName) (bool, error) {
 	return true, nil
 }
 
-func (m *Monitorable) Enable(variant coreModels.VariantName) {
-	conf := m.config[variant]
+func (m *Monitorable) Enable(variantName coreModels.VariantName) {
+	conf := m.config[variantName]
 
 	repository := portRepository.NewPortRepository(conf)
 	usecase := portUsecase.NewPortUsecase(repository)
 	delivery := portDelivery.NewPortDelivery(usecase)
 
 	// EnableTile route to echo
-	routeGroup := m.store.MonitorableRouter.Group("/port", variant)
+	routeGroup := m.store.MonitorableRouter.Group("/port", variantName)
 	route := routeGroup.GET("/port", delivery.GetPort)
 
 	// EnableTile data for config hydration

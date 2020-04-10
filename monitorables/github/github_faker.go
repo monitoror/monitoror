@@ -30,8 +30,8 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	m.store = store
 
 	// Register Monitorable Tile in config manager
-	m.countTypeSetting = store.TileSettingManager.Register(api.GithubCountTileType, versions.MinimalVersion, m.GetVariants())
-	m.checksTypeSetting = store.TileSettingManager.Register(api.GithubChecksTileType, versions.MinimalVersion, m.GetVariants())
+	m.countTypeSetting = store.TileSettingManager.Register(api.GithubCountTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.checksTypeSetting = store.TileSettingManager.Register(api.GithubChecksTileType, versions.MinimalVersion, m.GetVariantNames())
 
 	return m
 }
@@ -40,12 +40,12 @@ func (m *Monitorable) GetDisplayName() string {
 	return "GitHub (faker)"
 }
 
-func (m *Monitorable) Enable(variant coreModels.VariantName) {
+func (m *Monitorable) Enable(variantName coreModels.VariantName) {
 	usecase := githubUsecase.NewGithubUsecase()
 	delivery := githubDelivery.NewGithubDelivery(usecase)
 
 	// EnableTile route to echo
-	routeGroup := m.store.MonitorableRouter.Group("/github", variant)
+	routeGroup := m.store.MonitorableRouter.Group("/github", variantName)
 	routeCount := routeGroup.GET("/count", delivery.GetCount)
 	routeChecks := routeGroup.GET("/checks", delivery.GetChecks)
 

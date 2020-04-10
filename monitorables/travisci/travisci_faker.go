@@ -29,19 +29,19 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	m.store = store
 
 	// Register Monitorable Tile in config manager
-	m.buildTileSetting = store.TileSettingManager.Register(api.TravisCIBuildTileType, versions.MinimalVersion, m.GetVariants())
+	m.buildTileSetting = store.TileSettingManager.Register(api.TravisCIBuildTileType, versions.MinimalVersion, m.GetVariantNames())
 
 	return m
 }
 
 func (m *Monitorable) GetDisplayName() string { return "Travis CI (faker)" }
 
-func (m *Monitorable) Enable(variant coreModels.VariantName) {
+func (m *Monitorable) Enable(variantName coreModels.VariantName) {
 	usecase := travisciUsecase.NewTravisCIUsecase()
 	delivery := travisciDelivery.NewTravisCIDelivery(usecase)
 
 	// EnableTile route to echo
-	routeGroup := m.store.MonitorableRouter.Group("/travisci", variant)
+	routeGroup := m.store.MonitorableRouter.Group("/travisci", variantName)
 	route := routeGroup.GET("/build", delivery.GetBuild)
 
 	// EnableTile data for config hydration

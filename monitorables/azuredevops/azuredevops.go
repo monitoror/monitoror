@@ -38,8 +38,8 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	pkgMonitorable.LoadConfig(&m.config, azuredevopsConfig.Default)
 
 	// Register Monitorable Tile in config manager
-	m.buildTileSetting = store.TileSettingManager.Register(api.AzureDevOpsBuildTileType, versions.MinimalVersion, m.GetVariants())
-	m.releaseTileSetting = store.TileSettingManager.Register(api.AzureDevOpsReleaseTileType, versions.MinimalVersion, m.GetVariants())
+	m.buildTileSetting = store.TileSettingManager.Register(api.AzureDevOpsBuildTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.releaseTileSetting = store.TileSettingManager.Register(api.AzureDevOpsReleaseTileType, versions.MinimalVersion, m.GetVariantNames())
 
 	return m
 }
@@ -48,12 +48,12 @@ func (m *Monitorable) GetDisplayName() string {
 	return "Azure DevOps"
 }
 
-func (m *Monitorable) GetVariants() []coreModels.VariantName {
+func (m *Monitorable) GetVariantNames() []coreModels.VariantName {
 	return pkgMonitorable.GetVariants(m.config)
 }
 
-func (m *Monitorable) Validate(variant coreModels.VariantName) (bool, error) {
-	conf := m.config[variant]
+func (m *Monitorable) Validate(variantName coreModels.VariantName) (bool, error) {
+	conf := m.config[variantName]
 
 	// No configuration set
 	if conf.URL == "" && conf.Token == "" {
@@ -62,26 +62,26 @@ func (m *Monitorable) Validate(variant coreModels.VariantName) (bool, error) {
 
 	// Error in URL
 	if _, err := url.Parse(conf.URL); err != nil {
-		return false, fmt.Errorf(`%s contains invalid URL: "%s"`, pkgMonitorable.BuildMonitorableEnvKey(conf, variant, "URL"), conf.URL)
+		return false, fmt.Errorf(`%s contains invalid URL: "%s"`, pkgMonitorable.BuildMonitorableEnvKey(conf, variantName, "URL"), conf.URL)
 	}
 
 	// Error in Token
 	if conf.Token == "" {
-		return false, fmt.Errorf(`%s is required, no value found`, pkgMonitorable.BuildMonitorableEnvKey(conf, variant, "TOKEN"))
+		return false, fmt.Errorf(`%s is required, no value found`, pkgMonitorable.BuildMonitorableEnvKey(conf, variantName, "TOKEN"))
 	}
 
 	return true, nil
 }
 
-func (m *Monitorable) Enable(variant coreModels.VariantName) {
-	conf := m.config[variant]
+func (m *Monitorable) Enable(variantName coreModels.VariantName) {
+	conf := m.config[variantName]
 
 	repository := azuredevopsRepository.NewAzureDevOpsRepository(conf)
 	usecase := azuredevopsUsecase.NewAzureDevOpsUsecase(repository)
 	delivery := azuredevopsDelivery.NewAzureDevOpsDelivery(usecase)
 
 	// EnableTile route to echo
-	routeGroup := m.store.MonitorableRouter.Group("/azuredevops", variant)
+	routeGroup := m.store.MonitorableRouter.Group("/azuredevops", variantName)
 	routeBuild := routeGroup.GET("/build", delivery.GetBuild)
 	routeRelease := routeGroup.GET("/release", delivery.GetRelease)
 

@@ -29,8 +29,8 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	m.store = store
 
 	// Register Monitorable Tile in config manager
-	m.buildTileSetting = store.TileSettingManager.Register(api.AzureDevOpsBuildTileType, versions.MinimalVersion, m.GetVariants())
-	m.releaseTileSetting = store.TileSettingManager.Register(api.AzureDevOpsReleaseTileType, versions.MinimalVersion, m.GetVariants())
+	m.buildTileSetting = store.TileSettingManager.Register(api.AzureDevOpsBuildTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.releaseTileSetting = store.TileSettingManager.Register(api.AzureDevOpsReleaseTileType, versions.MinimalVersion, m.GetVariantNames())
 
 	return m
 }
@@ -39,12 +39,12 @@ func (m *Monitorable) GetDisplayName() string {
 	return "Azure DevOps (faker)"
 }
 
-func (m *Monitorable) Enable(variant coreModels.VariantName) {
+func (m *Monitorable) Enable(variantName coreModels.VariantName) {
 	usecase := azuredevopsUsecase.NewAzureDevOpsUsecase()
 	delivery := azuredevopsDelivery.NewAzureDevOpsDelivery(usecase)
 
 	// EnableTile route to echo
-	routeGroup := m.store.MonitorableRouter.Group("/azuredevops", variant)
+	routeGroup := m.store.MonitorableRouter.Group("/azuredevops", variantName)
 	routeBuild := routeGroup.GET("/build", delivery.GetBuild)
 	routeRelease := routeGroup.GET("/release", delivery.GetRelease)
 

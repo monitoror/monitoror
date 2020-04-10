@@ -12,13 +12,13 @@ import (
 )
 
 type (
-	Variants map[models.VariantName]bool
+	VariantNames map[models.VariantName]bool
 )
 
-func initEnvAndVariant(envPrefix string, defaultVariant models.VariantName, configType reflect.Type) Variants {
+func initEnvAndVariant(envPrefix string, defaultVariant models.VariantName, configType reflect.Type) VariantNames {
 	// We need to Identify every Variant
-	variants := make(Variants)
-	variants[defaultVariant] = true
+	variantNames := make(VariantNames)
+	variantNames[defaultVariant] = true
 
 	if !strings.HasSuffix(envPrefix, "_") {
 		envPrefix = fmt.Sprintf("%s_", envPrefix)
@@ -42,21 +42,21 @@ func initEnvAndVariant(envPrefix string, defaultVariant models.VariantName, conf
 			for i := 0; i < configType.NumField(); i++ {
 				if len(splittedEnvKeyWithoutPrefix) > 1 && strings.ToUpper(configType.Field(i).Name) == splittedEnvKeyWithoutPrefix[1] {
 					// Env has a variant add it to map
-					variants[models.VariantName(strings.ToLower(splittedEnvKeyWithoutPrefix[0]))] = true
+					variantNames[models.VariantName(strings.ToLower(splittedEnvKeyWithoutPrefix[0]))] = true
 					break
 				} else if strings.ToUpper(configType.Field(i).Name) == splittedEnvKeyWithoutPrefix[0] {
 					// Env don't have variant, add default
-					addDefaultVariant(envKey, fmt.Sprintf("%s%s_%s", envPrefix, strings.ToUpper(string(defaultVariant)), envKeyWithoutPrefix), envValue)
+					addDefaultVariantToEnv(envKey, fmt.Sprintf("%s%s_%s", envPrefix, strings.ToUpper(string(defaultVariant)), envKeyWithoutPrefix), envValue)
 					break
 				}
 			}
 		}
 	}
 
-	return variants
+	return variantNames
 }
 
-func addDefaultVariant(oldEnv, newEnv, value string) {
+func addDefaultVariantToEnv(oldEnv, newEnv, value string) {
 	if _, exist := os.LookupEnv(newEnv); exist {
 		log.Warnf("Env %s can't be used as default, %s already exist", oldEnv, newEnv)
 		return

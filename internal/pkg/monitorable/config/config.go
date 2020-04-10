@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func LoadConfigWithVariant(envPrefix string, defaultVariant models.VariantName, conf interface{}, defaultConf interface{}) {
+func LoadConfigWithVariant(envPrefix string, defaultVariantName models.VariantName, conf interface{}, defaultConf interface{}) {
 	// Verify Params
 	if reflect.ValueOf(conf).Kind() != reflect.Ptr {
 		panic(fmt.Sprintf("wrong LoadConfigWithVariant parameters: conf need to be a pointer of map[string]struct not a %s", reflect.ValueOf(conf).Kind()))
@@ -37,12 +37,12 @@ func LoadConfigWithVariant(envPrefix string, defaultVariant models.VariantName, 
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	// Transform Env and define Label for setting default value
-	variants := initEnvAndVariant(envPrefix, defaultVariant, unboxedDefaultConfigType)
+	variantNames := initEnvAndVariant(envPrefix, defaultVariantName, unboxedDefaultConfigType)
 
 	// Setup default value
-	for variant := range variants {
+	for variantName := range variantNames {
 		for _, field := range structs.Fields(defaultConf) {
-			v.SetDefault(fmt.Sprintf("%s.%s", variant, field.Name()), field.Value())
+			v.SetDefault(fmt.Sprintf("%s.%s", variantName, field.Name()), field.Value())
 		}
 	}
 

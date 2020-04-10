@@ -35,7 +35,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	pkgMonitorable.LoadConfig(&m.config, pingConfig.Default)
 
 	// Register Monitorable Tile in config manager
-	m.pingTileSetting = store.TileSettingManager.Register(api.PingTileType, versions.MinimalVersion, m.GetVariants())
+	m.pingTileSetting = store.TileSettingManager.Register(api.PingTileType, versions.MinimalVersion, m.GetVariantNames())
 
 	return m
 }
@@ -44,7 +44,7 @@ func (m *Monitorable) GetDisplayName() string {
 	return "Ping"
 }
 
-func (m *Monitorable) GetVariants() []coreModels.VariantName {
+func (m *Monitorable) GetVariantNames() []coreModels.VariantName {
 	return pkgMonitorable.GetVariants(m.config)
 }
 
@@ -52,15 +52,15 @@ func (m *Monitorable) Validate(_ coreModels.VariantName) (bool, error) {
 	return system.IsRawSocketAvailable(), nil
 }
 
-func (m *Monitorable) Enable(variant coreModels.VariantName) {
-	conf := m.config[variant]
+func (m *Monitorable) Enable(variantName coreModels.VariantName) {
+	conf := m.config[variantName]
 
 	repository := pingRepository.NewPingRepository(conf)
 	usecase := pingUsecase.NewPingUsecase(repository)
 	delivery := pingDelivery.NewPingDelivery(usecase)
 
 	// EnableTile route to echo
-	routeGroup := m.store.MonitorableRouter.Group("/ping", variant)
+	routeGroup := m.store.MonitorableRouter.Group("/ping", variantName)
 	route := routeGroup.GET("/ping", delivery.GetPing)
 
 	// EnableTile data for config hydration

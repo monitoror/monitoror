@@ -36,9 +36,9 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	pkgMonitorable.LoadConfig(&m.config, httpConfig.Default)
 
 	// Register Monitorable Tile in config manager
-	m.statusTileSetting = store.TileSettingManager.Register(api.HTTPStatusTileType, versions.MinimalVersion, m.GetVariants())
-	m.rawTileSetting = store.TileSettingManager.Register(api.HTTPRawTileType, versions.MinimalVersion, m.GetVariants())
-	m.formattedTileSetting = store.TileSettingManager.Register(api.HTTPFormattedTileType, versions.MinimalVersion, m.GetVariants())
+	m.statusTileSetting = store.TileSettingManager.Register(api.HTTPStatusTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.rawTileSetting = store.TileSettingManager.Register(api.HTTPRawTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.formattedTileSetting = store.TileSettingManager.Register(api.HTTPFormattedTileType, versions.MinimalVersion, m.GetVariantNames())
 
 	return m
 }
@@ -47,7 +47,7 @@ func (m *Monitorable) GetDisplayName() string {
 	return "HTTP"
 }
 
-func (m *Monitorable) GetVariants() []coreModels.VariantName {
+func (m *Monitorable) GetVariantNames() []coreModels.VariantName {
 	return pkgMonitorable.GetVariants(m.config)
 }
 
@@ -55,15 +55,15 @@ func (m *Monitorable) Validate(_ coreModels.VariantName) (bool, error) {
 	return true, nil
 }
 
-func (m *Monitorable) Enable(variant coreModels.VariantName) {
-	conf := m.config[variant]
+func (m *Monitorable) Enable(variantName coreModels.VariantName) {
+	conf := m.config[variantName]
 
 	repository := httpRepository.NewHTTPRepository(conf)
 	usecase := httpUsecase.NewHTTPUsecase(repository, m.store.CacheStore, m.store.CoreConfig.UpstreamCacheExpiration)
 	delivery := httpDelivery.NewHTTPDelivery(usecase)
 
 	// EnableTile route to echo
-	routeGroup := m.store.MonitorableRouter.Group("/http", variant)
+	routeGroup := m.store.MonitorableRouter.Group("/http", variantName)
 	routeStatus := routeGroup.GET("/status", delivery.GetHTTPStatus)
 	routeRaw := routeGroup.GET("/raw", delivery.GetHTTPRaw)
 	routeJSON := routeGroup.GET("/formatted", delivery.GetHTTPFormatted)
