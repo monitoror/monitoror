@@ -319,6 +319,22 @@ func TestUsecase_VerifyTile_Failed(t *testing.T) {
 	}
 }
 
+func TestUsecase_VerifyTile_Failed_WrongMinimalVerison(t *testing.T) {
+	rawConfig := `{ "type": "PING", "params": { "hostname": "server.com" } }`
+
+	tile, conf := initConfig(t, rawConfig)
+	usecase := initConfigUsecase(nil)
+	usecase.registry.TileMetadata["PING"].MinimalVersion = "999.0"
+	usecase.verifyTile(conf, tile, nil)
+
+	if assert.Len(t, conf.Errors, 1) {
+		assert.Equal(t, models.ConfigErrorTileNotSupportedInThisVersion, conf.Errors[0].ID)
+		assert.Equal(t, "type", conf.Errors[0].Data.FieldName)
+		assert.Equal(t, `{"type":"PING","params":{"hostname":"server.com"},"configVariant":"default"}`, conf.Errors[0].Data.ConfigExtract)
+		assert.Equal(t, `"999.0" <= version`, conf.Errors[0].Data.Expected)
+	}
+}
+
 func TestUsecase_VerifyTile_Failed_WrongTileType(t *testing.T) {
 	rawConfig := `{ "type": "PONG", "params": { "hostname": "server.com" } }`
 
