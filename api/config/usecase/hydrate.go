@@ -132,6 +132,7 @@ func (cu *configUsecase) hydrateGeneratorTile(configBag *models.ConfigBag, tile 
 			RowSpan:       tile.RowSpan,
 		}
 
+		// Transform Tile params struct in map[string]interface{}
 		bParams, _ = json.Marshal(result.Params)
 		_ = json.Unmarshal(bParams, &newTile.Params)
 
