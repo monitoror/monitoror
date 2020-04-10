@@ -18,12 +18,11 @@ import (
 
 func initRepository(t *testing.T, buildsAPI pkgJenkins.Jenkins) *jenkinsRepository {
 	conf := &config.Jenkins{
-		URL:             "http://jenkins.example.com/",
-		Login:           "test",
-		Token:           "Test",
-		Timeout:         config.Default.Timeout,
-		SSLVerify:       config.Default.SSLVerify,
-		InitialMaxDelay: config.Default.InitialMaxDelay,
+		URL:       "http://jenkins.example.com/",
+		Login:     "test",
+		Token:     "Test",
+		Timeout:   config.Default.Timeout,
+		SSLVerify: config.Default.SSLVerify,
 	}
 
 	repository := NewJenkinsRepository(conf)

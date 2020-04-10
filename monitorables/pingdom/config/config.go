@@ -1,14 +1,11 @@
 package config
 
-import coreConfig "github.com/monitoror/monitoror/config"
-
 type (
 	Pingdom struct {
 		URL             string
 		Token           string
 		Timeout         int // In Millisecond
 		CacheExpiration int // In Millisecond
-		InitialMaxDelay int // In Millisecond
 	}
 )
 
@@ -17,5 +14,4 @@ var Default = &Pingdom{
 	Token:           "",
 	Timeout:         2000,
 	CacheExpiration: 30000,
-	InitialMaxDelay: coreConfig.DefaultInitialMaxDelay,
 }

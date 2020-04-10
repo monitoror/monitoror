@@ -14,8 +14,7 @@ import (
 
 func initRepository(t *testing.T, dialer pkgNet.Dialer) *portRepository {
 	conf := &config.Port{
-		Timeout:         1000,
-		InitialMaxDelay: 1000,
+		Timeout: 1000,
 	}
 	repository := NewPortRepository(conf)
 

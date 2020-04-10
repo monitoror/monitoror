@@ -21,7 +21,6 @@ func initRepository(t *testing.T) *githubRepository {
 		Token:                "xxx",
 		Timeout:              1000,
 		CountCacheExpiration: 10000,
-		InitialMaxDelay:      1000,
 	}
 
 	repository := NewGithubRepository(conf)

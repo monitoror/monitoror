@@ -22,10 +22,9 @@ import (
 
 func initRepository(t *testing.T, buildClient build.Client, releaseClient release.Client) *azureDevOpsRepository {
 	conf := &config.AzureDevOps{
-		URL:             "http://azure.example.com/",
-		Token:           "test",
-		Timeout:         1000,
-		InitialMaxDelay: 1000,
+		URL:     "http://azure.example.com/",
+		Token:   "test",
+		Timeout: 1000,
 	}
 
 	mockConnection := new(mocks.Connection)

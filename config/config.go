@@ -10,20 +10,21 @@ import (
 const EnvPrefix = "MO"
 const MonitorablePrefix = "MONITORABLE"
 
-const DefaultInitialMaxDelay = 1700
-
 type (
 	// Config contain backend Configuration
 	Config struct {
 		// --- General Configuration ---
-		Port int    // Default: 8080
-		Env  string // Default: production
+		Port int
+		Env  string
 
 		// --- Cache Configuration ---
 		// UpstreamCacheExpiration is used to respond before executing the request. Avoid overloading services.
 		UpstreamCacheExpiration int
 		// DownstreamCacheExpiration is used to respond after executing the request in case of timeout error.
 		DownstreamCacheExpiration int
+
+		// InitialMaxDelay is used to add delay on first methode to avoid bursting x requets in same time on start
+		InitialMaxDelay int // in Millisecond
 	}
 )
 
@@ -32,6 +33,7 @@ var defaultConfig = &Config{
 	Env:                       "production",
 	UpstreamCacheExpiration:   10000,
 	DownstreamCacheExpiration: 120000,
+	InitialMaxDelay:           1700,
 }
 
 // InitConfig from configuration file / env / default value

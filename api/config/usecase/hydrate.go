@@ -73,7 +73,7 @@ func (cu *configUsecase) hydrateTile(configBag *models.ConfigBag, tile *models.T
 	tile.URL = fmt.Sprintf("%s?%s", *variantSetting.RoutePath, urlParams.Encode())
 
 	// Add initial max delay from config
-	tile.InitialMaxDelay = variantSetting.InitialMaxDelay
+	tile.InitialMaxDelay = &cu.initialMaxDelay
 
 	// Remove Params / Variant
 	tile.Params = nil

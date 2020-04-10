@@ -30,10 +30,12 @@ type (
 		// generator tile cache. used in case of timeout
 		generatorTileStore cache.Store
 		cacheExpiration    time.Duration
+
+		initialMaxDelay int
 	}
 )
 
-func NewConfigUsecase(repository config.Repository, store cache.Store, cacheExpiration int) config.Usecase {
+func NewConfigUsecase(repository config.Repository, store *store.Store) config.Usecase {
 	tileConfigs := make(map[coreModels.TileType]map[string]*models.TileConfig)
 
 	// Used for authorized type
@@ -43,8 +45,9 @@ func NewConfigUsecase(repository config.Repository, store cache.Store, cacheExpi
 	return &configUsecase{
 		repository:         repository,
 		configData:         initConfigData(),
-		generatorTileStore: store,
-		cacheExpiration:    time.Millisecond * time.Duration(cacheExpiration),
+		generatorTileStore: store.CacheStore,
+		cacheExpiration:    time.Millisecond * time.Duration(store.CoreConfig.DownstreamCacheExpiration),
+		initialMaxDelay:    store.CoreConfig.InitialMaxDelay,
 	}
 }
 
