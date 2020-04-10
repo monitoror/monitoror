@@ -3,7 +3,6 @@
 package http
 
 import (
-	uiConfig "github.com/monitoror/monitoror/api/config"
 	"github.com/monitoror/monitoror/api/config/versions"
 	pkgMonitorable "github.com/monitoror/monitoror/internal/pkg/monitorable"
 	coreModels "github.com/monitoror/monitoror/models"
@@ -13,6 +12,7 @@ import (
 	httpRepository "github.com/monitoror/monitoror/monitorables/http/api/repository"
 	httpUsecase "github.com/monitoror/monitoror/monitorables/http/api/usecase"
 	httpConfig "github.com/monitoror/monitoror/monitorables/http/config"
+	"github.com/monitoror/monitoror/service/registry"
 	"github.com/monitoror/monitoror/service/store"
 )
 
@@ -22,9 +22,9 @@ type Monitorable struct {
 	config map[coreModels.VariantName]*httpConfig.HTTP
 
 	// Config tile settings
-	statusTileSetting    uiConfig.TileEnabler
-	rawTileSetting       uiConfig.TileEnabler
-	formattedTileSetting uiConfig.TileEnabler
+	statusTileEnabler    registry.TileEnabler
+	rawTileEnabler       registry.TileEnabler
+	formattedTileEnabler registry.TileEnabler
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
@@ -36,9 +36,9 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	pkgMonitorable.LoadConfig(&m.config, httpConfig.Default)
 
 	// Register Monitorable Tile in config manager
-	m.statusTileSetting = store.TileSettingManager.Register(api.HTTPStatusTileType, versions.MinimalVersion, m.GetVariantNames())
-	m.rawTileSetting = store.TileSettingManager.Register(api.HTTPRawTileType, versions.MinimalVersion, m.GetVariantNames())
-	m.formattedTileSetting = store.TileSettingManager.Register(api.HTTPFormattedTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.statusTileEnabler = store.Registry.RegisterTile(api.HTTPStatusTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.rawTileEnabler = store.Registry.RegisterTile(api.HTTPRawTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.formattedTileEnabler = store.Registry.RegisterTile(api.HTTPFormattedTileType, versions.MinimalVersion, m.GetVariantNames())
 
 	return m
 }
@@ -69,7 +69,7 @@ func (m *Monitorable) Enable(variantName coreModels.VariantName) {
 	routeJSON := routeGroup.GET("/formatted", delivery.GetHTTPFormatted)
 
 	// EnableTile data for config hydration
-	m.statusTileSetting.Enable(variant, &httpModels.HTTPStatusParams{}, routeStatus.Path, conf.InitialMaxDelay)
-	m.rawTileSetting.Enable(variant, &httpModels.HTTPRawParams{}, routeRaw.Path, conf.InitialMaxDelay)
-	m.formattedTileSetting.Enable(variant, &httpModels.HTTPFormattedParams{}, routeJSON.Path, conf.InitialMaxDelay)
+	m.statusTileEnabler.Enable(variantName, &httpModels.HTTPStatusParams{}, routeStatus.Path)
+	m.rawTileEnabler.Enable(variantName, &httpModels.HTTPRawParams{}, routeRaw.Path)
+	m.formattedTileEnabler.Enable(variantName, &httpModels.HTTPFormattedParams{}, routeJSON.Path)
 }

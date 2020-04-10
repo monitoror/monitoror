@@ -7,7 +7,6 @@ import (
 	"net/url"
 	"time"
 
-	uiConfig "github.com/monitoror/monitoror/api/config"
 	"github.com/monitoror/monitoror/api/config/versions"
 	pkgMonitorable "github.com/monitoror/monitoror/internal/pkg/monitorable"
 	coreModels "github.com/monitoror/monitoror/models"
@@ -18,6 +17,7 @@ import (
 	githubUsecase "github.com/monitoror/monitoror/monitorables/github/api/usecase"
 	githubConfig "github.com/monitoror/monitoror/monitorables/github/config"
 	"github.com/monitoror/monitoror/service/options"
+	"github.com/monitoror/monitoror/service/registry"
 	"github.com/monitoror/monitoror/service/store"
 )
 
@@ -27,9 +27,9 @@ type Monitorable struct {
 	config map[coreModels.VariantName]*githubConfig.Github
 
 	// Config tile settings
-	countTypeSetting       uiConfig.TileEnabler
-	checksTypeSetting      uiConfig.TileEnabler
-	pullrequestTypeSetting uiConfig.TileGeneratorEnabler
+	countTileEnabler            registry.TileEnabler
+	checksTileEnabler           registry.TileEnabler
+	pullrequestGeneratorEnabler registry.GeneratorEnabler
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
@@ -41,9 +41,9 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	pkgMonitorable.LoadConfig(&m.config, githubConfig.Default)
 
 	// Register Monitorable Tile in config manager
-	m.countTypeSetting = store.TileSettingManager.Register(api.GithubCountTileType, versions.MinimalVersion, m.GetVariantNames())
-	m.checksTypeSetting = store.TileSettingManager.Register(api.GithubChecksTileType, versions.MinimalVersion, m.GetVariantNames())
-	m.pullrequestTypeSetting = store.TileSettingManager.RegisterGenerator(api.GithubChecksTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.countTileEnabler = store.Registry.RegisterTile(api.GithubCountTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.checksTileEnabler = store.Registry.RegisterTile(api.GithubChecksTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.pullrequestGeneratorEnabler = store.Registry.RegisterGenerator(api.GithubChecksTileType, versions.MinimalVersion, m.GetVariantNames())
 
 	return m
 }
@@ -93,7 +93,7 @@ func (m *Monitorable) Enable(variantName coreModels.VariantName) {
 	routeChecks := routeGroup.GET("/checks", delivery.GetChecks)
 
 	// EnableTile data for config hydration
-	m.countTypeSetting.Enable(variant, &githubModels.CountParams{}, routeCount.Path, conf.InitialMaxDelay)
-	m.checksTypeSetting.Enable(variant, &githubModels.ChecksParams{}, routeChecks.Path, conf.InitialMaxDelay)
-	m.pullrequestTypeSetting.Enable(variant, &githubModels.PullRequestGeneratorParams{}, usecase.PullRequestsGenerator)
+	m.countTileEnabler.Enable(variantName, &githubModels.CountParams{}, routeCount.Path)
+	m.checksTileEnabler.Enable(variantName, &githubModels.ChecksParams{}, routeChecks.Path)
+	m.pullrequestGeneratorEnabler.Enable(variantName, &githubModels.PullRequestGeneratorParams{}, usecase.PullRequestsGenerator)
 }

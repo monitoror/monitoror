@@ -10,6 +10,8 @@ import (
 	"github.com/monitoror/monitoror/api/config"
 	"github.com/monitoror/monitoror/api/config/models"
 	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/service/registry"
+	"github.com/monitoror/monitoror/service/store"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 )
@@ -25,7 +27,7 @@ type (
 	configUsecase struct {
 		repository config.Repository
 
-		configData *ConfigData
+		registry *registry.MetadataRegistry
 
 		// generator tile cache. used in case of timeout
 		generatorTileStore cache.Store
@@ -44,7 +46,7 @@ func NewConfigUsecase(repository config.Repository, store *store.Store) config.U
 
 	return &configUsecase{
 		repository:         repository,
-		configData:         initConfigData(),
+		registry:           store.Registry.(*registry.MetadataRegistry),
 		generatorTileStore: store.CacheStore,
 		cacheExpiration:    time.Millisecond * time.Duration(store.CoreConfig.DownstreamCacheExpiration),
 		initialMaxDelay:    store.CoreConfig.InitialMaxDelay,

@@ -3,15 +3,14 @@
 package port
 
 import (
-	uiConfig "github.com/monitoror/monitoror/api/config"
 	"github.com/monitoror/monitoror/api/config/versions"
-	coreConfig "github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/internal/pkg/monitorable"
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/port/api"
 	portDelivery "github.com/monitoror/monitoror/monitorables/port/api/delivery/http"
 	portModels "github.com/monitoror/monitoror/monitorables/port/api/models"
 	portUsecase "github.com/monitoror/monitoror/monitorables/port/api/usecase"
+	"github.com/monitoror/monitoror/service/registry"
 	"github.com/monitoror/monitoror/service/store"
 )
 
@@ -21,7 +20,7 @@ type Monitorable struct {
 	store *store.Store
 
 	// Config tile settings
-	portTileSetting uiConfig.TileEnabler
+	portTileEnabler registry.TileEnabler
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
@@ -29,7 +28,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	m.store = store
 
 	// Register Monitorable Tile in config manager
-	m.portTileSetting = store.TileSettingManager.Register(api.PortTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.portTileEnabler = store.Registry.RegisterTile(api.PortTileType, versions.MinimalVersion, m.GetVariantNames())
 
 	return m
 }
@@ -45,5 +44,5 @@ func (m *Monitorable) Enable(variantName coreModels.VariantName) {
 	route := routeGroup.GET("/port", delivery.GetPort)
 
 	// EnableTile data for config hydration
-	m.portTileSetting.Enable(variant, &portModels.PortParams{}, route.Path, coreConfig.DefaultInitialMaxDelay)
+	m.portTileEnabler.Enable(variantName, &portModels.PortParams{}, route.Path)
 }

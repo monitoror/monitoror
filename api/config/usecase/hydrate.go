@@ -26,7 +26,7 @@ func (cu *configUsecase) hydrateTiles(configBag *models.ConfigBag, tiles *[]mode
 			}
 		}
 
-		if _, exists := cu.configData.tileGeneratorSettings[tile.Type]; !exists {
+		if _, exists := cu.registry.GeneratorMetadata[tile.Type]; !exists {
 			cu.hydrateTile(configBag, tile)
 
 			if tile.Type == GroupTileType && len(tile.Tiles) == 0 {
@@ -56,7 +56,7 @@ func (cu *configUsecase) hydrateTile(configBag *models.ConfigBag, tile *models.T
 		return
 	}
 
-	variantSetting := cu.configData.tileSettings[tile.Type].Variants[tile.ConfigVariant]
+	tileVariantMetadata := cu.registry.TileMetadata[tile.Type].VariantsMetadata[tile.ConfigVariant]
 
 	// Change Params by a valid URL
 	urlParams := url.Values{}
@@ -70,7 +70,7 @@ func (cu *configUsecase) hydrateTile(configBag *models.ConfigBag, tile *models.T
 			urlParams.Add(key, humanize.Interface(value))
 		}
 	}
-	tile.URL = fmt.Sprintf("%s?%s", *variantSetting.RoutePath, urlParams.Encode())
+	tile.URL = fmt.Sprintf("%s?%s", *tileVariantMetadata.RoutePath, urlParams.Encode())
 
 	// Add initial max delay from config
 	tile.InitialMaxDelay = &cu.initialMaxDelay
@@ -81,11 +81,11 @@ func (cu *configUsecase) hydrateTile(configBag *models.ConfigBag, tile *models.T
 }
 
 func (cu *configUsecase) hydrateGeneratorTile(configBag *models.ConfigBag, tile *models.TileConfig) []models.TileConfig {
-	tileGeneratorsetting := cu.configData.tileGeneratorSettings[tile.Type]
-	variantGeneratorSetting := tileGeneratorsetting.Variants[tile.ConfigVariant]
+	generatorMetadata := cu.registry.GeneratorMetadata[tile.Type]
+	generatorVariantMetadata := generatorMetadata.VariantsMetadata[tile.ConfigVariant]
 
 	// Create new validator by reflexion
-	rType := reflect.TypeOf(variantGeneratorSetting.GeneratorParamsValidator)
+	rType := reflect.TypeOf(generatorVariantMetadata.GeneratorParamsValidator)
 	rInstance := reflect.New(rType.Elem()).Interface()
 
 	// Marshal / Unmarshal the map[string]interface{} struct in new instance of Validator
@@ -94,7 +94,7 @@ func (cu *configUsecase) hydrateGeneratorTile(configBag *models.ConfigBag, tile 
 
 	// Call builder and add inherited value from generator tile
 	cacheKey := fmt.Sprintf("%s:%s_%s_%s", TileGeneratorStoreKeyPrefix, tile.Type, tile.ConfigVariant, string(bParams))
-	results, err := variantGeneratorSetting.GeneratorFunction(rInstance)
+	results, err := generatorVariantMetadata.GeneratorFunction(rInstance)
 	if err != nil {
 		if os.IsTimeout(err) {
 			// Get previous value in cache
@@ -124,7 +124,7 @@ func (cu *configUsecase) hydrateGeneratorTile(configBag *models.ConfigBag, tile 
 	var tiles []models.TileConfig
 	for _, result := range results {
 		newTile := models.TileConfig{
-			Type:          tileGeneratorsetting.GeneratedTileType,
+			Type:          generatorMetadata.GeneratedTileType,
 			Label:         result.Label,
 			Params:        make(map[string]interface{}),
 			ConfigVariant: tile.ConfigVariant,

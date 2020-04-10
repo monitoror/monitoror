@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/url"
 
-	uiConfig "github.com/monitoror/monitoror/api/config"
 	"github.com/monitoror/monitoror/api/config/versions"
 	pkgMonitorable "github.com/monitoror/monitoror/internal/pkg/monitorable"
 	coreModels "github.com/monitoror/monitoror/models"
@@ -16,6 +15,7 @@ import (
 	azuredevopsRepository "github.com/monitoror/monitoror/monitorables/azuredevops/api/repository"
 	azuredevopsUsecase "github.com/monitoror/monitoror/monitorables/azuredevops/api/usecase"
 	azuredevopsConfig "github.com/monitoror/monitoror/monitorables/azuredevops/config"
+	"github.com/monitoror/monitoror/service/registry"
 	"github.com/monitoror/monitoror/service/store"
 )
 
@@ -25,8 +25,8 @@ type Monitorable struct {
 	config map[coreModels.VariantName]*azuredevopsConfig.AzureDevOps
 
 	// Config tile settings
-	buildTileSetting   uiConfig.TileEnabler
-	releaseTileSetting uiConfig.TileEnabler
+	buildTileEnabler   registry.TileEnabler
+	releaseTileEnabler registry.TileEnabler
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
@@ -38,8 +38,8 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	pkgMonitorable.LoadConfig(&m.config, azuredevopsConfig.Default)
 
 	// Register Monitorable Tile in config manager
-	m.buildTileSetting = store.TileSettingManager.Register(api.AzureDevOpsBuildTileType, versions.MinimalVersion, m.GetVariantNames())
-	m.releaseTileSetting = store.TileSettingManager.Register(api.AzureDevOpsReleaseTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.buildTileEnabler = store.Registry.RegisterTile(api.AzureDevOpsBuildTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.releaseTileEnabler = store.Registry.RegisterTile(api.AzureDevOpsReleaseTileType, versions.MinimalVersion, m.GetVariantNames())
 
 	return m
 }
@@ -86,6 +86,6 @@ func (m *Monitorable) Enable(variantName coreModels.VariantName) {
 	routeRelease := routeGroup.GET("/release", delivery.GetRelease)
 
 	// EnableTile data for config hydration
-	m.buildTileSetting.Enable(variant, &azuredevopsModels.BuildParams{}, routeBuild.Path, conf.InitialMaxDelay)
-	m.releaseTileSetting.Enable(variant, &azuredevopsModels.ReleaseParams{}, routeRelease.Path, conf.InitialMaxDelay)
+	m.buildTileEnabler.Enable(variantName, &azuredevopsModels.BuildParams{}, routeBuild.Path)
+	m.releaseTileEnabler.Enable(variantName, &azuredevopsModels.ReleaseParams{}, routeRelease.Path)
 }

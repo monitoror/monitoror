@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/url"
 
-	uiConfig "github.com/monitoror/monitoror/api/config"
 	"github.com/monitoror/monitoror/api/config/versions"
 	pkgMonitorable "github.com/monitoror/monitoror/internal/pkg/monitorable"
 	coreModels "github.com/monitoror/monitoror/models"
@@ -16,6 +15,7 @@ import (
 	jenkinsRepository "github.com/monitoror/monitoror/monitorables/jenkins/api/repository"
 	jenkinsUsecase "github.com/monitoror/monitoror/monitorables/jenkins/api/usecase"
 	jenkinsConfig "github.com/monitoror/monitoror/monitorables/jenkins/config"
+	"github.com/monitoror/monitoror/service/registry"
 	"github.com/monitoror/monitoror/service/store"
 )
 
@@ -25,8 +25,8 @@ type Monitorable struct {
 	config map[coreModels.VariantName]*jenkinsConfig.Jenkins
 
 	// Config tile settings
-	buildTileSetting          uiConfig.TileEnabler
-	buildGeneratorTileSetting uiConfig.TileGeneratorEnabler
+	buildTileEnabler      registry.TileEnabler
+	buildGeneratorEnabler registry.GeneratorEnabler
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
@@ -38,8 +38,8 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	pkgMonitorable.LoadConfig(&m.config, jenkinsConfig.Default)
 
 	// Register Monitorable Tile in config manager
-	m.buildTileSetting = store.TileSettingManager.Register(api.JenkinsBuildTileType, versions.MinimalVersion, m.GetVariantNames())
-	m.buildGeneratorTileSetting = store.TileSettingManager.RegisterGenerator(api.JenkinsBuildTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.buildTileEnabler = store.Registry.RegisterTile(api.JenkinsBuildTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.buildGeneratorEnabler = store.Registry.RegisterGenerator(api.JenkinsBuildTileType, versions.MinimalVersion, m.GetVariantNames())
 
 	return m
 }
@@ -80,6 +80,6 @@ func (m *Monitorable) Enable(variantName coreModels.VariantName) {
 	route := routeGroup.GET("/build", delivery.GetBuild)
 
 	// EnableTile data for config hydration
-	m.buildTileSetting.Enable(variant, &jenkinsModels.BuildParams{}, route.Path, conf.InitialMaxDelay)
-	m.buildGeneratorTileSetting.Enable(variant, &jenkinsModels.BuildGeneratorParams{}, usecase.BuildGenerator)
+	m.buildTileEnabler.Enable(variantName, &jenkinsModels.BuildParams{}, route.Path)
+	m.buildGeneratorEnabler.Enable(variantName, &jenkinsModels.BuildGeneratorParams{}, usecase.BuildGenerator)
 }

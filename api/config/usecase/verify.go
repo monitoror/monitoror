@@ -8,6 +8,7 @@ import (
 	"github.com/monitoror/monitoror/api/config/models"
 	"github.com/monitoror/monitoror/api/config/versions"
 	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/service/registry"
 )
 
 func (cu *configUsecase) Verify(configBag *models.ConfigBag) {
@@ -193,75 +194,58 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 		tile.ConfigVariant = coreModels.DefaultVariant
 	}
 
-	// Get the validator for current tile
-	// - for normal tile, the validator is register in tileSettings
-	// - for generator tile, the validator is register in tileGeneratorSettings
-	var variant Variant
+	// Get the metadataExplorer for current tile
+	var metadataExplorer registry.TileMetadataExplorer
+	var exists bool
 	if tile.Type.IsGenerator() {
 		// This tile type is a generator tile type
-		tileGeneratorSetting, exists := cu.configData.tileGeneratorSettings[tile.Type]
+		metadataExplorer, exists = cu.registry.GeneratorMetadata[tile.Type]
 		if !exists {
 			configBag.AddErrors(models.ConfigError{
 				ID:      models.ConfigErrorUnknownGeneratorTileType,
-				Message: fmt.Sprintf(`Unknown %q generator type in tile definition. Must be %s`, tile.Type, keys(cu.configData.tileGeneratorSettings)),
+				Message: fmt.Sprintf(`Unknown %q generator type in tile definition. Must be %s`, tile.Type, keys(cu.registry.GeneratorMetadata)),
 				Data: models.ConfigErrorData{
 					FieldName:     "type",
 					ConfigExtract: stringify(tile),
-					Expected:      keys(cu.configData.tileGeneratorSettings),
-				},
-			})
-			return
-		}
-
-		variant, exists = tileGeneratorSetting.Variants[tile.ConfigVariant]
-		if !exists {
-			configBag.AddErrors(models.ConfigError{
-				ID: models.ConfigErrorUnknownVariant,
-				Message: fmt.Sprintf(`Unknown %q variant for %s type in tile definition. Must be %s`,
-					tile.ConfigVariant, tile.Type, keys(tileGeneratorSetting.Variants)),
-				Data: models.ConfigErrorData{
-					FieldName:     "configVariant",
-					Value:         stringify(tile.ConfigVariant),
-					Expected:      keys(tileGeneratorSetting.Variants),
-					ConfigExtract: stringify(tile),
+					Expected:      keys(cu.registry.GeneratorMetadata),
 				},
 			})
 			return
 		}
 	} else {
 		// This tile type is a normal tile type
-		tileSetting, exists := cu.configData.tileSettings[tile.Type]
+		metadataExplorer, exists = cu.registry.TileMetadata[tile.Type]
 		if !exists {
 			configBag.AddErrors(models.ConfigError{
 				ID:      models.ConfigErrorUnknownTileType,
-				Message: fmt.Sprintf(`Unknown %q generator type in tile definition. Must be %s`, tile.Type, keys(cu.configData.tileSettings)),
+				Message: fmt.Sprintf(`Unknown %q generator type in tile definition. Must be %s`, tile.Type, keys(cu.registry.TileMetadata)),
 				Data: models.ConfigErrorData{
 					FieldName:     "type",
 					ConfigExtract: stringify(tile),
-					Expected:      keys(cu.configData.tileSettings),
-				},
-			})
-			return
-		}
-
-		variant, exists = tileSetting.Variants[tile.ConfigVariant]
-		if !exists {
-			configBag.AddErrors(models.ConfigError{
-				ID: models.ConfigErrorUnknownVariant,
-				Message: fmt.Sprintf(`Unknown %q variant for %s type in tile definition. Must be %s`,
-					tile.ConfigVariant, tile.Type, keys(tileSetting.Variants)),
-				Data: models.ConfigErrorData{
-					FieldName:     "configVariant",
-					Value:         stringify(tile.ConfigVariant),
-					Expected:      keys(tileSetting.Variants),
-					ConfigExtract: stringify(tile),
+					Expected:      keys(cu.registry.TileMetadata),
 				},
 			})
 			return
 		}
 	}
 
-	if !variant.IsEnabled() {
+	variantMetadataExplorer, exists := metadataExplorer.GetVariant(tile.ConfigVariant)
+	if !exists {
+		configBag.AddErrors(models.ConfigError{
+			ID: models.ConfigErrorUnknownVariant,
+			Message: fmt.Sprintf(`Unknown %q variant for %s type in tile definition. Must be %s`,
+				tile.ConfigVariant, tile.Type, stringify(metadataExplorer.GetVariantNames())),
+			Data: models.ConfigErrorData{
+				FieldName:     "configVariant",
+				Value:         stringify(tile.ConfigVariant),
+				Expected:      stringify(metadataExplorer.GetVariantNames()),
+				ConfigExtract: stringify(tile),
+			},
+		})
+		return
+	}
+
+	if !variantMetadataExplorer.IsEnabled() {
 		configBag.AddErrors(models.ConfigError{
 			ID:      models.ConfigErrorDisabledVariant,
 			Message: fmt.Sprintf(`Variant %q is disabled for %s type. Check errors on the server side for the reason`, tile.ConfigVariant, tile.Type),
@@ -287,7 +271,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 	}
 
 	// Create new validator by reflexion
-	rType := reflect.TypeOf(variant.GetValidator())
+	rType := reflect.TypeOf(variantMetadataExplorer.GetValidator())
 	rInstance := reflect.New(rType.Elem()).Interface()
 
 	// Marshal / Unmarshal the map[string]interface{} struct in new instance of ParamsValidator

@@ -38,7 +38,7 @@ func TestUsecase_Verify_Success(t *testing.T) {
 
 	conf, err := readConfig(rawConfig)
 	if assert.NoError(t, err) {
-		usecase := initConfigUsecase(nil, nil)
+		usecase := initConfigUsecase(nil)
 		usecase.Verify(conf)
 
 		assert.Len(t, conf.Errors, 0)
@@ -60,7 +60,7 @@ func TestUsecase_Verify_SuccessWithOptionalParameters(t *testing.T) {
 	conf, err := readConfig(rawConfig)
 
 	if assert.NoError(t, err) {
-		usecase := initConfigUsecase(nil, nil)
+		usecase := initConfigUsecase(nil)
 		usecase.Verify(conf)
 
 		assert.Len(t, conf.Errors, 0)
@@ -148,7 +148,7 @@ func TestUsecase_Verify_Failed(t *testing.T) {
 	} {
 		conf, err := readConfig(testcase.rawConfig)
 		if assert.NoError(t, err) {
-			usecase := initConfigUsecase(nil, nil)
+			usecase := initConfigUsecase(nil)
 			usecase.Verify(conf)
 			if assert.Len(t, conf.Errors, 1) {
 				assert.Equal(t, testcase.errorID, conf.Errors[0].ID)
@@ -162,7 +162,7 @@ func TestUsecase_VerifyTile_Success(t *testing.T) {
 	rawConfig := `{ "type": "PORT", "columnSpan": 2, "rowSpan": 2, "params": { "hostname": "bserver.com", "port": 22 } }`
 
 	tile, conf := initConfig(t, rawConfig)
-	usecase := initConfigUsecase(nil, nil)
+	usecase := initConfigUsecase(nil)
 	usecase.verifyTile(conf, tile, nil)
 
 	assert.Len(t, conf.Errors, 0)
@@ -172,7 +172,7 @@ func TestUsecase_VerifyTile_Success_Empty(t *testing.T) {
 	rawConfig := `{ "type": "EMPTY" }`
 
 	tile, conf := initConfig(t, rawConfig)
-	usecase := initConfigUsecase(nil, nil)
+	usecase := initConfigUsecase(nil)
 	usecase.verifyTile(conf, tile, nil)
 
 	assert.Len(t, conf.Errors, 0)
@@ -187,7 +187,7 @@ func TestUsecase_VerifyTile_Success_Group(t *testing.T) {
 `
 
 	tile, conf := initConfig(t, rawConfig)
-	usecase := initConfigUsecase(nil, nil)
+	usecase := initConfigUsecase(nil)
 	usecase.verifyTile(conf, tile, nil)
 
 	assert.Len(t, conf.Errors, 0)
@@ -309,7 +309,7 @@ func TestUsecase_VerifyTile_Failed(t *testing.T) {
 		},
 	} {
 		tile, conf := initConfig(t, testcase.rawConfig)
-		usecase := initConfigUsecase(nil, nil)
+		usecase := initConfigUsecase(nil)
 		usecase.verifyTile(conf, tile, nil)
 
 		if assert.Len(t, conf.Errors, 1) {
@@ -323,7 +323,7 @@ func TestUsecase_VerifyTile_Failed_WrongTileType(t *testing.T) {
 	rawConfig := `{ "type": "PONG", "params": { "hostname": "server.com" } }`
 
 	tile, conf := initConfig(t, rawConfig)
-	usecase := initConfigUsecase(nil, nil)
+	usecase := initConfigUsecase(nil)
 	usecase.verifyTile(conf, tile, nil)
 
 	if assert.Len(t, conf.Errors, 1) {
@@ -342,8 +342,8 @@ func TestUsecase_VerifyTile_WithGenerator(t *testing.T) {
 		return []models.GeneratedTile{{Params: params}}, nil
 	}
 
-	usecase := initConfigUsecase(nil, nil)
-	usecase.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
+	usecase := initConfigUsecase(nil)
+	usecase.registry.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
 		Enable(coreModels.DefaultVariant, &jenkinsModels.BuildGeneratorParams{}, mockBuilder)
 	usecase.verifyTile(conf, tile, nil)
 
@@ -354,8 +354,8 @@ func TestUsecase_VerifyTile_WithGenerator_WithWrongGenerator(t *testing.T) {
 	rawConfig := `{ "type": "GENERATE:PING", "params": {}}`
 
 	tile, conf := initConfig(t, rawConfig)
-	usecase := initConfigUsecase(nil, nil)
-	usecase.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
+	usecase := initConfigUsecase(nil)
+	usecase.registry.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
 		Enable(coreModels.DefaultVariant, &jenkinsModels.BuildGeneratorParams{}, nil)
 
 	usecase.verifyTile(conf, tile, nil)
@@ -373,7 +373,7 @@ func TestUsecase_VerifyTile_WithWrongVariant(t *testing.T) {
 
 	tile, conf := initConfig(t, rawConfig)
 
-	usecase := initConfigUsecase(nil, nil)
+	usecase := initConfigUsecase(nil)
 	usecase.verifyTile(conf, tile, nil)
 
 	if assert.Len(t, conf.Errors, 1) {
@@ -395,8 +395,8 @@ func TestUsecase_VerifyTile_WithGenerator_WithWrongVariant(t *testing.T) {
 		return []models.GeneratedTile{{Params: params}}, nil
 	}
 
-	usecase := initConfigUsecase(nil, nil)
-	usecase.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
+	usecase := initConfigUsecase(nil)
+	usecase.registry.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
 		Enable(coreModels.DefaultVariant, &jenkinsModels.BuildGeneratorParams{}, mockBuilder)
 	usecase.verifyTile(conf, tile, nil)
 

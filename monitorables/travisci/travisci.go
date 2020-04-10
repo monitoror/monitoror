@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/url"
 
-	uiConfig "github.com/monitoror/monitoror/api/config"
 	"github.com/monitoror/monitoror/api/config/versions"
 	pkgMonitorable "github.com/monitoror/monitoror/internal/pkg/monitorable"
 
@@ -18,6 +17,7 @@ import (
 	travisciRepository "github.com/monitoror/monitoror/monitorables/travisci/api/repository"
 	travisciUsecase "github.com/monitoror/monitoror/monitorables/travisci/api/usecase"
 	travisciConfig "github.com/monitoror/monitoror/monitorables/travisci/config"
+	"github.com/monitoror/monitoror/service/registry"
 	"github.com/monitoror/monitoror/service/store"
 )
 
@@ -27,7 +27,7 @@ type Monitorable struct {
 	config map[coreModels.VariantName]*travisciConfig.TravisCI
 
 	// Config tile settings
-	buildTileSetting uiConfig.TileEnabler
+	buildTileEnabler registry.TileEnabler
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
@@ -39,7 +39,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	pkgMonitorable.LoadConfig(&m.config, travisciConfig.Default)
 
 	// Register Monitorable Tile in config manager
-	m.buildTileSetting = store.TileSettingManager.Register(api.TravisCIBuildTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.buildTileEnabler = store.Registry.RegisterTile(api.TravisCIBuildTileType, versions.MinimalVersion, m.GetVariantNames())
 
 	return m
 }
@@ -74,5 +74,5 @@ func (m *Monitorable) Enable(variantName coreModels.VariantName) {
 	route := routeGroup.GET("/build", delivery.GetBuild)
 
 	// EnableTile data for config hydration
-	m.buildTileSetting.Enable(variant, &travisciModels.BuildParams{}, route.Path, conf.InitialMaxDelay)
+	m.buildTileEnabler.Enable(variantName, &travisciModels.BuildParams{}, route.Path)
 }

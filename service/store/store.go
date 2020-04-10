@@ -1,10 +1,10 @@
 package store
 
 import (
-	uiConfig "github.com/monitoror/monitoror/api/config"
 	"github.com/monitoror/monitoror/cli"
 	coreConfig "github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/service/middlewares"
+	"github.com/monitoror/monitoror/service/registry"
 	"github.com/monitoror/monitoror/service/router"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
@@ -27,7 +27,7 @@ type (
 		// MonitorableRouter helper wrapping echo Router monitorable
 		MonitorableRouter router.MonitorableRouter
 
-		// MonitorableConfigManager used to register Tile for verify / hydrate
-		TileSettingManager uiConfig.TileSettingManager
+		// Registry used to register Tile for verify / hydrate
+		Registry registry.Registry
 	}
 )

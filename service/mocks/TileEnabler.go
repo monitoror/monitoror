@@ -14,7 +14,7 @@ type TileEnabler struct {
 	mock.Mock
 }
 
-// Enable provides a mock function with given fields: variant, paramsValidator, routePath, initialMaxDelay
-func (_m *TileEnabler) Enable(variant models.VariantName, paramsValidator configmodels.ParamsValidator, routePath string, initialMaxDelay int) {
-	_m.Called(variant, paramsValidator, routePath, initialMaxDelay)
+// Enable provides a mock function with given fields: variantName, paramsValidator, routePath
+func (_m *TileEnabler) Enable(variantName models.VariantName, paramsValidator configmodels.ParamsValidator, routePath string) {
+	_m.Called(variantName, paramsValidator, routePath)
 }

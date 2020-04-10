@@ -3,15 +3,14 @@
 package pingdom
 
 import (
-	uiConfig "github.com/monitoror/monitoror/api/config"
 	"github.com/monitoror/monitoror/api/config/versions"
-	coreConfig "github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/internal/pkg/monitorable"
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/pingdom/api"
 	pingdomDelivery "github.com/monitoror/monitoror/monitorables/pingdom/api/delivery/http"
 	pingdomModels "github.com/monitoror/monitoror/monitorables/pingdom/api/models"
 	pingdomUsecase "github.com/monitoror/monitoror/monitorables/pingdom/api/usecase"
+	"github.com/monitoror/monitoror/service/registry"
 	"github.com/monitoror/monitoror/service/store"
 )
 
@@ -21,7 +20,7 @@ type Monitorable struct {
 	store *store.Store
 
 	// Config tile settings
-	checkTileSetting uiConfig.TileEnabler
+	checkTileEnabler registry.TileEnabler
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
@@ -29,7 +28,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	m.store = store
 
 	// Register Monitorable Tile in config manager
-	m.checkTileSetting = store.TileSettingManager.Register(api.PingdomCheckTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.checkTileEnabler = store.Registry.RegisterTile(api.PingdomCheckTileType, versions.MinimalVersion, m.GetVariantNames())
 
 	return m
 }
@@ -45,5 +44,5 @@ func (m *Monitorable) Enable(variantName coreModels.VariantName) {
 	route := routeGroup.GET("/pingdom", delivery.GetCheck)
 
 	// EnableTile data for config hydration
-	m.checkTileSetting.Enable(variant, &pingdomModels.CheckParams{}, route.Path, coreConfig.DefaultInitialMaxDelay)
+	m.checkTileEnabler.Enable(variantName, &pingdomModels.CheckParams{}, route.Path)
 }

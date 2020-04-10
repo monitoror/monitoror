@@ -3,15 +3,14 @@
 package ping
 
 import (
-	uiConfig "github.com/monitoror/monitoror/api/config"
 	"github.com/monitoror/monitoror/api/config/versions"
-	coreConfig "github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/internal/pkg/monitorable"
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/ping/api"
 	pingDelivery "github.com/monitoror/monitoror/monitorables/ping/api/delivery/http"
 	pingModels "github.com/monitoror/monitoror/monitorables/ping/api/models"
 	pingUsecase "github.com/monitoror/monitoror/monitorables/ping/api/usecase"
+	"github.com/monitoror/monitoror/service/registry"
 	"github.com/monitoror/monitoror/service/store"
 )
 
@@ -21,7 +20,7 @@ type Monitorable struct {
 	store *store.Store
 
 	// Config tile settings
-	pingTileSetting uiConfig.TileEnabler
+	pingTileEnabler registry.TileEnabler
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
@@ -29,7 +28,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	m.store = store
 
 	// Register Monitorable Tile in config manager
-	m.pingTileSetting = store.TileSettingManager.Register(api.PingTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.pingTileEnabler = store.Registry.RegisterTile(api.PingTileType, versions.MinimalVersion, m.GetVariantNames())
 
 	return m
 }
@@ -45,5 +44,5 @@ func (m *Monitorable) Enable(variantName coreModels.VariantName) {
 	route := routeGroup.GET("/ping", delivery.GetPing)
 
 	// EnableTile data for config hydration
-	m.pingTileSetting.Enable(variant, &pingModels.PingParams{}, route.Path, coreConfig.DefaultInitialMaxDelay)
+	m.pingTileEnabler.Enable(variantName, &pingModels.PingParams{}, route.Path)
 }

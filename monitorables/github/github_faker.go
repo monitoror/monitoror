@@ -3,15 +3,14 @@
 package github
 
 import (
-	uiConfig "github.com/monitoror/monitoror/api/config"
 	"github.com/monitoror/monitoror/api/config/versions"
-	coreConfig "github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/internal/pkg/monitorable"
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/github/api"
 	githubDelivery "github.com/monitoror/monitoror/monitorables/github/api/delivery/http"
 	githubModels "github.com/monitoror/monitoror/monitorables/github/api/models"
 	githubUsecase "github.com/monitoror/monitoror/monitorables/github/api/usecase"
+	"github.com/monitoror/monitoror/service/registry"
 	"github.com/monitoror/monitoror/service/store"
 )
 
@@ -21,8 +20,8 @@ type Monitorable struct {
 	store *store.Store
 
 	// Config tile settings
-	countTypeSetting  uiConfig.TileEnabler
-	checksTypeSetting uiConfig.TileEnabler
+	countTileEnabler  registry.TileEnabler
+	checksTileEnabler registry.TileEnabler
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
@@ -30,8 +29,8 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	m.store = store
 
 	// Register Monitorable Tile in config manager
-	m.countTypeSetting = store.TileSettingManager.Register(api.GithubCountTileType, versions.MinimalVersion, m.GetVariantNames())
-	m.checksTypeSetting = store.TileSettingManager.Register(api.GithubChecksTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.countTileEnabler = store.Registry.RegisterTile(api.GithubCountTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.checksTileEnabler = store.Registry.RegisterTile(api.GithubChecksTileType, versions.MinimalVersion, m.GetVariantNames())
 
 	return m
 }
@@ -50,6 +49,6 @@ func (m *Monitorable) Enable(variantName coreModels.VariantName) {
 	routeChecks := routeGroup.GET("/checks", delivery.GetChecks)
 
 	// EnableTile data for config hydration
-	m.countTypeSetting.Enable(variant, &githubModels.CountParams{}, routeCount.Path, coreConfig.DefaultInitialMaxDelay)
-	m.checksTypeSetting.Enable(variant, &githubModels.ChecksParams{}, routeChecks.Path, coreConfig.DefaultInitialMaxDelay)
+	m.countTileEnabler.Enable(variantName, &githubModels.CountParams{}, routeCount.Path)
+	m.checksTileEnabler.Enable(variantName, &githubModels.ChecksParams{}, routeChecks.Path)
 }

@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"net/url"
 
-	uiConfig "github.com/monitoror/monitoror/api/config"
 	"github.com/monitoror/monitoror/api/config/versions"
 	pkgMonitorable "github.com/monitoror/monitoror/internal/pkg/monitorable"
+	"github.com/monitoror/monitoror/service/registry"
 
 	coreModels "github.com/monitoror/monitoror/models"
 
@@ -27,8 +27,8 @@ type Monitorable struct {
 	config map[coreModels.VariantName]*pingdomConfig.Pingdom
 
 	// Config tile settings
-	checkTileSetting          uiConfig.TileEnabler
-	checkGeneratorTileSetting uiConfig.TileGeneratorEnabler
+	checkTileEnabler      registry.TileEnabler
+	checkGeneratorEnabler registry.GeneratorEnabler
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
@@ -40,8 +40,8 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	pkgMonitorable.LoadConfig(&m.config, pingdomConfig.Default)
 
 	// Register Monitorable Tile in config manager
-	m.checkTileSetting = store.TileSettingManager.Register(api.PingdomCheckTileType, versions.MinimalVersion, m.GetVariantNames())
-	m.checkGeneratorTileSetting = store.TileSettingManager.RegisterGenerator(api.PingdomCheckTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.checkTileEnabler = store.Registry.RegisterTile(api.PingdomCheckTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.checkGeneratorEnabler = store.Registry.RegisterGenerator(api.PingdomCheckTileType, versions.MinimalVersion, m.GetVariantNames())
 
 	return m
 }
@@ -87,6 +87,6 @@ func (m *Monitorable) Enable(variantName coreModels.VariantName) {
 	route := routeGroup.GET("/pingdom", delivery.GetCheck)
 
 	// EnableTile data for config hydration
-	m.checkTileSetting.Enable(variant, &pingdomModels.CheckParams{}, route.Path, conf.InitialMaxDelay)
-	m.checkGeneratorTileSetting.Enable(variant, &pingdomModels.CheckGeneratorParams{}, usecase.CheckGenerator)
+	m.checkTileEnabler.Enable(variantName, &pingdomModels.CheckParams{}, route.Path)
+	m.checkGeneratorEnabler.Enable(variantName, &pingdomModels.CheckGeneratorParams{}, usecase.CheckGenerator)
 }
