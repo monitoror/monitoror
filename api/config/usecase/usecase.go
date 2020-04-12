@@ -1,10 +1,6 @@
 package usecase
 
 import (
-	"encoding/json"
-	"fmt"
-	"reflect"
-	"strings"
 	"time"
 
 	"github.com/monitoror/monitoror/api/config"
@@ -51,21 +47,4 @@ func NewConfigUsecase(repository config.Repository, store *store.Store) config.U
 		cacheExpiration:    time.Millisecond * time.Duration(store.CoreConfig.DownstreamCacheExpiration),
 		initialMaxDelay:    store.CoreConfig.InitialMaxDelay,
 	}
-}
-
-// --- Utility functions ---
-func keys(m interface{}) string {
-	keys := reflect.ValueOf(m).MapKeys()
-	strKeys := make([]string, len(keys))
-
-	for i := 0; i < len(keys); i++ {
-		strKeys[i] = fmt.Sprintf(`%v`, keys[i])
-	}
-
-	return strings.Join(strKeys, ", ")
-}
-
-func stringify(v interface{}) string {
-	bytes, _ := json.Marshal(v)
-	return string(bytes)
 }

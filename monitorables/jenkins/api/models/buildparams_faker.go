@@ -28,10 +28,12 @@ type (
 )
 
 func (p *BuildParams) Validate(_ *uiConfigModels.ConfigVersion) *uiConfigModels.ConfigError {
-	// TODO
-
 	if p.Job == "" {
-		return &uiConfigModels.ConfigError{}
+		return &uiConfigModels.ConfigError{
+			ID:      uiConfigModels.ConfigErrorMissingRequiredField,
+			Message: fmt.Sprintf(`Required "job" field is missing.`),
+			Data:    uiConfigModels.ConfigErrorData{FieldName: "job"},
+		}
 	}
 
 	return nil

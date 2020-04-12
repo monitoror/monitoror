@@ -18,21 +18,24 @@ type (
 )
 
 func (p *HTTPRawParams) Validate(_ *uiConfigModels.ConfigVersion) *uiConfigModels.ConfigError {
-	// TODO
-
-	if !isValid(p.URL, p) {
-		return &uiConfigModels.ConfigError{}
+	if err := validateURL(p); err != nil {
+		return err
 	}
 
-	if !isValidRegex(p) {
-		return &uiConfigModels.ConfigError{}
+	if err := validateStatusCode(p); err != nil {
+		return err
+	}
+
+	if err := validateRegex(p); err != nil {
+		return err
 	}
 
 	return nil
 }
 
+func (p *HTTPRawParams) GetURL() (url string) { return p.URL }
 func (p *HTTPRawParams) GetStatusCodes() (min int, max int) {
-	return getStatusCodes(p.StatusCodeMin, p.StatusCodeMax)
+	return getStatusCodesWithDefault(p.StatusCodeMin, p.StatusCodeMax)
 }
 
 func (p *HTTPRawParams) GetRegex() string          { return p.Regex }

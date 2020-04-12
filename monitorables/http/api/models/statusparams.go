@@ -15,15 +15,18 @@ type (
 )
 
 func (p *HTTPStatusParams) Validate(_ *uiConfigModels.ConfigVersion) *uiConfigModels.ConfigError {
-	// TODO
+	if err := validateURL(p); err != nil {
+		return err
+	}
 
-	if !isValid(p.URL, p) {
-		return &uiConfigModels.ConfigError{}
+	if err := validateStatusCode(p); err != nil {
+		return err
 	}
 
 	return nil
 }
 
+func (p *HTTPStatusParams) GetURL() (url string) { return p.URL }
 func (p *HTTPStatusParams) GetStatusCodes() (min int, max int) {
-	return getStatusCodes(p.StatusCodeMin, p.StatusCodeMax)
+	return getStatusCodesWithDefault(p.StatusCodeMin, p.StatusCodeMax)
 }

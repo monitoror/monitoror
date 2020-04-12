@@ -8,6 +8,7 @@ import (
 	"reflect"
 
 	"github.com/monitoror/monitoror/api/config/models"
+	pkgConfig "github.com/monitoror/monitoror/internal/pkg/api/config"
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/pkg/humanize"
 )
@@ -103,7 +104,7 @@ func (cu *configUsecase) hydrateGeneratorTile(configBag *models.ConfigBag, tile 
 					ID:      models.ConfigErrorUnableToHydrate,
 					Message: fmt.Sprintf(`Error while generating %s tiles (params: %s). Timeout or host unreachable`, tile.Type, string(bParams)),
 					Data: models.ConfigErrorData{
-						ConfigExtract: stringify(tile),
+						ConfigExtract: pkgConfig.Stringify(tile),
 					},
 				})
 			}
@@ -112,7 +113,7 @@ func (cu *configUsecase) hydrateGeneratorTile(configBag *models.ConfigBag, tile 
 				ID:      models.ConfigErrorUnableToHydrate,
 				Message: fmt.Sprintf(`Error while generating %s tiles (params: %s). %v`, tile.Type, string(bParams), err),
 				Data: models.ConfigErrorData{
-					ConfigExtract: stringify(tile),
+					ConfigExtract: pkgConfig.Stringify(tile),
 				},
 			})
 		}

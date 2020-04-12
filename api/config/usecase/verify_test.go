@@ -275,10 +275,10 @@ func TestUsecase_VerifyTile_Failed(t *testing.T) {
 		},
 		{
 			rawConfig: `{ "type": "PING", "params": { } }`,
-			errorID:   models.ConfigErrorInvalidFieldValue,
+			errorID:   models.ConfigErrorMissingRequiredField,
 			errorData: models.ConfigErrorData{
-				FieldName:     "params",
-				ConfigExtract: `{"type":"PING","configVariant":"default"}`,
+				FieldName:     "hostname",
+				ConfigExtract: `{"type":"PING","configVariant":"default","params":{}}`,
 			},
 		},
 		{

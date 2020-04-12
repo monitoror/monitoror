@@ -143,7 +143,7 @@ func Test_httpHttpDelivery_GetHttp_Error(t *testing.T) {
 	for _, testcase := range testcases {
 		ctx, _ := initEcho()
 		ctx.QueryParams().Set("url", "http://monitoror.example.com")
-		ctx.QueryParams().Set("format", models.JSONFormat)
+		ctx.QueryParams().Set("format", string(models.JSONFormat))
 		ctx.QueryParams().Set("regex", "(.*)")
 		ctx.QueryParams().Set("key", "key")
 
