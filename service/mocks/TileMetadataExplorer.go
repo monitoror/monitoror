@@ -52,8 +52,8 @@ func (_m *TileMetadataExplorer) GetVariant(variantName monitorormodels.VariantNa
 	return r0, r1
 }
 
-// GetVariantNames provides a mock function with given fields:
-func (_m *TileMetadataExplorer) GetVariantNames() []monitorormodels.VariantName {
+// GetVariantsNames provides a mock function with given fields:
+func (_m *TileMetadataExplorer) GetVariantsNames() []monitorormodels.VariantName {
 	ret := _m.Called()
 
 	var r0 []monitorormodels.VariantName

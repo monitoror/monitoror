@@ -28,7 +28,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	m.store = store
 
 	// Register Monitorable Tile in config manager
-	m.portTileEnabler = store.Registry.RegisterTile(api.PortTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.portTileEnabler = store.Registry.RegisterTile(api.PortTileType, versions.MinimalVersion, m.GetVariantsNames())
 
 	return m
 }

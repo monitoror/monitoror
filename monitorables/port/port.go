@@ -34,7 +34,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	pkgMonitorable.LoadConfig(&m.config, portConfig.Default)
 
 	// Register Monitorable Tile in config manager
-	m.portTileEnabler = store.Registry.RegisterTile(api.PortTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.portTileEnabler = store.Registry.RegisterTile(api.PortTileType, versions.MinimalVersion, m.GetVariantsNames())
 
 	return m
 }
@@ -43,7 +43,7 @@ func (m *Monitorable) GetDisplayName() string {
 	return "Port"
 }
 
-func (m *Monitorable) GetVariantNames() []coreModels.VariantName {
+func (m *Monitorable) GetVariantsNames() []coreModels.VariantName {
 	return pkgMonitorable.GetVariants(m.config)
 }
 

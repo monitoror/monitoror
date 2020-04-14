@@ -28,7 +28,7 @@ type (
 	TileMetadataExplorer interface {
 		GetMinimalVersion() models.RawVersion
 		GetVariant(variantName coreModels.VariantName) (VariantMetadataExplorer, bool)
-		GetVariantNames() []coreModels.VariantName
+		GetVariantsNames() []coreModels.VariantName
 	}
 	// VariantMetadataExplorer is used in verify. Matching tileVariantMetadata and generatorVariantMetadata.
 	VariantMetadataExplorer interface {
@@ -165,7 +165,7 @@ func (tm *tileMetadata) GetVariant(variantName coreModels.VariantName) (VariantM
 	return v, exists
 }
 
-func (tm *tileMetadata) GetVariantNames() []coreModels.VariantName {
+func (tm *tileMetadata) GetVariantsNames() []coreModels.VariantName {
 	var result []coreModels.VariantName
 	for variantName := range tm.VariantsMetadata {
 		result = append(result, variantName)
@@ -197,7 +197,7 @@ func (gm *generatorMetadata) GetVariant(variantName coreModels.VariantName) (Var
 	return v, exists
 }
 
-func (gm *generatorMetadata) GetVariantNames() []coreModels.VariantName {
+func (gm *generatorMetadata) GetVariantsNames() []coreModels.VariantName {
 	var result []coreModels.VariantName
 	for variantName := range gm.VariantsMetadata {
 		result = append(result, variantName)

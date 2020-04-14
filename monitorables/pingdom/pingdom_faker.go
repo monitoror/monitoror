@@ -28,7 +28,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	m.store = store
 
 	// Register Monitorable Tile in config manager
-	m.checkTileEnabler = store.Registry.RegisterTile(api.PingdomCheckTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.checkTileEnabler = store.Registry.RegisterTile(api.PingdomCheckTileType, versions.MinimalVersion, m.GetVariantsNames())
 
 	return m
 }

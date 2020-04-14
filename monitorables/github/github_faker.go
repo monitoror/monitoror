@@ -29,8 +29,8 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	m.store = store
 
 	// Register Monitorable Tile in config manager
-	m.countTileEnabler = store.Registry.RegisterTile(api.GithubCountTileType, versions.MinimalVersion, m.GetVariantNames())
-	m.checksTileEnabler = store.Registry.RegisterTile(api.GithubChecksTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.countTileEnabler = store.Registry.RegisterTile(api.GithubCountTileType, versions.MinimalVersion, m.GetVariantsNames())
+	m.checksTileEnabler = store.Registry.RegisterTile(api.GithubChecksTileType, versions.MinimalVersion, m.GetVariantsNames())
 
 	return m
 }

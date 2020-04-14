@@ -30,9 +30,9 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	m.store = store
 
 	// Register Monitorable Tile in config manager
-	m.statusTileEnabler = store.Registry.RegisterTile(api.HTTPStatusTileType, versions.MinimalVersion, m.GetVariantNames())
-	m.rawTileEnabler = store.Registry.RegisterTile(api.HTTPRawTileType, versions.MinimalVersion, m.GetVariantNames())
-	m.formattedTileEnabler = store.Registry.RegisterTile(api.HTTPFormattedTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.statusTileEnabler = store.Registry.RegisterTile(api.HTTPStatusTileType, versions.MinimalVersion, m.GetVariantsNames())
+	m.rawTileEnabler = store.Registry.RegisterTile(api.HTTPRawTileType, versions.MinimalVersion, m.GetVariantsNames())
+	m.formattedTileEnabler = store.Registry.RegisterTile(api.HTTPFormattedTileType, versions.MinimalVersion, m.GetVariantsNames())
 
 	return m
 }

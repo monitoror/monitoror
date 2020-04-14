@@ -41,9 +41,9 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	pkgMonitorable.LoadConfig(&m.config, githubConfig.Default)
 
 	// Register Monitorable Tile in config manager
-	m.countTileEnabler = store.Registry.RegisterTile(api.GithubCountTileType, versions.MinimalVersion, m.GetVariantNames())
-	m.checksTileEnabler = store.Registry.RegisterTile(api.GithubChecksTileType, versions.MinimalVersion, m.GetVariantNames())
-	m.pullrequestGeneratorEnabler = store.Registry.RegisterGenerator(api.GithubChecksTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.countTileEnabler = store.Registry.RegisterTile(api.GithubCountTileType, versions.MinimalVersion, m.GetVariantsNames())
+	m.checksTileEnabler = store.Registry.RegisterTile(api.GithubChecksTileType, versions.MinimalVersion, m.GetVariantsNames())
+	m.pullrequestGeneratorEnabler = store.Registry.RegisterGenerator(api.GithubChecksTileType, versions.MinimalVersion, m.GetVariantsNames())
 
 	return m
 }
@@ -52,7 +52,7 @@ func (m *Monitorable) GetDisplayName() string {
 	return "GitHub"
 }
 
-func (m *Monitorable) GetVariantNames() []coreModels.VariantName {
+func (m *Monitorable) GetVariantsNames() []coreModels.VariantName {
 	return pkgMonitorable.GetVariants(m.config)
 }
 

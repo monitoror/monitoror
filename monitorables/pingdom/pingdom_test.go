@@ -27,8 +27,8 @@ func TestNewMonitorable(t *testing.T) {
 	// GetDisplayName
 	assert.NotNil(t, monitorable.GetDisplayName())
 
-	// GetVariantNames and check
-	if assert.Len(t, monitorable.GetVariantNames(), 4) {
+	// GetVariantsNames and check
+	if assert.Len(t, monitorable.GetVariantsNames(), 4) {
 		_, err := monitorable.Validate("variant1")
 		assert.Error(t, err)
 		_, err = monitorable.Validate("variant2")
@@ -36,7 +36,7 @@ func TestNewMonitorable(t *testing.T) {
 	}
 
 	// Enable
-	for _, variantName := range monitorable.GetVariantNames() {
+	for _, variantName := range monitorable.GetVariantsNames() {
 		if valid, _ := monitorable.Validate(variantName); valid {
 			monitorable.Enable(variantName)
 		}

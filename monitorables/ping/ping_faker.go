@@ -28,7 +28,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	m.store = store
 
 	// Register Monitorable Tile in config manager
-	m.pingTileEnabler = store.Registry.RegisterTile(api.PingTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.pingTileEnabler = store.Registry.RegisterTile(api.PingTileType, versions.MinimalVersion, m.GetVariantsNames())
 
 	return m
 }

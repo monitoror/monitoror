@@ -252,11 +252,11 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 		configBag.AddErrors(models.ConfigError{
 			ID: models.ConfigErrorUnknownVariant,
 			Message: fmt.Sprintf(`Unknown %q variant for %s type in tile definition. Must be %s`,
-				tile.ConfigVariant, tile.Type, pkgConfig.Stringify(metadataExplorer.GetVariantNames())),
+				tile.ConfigVariant, tile.Type, pkgConfig.Stringify(metadataExplorer.GetVariantsNames())),
 			Data: models.ConfigErrorData{
 				FieldName:     "configVariant",
 				Value:         pkgConfig.Stringify(tile.ConfigVariant),
-				Expected:      pkgConfig.Stringify(metadataExplorer.GetVariantNames()),
+				Expected:      pkgConfig.Stringify(metadataExplorer.GetVariantsNames()),
 				ConfigExtract: pkgConfig.Stringify(tile),
 			},
 		})

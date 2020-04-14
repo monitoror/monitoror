@@ -38,8 +38,8 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	pkgMonitorable.LoadConfig(&m.config, azuredevopsConfig.Default)
 
 	// Register Monitorable Tile in config manager
-	m.buildTileEnabler = store.Registry.RegisterTile(api.AzureDevOpsBuildTileType, versions.MinimalVersion, m.GetVariantNames())
-	m.releaseTileEnabler = store.Registry.RegisterTile(api.AzureDevOpsReleaseTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.buildTileEnabler = store.Registry.RegisterTile(api.AzureDevOpsBuildTileType, versions.MinimalVersion, m.GetVariantsNames())
+	m.releaseTileEnabler = store.Registry.RegisterTile(api.AzureDevOpsReleaseTileType, versions.MinimalVersion, m.GetVariantsNames())
 
 	return m
 }
@@ -48,7 +48,7 @@ func (m *Monitorable) GetDisplayName() string {
 	return "Azure DevOps"
 }
 
-func (m *Monitorable) GetVariantNames() []coreModels.VariantName {
+func (m *Monitorable) GetVariantsNames() []coreModels.VariantName {
 	return pkgMonitorable.GetVariants(m.config)
 }
 

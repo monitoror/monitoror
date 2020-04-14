@@ -19,8 +19,8 @@ type monitorableMock struct {
 	validateError error
 }
 
-func (m *monitorableMock) GetDisplayName() string                    { return m.displayName }
-func (m *monitorableMock) GetVariantNames() []coreModels.VariantName { return m.variants }
+func (m *monitorableMock) GetDisplayName() string                     { return m.displayName }
+func (m *monitorableMock) GetVariantsNames() []coreModels.VariantName { return m.variants }
 func (m *monitorableMock) Validate(_ coreModels.VariantName) (bool, error) {
 	return m.validateBool, m.validateError
 }
