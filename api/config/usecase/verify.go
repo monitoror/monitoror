@@ -241,7 +241,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 			Data: models.ConfigErrorData{
 				FieldName:     "type",
 				ConfigExtract: pkgConfig.Stringify(tile),
-				Expected:      fmt.Sprintf(`%q <= version`, metadataExplorer.GetMinimalVersion()),
+				Expected:      fmt.Sprintf(`version >= %q`, metadataExplorer.GetMinimalVersion()),
 			},
 		})
 		return
