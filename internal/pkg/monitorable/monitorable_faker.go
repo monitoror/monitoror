@@ -7,7 +7,7 @@ import coreModels "github.com/monitoror/monitoror/models"
 type DefaultMonitorableFaker struct {
 }
 
-func (m *DefaultMonitorableFaker) GetVariants() []coreModels.VariantName {
+func (m *DefaultMonitorableFaker) GetVariantNames() []coreModels.VariantName {
 	return []coreModels.VariantName{coreModels.DefaultVariant}
 }
 

@@ -8,9 +8,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/monitoror/monitoror/models"
+	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/port/api"
 	"github.com/monitoror/monitoror/monitorables/port/api/mocks"
+	"github.com/monitoror/monitoror/monitorables/port/api/models"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -38,19 +39,19 @@ func missingParam(t *testing.T, param string) {
 	// Test
 	err := handler.GetPort(ctx)
 	assert.Error(t, err)
-	assert.IsType(t, &models.MonitororError{}, err)
+	assert.IsType(t, &coreModels.MonitororError{}, err)
 }
 
 func TestDelivery_PortHandler_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
-	tile := models.NewTile(api.PortTileType)
+	tile := coreModels.NewTile(api.PortTileType)
 	tile.Label = "monitoror.example.com:1234"
-	tile.Status = models.SuccessStatus
+	tile.Status = coreModels.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("Port", Anything).Return(tile, nil)
+	mockUsecase.On("Port", &models.PortParams{Hostname: "monitoror.example.com", Port: 1234}).Return(tile, nil)
 	handler := NewPortDelivery(mockUsecase)
 
 	// Expected

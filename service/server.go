@@ -10,6 +10,7 @@ import (
 	"github.com/monitoror/monitoror/pkg/system"
 	"github.com/monitoror/monitoror/service/handlers"
 	"github.com/monitoror/monitoror/service/middlewares"
+	"github.com/monitoror/monitoror/service/registry"
 	"github.com/monitoror/monitoror/service/store"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
@@ -40,6 +41,7 @@ func Init(config *config.Config, cli cli.CLI) *Server {
 		store: &store.Store{
 			CoreConfig: config,
 			Cli:        cli,
+			Registry:   registry.NewRegistry(),
 		},
 	}
 

@@ -3,7 +3,7 @@ package http
 import (
 	"net/http"
 
-	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/internal/pkg/monitorable/delivery"
 	"github.com/monitoror/monitoror/monitorables/ping/api"
 	"github.com/monitoror/monitoror/monitorables/ping/api/models"
 
@@ -21,9 +21,8 @@ func NewPingDelivery(p api.Usecase) *PingDelivery {
 func (h *PingDelivery) GetPing(c echo.Context) error {
 	// Bind / Check Params
 	params := &models.PingParams{}
-	err := c.Bind(params)
-	if err != nil || !params.IsValid() {
-		return coreModels.QueryParamsError
+	if err := delivery.BindAndValidateRequestParams(c, params); err != nil {
+		return err
 	}
 
 	tile, err := h.pingUsecase.Ping(params)

@@ -7,7 +7,7 @@ import (
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/labstack/echo/v4"
-	"github.com/prometheus/common/log"
+	"github.com/labstack/gommon/log"
 )
 
 type (

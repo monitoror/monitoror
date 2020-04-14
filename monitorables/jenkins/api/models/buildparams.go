@@ -2,17 +2,27 @@
 
 package models
 
-import "fmt"
+import (
+	"fmt"
+
+	uiConfigModels "github.com/monitoror/monitoror/api/config/models"
+)
 
 type (
 	BuildParams struct {
 		Job    string `json:"job" query:"job"`
-		Branch string `json:"branch" query:"branch"`
+		Branch string `json:"branch,omitempty" query:"branch"`
 	}
 )
 
-func (p *BuildParams) IsValid() bool {
-	return p.Job != ""
+func (p *BuildParams) Validate(_ *uiConfigModels.ConfigVersion) *uiConfigModels.ConfigError {
+	// TODO
+
+	if p.Job == "" {
+		return &uiConfigModels.ConfigError{}
+	}
+
+	return nil
 }
 
 // Used by cache as identifier

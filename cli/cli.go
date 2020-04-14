@@ -61,16 +61,21 @@ Monitoror is running at:
 `
 )
 
-type CLI interface {
-	PrintBanner()
-	PrintDevMode()
-	PrintMonitorableHeader()
-	PrintMonitorable(displayName string, enabledVariants []coreModels.VariantName, erroredVariants map[coreModels.VariantName]error)
-	PrintMonitorableFooter(isProduction bool, nonEnabledMonitorableCount int)
-	PrintServerStartup(ip string, port int)
-}
-
 type (
+	CLI interface {
+		PrintBanner()
+		PrintDevMode()
+		PrintMonitorableHeader()
+		PrintMonitorable(displayName string, enabledVariants []coreModels.VariantName, erroredVariants []ErroredVariant)
+		PrintMonitorableFooter(isProduction bool, nonEnabledMonitorableCount int)
+		PrintServerStartup(ip string, port int)
+	}
+
+	ErroredVariant struct {
+		VariantName coreModels.VariantName
+		Err         error
+	}
+
 	MonitororCLI struct{}
 )
 
@@ -97,14 +102,14 @@ func (cli *MonitororCLI) PrintMonitorableHeader() {
 	colorer.Printf(colorer.Black(colorer.Green(monitorableHeader)))
 }
 
-func (cli *MonitororCLI) PrintMonitorable(displayName string, enabledVariants []coreModels.VariantName, erroredVariants map[coreModels.VariantName]error) {
-	if len(enabledVariants) == 0 && len(erroredVariants) == 0 {
+func (cli *MonitororCLI) PrintMonitorable(displayName string, enabledVariantNames []coreModels.VariantName, erroredVariants []ErroredVariant) {
+	if len(enabledVariantNames) == 0 && len(erroredVariants) == 0 {
 		return
 	}
 
 	// Stringify variants
 	var strVariants string
-	if len(enabledVariants) == 1 && enabledVariants[0] == coreModels.DefaultVariant {
+	if len(enabledVariantNames) == 1 && enabledVariantNames[0] == coreModels.DefaultVariant {
 		if len(erroredVariants) > 0 {
 			strVariants = "[default]"
 		}
@@ -112,11 +117,11 @@ func (cli *MonitororCLI) PrintMonitorable(displayName string, enabledVariants []
 		var strDefault string
 		var variantsWithoutDefault []string
 
-		for _, variant := range enabledVariants {
-			if variant == coreModels.DefaultVariant {
-				strDefault = fmt.Sprintf("%s, ", variant)
+		for _, variantName := range enabledVariantNames {
+			if variantName == coreModels.DefaultVariant {
+				strDefault = fmt.Sprintf("%s, ", variantName)
 			} else {
-				variantsWithoutDefault = append(variantsWithoutDefault, string(variant))
+				variantsWithoutDefault = append(variantsWithoutDefault, string(variantName))
 			}
 		}
 		if len(variantsWithoutDefault) > 0 {
@@ -127,7 +132,7 @@ func (cli *MonitororCLI) PrintMonitorable(displayName string, enabledVariants []
 	// Print Monitorable and variants
 	prefixStatus := colorer.Green("✓")
 	if len(erroredVariants) > 0 {
-		if len(enabledVariants) > 0 {
+		if len(enabledVariantNames) > 0 {
 			prefixStatus = colorer.Yellow("!")
 		} else {
 			prefixStatus = colorer.Red("✕")
@@ -137,11 +142,11 @@ func (cli *MonitororCLI) PrintMonitorable(displayName string, enabledVariants []
 	colorer.Printf("  %s %s %s\n", prefixStatus, monitorableName, colorer.Grey(strVariants))
 
 	// Print Error
-	for variant, err := range erroredVariants {
-		if variant == coreModels.DefaultVariant {
-			colorer.Printf(colorer.Red("    %s Errored %s configuration\n        %s\n"), errorSymbol, variant, err.Error())
+	for _, erroredVariant := range erroredVariants {
+		if erroredVariant.VariantName == coreModels.DefaultVariant {
+			colorer.Printf(colorer.Red("    %s Errored %s configuration\n        %s\n"), errorSymbol, erroredVariant.VariantName, erroredVariant.Err.Error())
 		} else {
-			colorer.Printf(colorer.Red("    %s Errored \"%s\" variant configuration\n        %s\n"), errorSymbol, variant, err.Error())
+			colorer.Printf(colorer.Red("    %s Errored \"%s\" variant configuration\n        %s\n"), errorSymbol, erroredVariant.VariantName, erroredVariant.Err.Error())
 		}
 	}
 }

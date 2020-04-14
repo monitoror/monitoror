@@ -9,28 +9,25 @@ import (
 
 func TestNewMonitorable(t *testing.T) {
 	// init Store
-	mockRouter, mockRouterGroup, mockConfigManager, s := test.InitMockAndStore()
+	store, mockMonitorableHelper := test.InitMockAndStore()
 
 	// NewMonitorable
-	monitorable := NewMonitorable(s)
+	monitorable := NewMonitorable(store)
 	assert.NotNil(t, monitorable)
 
 	// GetDisplayName
 	assert.NotNil(t, monitorable.GetDisplayName())
 
-	// GetVariants and check
-	assert.Len(t, monitorable.GetVariants(), 1)
+	// GetVariantNames and check
+	assert.Len(t, monitorable.GetVariantNames(), 1)
 
 	// Enable
-	for _, variant := range monitorable.GetVariants() {
-		_, _ = monitorable.Validate(variant) // Skip validate because is always false in test
-		monitorable.Enable(variant)
+	for _, variantName := range monitorable.GetVariantNames() {
+		_, _ = monitorable.Validate(variantName) // Skip validate because is always false in test
+		monitorable.Enable(variantName)
 	}
 
 	// Test calls
-	mockRouter.AssertNumberOfCalls(t, "Group", 1)
-	mockRouterGroup.AssertNumberOfCalls(t, "GET", 1)
-	mockConfigManager.AssertNumberOfCalls(t, "RegisterTile", 1)
-	mockConfigManager.AssertNumberOfCalls(t, "EnableTile", 1)
-	mockConfigManager.AssertNumberOfCalls(t, "EnableDynamicTile", 0)
+	mockMonitorableHelper.RouterAssertNumberOfCalls(t, 1, 1)
+	mockMonitorableHelper.TileSettingsManagerAssertNumberOfCalls(t, 1, 0, 1, 0)
 }

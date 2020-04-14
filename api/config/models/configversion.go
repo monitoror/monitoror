@@ -45,31 +45,31 @@ func (v *ConfigVersion) UnmarshalJSON(data []byte) error {
 }
 
 func (v *ConfigVersion) IsEqualTo(v2Str RawVersion) bool {
-	v2 := parseVersion(v2Str)
+	v2 := ParseVersion(v2Str)
 	return v.major == v2.major && v.minor == v2.minor
 }
 
 func (v *ConfigVersion) IsGreaterThan(v2Str RawVersion) bool {
-	v2 := parseVersion(v2Str)
+	v2 := ParseVersion(v2Str)
 	return v.major > v2.major || (v.major == v2.major && v.minor > v2.minor)
 }
 
 func (v *ConfigVersion) IsLessThan(v2Str RawVersion) bool {
-	v2 := parseVersion(v2Str)
+	v2 := ParseVersion(v2Str)
 	return v.major < v2.major || (v.major == v2.major && v.minor < v2.minor)
 }
 
 func (v *ConfigVersion) IsGreaterThanOrEqualTo(v2Str RawVersion) bool {
-	v2 := parseVersion(v2Str)
+	v2 := ParseVersion(v2Str)
 	return v.major > v2.major || (v.major == v2.major && v.minor > v2.minor) || (v.major == v2.major && v.minor == v2.minor)
 }
 
 func (v *ConfigVersion) IsLessThanOrEqualTo(v2Str RawVersion) bool {
-	v2 := parseVersion(v2Str)
+	v2 := ParseVersion(v2Str)
 	return v.major < v2.major || (v.major == v2.major && v.minor < v2.minor) || (v.major == v2.major && v.minor == v2.minor)
 }
 
-func parseVersion(version RawVersion) *ConfigVersion {
+func ParseVersion(version RawVersion) *ConfigVersion {
 	// Hack to use "X.Y" in test or code instead of "\"X.Y"\"
 	version = RawVersion(strings.ReplaceAll(fmt.Sprintf(`"%s"`, version), `""`, `"`))
 	v := &ConfigVersion{}

@@ -6,10 +6,13 @@ import (
 	"io/ioutil"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/monitoror/monitoror/api/config"
 	"github.com/monitoror/monitoror/api/config/models"
 	"github.com/monitoror/monitoror/api/config/repository"
+	"github.com/monitoror/monitoror/api/config/versions"
+	coreConfig "github.com/monitoror/monitoror/config"
 	coreModels "github.com/monitoror/monitoror/models"
 	jenkinsApi "github.com/monitoror/monitoror/monitorables/jenkins/api"
 	jenkinsModels "github.com/monitoror/monitoror/monitorables/jenkins/api/models"
@@ -19,25 +22,32 @@ import (
 	pindomModels "github.com/monitoror/monitoror/monitorables/pingdom/api/models"
 	portApi "github.com/monitoror/monitoror/monitorables/port/api"
 	portModels "github.com/monitoror/monitoror/monitorables/port/api/models"
+	"github.com/monitoror/monitoror/service/registry"
+	"github.com/monitoror/monitoror/service/store"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/stretchr/testify/assert"
 )
 
-func initConfigUsecase(repository config.Repository, store cache.Store) *configUsecase {
-	usecase := NewConfigUsecase(repository, store, 5000)
+func initConfigUsecase(repository config.Repository) *configUsecase {
+	s := &store.Store{
+		CoreConfig: &coreConfig.Config{InitialMaxDelay: 1000},
+		CacheStore: cache.NewGoCacheStore(time.Second, time.Second),
+		Registry:   registry.NewRegistry(),
+	}
 
-	usecase.RegisterTile(pingApi.PingTileType, []coreModels.VariantName{coreModels.DefaultVariant}, MinimalVersion)
-	usecase.RegisterTile(portApi.PortTileType, []coreModels.VariantName{coreModels.DefaultVariant}, MinimalVersion)
-	usecase.RegisterTile(jenkinsApi.JenkinsBuildTileType, []coreModels.VariantName{coreModels.DefaultVariant}, MinimalVersion)
-	usecase.RegisterTile(pingdomApi.PingdomCheckTileType, []coreModels.VariantName{coreModels.DefaultVariant}, MinimalVersion)
+	usecase := NewConfigUsecase(repository, s).(*configUsecase)
 
-	usecase.EnableTile(pingApi.PingTileType, coreModels.DefaultVariant, &pingModels.PingParams{}, "/ping", 1000)
-	usecase.EnableTile(portApi.PortTileType, coreModels.DefaultVariant, &portModels.PortParams{}, "/port", 1000)
-	usecase.EnableTile(jenkinsApi.JenkinsBuildTileType, coreModels.DefaultVariant, &jenkinsModels.BuildParams{}, "/jenkins/default", 1000)
-	usecase.EnableTile(pingdomApi.PingdomCheckTileType, coreModels.DefaultVariant, &pindomModels.CheckParams{}, "/pingdom/default", 1000)
+	usecase.registry.RegisterTile(pingApi.PingTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
+		Enable(coreModels.DefaultVariant, &pingModels.PingParams{}, "/ping/default/ping")
+	usecase.registry.RegisterTile(portApi.PortTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
+		Enable(coreModels.DefaultVariant, &portModels.PortParams{}, "/port/default/port")
+	usecase.registry.RegisterTile(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant, "disabledVariant"}).
+		Enable(coreModels.DefaultVariant, &jenkinsModels.BuildParams{}, "/jenkins/default/build")
+	usecase.registry.RegisterTile(pingdomApi.PingdomCheckTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
+		Enable(coreModels.DefaultVariant, &pindomModels.CheckParams{}, "/pingdom/default/check")
 
-	return usecase.(*configUsecase)
+	return usecase
 }
 
 func readConfig(input string) (configBag *models.ConfigBag, err error) {
@@ -56,13 +66,13 @@ func TestUsecase_Global_Success(t *testing.T) {
 		{ "type": "PORT", "label": "Monitoror", "params": {"hostname": "localhost", "port": 8080} }
   ]
 }
-`, CurrentVersion)
+`, versions.CurrentVersion)
 
-	expectRawConfig := fmt.Sprintf(`{"config":{"version":%q,"columns":4,"tiles":[{"type":"PORT","label":"Monitoror","url":"/port?hostname=localhost\u0026port=8080","initialMaxDelay":1000}]}}`, CurrentVersion)
+	expectRawConfig := fmt.Sprintf(`{"config":{"version":%q,"columns":4,"tiles":[{"type":"PORT","label":"Monitoror","url":"/port/default/port?hostname=localhost\u0026port=8080","initialMaxDelay":1000}]}}`, versions.CurrentVersion)
 
 	config, err := readConfig(rawConfig)
 	if assert.NoError(t, err) {
-		usecase := initConfigUsecase(nil, nil)
+		usecase := initConfigUsecase(nil)
 		usecase.Verify(config)
 		usecase.Hydrate(config)
 

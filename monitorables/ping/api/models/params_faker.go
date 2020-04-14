@@ -2,7 +2,10 @@
 
 package models
 
-import coreModels "github.com/monitoror/monitoror/models"
+import (
+	uiConfigModels "github.com/monitoror/monitoror/api/config/models"
+	coreModels "github.com/monitoror/monitoror/models"
+)
 
 type (
 	PingParams struct {
@@ -13,6 +16,12 @@ type (
 	}
 )
 
-func (p *PingParams) IsValid() bool {
-	return p.Hostname != ""
+func (p *PingParams) Validate(_ *uiConfigModels.ConfigVersion) *uiConfigModels.ConfigError {
+	// TODO
+
+	if p.Hostname == "" {
+		return &uiConfigModels.ConfigError{}
+	}
+
+	return nil
 }

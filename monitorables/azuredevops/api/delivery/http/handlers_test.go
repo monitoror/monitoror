@@ -8,9 +8,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/monitoror/monitoror/models"
+	"github.com/AlekSi/pointer"
+
+	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/azuredevops/api"
 	"github.com/monitoror/monitoror/monitorables/azuredevops/api/mocks"
+	"github.com/monitoror/monitoror/monitorables/azuredevops/api/models"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -25,6 +28,7 @@ func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 
 	ctx.QueryParams().Set("project", "test")
 	ctx.QueryParams().Set("definition", "1")
+	ctx.QueryParams().Set("branch", "master")
 
 	return
 }
@@ -33,11 +37,11 @@ func TestDelivery_BuildHandler_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
-	tile := models.NewTile(api.AzureDevOpsBuildTileType)
-	tile.Status = models.SuccessStatus
+	tile := coreModels.NewTile(api.AzureDevOpsBuildTileType)
+	tile.Status = coreModels.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("Build", Anything).Return(tile, nil)
+	mockUsecase.On("Build", &models.BuildParams{Project: "test", Definition: pointer.ToInt(1), Branch: pointer.ToString("master")}).Return(tile, nil)
 	handler := NewAzureDevOpsDelivery(mockUsecase)
 
 	// Expected
@@ -53,7 +57,7 @@ func TestDelivery_BuildHandler_Success(t *testing.T) {
 	}
 }
 
-func TestDelivery_BuildHandler_QueryParamsError_MissingGroup(t *testing.T) {
+func TestDelivery_BuildHandler_QueryParamsError_MissingProject(t *testing.T) {
 	// Init
 	ctx, _ := initEcho()
 	ctx.QueryParams().Del("project")
@@ -64,7 +68,7 @@ func TestDelivery_BuildHandler_QueryParamsError_MissingGroup(t *testing.T) {
 	// Test
 	err := handler.GetBuild(ctx)
 	assert.Error(t, err)
-	assert.IsType(t, &models.MonitororError{}, err)
+	assert.IsType(t, &coreModels.MonitororError{}, err)
 }
 
 func TestDelivery_BuildHandler_Error(t *testing.T) {
@@ -85,11 +89,11 @@ func TestDelivery_GetRelease_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
-	tile := models.NewTile(api.AzureDevOpsBuildTileType)
-	tile.Status = models.SuccessStatus
+	tile := coreModels.NewTile(api.AzureDevOpsBuildTileType)
+	tile.Status = coreModels.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("Release", Anything).Return(tile, nil)
+	mockUsecase.On("Release", &models.ReleaseParams{Project: "test", Definition: pointer.ToInt(1)}).Return(tile, nil)
 	handler := NewAzureDevOpsDelivery(mockUsecase)
 
 	// Expected
@@ -105,7 +109,7 @@ func TestDelivery_GetRelease_Success(t *testing.T) {
 	}
 }
 
-func TestDelivery_GetRelease_QueryParamsError_MissingGroup(t *testing.T) {
+func TestDelivery_GetRelease_QueryParamsError_MissingProject(t *testing.T) {
 	// Init
 	ctx, _ := initEcho()
 	ctx.QueryParams().Del("project")
@@ -116,7 +120,7 @@ func TestDelivery_GetRelease_QueryParamsError_MissingGroup(t *testing.T) {
 	// Test
 	err := handler.GetRelease(ctx)
 	assert.Error(t, err)
-	assert.IsType(t, &models.MonitororError{}, err)
+	assert.IsType(t, &coreModels.MonitororError{}, err)
 }
 
 func TestDelivery_GetRelease_Error(t *testing.T) {

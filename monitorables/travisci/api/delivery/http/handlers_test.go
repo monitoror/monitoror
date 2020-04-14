@@ -11,6 +11,7 @@ import (
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/travisci/api"
 	"github.com/monitoror/monitoror/monitorables/travisci/api/mocks"
+	"github.com/monitoror/monitoror/monitorables/travisci/api/models"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -52,7 +53,7 @@ func TestDelivery_GetBuild_Success(t *testing.T) {
 	tile.Status = coreModels.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("Build", Anything).Return(tile, nil)
+	mockUsecase.On("Build", &models.BuildParams{Owner: "test", Repository: "test", Branch: "master"}).Return(tile, nil)
 	handler := NewTravisCIDelivery(mockUsecase)
 
 	// Expected

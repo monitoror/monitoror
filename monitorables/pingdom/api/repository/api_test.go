@@ -19,7 +19,6 @@ func initRepository(t *testing.T, checkAPI pkgPingdom.PingdomCheckAPI) *pingdomR
 		Token:           config.Default.Token,
 		Timeout:         config.Default.Timeout,
 		CacheExpiration: config.Default.CacheExpiration,
-		InitialMaxDelay: config.Default.InitialMaxDelay,
 	}
 	repository := NewPingdomRepository(conf)
 
@@ -39,7 +38,6 @@ func TestPingdomRepository_NewPingdomRepository_Error(t *testing.T) {
 		Token:           config.Default.Token,
 		Timeout:         config.Default.Timeout,
 		CacheExpiration: config.Default.CacheExpiration,
-		InitialMaxDelay: config.Default.InitialMaxDelay,
 	}
 
 	assert.Panics(t, func() { _ = NewPingdomRepository(conf) })

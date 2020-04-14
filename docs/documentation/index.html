@@ -87,7 +87,7 @@
             <ul>
               <li><a href="#tile-github-count">GITHUB-COUNT</a></li>
               <li><a href="#tile-github-checks">GITHUB-CHECKS</a></li>
-              <li><a href="#tile-github-pullrequests">GITHUB-PULLREQUESTS</a></li>
+              <li><a href="#tile-generate-github-checks">GENERATE:GITHUB-CHECKS</a></li>
             </ul>
           </li>
           <li><a href="#http">HTTP</a>
@@ -100,7 +100,7 @@
           <li><a href="#jenkins">Jenkins</a>
             <ul>
               <li><a href="#tile-jenkins-build">JENKINS-BUILD</a></li>
-              <li><a href="#tile-jenkins-multibranch">JENKINS-MULTIBRANCH</a></li>
+              <li><a href="#tile-generate-jenkins-build">GENERATE:JENKINS-BUILD</a></li>
             </ul>
           </li>
           <li><a href="#ping">Ping</a>
@@ -111,7 +111,7 @@
           <li><a href="#pingdom">Pingdom</a>
             <ul>
               <li><a href="#tile-pingdom-check">PINGDOM-CHECK</a></li>
-              <li><a href="#tile-pingdom-checks">PINGDOM-CHECKS</a></li>
+              <li><a href="#tile-generate-pingdom-check">GENERATE:PINGDOM-CHECK</a></li>
             </ul>
           </li>
           <li><a href="#port">Port</a>
@@ -387,7 +387,7 @@ chmod +x monitoror
       </p>
       <pre><code class="language-json">
 {
-  "version": "1.0",
+  "version": "2.0",
   "columns": 2,
   "tiles": [
     {
@@ -412,7 +412,7 @@ chmod +x monitoror
           The configuration format version. <br>
           <p class="note">
             <span class="tag">Note</span>
-            Current version is <code>"1.0"</code>
+            Current version is <code>"2.0"</code>
           </p>
         </dd>
 
@@ -1063,7 +1063,7 @@ chmod +x monitoror
         </div>
       </div>
 
-      <h4 id="tile-github-pullrequests">GITHUB-PULLREQUESTS</h4>
+      <h4 id="tile-generate-github-checks">GENERATE:GITHUB-CHECKS</h4>
 
       <p>
         Show each open pull request status.
@@ -1071,7 +1071,7 @@ chmod +x monitoror
 
       <p class="note">
         <span class="tag">Note</span>
-        This tile is a dynamic tile that will be replaced by N classic
+        This tile is a generator tile that will be replaced by N classic
         <code><a href="#tile-github-checks">GITHUB-CHECKS</a></code> tiles. <br>
         N being the number of open pull requests.
       </p>
@@ -1093,7 +1093,7 @@ chmod +x monitoror
       <div class="m-documentation--example">
         <pre class="example"><code class="language-json">
 {
-  "type": "GITHUB-PULLREQUESTS",
+  "type": "GENERATE:GITHUB-CHECKS",
   "params": {
     "owner": "monitoror",
     "repository": "monitoror"
@@ -1526,7 +1526,7 @@ chmod +x monitoror
         </div>
       </div>
 
-      <h4 id="tile-jenkins-multibranch">JENKINS-MULTIBRANCH</h4>
+      <h4 id="tile-generate-jenkins-build">GENERATE:JENKINS-BUILD</h4>
 
       <p>
         Show the status of all branches of a multi-branch pipeline.
@@ -1534,7 +1534,7 @@ chmod +x monitoror
 
       <p class="note">
         <span class="tag">Note</span>
-        This tile is a dynamic tile that will be replaced by N classic
+        This tile is a generator tile that will be replaced by N classic
         <code><a href="#tile-jenkins-build">JENKINS-BUILD</a></code> tiles. <br>
         N being the number of checks that match the filters that have been set.
       </p>
@@ -1567,9 +1567,10 @@ chmod +x monitoror
 
       <pre class="example"><code class="language-json">
 {
-  "type": "JENKINS-MULTIBRANCH",
+  "type": "GENERATE:JENKINS-BUILD",
   "params": {
-    "job": "eu-west",
+    "job": "test-job
+          ",
     "match": "^feat/"
   }
 }
@@ -1796,7 +1797,7 @@ chmod +x monitoror
         </div>
       </div>
 
-      <h4 id="tile-pingdom-checks">PINGDOM-CHECKS</h4>
+      <h4 id="tile-generate-pingdom-check">GENERATE:PINGDOM-CHECK</h4>
 
       <p>
         Show state of all Pingdom checks.
@@ -1804,7 +1805,7 @@ chmod +x monitoror
 
       <p class="note">
         <span class="tag">Note</span>
-        This tile is a dynamic tile that will be replaced by N classic
+        This tile is a generator tile that will be replaced by N classic
         <code><a href="#tile-pingdom-check">PINGDOM-CHECK</a></code> tiles. <br>
         N being the number of checks that match the filters that have been set.
       </p>
@@ -1828,7 +1829,7 @@ chmod +x monitoror
 
       <pre class="example"><code class="language-json">
 {
-  "type": "PINGDOM-CHECKS",
+  "type": "GENERATE:PINGDOM-CHECK",
   "params": {
     "tags": "eu-west",
     "sortBy": "name"

@@ -1,6 +1,7 @@
 package monitorables
 
 import (
+	"github.com/monitoror/monitoror/cli"
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/service/store"
 )
@@ -9,15 +10,15 @@ type Monitorable interface {
 	//GetDisplayName return monitorable name display in console
 	GetDisplayName() string
 
-	//GetVariants return variant list extract from config
-	GetVariants() []coreModels.VariantName
+	//GetVariantNames return variant list extract from config
+	GetVariantNames() []coreModels.VariantName
 
 	//Validate test if config variant is valid
 	// return false if empty and error if config have an error (ex: wrong url format)
-	Validate(variant coreModels.VariantName) (bool, error)
+	Validate(variantName coreModels.VariantName) (bool, error)
 
 	//Enable monitorable variant (add route to echo and enable tile for config verify / hydrate)
-	Enable(variant coreModels.VariantName)
+	Enable(variantName coreModels.VariantName)
 }
 
 type (
@@ -43,17 +44,17 @@ func (m *Manager) EnableMonitorables() {
 
 	for _, monitorable := range m.monitorables {
 		var enabledVariants []coreModels.VariantName
-		erroredVariants := make(map[coreModels.VariantName]error)
+		var erroredVariants []cli.ErroredVariant
 
-		for _, variant := range monitorable.GetVariants() {
-			valid, err := monitorable.Validate(variant)
+		for _, variantName := range monitorable.GetVariantNames() {
+			valid, err := monitorable.Validate(variantName)
 			if err != nil {
-				erroredVariants[variant] = err
+				erroredVariants = append(erroredVariants, cli.ErroredVariant{VariantName: variantName, Err: err})
 			}
 
 			if valid {
-				monitorable.Enable(variant)
-				enabledVariants = append(enabledVariants, variant)
+				monitorable.Enable(variantName)
+				enabledVariants = append(enabledVariants, variantName)
 			}
 		}
 

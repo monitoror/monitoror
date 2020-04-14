@@ -3,7 +3,7 @@ package http
 import (
 	"net/http"
 
-	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/internal/pkg/monitorable/delivery"
 	"github.com/monitoror/monitoror/monitorables/github/api"
 	"github.com/monitoror/monitoror/monitorables/github/api/models"
 
@@ -21,9 +21,8 @@ func NewGithubDelivery(p api.Usecase) *GithubDelivery {
 func (h *GithubDelivery) GetCount(c echo.Context) error {
 	// Bind / check Params
 	params := &models.CountParams{}
-	err := c.Bind(params)
-	if err != nil || !params.IsValid() {
-		return coreModels.QueryParamsError
+	if err := delivery.BindAndValidateRequestParams(c, params); err != nil {
+		return err
 	}
 
 	tile, err := h.githubUsecase.Count(params)
@@ -37,9 +36,8 @@ func (h *GithubDelivery) GetCount(c echo.Context) error {
 func (h *GithubDelivery) GetChecks(c echo.Context) error {
 	// Bind / check Params
 	params := &models.ChecksParams{}
-	err := c.Bind(params)
-	if err != nil || !params.IsValid() {
-		return coreModels.QueryParamsError
+	if err := delivery.BindAndValidateRequestParams(c, params); err != nil {
+		return err
 	}
 
 	tile, err := h.githubUsecase.Checks(params)

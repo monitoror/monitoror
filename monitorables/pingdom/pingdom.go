@@ -6,11 +6,12 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/monitoror/monitoror/api/config/versions"
 	pkgMonitorable "github.com/monitoror/monitoror/internal/pkg/monitorable"
+	"github.com/monitoror/monitoror/service/registry"
 
 	coreModels "github.com/monitoror/monitoror/models"
 
-	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
 	"github.com/monitoror/monitoror/monitorables/pingdom/api"
 	pingdomDelivery "github.com/monitoror/monitoror/monitorables/pingdom/api/delivery/http"
 	pingdomModels "github.com/monitoror/monitoror/monitorables/pingdom/api/models"
@@ -24,33 +25,37 @@ type Monitorable struct {
 	store *store.Store
 
 	config map[coreModels.VariantName]*pingdomConfig.Pingdom
+
+	// Config tile settings
+	checkTileEnabler      registry.TileEnabler
+	checkGeneratorEnabler registry.GeneratorEnabler
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
-	monitorable := &Monitorable{}
-	monitorable.store = store
-	monitorable.config = make(map[coreModels.VariantName]*pingdomConfig.Pingdom)
+	m := &Monitorable{}
+	m.store = store
+	m.config = make(map[coreModels.VariantName]*pingdomConfig.Pingdom)
 
 	// Load core config from env
-	pkgMonitorable.LoadConfig(&monitorable.config, pingdomConfig.Default)
+	pkgMonitorable.LoadConfig(&m.config, pingdomConfig.Default)
 
 	// Register Monitorable Tile in config manager
-	store.UIConfigManager.RegisterTile(api.PingdomCheckTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)
-	store.UIConfigManager.RegisterTile(api.PingdomChecksTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)
+	m.checkTileEnabler = store.Registry.RegisterTile(api.PingdomCheckTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.checkGeneratorEnabler = store.Registry.RegisterGenerator(api.PingdomCheckTileType, versions.MinimalVersion, m.GetVariantNames())
 
-	return monitorable
+	return m
 }
 
 func (m *Monitorable) GetDisplayName() string {
 	return "Pingdom"
 }
 
-func (m *Monitorable) GetVariants() []coreModels.VariantName {
+func (m *Monitorable) GetVariantNames() []coreModels.VariantName {
 	return pkgMonitorable.GetVariants(m.config)
 }
 
-func (m *Monitorable) Validate(variant coreModels.VariantName) (bool, error) {
-	conf := m.config[variant]
+func (m *Monitorable) Validate(variantName coreModels.VariantName) (bool, error) {
+	conf := m.config[variantName]
 
 	// No configuration set
 	if conf.URL == pingdomConfig.Default.URL && conf.Token == "" {
@@ -59,31 +64,29 @@ func (m *Monitorable) Validate(variant coreModels.VariantName) (bool, error) {
 
 	// Error in URL
 	if _, err := url.Parse(conf.URL); err != nil {
-		return false, fmt.Errorf(`%s contains invalid URL: "%s"`, pkgMonitorable.BuildMonitorableEnvKey(conf, variant, "URL"), conf.URL)
+		return false, fmt.Errorf(`%s contains invalid URL: "%s"`, pkgMonitorable.BuildMonitorableEnvKey(conf, variantName, "URL"), conf.URL)
 	}
 
 	// Error in Token
 	if conf.Token == "" {
-		return false, fmt.Errorf(`%s is required, no value found`, pkgMonitorable.BuildMonitorableEnvKey(conf, variant, "TOKEN"))
+		return false, fmt.Errorf(`%s is required, no value found`, pkgMonitorable.BuildMonitorableEnvKey(conf, variantName, "TOKEN"))
 	}
 
 	return true, nil
 }
 
-func (m *Monitorable) Enable(variant coreModels.VariantName) {
-	conf := m.config[variant]
+func (m *Monitorable) Enable(variantName coreModels.VariantName) {
+	conf := m.config[variantName]
 
 	repository := pingdomRepository.NewPingdomRepository(conf)
 	usecase := pingdomUsecase.NewPingdomUsecase(repository, m.store.CacheStore, conf.CacheExpiration)
 	delivery := pingdomDelivery.NewPingdomDelivery(usecase)
 
 	// EnableTile route to echo
-	routeGroup := m.store.MonitorableRouter.Group("/pingdom", variant)
+	routeGroup := m.store.MonitorableRouter.Group("/pingdom", variantName)
 	route := routeGroup.GET("/pingdom", delivery.GetCheck)
 
 	// EnableTile data for config hydration
-	m.store.UIConfigManager.EnableTile(api.PingdomCheckTileType, variant,
-		&pingdomModels.CheckParams{}, route.Path, conf.InitialMaxDelay)
-	m.store.UIConfigManager.EnableDynamicTile(api.PingdomChecksTileType, variant,
-		&pingdomModels.ChecksParams{}, usecase.Checks)
+	m.checkTileEnabler.Enable(variantName, &pingdomModels.CheckParams{}, route.Path)
+	m.checkGeneratorEnabler.Enable(variantName, &pingdomModels.CheckGeneratorParams{}, usecase.CheckGenerator)
 }

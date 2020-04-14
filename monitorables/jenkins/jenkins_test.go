@@ -10,7 +10,7 @@ import (
 
 func TestNewMonitorable(t *testing.T) {
 	// init Store
-	mockRouter, mockRouterGroup, mockConfigManager, s := test.InitMockAndStore()
+	store, mockMonitorableHelper := test.InitMockAndStore()
 
 	// init Env
 	// OK
@@ -19,29 +19,26 @@ func TestNewMonitorable(t *testing.T) {
 	_ = os.Setenv("MO_MONITORABLE_JENKINS_VARIANT1_URL", "url%sjenkins.example.com")
 
 	// NewMonitorable
-	monitorable := NewMonitorable(s)
+	monitorable := NewMonitorable(store)
 	assert.NotNil(t, monitorable)
 
 	// GetDisplayName
 	assert.NotNil(t, monitorable.GetDisplayName())
 
-	// GetVariants and check
-	if assert.Len(t, monitorable.GetVariants(), 3) {
+	// GetVariantNames and check
+	if assert.Len(t, monitorable.GetVariantNames(), 3) {
 		_, err := monitorable.Validate("variant1")
 		assert.Error(t, err)
 	}
 
 	// Enable
-	for _, variant := range monitorable.GetVariants() {
-		if valid, _ := monitorable.Validate(variant); valid {
-			monitorable.Enable(variant)
+	for _, variantName := range monitorable.GetVariantNames() {
+		if valid, _ := monitorable.Validate(variantName); valid {
+			monitorable.Enable(variantName)
 		}
 	}
 
 	// Test calls
-	mockRouter.AssertNumberOfCalls(t, "Group", 1)
-	mockRouterGroup.AssertNumberOfCalls(t, "GET", 1)
-	mockConfigManager.AssertNumberOfCalls(t, "RegisterTile", 2)
-	mockConfigManager.AssertNumberOfCalls(t, "EnableTile", 1)
-	mockConfigManager.AssertNumberOfCalls(t, "EnableDynamicTile", 1)
+	mockMonitorableHelper.RouterAssertNumberOfCalls(t, 1, 1)
+	mockMonitorableHelper.TileSettingsManagerAssertNumberOfCalls(t, 1, 1, 1, 1)
 }

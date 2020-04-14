@@ -5,6 +5,7 @@ package models
 import (
 	"regexp"
 
+	uiConfigModels "github.com/monitoror/monitoror/api/config/models"
 	coreModels "github.com/monitoror/monitoror/models"
 )
 
@@ -13,9 +14,9 @@ type (
 		URL           string `json:"url" query:"url"`
 		Format        string `json:"format" query:"format"`
 		Key           string `json:"key" query:"key"`
-		Regex         string `json:"regex" query:"regex"`
-		StatusCodeMin *int   `json:"statusCodeMin" query:"statusCodeMin"`
-		StatusCodeMax *int   `json:"statusCodeMax" query:"statusCodeMax"`
+		Regex         string `json:"regex,omitempty" query:"regex"`
+		StatusCodeMin *int   `json:"statusCodeMin,omitempty" query:"statusCodeMin"`
+		StatusCodeMax *int   `json:"statusCodeMax,omitempty" query:"statusCodeMax"`
 
 		Status      coreModels.TileStatus     `json:"status" query:"status"`
 		Message     string                    `json:"message" query:"message"`
@@ -24,20 +25,26 @@ type (
 	}
 )
 
-func (p *HTTPFormattedParams) IsValid() bool {
+func (p *HTTPFormattedParams) Validate(_ *uiConfigModels.ConfigVersion) *uiConfigModels.ConfigError {
+	// TODO
+
 	if !isValid(p.URL, p) {
-		return false
+		return &uiConfigModels.ConfigError{}
 	}
 
 	if !isSupportedFormat(p) {
-		return false
+		return &uiConfigModels.ConfigError{}
 	}
 
 	if !isValidKey(p) {
-		return false
+		return &uiConfigModels.ConfigError{}
 	}
 
-	return isValidRegex(p)
+	if !isValidRegex(p) {
+		return &uiConfigModels.ConfigError{}
+	}
+
+	return nil
 }
 
 func (p *HTTPFormattedParams) GetStatusCodes() (min int, max int) {

@@ -2,21 +2,30 @@
 
 package models
 
-import coreModels "github.com/monitoror/monitoror/models"
+import (
+	uiConfigModels "github.com/monitoror/monitoror/api/config/models"
+	coreModels "github.com/monitoror/monitoror/models"
+)
 
 type (
 	HTTPStatusParams struct {
 		URL           string `json:"url" query:"url"`
-		StatusCodeMin *int   `json:"statusCodeMin" query:"statusCodeMin"`
-		StatusCodeMax *int   `json:"statusCodeMax" query:"statusCodeMax"`
+		StatusCodeMin *int   `json:"statusCodeMin,omitempty" query:"statusCodeMin"`
+		StatusCodeMax *int   `json:"statusCodeMax,omitempty" query:"statusCodeMax"`
 
 		Status  coreModels.TileStatus `json:"status" query:"status"`
 		Message string                `json:"message" query:"message"`
 	}
 )
 
-func (p *HTTPStatusParams) IsValid() bool {
-	return isValid(p.URL, p)
+func (p *HTTPStatusParams) Validate(_ *uiConfigModels.ConfigVersion) *uiConfigModels.ConfigError {
+	// TODO
+
+	if !isValid(p.URL, p) {
+		return &uiConfigModels.ConfigError{}
+	}
+
+	return nil
 }
 
 func (p *HTTPStatusParams) GetStatusCodes() (min int, max int) {

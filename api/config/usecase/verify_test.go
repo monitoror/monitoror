@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	"github.com/monitoror/monitoror/api/config/models"
+	"github.com/monitoror/monitoror/api/config/versions"
 	coreModels "github.com/monitoror/monitoror/models"
 	jenkinsApi "github.com/monitoror/monitoror/monitorables/jenkins/api"
 	jenkinsModels "github.com/monitoror/monitoror/monitorables/jenkins/api/models"
@@ -13,11 +14,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func initTile(t *testing.T, rawConfig string) (tiles *models.TileConfig) {
+func initConfig(t *testing.T, rawConfig string) (tiles *models.TileConfig, conf *models.ConfigBag) {
 	tiles = &models.TileConfig{}
 
 	err := json.Unmarshal([]byte(rawConfig), &tiles)
 	assert.NoError(t, err)
+
+	conf = &models.ConfigBag{Config: &models.Config{Version: models.ParseVersion(versions.CurrentVersion)}}
 
 	return
 }
@@ -31,11 +34,11 @@ func TestUsecase_Verify_Success(t *testing.T) {
 		{ "type": "EMPTY" }
   ]
 }
-`, CurrentVersion)
+`, versions.CurrentVersion)
 
 	conf, err := readConfig(rawConfig)
 	if assert.NoError(t, err) {
-		usecase := initConfigUsecase(nil, nil)
+		usecase := initConfigUsecase(nil)
 		usecase.Verify(conf)
 
 		assert.Len(t, conf.Errors, 0)
@@ -52,12 +55,12 @@ func TestUsecase_Verify_SuccessWithOptionalParameters(t *testing.T) {
 		{ "type": "EMPTY" }
   ]
 }
-`, CurrentVersion)
+`, versions.CurrentVersion)
 
 	conf, err := readConfig(rawConfig)
 
 	if assert.NoError(t, err) {
-		usecase := initConfigUsecase(nil, nil)
+		usecase := initConfigUsecase(nil)
 		usecase.Verify(conf)
 
 		assert.Len(t, conf.Errors, 0)
@@ -81,7 +84,7 @@ func TestUsecase_Verify_Failed(t *testing.T) {
 			errorData: models.ConfigErrorData{
 				FieldName: "version",
 				Value:     `"0.0"`,
-				Expected:  fmt.Sprintf(`%q >= version >= %q`, MinimalVersion, CurrentVersion),
+				Expected:  fmt.Sprintf(`%q <= version <= %q`, versions.MinimalVersion, versions.CurrentVersion),
 			},
 		},
 		{
@@ -90,18 +93,18 @@ func TestUsecase_Verify_Failed(t *testing.T) {
 			errorData: models.ConfigErrorData{
 				FieldName: "version",
 				Value:     `"999.999"`,
-				Expected:  fmt.Sprintf(`%q >= version >= %q`, MinimalVersion, CurrentVersion),
+				Expected:  fmt.Sprintf(`%q <= version <= %q`, versions.MinimalVersion, versions.CurrentVersion),
 			},
 		},
 		{
-			rawConfig: fmt.Sprintf(`{"version": %q, "tiles": [{ "type": "EMPTY" }]}`, CurrentVersion),
+			rawConfig: fmt.Sprintf(`{"version": %q, "tiles": [{ "type": "EMPTY" }]}`, versions.CurrentVersion),
 			errorID:   models.ConfigErrorMissingRequiredField,
 			errorData: models.ConfigErrorData{
 				FieldName: "columns",
 			},
 		},
 		{
-			rawConfig: fmt.Sprintf(`{"version": %q, "columns": 0, "tiles": [{ "type": "EMPTY" }]}`, CurrentVersion),
+			rawConfig: fmt.Sprintf(`{"version": %q, "columns": 0, "tiles": [{ "type": "EMPTY" }]}`, versions.CurrentVersion),
 			errorID:   models.ConfigErrorInvalidFieldValue,
 			errorData: models.ConfigErrorData{
 				FieldName: "columns",
@@ -110,7 +113,7 @@ func TestUsecase_Verify_Failed(t *testing.T) {
 			},
 		},
 		{
-			rawConfig: fmt.Sprintf(`{"version": %q, "columns": 1, "zoom": 0, "tiles": [{ "type": "EMPTY" }]}`, CurrentVersion),
+			rawConfig: fmt.Sprintf(`{"version": %q, "columns": 1, "zoom": 0, "tiles": [{ "type": "EMPTY" }]}`, versions.CurrentVersion),
 			errorID:   models.ConfigErrorInvalidFieldValue,
 			errorData: models.ConfigErrorData{
 				FieldName: "zoom",
@@ -119,7 +122,7 @@ func TestUsecase_Verify_Failed(t *testing.T) {
 			},
 		},
 		{
-			rawConfig: fmt.Sprintf(`{"version": %q, "columns": 1, "zoom": 20, "tiles": [{ "type": "EMPTY" }]}`, CurrentVersion),
+			rawConfig: fmt.Sprintf(`{"version": %q, "columns": 1, "zoom": 20, "tiles": [{ "type": "EMPTY" }]}`, versions.CurrentVersion),
 			errorID:   models.ConfigErrorInvalidFieldValue,
 			errorData: models.ConfigErrorData{
 				FieldName: "zoom",
@@ -128,24 +131,24 @@ func TestUsecase_Verify_Failed(t *testing.T) {
 			},
 		},
 		{
-			rawConfig: fmt.Sprintf(`{"version": %q, "columns": 1}`, CurrentVersion),
+			rawConfig: fmt.Sprintf(`{"version": %q, "columns": 1}`, versions.CurrentVersion),
 			errorID:   models.ConfigErrorMissingRequiredField,
 			errorData: models.ConfigErrorData{
 				FieldName: "tiles",
 			},
 		},
 		{
-			rawConfig: fmt.Sprintf(`{"version": %q, "columns": 1, "tiles": []}`, CurrentVersion),
+			rawConfig: fmt.Sprintf(`{"version": %q, "columns": 1, "tiles": []}`, versions.CurrentVersion),
 			errorID:   models.ConfigErrorInvalidFieldValue,
 			errorData: models.ConfigErrorData{
 				FieldName:     "tiles",
-				ConfigExtract: fmt.Sprintf(`{"version":%q,"columns":1,"tiles":[]}`, CurrentVersion),
+				ConfigExtract: fmt.Sprintf(`{"version":%q,"columns":1,"tiles":[]}`, versions.CurrentVersion),
 			},
 		},
 	} {
 		conf, err := readConfig(testcase.rawConfig)
 		if assert.NoError(t, err) {
-			usecase := initConfigUsecase(nil, nil)
+			usecase := initConfigUsecase(nil)
 			usecase.Verify(conf)
 			if assert.Len(t, conf.Errors, 1) {
 				assert.Equal(t, testcase.errorID, conf.Errors[0].ID)
@@ -157,10 +160,9 @@ func TestUsecase_Verify_Failed(t *testing.T) {
 
 func TestUsecase_VerifyTile_Success(t *testing.T) {
 	rawConfig := `{ "type": "PORT", "columnSpan": 2, "rowSpan": 2, "params": { "hostname": "bserver.com", "port": 22 } }`
-	conf := &models.ConfigBag{}
 
-	tile := initTile(t, rawConfig)
-	usecase := initConfigUsecase(nil, nil)
+	tile, conf := initConfig(t, rawConfig)
+	usecase := initConfigUsecase(nil)
 	usecase.verifyTile(conf, tile, nil)
 
 	assert.Len(t, conf.Errors, 0)
@@ -168,10 +170,9 @@ func TestUsecase_VerifyTile_Success(t *testing.T) {
 
 func TestUsecase_VerifyTile_Success_Empty(t *testing.T) {
 	rawConfig := `{ "type": "EMPTY" }`
-	conf := &models.ConfigBag{}
 
-	tile := initTile(t, rawConfig)
-	usecase := initConfigUsecase(nil, nil)
+	tile, conf := initConfig(t, rawConfig)
+	usecase := initConfigUsecase(nil)
 	usecase.verifyTile(conf, tile, nil)
 
 	assert.Len(t, conf.Errors, 0)
@@ -184,10 +185,9 @@ func TestUsecase_VerifyTile_Success_Group(t *testing.T) {
           { "type": "PORT", "params": { "hostname": "bserver.com", "port": 22 } }
 			]}
 `
-	conf := &models.ConfigBag{}
 
-	tile := initTile(t, rawConfig)
-	usecase := initConfigUsecase(nil, nil)
+	tile, conf := initConfig(t, rawConfig)
+	usecase := initConfigUsecase(nil)
 	usecase.verifyTile(conf, tile, nil)
 
 	assert.Len(t, conf.Errors, 0)
@@ -203,18 +203,18 @@ func TestUsecase_VerifyTile_Failed(t *testing.T) {
 			rawConfig: `{ "type": "PING", "columnSpan": -1, "params": { "hostname": "server.com" } }`,
 			errorID:   models.ConfigErrorInvalidFieldValue,
 			errorData: models.ConfigErrorData{
-				FieldName: "columnSpan",
-				Value:     "-1",
-				Expected:  "columnSpan > 0",
+				FieldName:     "columnSpan",
+				Expected:      "columnSpan > 0",
+				ConfigExtract: `{"type":"PING","columnSpan":-1,"params":{"hostname":"server.com"}}`,
 			},
 		},
 		{
 			rawConfig: `{ "type": "PING", "rowSpan": -1, "params": { "hostname": "server.com" } }`,
 			errorID:   models.ConfigErrorInvalidFieldValue,
 			errorData: models.ConfigErrorData{
-				FieldName: "rowSpan",
-				Value:     "-1",
-				Expected:  "rowSpan > 0",
+				FieldName:     "rowSpan",
+				Expected:      "rowSpan > 0",
+				ConfigExtract: `{"type":"PING","rowSpan":-1,"params":{"hostname":"server.com"}}`,
 			},
 		},
 		{
@@ -270,7 +270,7 @@ func TestUsecase_VerifyTile_Failed(t *testing.T) {
 			errorID:   models.ConfigErrorMissingRequiredField,
 			errorData: models.ConfigErrorData{
 				FieldName:     "params",
-				ConfigExtract: `{"type":"PING"}`,
+				ConfigExtract: `{"type":"PING","configVariant":"default"}`,
 			},
 		},
 		{
@@ -291,18 +291,25 @@ func TestUsecase_VerifyTile_Failed(t *testing.T) {
 			},
 		},
 		{
-			rawConfig: `{ "type": "JENKINS-BUILD", "configVariant": "test", "params": { "job": "job1" } }`,
-			errorID:   models.ConfigErrorUnknownVariant,
+			rawConfig: `{ "type": "PING", "params": { "hostname": ["server.com"] } }`,
+			errorID:   models.ConfigErrorUnexpectedError,
+			errorData: models.ConfigErrorData{
+				FieldName:     "params",
+				ConfigExtract: `{"type":"PING","params":{"hostname":["server.com"]},"configVariant":"default"}`,
+			},
+		},
+		{
+			rawConfig: `{ "type": "JENKINS-BUILD", "configVariant": "disabledVariant", "params": { } }`,
+			errorID:   models.ConfigErrorDisabledVariant,
 			errorData: models.ConfigErrorData{
 				FieldName:     "configVariant",
-				Value:         `"test"`,
-				ConfigExtract: `{"type":"JENKINS-BUILD","params":{"job":"job1"},"configVariant":"test"}`,
+				Value:         `"disabledVariant"`,
+				ConfigExtract: `{"type":"JENKINS-BUILD","configVariant":"disabledVariant"}`,
 			},
 		},
 	} {
-		conf := &models.ConfigBag{}
-		tile := initTile(t, testcase.rawConfig)
-		usecase := initConfigUsecase(nil, nil)
+		tile, conf := initConfig(t, testcase.rawConfig)
+		usecase := initConfigUsecase(nil)
 		usecase.verifyTile(conf, tile, nil)
 
 		if assert.Len(t, conf.Errors, 1) {
@@ -312,60 +319,108 @@ func TestUsecase_VerifyTile_Failed(t *testing.T) {
 	}
 }
 
+func TestUsecase_VerifyTile_Failed_WrongMinimalVerison(t *testing.T) {
+	rawConfig := `{ "type": "PING", "params": { "hostname": "server.com" } }`
+
+	tile, conf := initConfig(t, rawConfig)
+	usecase := initConfigUsecase(nil)
+	usecase.registry.TileMetadata["PING"].MinimalVersion = "999.0"
+	usecase.verifyTile(conf, tile, nil)
+
+	if assert.Len(t, conf.Errors, 1) {
+		assert.Equal(t, models.ConfigErrorTileNotSupportedInThisVersion, conf.Errors[0].ID)
+		assert.Equal(t, "type", conf.Errors[0].Data.FieldName)
+		assert.Equal(t, `{"type":"PING","params":{"hostname":"server.com"},"configVariant":"default"}`, conf.Errors[0].Data.ConfigExtract)
+		assert.Equal(t, `"999.0" <= version`, conf.Errors[0].Data.Expected)
+	}
+}
+
 func TestUsecase_VerifyTile_Failed_WrongTileType(t *testing.T) {
 	rawConfig := `{ "type": "PONG", "params": { "hostname": "server.com" } }`
 
-	conf := &models.ConfigBag{}
-	tile := initTile(t, rawConfig)
-	usecase := initConfigUsecase(nil, nil)
+	tile, conf := initConfig(t, rawConfig)
+	usecase := initConfigUsecase(nil)
 	usecase.verifyTile(conf, tile, nil)
 
 	if assert.Len(t, conf.Errors, 1) {
 		assert.Equal(t, models.ConfigErrorUnknownTileType, conf.Errors[0].ID)
 		assert.Equal(t, "type", conf.Errors[0].Data.FieldName)
-		assert.Equal(t, `{"type":"PONG","params":{"hostname":"server.com"}}`, conf.Errors[0].Data.ConfigExtract)
+		assert.Equal(t, `{"type":"PONG","params":{"hostname":"server.com"},"configVariant":"default"}`, conf.Errors[0].Data.ConfigExtract)
 	}
 }
 
-func TestUsecase_VerifyTile_WithDynamicTile(t *testing.T) {
-	rawConfig := `{ "type": "JENKINS-MULTIBRANCH", "configVariant": "default", "params": { "job": "job1" } }`
-	conf := &models.ConfigBag{}
+func TestUsecase_VerifyTile_WithGenerator(t *testing.T) {
+	rawConfig := `{ "type": "GENERATE:JENKINS-BUILD", "configVariant": "default", "params": { "job": "job1" } }`
 
-	tile := initTile(t, rawConfig)
-
-	params := make(map[string]interface{})
-	params["job"] = "test"
-	mockBuilder := func(_ interface{}) ([]models.DynamicTileResult, error) {
-		return []models.DynamicTileResult{{TileType: jenkinsApi.JenkinsBuildTileType, Params: params}}, nil
+	tile, conf := initConfig(t, rawConfig)
+	params := &jenkinsModels.BuildParams{Job: "test"}
+	mockBuilder := func(_ interface{}) ([]models.GeneratedTile, error) {
+		return []models.GeneratedTile{{Params: params}}, nil
 	}
 
-	usecase := initConfigUsecase(nil, nil)
-	usecase.EnableDynamicTile(jenkinsApi.JenkinsMultiBranchTileType, coreModels.DefaultVariant, &jenkinsModels.MultiBranchParams{}, mockBuilder)
+	usecase := initConfigUsecase(nil)
+	usecase.registry.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
+		Enable(coreModels.DefaultVariant, &jenkinsModels.BuildGeneratorParams{}, mockBuilder)
 	usecase.verifyTile(conf, tile, nil)
 
 	assert.Len(t, conf.Errors, 0)
 }
 
-func TestUsecase_VerifyTile_WithDynamicTile_WithWrongVariant(t *testing.T) {
-	rawConfig := `{ "type": "JENKINS-MULTIBRANCH", "configVariant": "test", "params": { "job": "job1" } }`
-	conf := &models.ConfigBag{}
+func TestUsecase_VerifyTile_WithGenerator_WithWrongGenerator(t *testing.T) {
+	rawConfig := `{ "type": "GENERATE:PING", "params": {}}`
 
-	tile := initTile(t, rawConfig)
+	tile, conf := initConfig(t, rawConfig)
+	usecase := initConfigUsecase(nil)
+	usecase.registry.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
+		Enable(coreModels.DefaultVariant, &jenkinsModels.BuildGeneratorParams{}, nil)
 
-	params := make(map[string]interface{})
-	params["job"] = "test"
-	mockBuilder := func(_ interface{}) ([]models.DynamicTileResult, error) {
-		return []models.DynamicTileResult{{TileType: jenkinsApi.JenkinsBuildTileType, Params: params}}, nil
+	usecase.verifyTile(conf, tile, nil)
+
+	if assert.Len(t, conf.Errors, 1) {
+		assert.Equal(t, models.ConfigErrorUnknownGeneratorTileType, conf.Errors[0].ID)
+		assert.Equal(t, "type", conf.Errors[0].Data.FieldName)
+		assert.Equal(t, `{"type":"GENERATE:PING","configVariant":"default"}`, conf.Errors[0].Data.ConfigExtract)
+		assert.Equal(t, `GENERATE:JENKINS-BUILD`, conf.Errors[0].Data.Expected)
 	}
+}
 
-	usecase := initConfigUsecase(nil, nil)
-	usecase.EnableDynamicTile(jenkinsApi.JenkinsMultiBranchTileType, coreModels.DefaultVariant, &jenkinsModels.MultiBranchParams{}, mockBuilder)
+func TestUsecase_VerifyTile_WithWrongVariant(t *testing.T) {
+	rawConfig := `{ "type": "JENKINS-BUILD", "configVariant": "test", "params": { "job": "job1" } }`
+
+	tile, conf := initConfig(t, rawConfig)
+
+	usecase := initConfigUsecase(nil)
 	usecase.verifyTile(conf, tile, nil)
 
 	if assert.Len(t, conf.Errors, 1) {
 		assert.Equal(t, models.ConfigErrorUnknownVariant, conf.Errors[0].ID)
 		assert.Equal(t, "configVariant", conf.Errors[0].Data.FieldName)
 		assert.Equal(t, `"test"`, conf.Errors[0].Data.Value)
-		assert.Equal(t, `{"type":"JENKINS-MULTIBRANCH","params":{"job":"job1"},"configVariant":"test"}`, conf.Errors[0].Data.ConfigExtract)
+		assert.Contains(t, conf.Errors[0].Data.Expected, coreModels.DefaultVariant)
+		assert.Contains(t, conf.Errors[0].Data.Expected, "disabledVariant")
+		assert.Equal(t, `{"type":"JENKINS-BUILD","params":{"job":"job1"},"configVariant":"test"}`, conf.Errors[0].Data.ConfigExtract)
+	}
+}
+
+func TestUsecase_VerifyTile_WithGenerator_WithWrongVariant(t *testing.T) {
+	rawConfig := `{ "type": "GENERATE:JENKINS-BUILD", "configVariant": "test", "params": { "job": "job1" } }`
+
+	tile, conf := initConfig(t, rawConfig)
+	params := &jenkinsModels.BuildParams{Job: "test"}
+	mockBuilder := func(_ interface{}) ([]models.GeneratedTile, error) {
+		return []models.GeneratedTile{{Params: params}}, nil
+	}
+
+	usecase := initConfigUsecase(nil)
+	usecase.registry.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
+		Enable(coreModels.DefaultVariant, &jenkinsModels.BuildGeneratorParams{}, mockBuilder)
+	usecase.verifyTile(conf, tile, nil)
+
+	if assert.Len(t, conf.Errors, 1) {
+		assert.Equal(t, models.ConfigErrorUnknownVariant, conf.Errors[0].ID)
+		assert.Equal(t, "configVariant", conf.Errors[0].Data.FieldName)
+		assert.Equal(t, `"test"`, conf.Errors[0].Data.Value)
+		assert.Contains(t, conf.Errors[0].Data.Expected, coreModels.DefaultVariant)
+		assert.Equal(t, `{"type":"GENERATE:JENKINS-BUILD","params":{"job":"job1"},"configVariant":"test"}`, conf.Errors[0].Data.ConfigExtract)
 	}
 }

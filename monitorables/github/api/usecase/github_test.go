@@ -270,14 +270,14 @@ func TestChecks_Running(t *testing.T) {
 	}
 }
 
-func TestPullRequests_Error(t *testing.T) {
+func TestPullRequestsGenerator_Error(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetPullRequests", AnythingOfType("string"), AnythingOfType("string")).
 		Return(nil, errors.New("boom"))
 
 	gu := NewGithubUsecase(mockRepository)
 
-	results, err := gu.PullRequests(&models.PullRequestParams{Owner: "test", Repository: "test"})
+	results, err := gu.PullRequestsGenerator(&models.PullRequestGeneratorParams{Owner: "test", Repository: "test"})
 	if assert.Error(t, err) {
 		assert.Nil(t, results)
 		assert.IsType(t, &coreModels.MonitororError{}, err)
@@ -287,7 +287,7 @@ func TestPullRequests_Error(t *testing.T) {
 	}
 }
 
-func TestPullRequests_Success(t *testing.T) {
+func TestPullRequestsGenerator_Success(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetPullRequests", AnythingOfType("string"), AnythingOfType("string")).
 		Return([]models.PullRequest{
@@ -297,20 +297,33 @@ func TestPullRequests_Success(t *testing.T) {
 				Repository: "test",
 				Ref:        "master",
 			},
+			{
+				ID:         3,
+				Owner:      "test",
+				Repository: "test",
+				Ref:        "develop",
+			},
 		}, nil)
 
 	gu := NewGithubUsecase(mockRepository)
 
-	results, err := gu.PullRequests(&models.PullRequestParams{Owner: "test", Repository: "test"})
+	results, err := gu.PullRequestsGenerator(&models.PullRequestGeneratorParams{Owner: "test", Repository: "test"})
 	if assert.NoError(t, err) {
 		assert.NotNil(t, results)
-		assert.Len(t, results, 1)
-		assert.Equal(t, api.GithubChecksTileType, results[0].TileType)
+		assert.Len(t, results, 2)
 		assert.Equal(t, "PR#2 @ test", results[0].Label)
-		assert.Equal(t, "test", results[0].Params["owner"])
-		assert.Equal(t, "test", results[0].Params["repository"])
-		assert.Equal(t, "master", results[0].Params["ref"])
-
+		params, ok := results[0].Params.(*models.ChecksParams)
+		if assert.True(t, ok) {
+			assert.Equal(t, "test", params.Owner)
+			assert.Equal(t, "test", params.Repository)
+			assert.Equal(t, "master", params.Ref)
+		}
+		params, ok = results[1].Params.(*models.ChecksParams)
+		if assert.True(t, ok) {
+			assert.Equal(t, "test", params.Owner)
+			assert.Equal(t, "test", params.Repository)
+			assert.Equal(t, "develop", params.Ref)
+		}
 		mockRepository.AssertNumberOfCalls(t, "GetPullRequests", 1)
 		mockRepository.AssertExpectations(t)
 	}

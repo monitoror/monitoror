@@ -10,49 +10,46 @@ import (
 	"github.com/monitoror/monitoror/api/config"
 	"github.com/monitoror/monitoror/api/config/models"
 	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/service/registry"
+	"github.com/monitoror/monitoror/service/store"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
-)
-
-// Versions
-const (
-	CurrentVersion = Version1000
-	MinimalVersion = Version1000
-
-	Version1000 models.RawVersion = "1.0" // Initial version
 )
 
 const (
 	EmptyTileType coreModels.TileType = "EMPTY"
 	GroupTileType coreModels.TileType = "GROUP"
 
-	DynamicTileStoreKeyPrefix = "monitoror.config.dynamicTile.key"
+	TileGeneratorStoreKeyPrefix = "monitoror.config.tileGenerator.key"
 )
 
 type (
 	configUsecase struct {
 		repository config.Repository
 
-		configData *ConfigData
+		registry *registry.MetadataRegistry
 
-		// dynamic tile cache. used in case of timeout
-		dynamicTileStore cache.Store
-		cacheExpiration  time.Duration
+		// generator tile cache. used in case of timeout
+		generatorTileStore cache.Store
+		cacheExpiration    time.Duration
+
+		initialMaxDelay int
 	}
 )
 
-func NewConfigUsecase(repository config.Repository, store cache.Store, cacheExpiration int) config.Usecase {
-	tileConfigs := make(map[coreModels.TileType]map[string]*TileConfig)
+func NewConfigUsecase(repository config.Repository, store *store.Store) config.Usecase {
+	tileConfigs := make(map[coreModels.TileType]map[string]*models.TileConfig)
 
 	// Used for authorized type
 	tileConfigs[EmptyTileType] = nil
 	tileConfigs[GroupTileType] = nil
 
 	return &configUsecase{
-		repository:       repository,
-		configData:       initConfigData(),
-		dynamicTileStore: store,
-		cacheExpiration:  time.Millisecond * time.Duration(cacheExpiration),
+		repository:         repository,
+		registry:           store.Registry.(*registry.MetadataRegistry),
+		generatorTileStore: store.CacheStore,
+		cacheExpiration:    time.Millisecond * time.Duration(store.CoreConfig.DownstreamCacheExpiration),
+		initialMaxDelay:    store.CoreConfig.InitialMaxDelay,
 	}
 }
 

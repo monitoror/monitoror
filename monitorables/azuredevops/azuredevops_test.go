@@ -10,7 +10,7 @@ import (
 
 func TestNewMonitorable(t *testing.T) {
 	// init Store
-	mockRouter, mockRouterGroup, mockConfigManager, s := test.InitMockAndStore()
+	store, mockMonitorableHelper := test.InitMockAndStore()
 
 	// init Env
 	// OK
@@ -22,14 +22,14 @@ func TestNewMonitorable(t *testing.T) {
 	_ = os.Setenv("MO_MONITORABLE_AZUREDEVOPS_VARIANT2_URL", "url%sazure.example.com/myProject2")
 
 	// NewMonitorable
-	monitorable := NewMonitorable(s)
+	monitorable := NewMonitorable(store)
 	assert.NotNil(t, monitorable)
 
 	// GetDisplayName
 	assert.NotNil(t, monitorable.GetDisplayName())
 
-	// GetVariants and check
-	if assert.Len(t, monitorable.GetVariants(), 4) {
+	// GetVariantNames and check
+	if assert.Len(t, monitorable.GetVariantNames(), 4) {
 		_, err := monitorable.Validate("variant1")
 		assert.Error(t, err)
 		_, err = monitorable.Validate("variant2")
@@ -37,16 +37,13 @@ func TestNewMonitorable(t *testing.T) {
 	}
 
 	// Enable
-	for _, variant := range monitorable.GetVariants() {
-		if valid, _ := monitorable.Validate(variant); valid {
-			monitorable.Enable(variant)
+	for _, variantName := range monitorable.GetVariantNames() {
+		if valid, _ := monitorable.Validate(variantName); valid {
+			monitorable.Enable(variantName)
 		}
 	}
 
 	// Test calls
-	mockRouter.AssertNumberOfCalls(t, "Group", 1)
-	mockRouterGroup.AssertNumberOfCalls(t, "GET", 2)
-	mockConfigManager.AssertNumberOfCalls(t, "RegisterTile", 2)
-	mockConfigManager.AssertNumberOfCalls(t, "EnableTile", 2)
-	mockConfigManager.AssertNumberOfCalls(t, "EnableDynamicTile", 0)
+	mockMonitorableHelper.RouterAssertNumberOfCalls(t, 1, 2)
+	mockMonitorableHelper.TileSettingsManagerAssertNumberOfCalls(t, 2, 0, 2, 0)
 }

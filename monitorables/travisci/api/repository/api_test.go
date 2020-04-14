@@ -18,11 +18,10 @@ import (
 
 func initRepository(t *testing.T, buildsAPI pkgTravis.TravisCI) *travisCIRepository {
 	conf := &config.TravisCI{
-		URL:             "https://travis.exemple.com",
-		Token:           config.Default.Token,
-		GithubToken:     config.Default.GithubToken,
-		Timeout:         config.Default.Timeout,
-		InitialMaxDelay: config.Default.InitialMaxDelay,
+		URL:         "https://travis.exemple.com",
+		Token:       config.Default.Token,
+		GithubToken: config.Default.GithubToken,
+		Timeout:     config.Default.Timeout,
 	}
 
 	repository := NewTravisCIRepository(conf)
@@ -39,11 +38,10 @@ func initRepository(t *testing.T, buildsAPI pkgTravis.TravisCI) *travisCIReposit
 
 func TestNewApiTravisCIRepository_Panic(t *testing.T) {
 	conf := &config.TravisCI{
-		URL:             "",
-		Token:           config.Default.Token,
-		GithubToken:     "token",
-		Timeout:         config.Default.Timeout,
-		InitialMaxDelay: config.Default.InitialMaxDelay,
+		URL:         "",
+		Token:       config.Default.Token,
+		GithubToken: "token",
+		Timeout:     config.Default.Timeout,
 	}
 	// Panic because ApiURL is not define
 	assert.Panics(t, func() {

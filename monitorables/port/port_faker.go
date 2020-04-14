@@ -3,14 +3,14 @@
 package port
 
 import (
-	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
-	coreConfig "github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/api/config/versions"
 	"github.com/monitoror/monitoror/internal/pkg/monitorable"
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/port/api"
 	portDelivery "github.com/monitoror/monitoror/monitorables/port/api/delivery/http"
 	portModels "github.com/monitoror/monitoror/monitorables/port/api/models"
 	portUsecase "github.com/monitoror/monitoror/monitorables/port/api/usecase"
+	"github.com/monitoror/monitoror/service/registry"
 	"github.com/monitoror/monitoror/service/store"
 )
 
@@ -18,29 +18,31 @@ type Monitorable struct {
 	monitorable.DefaultMonitorableFaker
 
 	store *store.Store
+
+	// Config tile settings
+	portTileEnabler registry.TileEnabler
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
-	monitorable := &Monitorable{}
-	monitorable.store = store
+	m := &Monitorable{}
+	m.store = store
 
 	// Register Monitorable Tile in config manager
-	store.UIConfigManager.RegisterTile(api.PortTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)
+	m.portTileEnabler = store.Registry.RegisterTile(api.PortTileType, versions.MinimalVersion, m.GetVariantNames())
 
-	return monitorable
+	return m
 }
 
 func (m *Monitorable) GetDisplayName() string { return "Port (faker)" }
 
-func (m *Monitorable) Enable(variant coreModels.VariantName) {
+func (m *Monitorable) Enable(variantName coreModels.VariantName) {
 	usecase := portUsecase.NewPortUsecase()
 	delivery := portDelivery.NewPortDelivery(usecase)
 
 	// EnableTile route to echo
-	routeGroup := m.store.MonitorableRouter.Group("/port", variant)
+	routeGroup := m.store.MonitorableRouter.Group("/port", variantName)
 	route := routeGroup.GET("/port", delivery.GetPort)
 
 	// EnableTile data for config hydration
-	m.store.UIConfigManager.EnableTile(api.PortTileType, variant,
-		&portModels.PortParams{}, route.Path, coreConfig.DefaultInitialMaxDelay)
+	m.portTileEnabler.Enable(variantName, &portModels.PortParams{}, route.Path)
 }

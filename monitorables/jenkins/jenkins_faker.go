@@ -3,14 +3,14 @@
 package jenkins
 
 import (
-	uiConfig "github.com/monitoror/monitoror/api/config/usecase"
-	coreConfig "github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/api/config/versions"
 	"github.com/monitoror/monitoror/internal/pkg/monitorable"
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/jenkins/api"
 	jenkinsDelivery "github.com/monitoror/monitoror/monitorables/jenkins/api/delivery/http"
 	jenkinsModels "github.com/monitoror/monitoror/monitorables/jenkins/api/models"
 	jenkinsUsecase "github.com/monitoror/monitoror/monitorables/jenkins/api/usecase"
+	"github.com/monitoror/monitoror/service/registry"
 	"github.com/monitoror/monitoror/service/store"
 )
 
@@ -18,29 +18,31 @@ type Monitorable struct {
 	monitorable.DefaultMonitorableFaker
 
 	store *store.Store
+
+	// Config tile settings
+	buildTileEnabler registry.TileEnabler
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
-	monitorable := &Monitorable{}
-	monitorable.store = store
+	m := &Monitorable{}
+	m.store = store
 
 	// Register Monitorable Tile in config manager
-	store.UIConfigManager.RegisterTile(api.JenkinsBuildTileType, monitorable.GetVariants(), uiConfig.MinimalVersion)
+	m.buildTileEnabler = store.Registry.RegisterTile(api.JenkinsBuildTileType, versions.MinimalVersion, m.GetVariantNames())
 
-	return monitorable
+	return m
 }
 
 func (m *Monitorable) GetDisplayName() string { return "Jenkins (faker)" }
 
-func (m *Monitorable) Enable(variant coreModels.VariantName) {
+func (m *Monitorable) Enable(variantName coreModels.VariantName) {
 	usecase := jenkinsUsecase.NewJenkinsUsecase()
 	delivery := jenkinsDelivery.NewJenkinsDelivery(usecase)
 
 	// EnableTile route to echo
-	routeGroup := m.store.MonitorableRouter.Group("/jenkins", variant)
+	routeGroup := m.store.MonitorableRouter.Group("/jenkins", variantName)
 	route := routeGroup.GET("/build", delivery.GetBuild)
 
 	// EnableTile data for config hydration
-	m.store.UIConfigManager.EnableTile(api.JenkinsBuildTileType, variant,
-		&jenkinsModels.BuildParams{}, route.Path, coreConfig.DefaultInitialMaxDelay)
+	m.buildTileEnabler.Enable(variantName, &jenkinsModels.BuildParams{}, route.Path)
 }

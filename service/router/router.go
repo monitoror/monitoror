@@ -14,7 +14,7 @@ import (
 
 type (
 	MonitorableRouter interface {
-		Group(path string, variant coreModels.VariantName) MonitorableRouterGroup
+		Group(path string, variantName coreModels.VariantName) MonitorableRouterGroup
 	}
 	MonitorableRouterGroup interface {
 		GET(path string, handlerFunc echo.HandlerFunc, options ...options.RouterOption) *echo.Route
@@ -35,8 +35,8 @@ func NewMonitorableRouter(apiVersion *echo.Group, cacheMiddleware *middlewares.C
 	return &router{apiVersion: apiVersion, cacheMiddleware: cacheMiddleware}
 }
 
-func (r *router) Group(path string, variant coreModels.VariantName) MonitorableRouterGroup {
-	return &group{router: r, group: r.apiVersion.Group(fmt.Sprintf(`%s/%s`, path, variant))}
+func (r *router) Group(path string, variantName coreModels.VariantName) MonitorableRouterGroup {
+	return &group{router: r, group: r.apiVersion.Group(fmt.Sprintf(`%s/%s`, path, variantName))}
 }
 
 func (g *group) GET(path string, handlerFunc echo.HandlerFunc, opts ...options.RouterOption) *echo.Route {

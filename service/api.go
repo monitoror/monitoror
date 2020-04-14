@@ -20,12 +20,11 @@ func InitApis(s *Server) {
 
 	// ------------- CONFIG ------------- //
 	confRepository := configRepository.NewConfigRepository()
-	confUsecase := configUsecase.NewConfigUsecase(confRepository, s.store.CacheStore, s.store.CoreConfig.DownstreamCacheExpiration)
+	confUsecase := configUsecase.NewConfigUsecase(confRepository, s.store)
 	confDelivery := configDelivery.NewConfigDelivery(confUsecase)
 	apiGroup.GET("/config", s.store.CacheMiddleware.UpstreamCacheHandler(confDelivery.GetConfig))
 
 	// ---------------------------------- //
-	s.store.UIConfigManager = confUsecase
 	s.store.MonitorableRouter = router.NewMonitorableRouter(apiGroup, s.store.CacheMiddleware)
 	// ---------------------------------- //
 

@@ -4,18 +4,19 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/monitoror/monitoror/internal/pkg/monitorable/validator"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestBuildParams_IsValid(t *testing.T) {
-	p := BuildParams{Job: "test", Branch: "test"}
-	assert.True(t, p.IsValid())
+func TestBuildParams_Validate(t *testing.T) {
+	param := &BuildParams{Job: "test", Branch: "test"}
+	assert.NoError(t, validator.Validate(param))
 
-	p = BuildParams{Job: "test"}
-	assert.True(t, p.IsValid())
+	param = &BuildParams{Job: "test"}
+	assert.NoError(t, validator.Validate(param))
 
-	p = BuildParams{}
-	assert.False(t, p.IsValid())
+	param = &BuildParams{}
+	assert.Error(t, validator.Validate(param))
 }
 
 func TestBuildParams_String(t *testing.T) {

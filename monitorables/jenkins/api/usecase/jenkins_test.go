@@ -227,7 +227,7 @@ func TestBuild_Running(t *testing.T) {
 	}
 }
 
-func TestMultiBranchTile_Success(t *testing.T) {
+func TestBuildGenerator_Success(t *testing.T) {
 	repositoryJob := &models.Job{
 		ID:        job,
 		Buildable: false,
@@ -241,40 +241,48 @@ func TestMultiBranchTile_Success(t *testing.T) {
 
 	tu := NewJenkinsUsecase(mockRepository)
 
-	tiles, err := tu.MultiBranch(&models.MultiBranchParams{Job: job})
+	tiles, err := tu.BuildGenerator(&models.BuildGeneratorParams{Job: job})
 	if assert.NoError(t, err) {
 		assert.Len(t, tiles, 3)
-		assert.Equal(t, api.JenkinsBuildTileType, tiles[0].TileType)
-		assert.Equal(t, job, tiles[0].Params["job"])
-		assert.Equal(t, "master", tiles[0].Params["branch"])
-		assert.Equal(t, api.JenkinsBuildTileType, tiles[1].TileType)
-		assert.Equal(t, job, tiles[1].Params["job"])
-		assert.Equal(t, "develop", tiles[1].Params["branch"])
-		assert.Equal(t, api.JenkinsBuildTileType, tiles[2].TileType)
-		assert.Equal(t, job, tiles[2].Params["job"])
-		assert.Equal(t, "feat%2Ftest-deploy", tiles[2].Params["branch"])
+		params, ok := tiles[0].Params.(*models.BuildParams)
+		if assert.True(t, ok) {
+			assert.Equal(t, job, params.Job)
+			assert.Equal(t, "master", params.Branch)
+		}
+		params, ok = tiles[1].Params.(*models.BuildParams)
+		if assert.True(t, ok) {
+			assert.Equal(t, job, params.Job)
+			assert.Equal(t, "develop", params.Branch)
+		}
+		params, ok = tiles[2].Params.(*models.BuildParams)
+		if assert.True(t, ok) {
+			assert.Equal(t, job, params.Job)
+			assert.Equal(t, "feat%2Ftest-deploy", params.Branch)
+		}
 	}
 
-	tiles, err = tu.MultiBranch(&models.MultiBranchParams{Job: job, Match: "feat/*"})
+	tiles, err = tu.BuildGenerator(&models.BuildGeneratorParams{Job: job, Match: "feat/*"})
 	if assert.NoError(t, err) {
 		assert.Len(t, tiles, 1)
-		assert.Equal(t, api.JenkinsBuildTileType, tiles[0].TileType)
-		assert.Equal(t, job, tiles[0].Params["job"])
-		assert.Equal(t, "feat%2Ftest-deploy", tiles[0].Params["branch"])
+		params, ok := tiles[0].Params.(*models.BuildParams)
+		if assert.True(t, ok) {
+			assert.Equal(t, job, params.Job)
+			assert.Equal(t, "feat%2Ftest-deploy", params.Branch)
+		}
 	}
 
 	mockRepository.AssertNumberOfCalls(t, "GetJob", 2)
 	mockRepository.AssertExpectations(t)
 }
 
-func TestMultiBranchTile_Error(t *testing.T) {
+func TestBuildGenerator_Error(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetJob", AnythingOfType("string"), AnythingOfType("string")).
 		Return(nil, errors.New("boom"))
 
 	tu := NewJenkinsUsecase(mockRepository)
 
-	_, err := tu.MultiBranch(&models.MultiBranchParams{Job: "test"})
+	_, err := tu.BuildGenerator(&models.BuildGeneratorParams{Job: "test"})
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "unable to find job")
 
@@ -282,18 +290,18 @@ func TestMultiBranchTile_Error(t *testing.T) {
 	mockRepository.AssertExpectations(t)
 }
 
-func TestMultiBranchTile_ErrorWithRegex(t *testing.T) {
+func TestBuildGenerator_ErrorWithRegex(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetJob", AnythingOfType("string"), AnythingOfType("string")).
 		Return(nil, nil)
 
 	tu := NewJenkinsUsecase(mockRepository)
 
-	_, err := tu.MultiBranch(&models.MultiBranchParams{Job: "test", Match: "("})
+	_, err := tu.BuildGenerator(&models.BuildGeneratorParams{Job: "test", Match: "("})
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "error parsing regexp")
 
-	_, err = tu.MultiBranch(&models.MultiBranchParams{Job: "test", Unmatch: "("})
+	_, err = tu.BuildGenerator(&models.BuildGeneratorParams{Job: "test", Unmatch: "("})
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "error parsing regexp")
 

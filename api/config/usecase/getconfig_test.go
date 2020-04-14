@@ -7,6 +7,7 @@ import (
 
 	"github.com/monitoror/monitoror/api/config/mocks"
 	"github.com/monitoror/monitoror/api/config/models"
+	"github.com/monitoror/monitoror/api/config/versions"
 
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"
@@ -16,7 +17,7 @@ func TestUsecase_GetConfig_WithURL_Success(t *testing.T) {
 	mockRepo := new(mocks.Repository)
 	mockRepo.On("GetConfigFromURL", AnythingOfType("string")).Return(&models.Config{}, nil)
 
-	usecase := initConfigUsecase(mockRepo, nil)
+	usecase := initConfigUsecase(mockRepo)
 
 	configBag := usecase.GetConfig(&models.ConfigParams{URL: "test"})
 	if assert.Len(t, configBag.Errors, 0) {
@@ -29,7 +30,7 @@ func TestUsecase_GetConfig_WithPath_Success(t *testing.T) {
 	mockRepo := new(mocks.Repository)
 	mockRepo.On("GetConfigFromPath", AnythingOfType("string")).Return(&models.Config{}, nil)
 
-	usecase := initConfigUsecase(mockRepo, nil)
+	usecase := initConfigUsecase(mockRepo)
 
 	configBag := usecase.GetConfig(&models.ConfigParams{Path: "test"})
 	if assert.Len(t, configBag.Errors, 0) {
@@ -59,7 +60,7 @@ func TestUsecase_GetConfig_WithError(t *testing.T) {
 			errorData: models.ConfigErrorData{
 				Value:     "18",
 				FieldName: "version",
-				Expected:  fmt.Sprintf("%q >= version >= %q", MinimalVersion, CurrentVersion),
+				Expected:  fmt.Sprintf("%q >= version >= %q", versions.MinimalVersion, versions.CurrentVersion),
 			},
 		},
 		{
@@ -86,7 +87,7 @@ func TestUsecase_GetConfig_WithError(t *testing.T) {
 		mockRepo := new(mocks.Repository)
 		mockRepo.On("GetConfigFromPath", AnythingOfType("string")).Return(nil, testcase.err)
 
-		usecase := initConfigUsecase(mockRepo, nil)
+		usecase := initConfigUsecase(mockRepo)
 
 		configBag := usecase.GetConfig(&models.ConfigParams{Path: "test"})
 		if assert.Len(t, configBag.Errors, 1) {

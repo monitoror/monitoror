@@ -2,7 +2,10 @@
 
 package models
 
-import coreModels "github.com/monitoror/monitoror/models"
+import (
+	uiConfigModels "github.com/monitoror/monitoror/api/config/models"
+	coreModels "github.com/monitoror/monitoror/models"
+)
 
 type (
 	CheckParams struct {
@@ -12,6 +15,12 @@ type (
 	}
 )
 
-func (p *CheckParams) IsValid() bool {
-	return p.ID != nil
+func (p *CheckParams) Validate(_ *uiConfigModels.ConfigVersion) *uiConfigModels.ConfigError {
+	// TODO
+
+	if p.ID == nil {
+		return &uiConfigModels.ConfigError{}
+	}
+
+	return nil
 }

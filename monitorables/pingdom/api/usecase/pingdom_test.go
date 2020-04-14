@@ -154,13 +154,13 @@ func TestPingdomUsecase_Check_Bulk_WithCache(t *testing.T) {
 	}
 }
 
-func TestPingdomUsecase_Checks_Error(t *testing.T) {
+func TestPingdomUsecase_CheckGenerator_Error(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetChecks", AnythingOfType("string")).Return(nil, errors.New("boom"))
 
 	pu := initUsecase(mockRepository)
 
-	results, err := pu.Checks(&models.ChecksParams{SortBy: "name"})
+	results, err := pu.CheckGenerator(&models.CheckGeneratorParams{SortBy: "name"})
 	if assert.Error(t, err) {
 		assert.Nil(t, results)
 		mockRepository.AssertNumberOfCalls(t, "GetChecks", 1)
@@ -168,7 +168,7 @@ func TestPingdomUsecase_Checks_Error(t *testing.T) {
 	}
 }
 
-func TestPingdomUsecase_Checks(t *testing.T) {
+func TestPingdomUsecase_CheckGenerator(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetChecks", AnythingOfType("string")).
 		Return([]models.Check{
@@ -179,12 +179,14 @@ func TestPingdomUsecase_Checks(t *testing.T) {
 
 	pu := initUsecase(mockRepository)
 
-	results, err := pu.Checks(&models.ChecksParams{SortBy: "name"})
+	results, err := pu.CheckGenerator(&models.CheckGeneratorParams{SortBy: "name"})
 	if assert.NoError(t, err) {
 		assert.NotNil(t, results)
 		assert.Len(t, results, 2)
 		assert.Equal(t, "Check 1", results[0].Label)
+		assert.Equal(t, 1100, *results[0].Params.(models.CheckParams).ID)
 		assert.Equal(t, "Check 2", results[1].Label)
+		assert.Equal(t, 1000, *results[1].Params.(models.CheckParams).ID)
 		mockRepository.AssertNumberOfCalls(t, "GetChecks", 1)
 		mockRepository.AssertExpectations(t)
 	}

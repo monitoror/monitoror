@@ -7,12 +7,10 @@ import (
 	"regexp"
 	"time"
 
-	models2 "github.com/monitoror/monitoror/api/config/models"
-
-	"github.com/monitoror/monitoror/monitorables/jenkins/api"
-
+	uiConfigModels "github.com/monitoror/monitoror/api/config/models"
 	"github.com/monitoror/monitoror/internal/pkg/monitorable/cache"
 	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/monitorables/jenkins/api"
 	"github.com/monitoror/monitoror/monitorables/jenkins/api/models"
 	"github.com/monitoror/monitoror/pkg/git"
 
@@ -121,8 +119,8 @@ func (tu *jenkinsUsecase) Build(params *models.BuildParams) (*coreModels.Tile, e
 	return tile, nil
 }
 
-func (tu *jenkinsUsecase) MultiBranch(params interface{}) ([]models2.DynamicTileResult, error) {
-	mbParams := params.(*models.MultiBranchParams)
+func (tu *jenkinsUsecase) BuildGenerator(params interface{}) ([]uiConfigModels.GeneratedTile, error) {
+	mbParams := params.(*models.BuildGeneratorParams)
 
 	job, err := tu.repository.GetJob(mbParams.Job, "")
 	if err != nil {
@@ -139,7 +137,7 @@ func (tu *jenkinsUsecase) MultiBranch(params interface{}) ([]models2.DynamicTile
 		return nil, err
 	}
 
-	var results []models2.DynamicTileResult
+	var results []uiConfigModels.GeneratedTile
 	for _, branch := range job.Branches {
 		branchToFilter, _ := url.QueryUnescape(branch)
 		if !matcher.MatchString(branchToFilter) ||
@@ -147,13 +145,12 @@ func (tu *jenkinsUsecase) MultiBranch(params interface{}) ([]models2.DynamicTile
 			continue
 		}
 
-		p := make(map[string]interface{})
-		p["job"] = mbParams.Job
-		p["branch"] = branch
+		p := &models.BuildParams{}
+		p.Job = mbParams.Job
+		p.Branch = branch
 
-		results = append(results, models2.DynamicTileResult{
-			TileType: api.JenkinsBuildTileType,
-			Params:   p,
+		results = append(results, uiConfigModels.GeneratedTile{
+			Params: p,
 		})
 	}
 
