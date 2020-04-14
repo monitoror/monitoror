@@ -10,7 +10,7 @@ import (
 )
 
 type (
-	// TileManager is used to register Tile and Tile generator in config for verify / hydrate
+	// Registry is used to register Tile and Generator in config for verify / hydrate
 	Registry interface {
 		RegisterTile(tileType coreModels.TileType, minimalVersion models.RawVersion, variantNames []coreModels.VariantName) TileEnabler
 		RegisterGenerator(generatedTileType coreModels.TileType, minimalVersion models.RawVersion, variantNames []coreModels.VariantName) GeneratorEnabler
@@ -24,13 +24,13 @@ type (
 		Enable(variantName coreModels.VariantName, generatorParamsValidator models.ParamsValidator, tileGeneratorFunction models.TileGeneratorFunction)
 	}
 
-	// TileAccessor is used in verify. Matching Tile and Generator.
+	// TileMetadataExplorer is used in verify. Matching tileMetadata and generatorMetadata.
 	TileMetadataExplorer interface {
 		GetMinimalVersion() models.RawVersion
 		GetVariant(variantName coreModels.VariantName) (VariantMetadataExplorer, bool)
 		GetVariantNames() []coreModels.VariantName
 	}
-	// VariantAccessor is used in verify. Matching TileVariant and GeneratorVariant.
+	// VariantMetadataExplorer is used in verify. Matching tileVariantMetadata and generatorVariantMetadata.
 	VariantMetadataExplorer interface {
 		IsEnabled() bool
 		GetValidator() models.ParamsValidator
@@ -48,7 +48,7 @@ type (
 		TileType coreModels.TileType
 		// MinimalVersion is the version that makes the tile available
 		MinimalVersion models.RawVersion
-		// SettingVariants list all registered variants (can be available or not)
+		// VariantsMetadata list all registered variants (can be available or not)
 		VariantsMetadata map[coreModels.VariantName]*tileVariantMetadata
 	}
 
@@ -59,7 +59,7 @@ type (
 		// VariantName
 		VariantName coreModels.VariantName
 
-		// Route path of the api endpoint for this tile. Used by hydrate
+		// RoutePath path of the api endpoint for this tile. Used by hydrate
 		RoutePath *string
 		// ParamsValidator is used to validate given params
 		ParamsValidator models.ParamsValidator
@@ -68,11 +68,11 @@ type (
 	generatorMetadata struct {
 		// TileType
 		TileType coreModels.TileType
-		// TileType
+		// GeneratedTileType
 		GeneratedTileType coreModels.TileType
 		// MinimalVersion is the version that makes the tile available
 		MinimalVersion models.RawVersion
-		// Variants list all registered variants (can be available or not)
+		// VariantsMetadata list all registered variants (can be available or not)
 		VariantsMetadata map[coreModels.VariantName]*generatorVariantMetadata
 	}
 
