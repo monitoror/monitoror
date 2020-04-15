@@ -108,7 +108,6 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 				ConfigExtract: pkgConfig.Stringify(tile),
 			},
 		})
-		return
 	}
 
 	if tile.RowSpan != nil && *tile.RowSpan <= 0 {
@@ -121,7 +120,6 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 				ConfigExtract: pkgConfig.Stringify(tile),
 			},
 		})
-		return
 	}
 
 	// Empty tile, skip
