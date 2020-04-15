@@ -3,6 +3,8 @@
 package models
 
 import (
+	"fmt"
+
 	uiConfigModels "github.com/monitoror/monitoror/api/config/models"
 	coreModels "github.com/monitoror/monitoror/models"
 )
@@ -17,10 +19,12 @@ type (
 )
 
 func (p *PingParams) Validate(_ *uiConfigModels.ConfigVersion) *uiConfigModels.ConfigError {
-	// TODO
-
 	if p.Hostname == "" {
-		return &uiConfigModels.ConfigError{}
+		return &uiConfigModels.ConfigError{
+			ID:      uiConfigModels.ConfigErrorMissingRequiredField,
+			Message: fmt.Sprintf(`Required "hostname" field is missing.`),
+			Data:    uiConfigModels.ConfigErrorData{FieldName: "hostname"},
+		}
 	}
 
 	return nil

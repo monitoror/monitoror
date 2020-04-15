@@ -4,9 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"strings"
+
+	"github.com/fatih/structs"
 
 	"github.com/monitoror/monitoror/api/config/models"
 	"github.com/monitoror/monitoror/api/config/versions"
+	pkgConfig "github.com/monitoror/monitoror/internal/pkg/api/config"
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/service/registry"
 )
@@ -29,7 +33,7 @@ func (cu *configUsecase) Verify(configBag *models.ConfigBag) {
 			Message: fmt.Sprintf(`Unsupported configuration version. Minimal supported version is %q. Current config version is: %q`, versions.MinimalVersion, versions.CurrentVersion),
 			Data: models.ConfigErrorData{
 				FieldName: "version",
-				Value:     stringify(configBag.Config.Version),
+				Value:     pkgConfig.Stringify(configBag.Config.Version),
 				Expected:  fmt.Sprintf(`%q <= version <= %q`, versions.MinimalVersion, versions.CurrentVersion),
 			},
 		})
@@ -50,7 +54,7 @@ func (cu *configUsecase) Verify(configBag *models.ConfigBag) {
 			Message: fmt.Sprintf(`Invalid "columns" field. Must be a positive integer.`),
 			Data: models.ConfigErrorData{
 				FieldName: "columns",
-				Value:     stringify(configBag.Config.Columns),
+				Value:     pkgConfig.Stringify(configBag.Config.Columns),
 				Expected:  "columns > 0",
 			},
 		})
@@ -62,7 +66,7 @@ func (cu *configUsecase) Verify(configBag *models.ConfigBag) {
 			Message: `Invalid "zoom" field. Must be a positive float between 0 and 10.`,
 			Data: models.ConfigErrorData{
 				FieldName: "zoom",
-				Value:     stringify(configBag.Config.Zoom),
+				Value:     pkgConfig.Stringify(configBag.Config.Zoom),
 				Expected:  "0 < zoom <= 10",
 			},
 		})
@@ -82,7 +86,7 @@ func (cu *configUsecase) Verify(configBag *models.ConfigBag) {
 			Message: `Invalid "tiles" field. Must be a non-empty array.`,
 			Data: models.ConfigErrorData{
 				FieldName:     "tiles",
-				ConfigExtract: stringify(configBag.Config),
+				ConfigExtract: pkgConfig.Stringify(configBag.Config),
 			},
 		})
 	} else {
@@ -101,10 +105,9 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 			Data: models.ConfigErrorData{
 				FieldName:     "columnSpan",
 				Expected:      "columnSpan > 0",
-				ConfigExtract: stringify(tile),
+				ConfigExtract: pkgConfig.Stringify(tile),
 			},
 		})
-		return
 	}
 
 	if tile.RowSpan != nil && *tile.RowSpan <= 0 {
@@ -114,10 +117,9 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 			Data: models.ConfigErrorData{
 				FieldName:     "rowSpan",
 				Expected:      "rowSpan > 0",
-				ConfigExtract: stringify(tile),
+				ConfigExtract: pkgConfig.Stringify(tile),
 			},
 		})
-		return
 	}
 
 	// Empty tile, skip
@@ -127,8 +129,8 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 				ID:      models.ConfigErrorUnauthorizedSubtileType,
 				Message: fmt.Sprintf(`Unauthorized %q type in %s tile.`, EmptyTileType, GroupTileType),
 				Data: models.ConfigErrorData{
-					ConfigExtract:          stringify(groupTile),
-					ConfigExtractHighlight: stringify(tile),
+					ConfigExtract:          pkgConfig.Stringify(groupTile),
+					ConfigExtractHighlight: pkgConfig.Stringify(tile),
 				},
 			})
 		}
@@ -142,8 +144,8 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 				ID:      models.ConfigErrorUnauthorizedSubtileType,
 				Message: fmt.Sprintf(`Unauthorized %q type in %s tile.`, GroupTileType, GroupTileType),
 				Data: models.ConfigErrorData{
-					ConfigExtract:          stringify(groupTile),
-					ConfigExtractHighlight: stringify(tile),
+					ConfigExtract:          pkgConfig.Stringify(groupTile),
+					ConfigExtractHighlight: pkgConfig.Stringify(tile),
 				},
 			})
 			return
@@ -155,7 +157,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 				Message: fmt.Sprintf(`Unauthorized "params" key in %s tile definition.`, tile.Type),
 				Data: models.ConfigErrorData{
 					FieldName:     "params",
-					ConfigExtract: stringify(tile),
+					ConfigExtract: pkgConfig.Stringify(tile),
 				},
 			})
 			return
@@ -167,7 +169,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 				Message: fmt.Sprintf(`Missing "tiles" field in %s tile definition. Must be a non-empty array.`, tile.Type),
 				Data: models.ConfigErrorData{
 					FieldName:     "tiles",
-					ConfigExtract: stringify(tile),
+					ConfigExtract: pkgConfig.Stringify(tile),
 				},
 			})
 		} else if len(tile.Tiles) == 0 {
@@ -176,7 +178,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 				Message: fmt.Sprintf(`Invalid "tiles" field in %s tile definition. Must be a non-empty array.`, tile.Type),
 				Data: models.ConfigErrorData{
 					FieldName:     "tiles",
-					ConfigExtract: stringify(tile),
+					ConfigExtract: pkgConfig.Stringify(tile),
 				},
 			})
 			return
@@ -203,11 +205,11 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 		if !exists {
 			configBag.AddErrors(models.ConfigError{
 				ID:      models.ConfigErrorUnknownGeneratorTileType,
-				Message: fmt.Sprintf(`Unknown %q generator type in tile definition. Must be %s`, tile.Type, keys(cu.registry.GeneratorMetadata)),
+				Message: fmt.Sprintf(`Unknown %q generator type in tile definition. Must be %s`, tile.Type, pkgConfig.Keys(cu.registry.GeneratorMetadata)),
 				Data: models.ConfigErrorData{
 					FieldName:     "type",
-					ConfigExtract: stringify(tile),
-					Expected:      keys(cu.registry.GeneratorMetadata),
+					ConfigExtract: pkgConfig.Stringify(tile),
+					Expected:      pkgConfig.Keys(cu.registry.GeneratorMetadata),
 				},
 			})
 			return
@@ -218,11 +220,11 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 		if !exists {
 			configBag.AddErrors(models.ConfigError{
 				ID:      models.ConfigErrorUnknownTileType,
-				Message: fmt.Sprintf(`Unknown %q generator type in tile definition. Must be %s`, tile.Type, keys(cu.registry.TileMetadata)),
+				Message: fmt.Sprintf(`Unknown %q generator type in tile definition. Must be %s`, tile.Type, pkgConfig.Keys(cu.registry.TileMetadata)),
 				Data: models.ConfigErrorData{
 					FieldName:     "type",
-					ConfigExtract: stringify(tile),
-					Expected:      keys(cu.registry.TileMetadata),
+					ConfigExtract: pkgConfig.Stringify(tile),
+					Expected:      pkgConfig.Keys(cu.registry.TileMetadata),
 				},
 			})
 			return
@@ -231,13 +233,13 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 
 	if configBag.Config.Version.IsLessThan(metadataExplorer.GetMinimalVersion()) {
 		configBag.AddErrors(models.ConfigError{
-			ID: models.ConfigErrorTileNotSupportedInThisVersion,
+			ID: models.ConfigErrorUnsupportedTileInThisVersion,
 			Message: fmt.Sprintf(`%q tile type is not supported in version %q. Minimal supported version is %q`,
 				tile.Type, configBag.Config.Version, metadataExplorer.GetMinimalVersion()),
 			Data: models.ConfigErrorData{
 				FieldName:     "type",
-				ConfigExtract: stringify(tile),
-				Expected:      fmt.Sprintf(`%q <= version`, metadataExplorer.GetMinimalVersion()),
+				ConfigExtract: pkgConfig.Stringify(tile),
+				Expected:      fmt.Sprintf(`version >= %q`, metadataExplorer.GetMinimalVersion()),
 			},
 		})
 		return
@@ -248,12 +250,12 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 		configBag.AddErrors(models.ConfigError{
 			ID: models.ConfigErrorUnknownVariant,
 			Message: fmt.Sprintf(`Unknown %q variant for %s type in tile definition. Must be %s`,
-				tile.ConfigVariant, tile.Type, stringify(metadataExplorer.GetVariantNames())),
+				tile.ConfigVariant, tile.Type, pkgConfig.Stringify(metadataExplorer.GetVariantsNames())),
 			Data: models.ConfigErrorData{
 				FieldName:     "configVariant",
-				Value:         stringify(tile.ConfigVariant),
-				Expected:      stringify(metadataExplorer.GetVariantNames()),
-				ConfigExtract: stringify(tile),
+				Value:         pkgConfig.Stringify(tile.ConfigVariant),
+				Expected:      pkgConfig.Stringify(metadataExplorer.GetVariantsNames()),
+				ConfigExtract: pkgConfig.Stringify(tile),
 			},
 		})
 		return
@@ -265,8 +267,8 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 			Message: fmt.Sprintf(`Variant %q is disabled for %s type. Check errors on the server side for the reason`, tile.ConfigVariant, tile.Type),
 			Data: models.ConfigErrorData{
 				FieldName:     "configVariant",
-				Value:         stringify(tile.ConfigVariant),
-				ConfigExtract: stringify(tile),
+				Value:         pkgConfig.Stringify(tile.ConfigVariant),
+				ConfigExtract: pkgConfig.Stringify(tile),
 			},
 		})
 		return
@@ -278,7 +280,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 			Message: fmt.Sprintf(`Missing "params" key in %s tile definition.`, tile.Type),
 			Data: models.ConfigErrorData{
 				FieldName:     "params",
-				ConfigExtract: stringify(tile),
+				ConfigExtract: pkgConfig.Stringify(tile),
 			},
 		})
 		return
@@ -296,7 +298,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 			Message: unmarshalErr.Error(),
 			Data: models.ConfigErrorData{
 				FieldName:     "params",
-				ConfigExtract: stringify(tile),
+				ConfigExtract: pkgConfig.Stringify(tile),
 			},
 		})
 		return
@@ -315,8 +317,8 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 				Message: fmt.Sprintf(`Unknown %q tile params field.`, field),
 				Data: models.ConfigErrorData{
 					FieldName:     field,
-					ConfigExtract: stringify(tile),
-					Expected:      keys(structParams),
+					ConfigExtract: pkgConfig.Stringify(tile),
+					Expected:      pkgConfig.Keys(structParams),
 				},
 			})
 			return
@@ -325,16 +327,21 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 
 	// Validate config with the config file version
 	if err := rInstance.(models.ParamsValidator).Validate(configBag.Config.Version); err != nil {
-		// TODO
-		//configBag.AddErrors(*err)
+		// Inject Config Extract
+		err.Data.ConfigExtract = pkgConfig.Stringify(tile)
 
-		configBag.AddErrors(models.ConfigError{
-			ID:      models.ConfigErrorInvalidFieldValue,
-			Message: fmt.Sprintf(`Invalid params definition for %q: %q.`, tile.Type, string(bytesParams)),
-			Data: models.ConfigErrorData{
-				FieldName:     "params",
-				ConfigExtract: stringify(tile),
-			},
-		})
+		// UX HACK: if params is empty, inject "params: {}" to help users
+		if len(tile.Params) == 0 {
+			for _, value := range structs.Fields(tile) {
+				if reflect.DeepEqual(value.Value(), tile.Params) {
+					paramName := strings.Split(value.Tag("json"), ",")[0]
+
+					err.Data.ConfigExtract = strings.TrimSuffix(err.Data.ConfigExtract, "}")
+					err.Data.ConfigExtract = fmt.Sprintf(`%s,"%s":{}}`, err.Data.ConfigExtract, paramName)
+				}
+			}
+		}
+
+		configBag.AddErrors(*err)
 	}
 }

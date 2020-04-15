@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+
 	uiConfigModels "github.com/monitoror/monitoror/api/config/models"
 )
 
@@ -10,14 +12,20 @@ type PullRequestGeneratorParams struct {
 }
 
 func (p *PullRequestGeneratorParams) Validate(_ *uiConfigModels.ConfigVersion) *uiConfigModels.ConfigError {
-	// TODO
-
 	if p.Owner == "" {
-		return &uiConfigModels.ConfigError{}
+		return &uiConfigModels.ConfigError{
+			ID:      uiConfigModels.ConfigErrorMissingRequiredField,
+			Message: fmt.Sprintf(`Required "owner" field is missing.`),
+			Data:    uiConfigModels.ConfigErrorData{FieldName: "owner"},
+		}
 	}
 
 	if p.Repository == "" {
-		return &uiConfigModels.ConfigError{}
+		return &uiConfigModels.ConfigError{
+			ID:      uiConfigModels.ConfigErrorMissingRequiredField,
+			Message: fmt.Sprintf(`Required "repository" field is missing.`),
+			Data:    uiConfigModels.ConfigErrorData{FieldName: "repository"},
+		}
 	}
 
 	return nil

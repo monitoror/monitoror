@@ -38,8 +38,8 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	pkgMonitorable.LoadConfig(&m.config, jenkinsConfig.Default)
 
 	// Register Monitorable Tile in config manager
-	m.buildTileEnabler = store.Registry.RegisterTile(api.JenkinsBuildTileType, versions.MinimalVersion, m.GetVariantNames())
-	m.buildGeneratorEnabler = store.Registry.RegisterGenerator(api.JenkinsBuildTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.buildTileEnabler = store.Registry.RegisterTile(api.JenkinsBuildTileType, versions.MinimalVersion, m.GetVariantsNames())
+	m.buildGeneratorEnabler = store.Registry.RegisterGenerator(api.JenkinsBuildTileType, versions.MinimalVersion, m.GetVariantsNames())
 
 	return m
 }
@@ -48,7 +48,7 @@ func (m *Monitorable) GetDisplayName() string {
 	return "Jenkins"
 }
 
-func (m *Monitorable) GetVariantNames() []coreModels.VariantName {
+func (m *Monitorable) GetVariantsNames() []coreModels.VariantName {
 	return pkgMonitorable.GetVariants(m.config)
 }
 

@@ -275,10 +275,10 @@ func TestUsecase_VerifyTile_Failed(t *testing.T) {
 		},
 		{
 			rawConfig: `{ "type": "PING", "params": { } }`,
-			errorID:   models.ConfigErrorInvalidFieldValue,
+			errorID:   models.ConfigErrorMissingRequiredField,
 			errorData: models.ConfigErrorData{
-				FieldName:     "params",
-				ConfigExtract: `{"type":"PING","configVariant":"default"}`,
+				FieldName:     "hostname",
+				ConfigExtract: `{"type":"PING","configVariant":"default","params":{}}`,
 			},
 		},
 		{
@@ -328,10 +328,10 @@ func TestUsecase_VerifyTile_Failed_WrongMinimalVerison(t *testing.T) {
 	usecase.verifyTile(conf, tile, nil)
 
 	if assert.Len(t, conf.Errors, 1) {
-		assert.Equal(t, models.ConfigErrorTileNotSupportedInThisVersion, conf.Errors[0].ID)
+		assert.Equal(t, models.ConfigErrorUnsupportedTileInThisVersion, conf.Errors[0].ID)
 		assert.Equal(t, "type", conf.Errors[0].Data.FieldName)
 		assert.Equal(t, `{"type":"PING","params":{"hostname":"server.com"},"configVariant":"default"}`, conf.Errors[0].Data.ConfigExtract)
-		assert.Equal(t, `"999.0" <= version`, conf.Errors[0].Data.Expected)
+		assert.Equal(t, `version >= "999.0"`, conf.Errors[0].Data.Expected)
 	}
 }
 

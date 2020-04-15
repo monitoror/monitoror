@@ -29,18 +29,28 @@ type (
 )
 
 func (p *ChecksParams) Validate(_ *uiConfigModels.ConfigVersion) *uiConfigModels.ConfigError {
-	// TODO
-
 	if p.Owner == "" {
-		return &uiConfigModels.ConfigError{}
+		return &uiConfigModels.ConfigError{
+			ID:      uiConfigModels.ConfigErrorMissingRequiredField,
+			Message: fmt.Sprintf(`Required "repository" field is missing.`),
+			Data:    uiConfigModels.ConfigErrorData{FieldName: "repository"},
+		}
 	}
 
 	if p.Repository == "" {
-		return &uiConfigModels.ConfigError{}
+		return &uiConfigModels.ConfigError{
+			ID:      uiConfigModels.ConfigErrorMissingRequiredField,
+			Message: fmt.Sprintf(`Required "owner" field is missing.`),
+			Data:    uiConfigModels.ConfigErrorData{FieldName: "owner"},
+		}
 	}
 
 	if p.Ref == "" {
-		return &uiConfigModels.ConfigError{}
+		return &uiConfigModels.ConfigError{
+			ID:      uiConfigModels.ConfigErrorMissingRequiredField,
+			Message: fmt.Sprintf(`Required "ref" field is missing.`),
+			Data:    uiConfigModels.ConfigErrorData{FieldName: "ref"},
+		}
 	}
 
 	return nil

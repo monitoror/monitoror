@@ -35,7 +35,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	pkgMonitorable.LoadConfig(&m.config, pingConfig.Default)
 
 	// Register Monitorable Tile in config manager
-	m.pingTileEnabler = store.Registry.RegisterTile(api.PingTileType, versions.MinimalVersion, m.GetVariantNames())
+	m.pingTileEnabler = store.Registry.RegisterTile(api.PingTileType, versions.MinimalVersion, m.GetVariantsNames())
 
 	return m
 }
@@ -44,7 +44,7 @@ func (m *Monitorable) GetDisplayName() string {
 	return "Ping"
 }
 
-func (m *Monitorable) GetVariantNames() []coreModels.VariantName {
+func (m *Monitorable) GetVariantsNames() []coreModels.VariantName {
 	return pkgMonitorable.GetVariants(m.config)
 }
 

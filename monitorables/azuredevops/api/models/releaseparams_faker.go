@@ -3,6 +3,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	uiConfigModels "github.com/monitoror/monitoror/api/config/models"
@@ -27,14 +28,20 @@ type (
 )
 
 func (p *ReleaseParams) Validate(_ *uiConfigModels.ConfigVersion) *uiConfigModels.ConfigError {
-	// TODO
-
 	if p.Project == "" {
-		return &uiConfigModels.ConfigError{}
+		return &uiConfigModels.ConfigError{
+			ID:      uiConfigModels.ConfigErrorMissingRequiredField,
+			Message: fmt.Sprintf(`Required "project" field is missing.`),
+			Data:    uiConfigModels.ConfigErrorData{FieldName: "project"},
+		}
 	}
 
 	if p.Definition == nil {
-		return &uiConfigModels.ConfigError{}
+		return &uiConfigModels.ConfigError{
+			ID:      uiConfigModels.ConfigErrorMissingRequiredField,
+			Message: fmt.Sprintf(`Required "definition" field is missing.`),
+			Data:    uiConfigModels.ConfigErrorData{FieldName: "definition"},
+		}
 	}
 
 	return nil

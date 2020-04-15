@@ -17,27 +17,29 @@ func TestHTTPParams_GetFormat(t *testing.T) {
 		valid  bool
 	}{
 		{&HTTPStatusParams{}, false},
-		{&HTTPStatusParams{URL: "toto"}, true},
-		{&HTTPStatusParams{URL: "toto", StatusCodeMin: pointer.ToInt(300), StatusCodeMax: pointer.ToInt(299)}, false},
-		{&HTTPStatusParams{URL: "toto", StatusCodeMin: pointer.ToInt(299), StatusCodeMax: pointer.ToInt(300)}, true},
+		{&HTTPStatusParams{URL: "example.com"}, false},
+		{&HTTPStatusParams{URL: "http%sexample.com"}, false},
+		{&HTTPStatusParams{URL: "http://example.com"}, true},
+		{&HTTPStatusParams{URL: "http://example.com", StatusCodeMin: pointer.ToInt(300), StatusCodeMax: pointer.ToInt(299)}, false},
+		{&HTTPStatusParams{URL: "http://example.com", StatusCodeMin: pointer.ToInt(299), StatusCodeMax: pointer.ToInt(300)}, true},
 
 		{&HTTPRawParams{}, false},
-		{&HTTPRawParams{URL: "toto"}, true},
-		{&HTTPRawParams{URL: "toto", StatusCodeMin: pointer.ToInt(300), StatusCodeMax: pointer.ToInt(299)}, false},
-		{&HTTPRawParams{URL: "toto", StatusCodeMin: pointer.ToInt(299), StatusCodeMax: pointer.ToInt(300)}, true},
-		{&HTTPRawParams{URL: "toto", Regex: "("}, false},
-		{&HTTPRawParams{URL: "toto", Regex: "(.*)"}, true},
+		{&HTTPRawParams{URL: "http://example.com"}, true},
+		{&HTTPRawParams{URL: "http://example.com", StatusCodeMin: pointer.ToInt(300), StatusCodeMax: pointer.ToInt(299)}, false},
+		{&HTTPRawParams{URL: "http://example.com", StatusCodeMin: pointer.ToInt(299), StatusCodeMax: pointer.ToInt(300)}, true},
+		{&HTTPRawParams{URL: "http://example.com", Regex: "("}, false},
+		{&HTTPRawParams{URL: "http://example.com", Regex: "(.*)"}, true},
 
 		{&HTTPFormattedParams{}, false},
-		{&HTTPFormattedParams{URL: "toto"}, false},
-		{&HTTPFormattedParams{URL: "toto", Format: "unknown"}, false},
-		{&HTTPFormattedParams{URL: "toto", Format: "JSON", Key: ""}, false},
-		{&HTTPFormattedParams{URL: "toto", Format: "JSON", Key: "."}, false},
-		{&HTTPFormattedParams{URL: "toto", Format: "JSON", Key: "key"}, true},
-		{&HTTPFormattedParams{URL: "toto", Format: "JSON", Key: "key", StatusCodeMin: pointer.ToInt(300), StatusCodeMax: pointer.ToInt(299)}, false},
-		{&HTTPFormattedParams{URL: "toto", Format: "JSON", Key: "key", StatusCodeMin: pointer.ToInt(299), StatusCodeMax: pointer.ToInt(300)}, true},
-		{&HTTPFormattedParams{URL: "toto", Format: "JSON", Key: "key", Regex: "("}, false},
-		{&HTTPFormattedParams{URL: "toto", Format: "JSON", Key: "key", Regex: "(.*)"}, true},
+		{&HTTPFormattedParams{URL: "http://example.com"}, false},
+		{&HTTPFormattedParams{URL: "http://example.com", Format: "unknown"}, false},
+		{&HTTPFormattedParams{URL: "http://example.com", Format: "JSON", Key: ""}, false},
+		{&HTTPFormattedParams{URL: "http://example.com", Format: "JSON", Key: "."}, false},
+		{&HTTPFormattedParams{URL: "http://example.com", Format: "JSON", Key: "key"}, true},
+		{&HTTPFormattedParams{URL: "http://example.com", Format: "JSON", Key: "key", StatusCodeMin: pointer.ToInt(300), StatusCodeMax: pointer.ToInt(299)}, false},
+		{&HTTPFormattedParams{URL: "http://example.com", Format: "JSON", Key: "key", StatusCodeMin: pointer.ToInt(299), StatusCodeMax: pointer.ToInt(300)}, true},
+		{&HTTPFormattedParams{URL: "http://example.com", Format: "JSON", Key: "key", Regex: "("}, false},
+		{&HTTPFormattedParams{URL: "http://example.com", Format: "JSON", Key: "key", Regex: "(.*)"}, true},
 	} {
 		err := validator.Validate(testcase.params)
 		if testcase.valid {
@@ -50,7 +52,7 @@ func TestHTTPParams_GetFormat(t *testing.T) {
 
 func TestHTTPParams_GetRegex(t *testing.T) {
 	for _, testcase := range []struct {
-		params         RegexProvider
+		params         RegexParamsProvider
 		expectedRegex  string
 		expectedRegexp *regexp.Regexp
 	}{
@@ -65,7 +67,7 @@ func TestHTTPParams_GetRegex(t *testing.T) {
 		{&HTTPFormattedParams{Regex: "(.*)"}, "(.*)", regexp.MustCompile("(.*)")},
 	} {
 		assert.Equal(t, testcase.expectedRegex, testcase.params.GetRegex())
-		if isValidRegex(testcase.params) {
+		if err := validateRegex(testcase.params); err == nil {
 			assert.Equal(t, testcase.expectedRegexp, testcase.params.GetRegexp())
 		}
 	}
@@ -73,8 +75,8 @@ func TestHTTPParams_GetRegex(t *testing.T) {
 
 func TestHTTPFormattedParams_FormattedDataProvider(t *testing.T) {
 	for _, testcase := range []struct {
-		params         FormattedDataProvider
-		expectedFormat string
+		params         FormattedParamsProvider
+		expectedFormat Format
 		expectedKey    string
 	}{
 		{&HTTPFormattedParams{}, "", ""},

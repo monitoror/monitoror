@@ -16,11 +16,11 @@ func LoadConfig(conf interface{}, defaultConf interface{}) {
 	pkgConfig.LoadConfigWithVariant(fmt.Sprintf("%s_%s", coreConfig.EnvPrefix, coreConfig.MonitorablePrefix), coreModels.DefaultVariant, conf, defaultConf)
 }
 
-//GetVariantNames extract variants from monitorable config
+//GetVariantsNames extract variants from monitorable config
 func GetVariants(conf interface{}) []models.VariantName {
 	// Verify Params
 	if reflect.ValueOf(conf).Kind() != reflect.Map {
-		panic(fmt.Sprintf("wrong GetVariantNames parameters: conf need to be a map[coreModels.VariantName] not a %s", reflect.ValueOf(conf).Kind()))
+		panic(fmt.Sprintf("wrong GetVariantsNames parameters: conf need to be a map[coreModels.VariantName] not a %s", reflect.ValueOf(conf).Kind()))
 	}
 
 	var variants []models.VariantName

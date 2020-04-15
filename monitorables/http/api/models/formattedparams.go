@@ -11,7 +11,7 @@ import (
 type (
 	HTTPFormattedParams struct {
 		URL           string `json:"url" query:"url"`
-		Format        string `json:"format" query:"format"`
+		Format        Format `json:"format" query:"format"`
 		Key           string `json:"key" query:"key"`
 		Regex         string `json:"regex,omitempty" query:"regex"`
 		StatusCodeMin *int   `json:"statusCodeMin,omitempty" query:"statusCodeMin"`
@@ -20,33 +20,36 @@ type (
 )
 
 func (p *HTTPFormattedParams) Validate(_ *uiConfigModels.ConfigVersion) *uiConfigModels.ConfigError {
-	// TODO
-
-	if !isValid(p.URL, p) {
-		return &uiConfigModels.ConfigError{}
+	if err := validateURL(p); err != nil {
+		return err
 	}
 
-	if !isSupportedFormat(p) {
-		return &uiConfigModels.ConfigError{}
+	if err := validateStatusCode(p); err != nil {
+		return err
 	}
 
-	if !isValidKey(p) {
-		return &uiConfigModels.ConfigError{}
+	if err := validateFormat(p); err != nil {
+		return err
 	}
 
-	if !isValidRegex(p) {
-		return &uiConfigModels.ConfigError{}
+	if err := validateKey(p); err != nil {
+		return err
+	}
+
+	if err := validateRegex(p); err != nil {
+		return err
 	}
 
 	return nil
 }
 
+func (p *HTTPFormattedParams) GetURL() (url string) { return p.URL }
 func (p *HTTPFormattedParams) GetStatusCodes() (min int, max int) {
-	return getStatusCodes(p.StatusCodeMin, p.StatusCodeMax)
+	return getStatusCodesWithDefault(p.StatusCodeMin, p.StatusCodeMax)
 }
 
 func (p *HTTPFormattedParams) GetRegex() string          { return p.Regex }
 func (p *HTTPFormattedParams) GetRegexp() *regexp.Regexp { return getRegexp(p.GetRegex()) }
 
 func (p *HTTPFormattedParams) GetKey() string    { return p.Key }
-func (p *HTTPFormattedParams) GetFormat() string { return p.Format }
+func (p *HTTPFormattedParams) GetFormat() Format { return p.Format }
