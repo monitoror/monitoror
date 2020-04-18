@@ -6,14 +6,15 @@ import (
 	"fmt"
 
 	"github.com/monitoror/monitoror/api/config/models"
+	"github.com/monitoror/monitoror/api/config/versions"
 	coreModels "github.com/monitoror/monitoror/models"
 )
 
 type (
 	// Registry is used to register Tile and Generator in config for verify / hydrate
 	Registry interface {
-		RegisterTile(tileType coreModels.TileType, minimalVersion models.RawVersion, variantNames []coreModels.VariantName) TileEnabler
-		RegisterGenerator(generatedTileType coreModels.TileType, minimalVersion models.RawVersion, variantNames []coreModels.VariantName) GeneratorEnabler
+		RegisterTile(tileType coreModels.TileType, minimalVersion versions.RawVersion, variantNames []coreModels.VariantName) TileEnabler
+		RegisterGenerator(generatedTileType coreModels.TileType, minimalVersion versions.RawVersion, variantNames []coreModels.VariantName) GeneratorEnabler
 	}
 	// TileEnabler is returned to monitorable after register to enable monitorable tile with this variant if she is "valid"
 	TileEnabler interface {
@@ -26,7 +27,7 @@ type (
 
 	// TileMetadataExplorer is used in verify. Matching tileMetadata and generatorMetadata.
 	TileMetadataExplorer interface {
-		GetMinimalVersion() models.RawVersion
+		GetMinimalVersion() versions.RawVersion
 		GetVariant(variantName coreModels.VariantName) (VariantMetadataExplorer, bool)
 		GetVariantsNames() []coreModels.VariantName
 	}
@@ -47,7 +48,7 @@ type (
 		// TileType
 		TileType coreModels.TileType
 		// MinimalVersion is the version that makes the tile available
-		MinimalVersion models.RawVersion
+		MinimalVersion versions.RawVersion
 		// VariantsMetadata list all registered variants (can be available or not)
 		VariantsMetadata map[coreModels.VariantName]*tileVariantMetadata
 	}
@@ -71,7 +72,7 @@ type (
 		// GeneratedTileType
 		GeneratedTileType coreModels.TileType
 		// MinimalVersion is the version that makes the tile available
-		MinimalVersion models.RawVersion
+		MinimalVersion versions.RawVersion
 		// VariantsMetadata list all registered variants (can be available or not)
 		VariantsMetadata map[coreModels.VariantName]*generatorVariantMetadata
 	}
@@ -99,7 +100,7 @@ func NewRegistry() *MetadataRegistry {
 
 // REGISTRY
 // ----------------------------------------
-func (r *MetadataRegistry) RegisterTile(tileType coreModels.TileType, minimalVersion models.RawVersion, variantNames []coreModels.VariantName) TileEnabler {
+func (r *MetadataRegistry) RegisterTile(tileType coreModels.TileType, minimalVersion versions.RawVersion, variantNames []coreModels.VariantName) TileEnabler {
 	tileSetting := &tileMetadata{
 		TileType:         tileType,
 		MinimalVersion:   minimalVersion,
@@ -118,7 +119,7 @@ func (r *MetadataRegistry) RegisterTile(tileType coreModels.TileType, minimalVer
 	return tileSetting
 }
 
-func (r *MetadataRegistry) RegisterGenerator(generatedTileType coreModels.TileType, minimalVersion models.RawVersion, variantNames []coreModels.VariantName) GeneratorEnabler {
+func (r *MetadataRegistry) RegisterGenerator(generatedTileType coreModels.TileType, minimalVersion versions.RawVersion, variantNames []coreModels.VariantName) GeneratorEnabler {
 	// Boxing tile type into generator
 	tileType := coreModels.NewGeneratorTileType(generatedTileType)
 
@@ -156,7 +157,7 @@ func (tm *tileMetadata) Enable(variantName coreModels.VariantName, paramsValidat
 	variantMetadata.RoutePath = &routePath
 }
 
-func (tm *tileMetadata) GetMinimalVersion() models.RawVersion {
+func (tm *tileMetadata) GetMinimalVersion() versions.RawVersion {
 	return tm.MinimalVersion
 }
 
@@ -188,7 +189,7 @@ func (gm *generatorMetadata) Enable(variantName coreModels.VariantName, generato
 	variantMetadata.GeneratorFunction = tileGeneratorFunction
 }
 
-func (gm *generatorMetadata) GetMinimalVersion() models.RawVersion {
+func (gm *generatorMetadata) GetMinimalVersion() versions.RawVersion {
 	return gm.MinimalVersion
 }
 

@@ -20,7 +20,7 @@ func initConfig(t *testing.T, rawConfig string) (tiles *models.TileConfig, conf 
 	err := json.Unmarshal([]byte(rawConfig), &tiles)
 	assert.NoError(t, err)
 
-	conf = &models.ConfigBag{Config: &models.Config{Version: models.ParseVersion(versions.CurrentVersion)}}
+	conf = &models.ConfigBag{Config: &models.Config{Version: versions.CurrentVersion.ToConfigVersion()}}
 
 	return
 }

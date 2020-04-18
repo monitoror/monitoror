@@ -1,6 +1,9 @@
 package models
 
-import coreModels "github.com/monitoror/monitoror/models"
+import (
+	"github.com/monitoror/monitoror/api/config/versions"
+	coreModels "github.com/monitoror/monitoror/models"
+)
 
 type (
 	ConfigBag struct {
@@ -9,7 +12,7 @@ type (
 	}
 
 	Config struct {
-		Version *ConfigVersion `json:"version"`
+		Version *versions.ConfigVersion `json:"version"`
 		Columns *int           `json:"columns"`
 		Zoom    *float32       `json:"zoom,omitempty"`
 		Tiles   []TileConfig   `json:"tiles"`

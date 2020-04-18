@@ -5,10 +5,10 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/fatih/structs"
-
 	"github.com/monitoror/monitoror/api/config/models"
 	"github.com/monitoror/monitoror/api/config/versions"
+
+	"github.com/fatih/structs"
 )
 
 var unknownFieldRegex *regexp.Regexp
@@ -48,7 +48,7 @@ func (cu *configUsecase) GetConfig(params *models.ConfigParams) *models.ConfigBa
 			Message: e.Error(),
 			Data:    models.ConfigErrorData{Value: e.PathOrURL},
 		})
-	case *models.ConfigVersionFormatError:
+	case *versions.ConfigVersionFormatError:
 		configBag.AddErrors(models.ConfigError{
 			ID:      models.ConfigErrorUnsupportedVersion,
 			Message: e.Error(),
