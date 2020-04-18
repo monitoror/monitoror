@@ -21,7 +21,7 @@ func NewTravisCIDelivery(p api.Usecase) *TravisCIDelivery {
 func (h *TravisCIDelivery) GetBuild(c echo.Context) error {
 	// Bind / check Params
 	params := &models.BuildParams{}
-	if err := delivery.BindAndValidateRequestParams(c, params); err != nil {
+	if err := delivery.BindAndValidateParams(c, params); err != nil {
 		return err
 	}
 

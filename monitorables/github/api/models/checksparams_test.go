@@ -4,23 +4,23 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/monitoror/monitoror/internal/pkg/monitorable/validator"
-
 	"github.com/stretchr/testify/assert"
+
+	"github.com/monitoror/monitoror/internal/pkg/monitorable/test"
 )
 
 func TestChecksParams_Validate(t *testing.T) {
 	param := &ChecksParams{Owner: "test", Repository: "test", Ref: "master"}
-	assert.NoError(t, validator.Validate(param))
+	test.AssertParams(t, param, 0)
 
 	param = &ChecksParams{Owner: "test", Repository: "test"}
-	assert.Error(t, validator.Validate(param))
+	test.AssertParams(t, param, 1)
 
 	param = &ChecksParams{Owner: "test"}
-	assert.Error(t, validator.Validate(param))
+	test.AssertParams(t, param, 2)
 
 	param = &ChecksParams{}
-	assert.Error(t, validator.Validate(param))
+	test.AssertParams(t, param, 3)
 }
 
 func TestBuildParams_String(t *testing.T) {

@@ -21,7 +21,7 @@ func NewPortDelivery(p api.Usecase) *PortDelivery {
 func (h *PortDelivery) GetPort(c echo.Context) error {
 	// Bind / check Params
 	params := &models.PortParams{}
-	if err := delivery.BindAndValidateRequestParams(c, params); err != nil {
+	if err := delivery.BindAndValidateParams(c, params); err != nil {
 		return err
 	}
 

@@ -2,18 +2,18 @@ package config
 
 type (
 	Jenkins struct {
-		URL       string
-		Timeout   int // In Millisecond
-		SSLVerify bool
+		URL       string `validate:"required,url,http"`
 		Login     string
 		Token     string
+		Timeout   int `validate:"gte=0"` // In Millisecond
+		SSLVerify bool
 	}
 )
 
 var Default = &Jenkins{
 	URL:       "",
-	Timeout:   2000,
-	SSLVerify: true,
 	Login:     "",
 	Token:     "",
+	Timeout:   2000,
+	SSLVerify: true,
 }

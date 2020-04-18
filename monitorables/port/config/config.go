@@ -2,7 +2,7 @@ package config
 
 type (
 	Port struct {
-		Timeout int // In Millisecond
+		Timeout int `validate:"gte=0"` // In Millisecond
 	}
 )
 

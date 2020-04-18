@@ -13,16 +13,16 @@ import (
 )
 
 type monitorableMock struct {
-	displayName   string
-	variants      []coreModels.VariantName
-	validateBool  bool
-	validateError error
+	displayName    string
+	variants       []coreModels.VariantName
+	validateBool   bool
+	validateErrors []error
 }
 
 func (m *monitorableMock) GetDisplayName() string                     { return m.displayName }
 func (m *monitorableMock) GetVariantsNames() []coreModels.VariantName { return m.variants }
-func (m *monitorableMock) Validate(_ coreModels.VariantName) (bool, error) {
-	return m.validateBool, m.validateError
+func (m *monitorableMock) Validate(_ coreModels.VariantName) (bool, []error) {
+	return m.validateBool, m.validateErrors
 }
 func (m *monitorableMock) Enable(_ coreModels.VariantName) {}
 
@@ -40,16 +40,16 @@ func TestManager_EnableMonitorables(t *testing.T) {
 	)
 
 	mockMonitorable1 := &monitorableMock{
-		displayName:   "Monitorable mock 1",
-		variants:      []coreModels.VariantName{coreModels.DefaultVariant},
-		validateBool:  true,
-		validateError: nil,
+		displayName:    "Monitorable mock 1",
+		variants:       []coreModels.VariantName{coreModels.DefaultVariant},
+		validateBool:   true,
+		validateErrors: nil,
 	}
 	mockMonitorable2 := &monitorableMock{
-		displayName:   "Monitorable mock 2 (faker)",
-		variants:      []coreModels.VariantName{coreModels.DefaultVariant},
-		validateBool:  false,
-		validateError: errors.New("boom"),
+		displayName:    "Monitorable mock 2 (faker)",
+		variants:       []coreModels.VariantName{coreModels.DefaultVariant},
+		validateBool:   false,
+		validateErrors: []error{errors.New("boom"), errors.New("boom2")},
 	}
 
 	manager := NewMonitorableManager(&store.Store{
@@ -73,10 +73,10 @@ func TestManager_EnableMonitorables(t *testing.T) {
 
 	// Count non-enabled monitorables
 	mockMonitorable3 := &monitorableMock{
-		displayName:   "Monitorable mock 3",
-		variants:      []coreModels.VariantName{},
-		validateBool:  false,
-		validateError: nil,
+		displayName:    "Monitorable mock 3",
+		variants:       []coreModels.VariantName{},
+		validateBool:   false,
+		validateErrors: nil,
 	}
 	manager.register(mockMonitorable3)
 	assert.Len(t, manager.monitorables, 3)

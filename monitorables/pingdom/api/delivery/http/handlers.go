@@ -21,7 +21,7 @@ func NewPingdomDelivery(p api.Usecase) *PingdomDelivery {
 func (h *PingdomDelivery) GetCheck(c echo.Context) error {
 	// Bind / Check Params
 	params := &models.CheckParams{}
-	if err := delivery.BindAndValidateRequestParams(c, params); err != nil {
+	if err := delivery.BindAndValidateParams(c, params); err != nil {
 		return err
 	}
 

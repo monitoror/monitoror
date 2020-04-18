@@ -3,9 +3,7 @@ package models
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-
-	"github.com/monitoror/monitoror/internal/pkg/monitorable/validator"
+	"github.com/monitoror/monitoror/internal/pkg/monitorable/test"
 )
 
 func TestBuildGeneratorParams_Validate(t *testing.T) {
@@ -14,14 +12,14 @@ func TestBuildGeneratorParams_Validate(t *testing.T) {
 		Match:   ".*",
 		Unmatch: "master",
 	}
-	assert.NoError(t, validator.Validate(param))
+	test.AssertParams(t, param, 0)
 
 	param = &BuildGeneratorParams{}
-	assert.Error(t, validator.Validate(param))
+	test.AssertParams(t, param, 1)
 
 	param = &BuildGeneratorParams{Job: "test", Match: "("}
-	assert.Error(t, validator.Validate(param))
+	test.AssertParams(t, param, 1)
 
 	param = &BuildGeneratorParams{Job: "test", Unmatch: "("}
-	assert.Error(t, validator.Validate(param))
+	test.AssertParams(t, param, 1)
 }

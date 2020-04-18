@@ -2,16 +2,16 @@ package config
 
 type (
 	Github struct {
-		URL                  string
-		Timeout              int // In Millisecond
-		Token                string
-		CountCacheExpiration int // In Millisecond
+		URL                  string `validate:"required,url,http"`
+		Token                string `validate:"required"`
+		Timeout              int    `validate:"gte=0"` // In Millisecond
+		CountCacheExpiration int    `validate:"gte=0"` // In Millisecond
 	}
 )
 
 var Default = &Github{
 	URL:                  "https://api.github.com/",
-	Timeout:              5000,
 	Token:                "",
+	Timeout:              5000,
 	CountCacheExpiration: 30000,
 }

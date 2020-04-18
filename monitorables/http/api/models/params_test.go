@@ -4,48 +4,46 @@ import (
 	"regexp"
 	"testing"
 
-	uiConfigModels "github.com/monitoror/monitoror/api/config/models"
-	"github.com/monitoror/monitoror/internal/pkg/monitorable/validator"
+	"github.com/monitoror/monitoror/internal/pkg/monitorable/params"
+	"github.com/monitoror/monitoror/internal/pkg/monitorable/test"
 
 	"github.com/AlekSi/pointer"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestHTTPParams_GetFormat(t *testing.T) {
+func TestHTTPParams(t *testing.T) {
 	for _, testcase := range []struct {
-		params uiConfigModels.ParamsValidator
-		valid  bool
+		params     params.Validator
+		errorCount int
 	}{
-		{&HTTPStatusParams{}, false},
-		{&HTTPStatusParams{URL: "example.com"}, false},
-		{&HTTPStatusParams{URL: "http%sexample.com"}, false},
-		{&HTTPStatusParams{URL: "http://example.com"}, true},
-		{&HTTPStatusParams{URL: "http://example.com", StatusCodeMin: pointer.ToInt(300), StatusCodeMax: pointer.ToInt(299)}, false},
-		{&HTTPStatusParams{URL: "http://example.com", StatusCodeMin: pointer.ToInt(299), StatusCodeMax: pointer.ToInt(300)}, true},
+		{&HTTPStatusParams{}, 1},
+		{&HTTPStatusParams{URL: "example.com"}, 1},
+		{&HTTPStatusParams{URL: "http%sexample.com"}, 1},
+		{&HTTPStatusParams{URL: "http://example.com"}, 0},
+		{&HTTPStatusParams{URL: "http://example.com", StatusCodeMin: pointer.ToInt(300), StatusCodeMax: pointer.ToInt(299)}, 1},
+		{&HTTPStatusParams{URL: "http://example.com", StatusCodeMin: pointer.ToInt(299), StatusCodeMax: pointer.ToInt(300)}, 0},
 
-		{&HTTPRawParams{}, false},
-		{&HTTPRawParams{URL: "http://example.com"}, true},
-		{&HTTPRawParams{URL: "http://example.com", StatusCodeMin: pointer.ToInt(300), StatusCodeMax: pointer.ToInt(299)}, false},
-		{&HTTPRawParams{URL: "http://example.com", StatusCodeMin: pointer.ToInt(299), StatusCodeMax: pointer.ToInt(300)}, true},
-		{&HTTPRawParams{URL: "http://example.com", Regex: "("}, false},
-		{&HTTPRawParams{URL: "http://example.com", Regex: "(.*)"}, true},
+		{&HTTPRawParams{}, 1},
+		{&HTTPRawParams{URL: "http://example.com"}, 0},
+		{&HTTPRawParams{URL: "http://example.com", StatusCodeMin: pointer.ToInt(300), StatusCodeMax: pointer.ToInt(299)}, 1},
+		{&HTTPRawParams{URL: "http://example.com", StatusCodeMin: pointer.ToInt(299), StatusCodeMax: pointer.ToInt(300)}, 0},
+		{&HTTPRawParams{URL: "http://example.com", Regex: "("}, 1},
+		{&HTTPRawParams{URL: "http://example.com", Regex: "(.*)"}, 0},
 
-		{&HTTPFormattedParams{}, false},
-		{&HTTPFormattedParams{URL: "http://example.com"}, false},
-		{&HTTPFormattedParams{URL: "http://example.com", Format: "unknown"}, false},
-		{&HTTPFormattedParams{URL: "http://example.com", Format: "JSON", Key: ""}, false},
-		{&HTTPFormattedParams{URL: "http://example.com", Format: "JSON", Key: "."}, false},
-		{&HTTPFormattedParams{URL: "http://example.com", Format: "JSON", Key: "key"}, true},
-		{&HTTPFormattedParams{URL: "http://example.com", Format: "JSON", Key: "key", StatusCodeMin: pointer.ToInt(300), StatusCodeMax: pointer.ToInt(299)}, false},
-		{&HTTPFormattedParams{URL: "http://example.com", Format: "JSON", Key: "key", StatusCodeMin: pointer.ToInt(299), StatusCodeMax: pointer.ToInt(300)}, true},
-		{&HTTPFormattedParams{URL: "http://example.com", Format: "JSON", Key: "key", Regex: "("}, false},
-		{&HTTPFormattedParams{URL: "http://example.com", Format: "JSON", Key: "key", Regex: "(.*)"}, true},
+		{&HTTPFormattedParams{}, 3},
+		{&HTTPFormattedParams{URL: "http://example.com"}, 2},
+		{&HTTPFormattedParams{URL: "http://example.com", Format: "unknown"}, 2},
+		{&HTTPFormattedParams{URL: "http://example.com", Format: "JSON", Key: ""}, 1},
+		{&HTTPFormattedParams{URL: "http://example.com", Format: "JSON", Key: "."}, 1},
+		{&HTTPFormattedParams{URL: "http://example.com", Format: "JSON", Key: "key"}, 0},
+		{&HTTPFormattedParams{URL: "http://example.com", Format: "JSON", Key: "key", StatusCodeMin: pointer.ToInt(300), StatusCodeMax: pointer.ToInt(299)}, 1},
+		{&HTTPFormattedParams{URL: "http://example.com", Format: "JSON", Key: "key", StatusCodeMin: pointer.ToInt(299), StatusCodeMax: pointer.ToInt(300)}, 0},
+		{&HTTPFormattedParams{URL: "http://example.com", Format: "JSON", Key: "key", Regex: "("}, 1},
+		{&HTTPFormattedParams{URL: "http://example.com", Format: "JSON", Key: "key", Regex: "(.*)"}, 0},
 	} {
-		err := validator.Validate(testcase.params)
-		if testcase.valid {
-			assert.NoError(t, err)
-		} else {
-			assert.Error(t, err)
+		test.AssertParams(t, testcase.params, testcase.errorCount)
+		if testcase.errorCount == 0 {
+			assert.NotEmpty(t, testcase.params.(GenericParamsProvider).GetURL())
 		}
 	}
 }
@@ -67,9 +65,7 @@ func TestHTTPParams_GetRegex(t *testing.T) {
 		{&HTTPFormattedParams{Regex: "(.*)"}, "(.*)", regexp.MustCompile("(.*)")},
 	} {
 		assert.Equal(t, testcase.expectedRegex, testcase.params.GetRegex())
-		if err := validateRegex(testcase.params); err == nil {
-			assert.Equal(t, testcase.expectedRegexp, testcase.params.GetRegexp())
-		}
+		assert.Equal(t, testcase.expectedRegexp, testcase.params.GetRegexp())
 	}
 }
 

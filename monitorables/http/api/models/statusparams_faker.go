@@ -3,13 +3,13 @@
 package models
 
 import (
-	uiConfigModels "github.com/monitoror/monitoror/api/config/models"
+	"github.com/monitoror/monitoror/internal/pkg/validator"
 	coreModels "github.com/monitoror/monitoror/models"
 )
 
 type (
 	HTTPStatusParams struct {
-		URL           string `json:"url" query:"url"`
+		URL           string `json:"url" query:"url" validate:"required,url,http"`
 		StatusCodeMin *int   `json:"statusCodeMin,omitempty" query:"statusCodeMin"`
 		StatusCodeMax *int   `json:"statusCodeMax,omitempty" query:"statusCodeMax"`
 
@@ -18,16 +18,8 @@ type (
 	}
 )
 
-func (p *HTTPStatusParams) Validate(_ *uiConfigModels.ConfigVersion) *uiConfigModels.ConfigError {
-	if err := validateURL(p); err != nil {
-		return err
-	}
-
-	if err := validateStatusCode(p); err != nil {
-		return err
-	}
-
-	return nil
+func (p *HTTPStatusParams) Validate() []validator.Error {
+	return validateStatusCode(p)
 }
 
 func (p *HTTPStatusParams) GetURL() (url string) { return p.URL }

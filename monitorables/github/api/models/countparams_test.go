@@ -3,14 +3,13 @@ package models
 import (
 	"testing"
 
-	"github.com/monitoror/monitoror/internal/pkg/monitorable/validator"
-	"github.com/stretchr/testify/assert"
+	"github.com/monitoror/monitoror/internal/pkg/monitorable/test"
 )
 
 func TestCountParams_Validate(t *testing.T) {
 	param := &CountParams{Query: "test"}
-	assert.NoError(t, validator.Validate(param))
+	test.AssertParams(t, param, 0)
 
 	param = &CountParams{}
-	assert.Error(t, validator.Validate(param))
+	test.AssertParams(t, param, 1)
 }

@@ -5,44 +5,18 @@ package models
 import (
 	"fmt"
 
-	uiConfigModels "github.com/monitoror/monitoror/api/config/models"
+	"github.com/monitoror/monitoror/internal/pkg/monitorable/params"
 )
 
 type (
 	BuildParams struct {
-		Owner      string `json:"owner" query:"owner"`
-		Repository string `json:"repository" query:"repository"`
-		Branch     string `json:"branch" query:"branch"`
+		params.Default
+
+		Owner      string `json:"owner" query:"owner" validate:"required"`
+		Repository string `json:"repository" query:"repository" validate:"required"`
+		Branch     string `json:"branch" query:"branch" validate:"required"`
 	}
 )
-
-func (p *BuildParams) Validate(_ *uiConfigModels.ConfigVersion) *uiConfigModels.ConfigError {
-	if p.Owner == "" {
-		return &uiConfigModels.ConfigError{
-			ID:      uiConfigModels.ConfigErrorMissingRequiredField,
-			Message: fmt.Sprintf(`Required "owner" field is missing.`),
-			Data:    uiConfigModels.ConfigErrorData{FieldName: "owner"},
-		}
-	}
-
-	if p.Repository == "" {
-		return &uiConfigModels.ConfigError{
-			ID:      uiConfigModels.ConfigErrorMissingRequiredField,
-			Message: fmt.Sprintf(`Required "repository" field is missing.`),
-			Data:    uiConfigModels.ConfigErrorData{FieldName: "repository"},
-		}
-	}
-
-	if p.Branch == "" {
-		return &uiConfigModels.ConfigError{
-			ID:      uiConfigModels.ConfigErrorMissingRequiredField,
-			Message: fmt.Sprintf(`Required "branch" field is missing.`),
-			Data:    uiConfigModels.ConfigErrorData{FieldName: "branch"},
-		}
-	}
-
-	return nil
-}
 
 // Used by cache as identifier
 func (p *BuildParams) String() string {

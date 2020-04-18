@@ -21,7 +21,7 @@ func NewPingDelivery(p api.Usecase) *PingDelivery {
 func (h *PingDelivery) GetPing(c echo.Context) error {
 	// Bind / Check Params
 	params := &models.PingParams{}
-	if err := delivery.BindAndValidateRequestParams(c, params); err != nil {
+	if err := delivery.BindAndValidateParams(c, params); err != nil {
 		return err
 	}
 
