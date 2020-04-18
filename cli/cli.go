@@ -73,7 +73,7 @@ type (
 
 	ErroredVariant struct {
 		VariantName coreModels.VariantName
-		Err         error
+		Errors      []error
 	}
 
 	MonitororCLI struct{}
@@ -144,9 +144,13 @@ func (cli *MonitororCLI) PrintMonitorable(displayName string, enabledVariantName
 	// Print Error
 	for _, erroredVariant := range erroredVariants {
 		if erroredVariant.VariantName == coreModels.DefaultVariant {
-			colorer.Printf(colorer.Red("    %s Errored %s configuration\n        %s\n"), errorSymbol, erroredVariant.VariantName, erroredVariant.Err.Error())
+			colorer.Printf(colorer.Red("    %s Errored %s configuration\n"), errorSymbol, erroredVariant.VariantName)
 		} else {
-			colorer.Printf(colorer.Red("    %s Errored \"%s\" variant configuration\n        %s\n"), errorSymbol, erroredVariant.VariantName, erroredVariant.Err.Error())
+			colorer.Printf(colorer.Red("    %s Errored \"%s\" variant configuration\n"), errorSymbol, erroredVariant.VariantName)
+		}
+
+		for _, err := range erroredVariant.Errors {
+			colorer.Printf("        %s\n", err.Error())
 		}
 	}
 }
