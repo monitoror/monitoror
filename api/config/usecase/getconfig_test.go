@@ -55,7 +55,7 @@ func TestUsecase_GetConfig_WithError(t *testing.T) {
 			errorData: models.ConfigErrorData{Value: "path"},
 		},
 		{
-			err:     &models.ConfigVersionFormatError{WrongVersion: "18"},
+			err:     &versions.ConfigVersionFormatError{WrongVersion: "18"},
 			errorID: models.ConfigErrorUnsupportedVersion,
 			errorData: models.ConfigErrorData{
 				Value:     "18",

@@ -11,7 +11,12 @@ import (
 	"github.com/monitoror/monitoror/api/config/models"
 	"github.com/monitoror/monitoror/api/config/versions"
 	pkgConfig "github.com/monitoror/monitoror/internal/pkg/api/config"
+	"github.com/monitoror/monitoror/internal/pkg/monitorable/params"
+	"github.com/monitoror/monitoror/internal/pkg/validator"
+	"github.com/monitoror/monitoror/internal/pkg/validator/available"
+	"github.com/monitoror/monitoror/internal/pkg/validator/validate"
 	coreModels "github.com/monitoror/monitoror/models"
+	pkgStructs "github.com/monitoror/monitoror/pkg/structs"
 	"github.com/monitoror/monitoror/service/registry"
 )
 
@@ -40,86 +45,33 @@ func (cu *configUsecase) Verify(configBag *models.ConfigBag) {
 		return
 	}
 
-	if configBag.Config.Columns == nil {
-		configBag.AddErrors(models.ConfigError{
-			ID:      models.ConfigErrorMissingRequiredField,
-			Message: fmt.Sprintf(`Required "columns" field is missing. Must be a positive integer.`),
-			Data: models.ConfigErrorData{
-				FieldName: "columns",
-			},
-		})
-	} else if *configBag.Config.Columns <= 0 {
-		configBag.AddErrors(models.ConfigError{
-			ID:      models.ConfigErrorInvalidFieldValue,
-			Message: fmt.Sprintf(`Invalid "columns" field. Must be a positive integer.`),
-			Data: models.ConfigErrorData{
-				FieldName: "columns",
-				Value:     pkgConfig.Stringify(configBag.Config.Columns),
-				Expected:  "columns > 0",
-			},
-		})
-	}
-
-	if configBag.Config.Zoom != nil && (*configBag.Config.Zoom <= 0 || *configBag.Config.Zoom > 10) {
-		configBag.AddErrors(models.ConfigError{
-			ID:      models.ConfigErrorInvalidFieldValue,
-			Message: `Invalid "zoom" field. Must be a positive float between 0 and 10.`,
-			Data: models.ConfigErrorData{
-				FieldName: "zoom",
-				Value:     pkgConfig.Stringify(configBag.Config.Zoom),
-				Expected:  "0 < zoom <= 10",
-			},
-		})
-	}
-
-	if configBag.Config.Tiles == nil {
-		configBag.AddErrors(models.ConfigError{
-			ID:      models.ConfigErrorMissingRequiredField,
-			Message: `Missing "tiles" field. Must be a non-empty array.`,
-			Data: models.ConfigErrorData{
-				FieldName: "tiles",
-			},
-		})
-	} else if len(configBag.Config.Tiles) == 0 {
-		configBag.AddErrors(models.ConfigError{
-			ID:      models.ConfigErrorInvalidFieldValue,
-			Message: `Invalid "tiles" field. Must be a non-empty array.`,
-			Data: models.ConfigErrorData{
-				FieldName:     "tiles",
-				ConfigExtract: pkgConfig.Stringify(configBag.Config),
-			},
-		})
-	} else {
-		// Iterating through every config tiles
-		for _, tile := range configBag.Config.Tiles {
-			cu.verifyTile(configBag, &tile, nil)
+	// Validate struct with "validate" and "available" tag
+	errors := validateStruct(configBag.Config, configBag.Config.Version)
+	if len(errors) > 0 {
+		for _, err := range errors {
+			// Convert validator.Error into ConfigError
+			configError := convertValidatorError(err, configBag.Config, pkgConfig.Stringify(configBag.Config))
+			configBag.AddErrors(*configError)
 		}
+		return
+	}
+
+	// Iterating through every config tiles
+	for _, tile := range configBag.Config.Tiles {
+		cu.verifyTile(configBag, &tile, nil)
 	}
 }
 
 func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.TileConfig, groupTile *models.TileConfig) {
-	if tile.ColumnSpan != nil && *tile.ColumnSpan <= 0 {
-		configBag.AddErrors(models.ConfigError{
-			ID:      models.ConfigErrorInvalidFieldValue,
-			Message: `Invalid "columnSpan" field. Must be a positive integer.`,
-			Data: models.ConfigErrorData{
-				FieldName:     "columnSpan",
-				Expected:      "columnSpan > 0",
-				ConfigExtract: pkgConfig.Stringify(tile),
-			},
-		})
-	}
-
-	if tile.RowSpan != nil && *tile.RowSpan <= 0 {
-		configBag.AddErrors(models.ConfigError{
-			ID:      models.ConfigErrorInvalidFieldValue,
-			Message: `Invalid "rowSpan" field. Must be a positive integer.`,
-			Data: models.ConfigErrorData{
-				FieldName:     "rowSpan",
-				Expected:      "rowSpan > 0",
-				ConfigExtract: pkgConfig.Stringify(tile),
-			},
-		})
+	// Validate struct with "validate" and "available" tag
+	errors := validateStruct(tile, configBag.Config.Version)
+	if len(errors) > 0 {
+		for _, err := range errors {
+			// Convert validator.Error into ConfigError
+			configError := convertValidatorError(err, tile, pkgConfig.Stringify(tile))
+			configBag.AddErrors(*configError)
+		}
+		return
 	}
 
 	// Empty tile, skip
@@ -231,20 +183,22 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 		}
 	}
 
+	// Check version on monitarable
 	if configBag.Config.Version.IsLessThan(metadataExplorer.GetMinimalVersion()) {
 		configBag.AddErrors(models.ConfigError{
 			ID: models.ConfigErrorUnsupportedTileInThisVersion,
 			Message: fmt.Sprintf(`%q tile type is not supported in version %q. Minimal supported version is %q`,
-				tile.Type, configBag.Config.Version, metadataExplorer.GetMinimalVersion()),
+				tile.Type, configBag.Config.Version, string(metadataExplorer.GetMinimalVersion())),
 			Data: models.ConfigErrorData{
 				FieldName:     "type",
 				ConfigExtract: pkgConfig.Stringify(tile),
-				Expected:      fmt.Sprintf(`version >= %q`, metadataExplorer.GetMinimalVersion()),
+				Expected:      fmt.Sprintf(`version >= %q`, string(metadataExplorer.GetMinimalVersion())),
 			},
 		})
 		return
 	}
 
+	// Check if variant of monitoarable exist
 	variantMetadataExplorer, exists := metadataExplorer.GetVariant(tile.ConfigVariant)
 	if !exists {
 		configBag.AddErrors(models.ConfigError{
@@ -261,6 +215,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 		return
 	}
 
+	// Check if this variant is enabled
 	if !variantMetadataExplorer.IsEnabled() {
 		configBag.AddErrors(models.ConfigError{
 			ID:      models.ConfigErrorDisabledVariant,
@@ -274,6 +229,7 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 		return
 	}
 
+	// Check if param isn't empty
 	if tile.Params == nil {
 		configBag.AddErrors(models.ConfigError{
 			ID:      models.ConfigErrorMissingRequiredField,
@@ -325,23 +281,76 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 		}
 	}
 
-	// Validate config with the config file version
-	if err := rInstance.(models.ParamsValidator).Validate(configBag.Config.Version); err != nil {
-		// Inject Config Extract
-		err.Data.ConfigExtract = pkgConfig.Stringify(tile)
+	// Validate struct with "validate" and "available" tag
+	castedParams := rInstance.(params.Validator)
+	errors = validateStruct(castedParams, configBag.Config.Version)
+	errors = append(errors, castedParams.Validate()...)
 
-		// UX HACK: if params is empty, inject "params: {}" to help users
+	for _, vError := range errors {
+		configError := convertValidatorError(vError, rInstance, pkgConfig.Stringify(tile))
+
+		// UX HACK: if params is empty, inject "params:{}" to help users
 		if len(tile.Params) == 0 {
-			for _, value := range structs.Fields(tile) {
-				if reflect.DeepEqual(value.Value(), tile.Params) {
-					paramName := strings.Split(value.Tag("json"), ",")[0]
-
-					err.Data.ConfigExtract = strings.TrimSuffix(err.Data.ConfigExtract, "}")
-					err.Data.ConfigExtract = fmt.Sprintf(`%s,"%s":{}}`, err.Data.ConfigExtract, paramName)
+			for _, field := range structs.Fields(tile) {
+				if reflect.DeepEqual(field.Value(), tile.Params) {
+					paramName := pkgStructs.GetJSONFieldName(field)
+					configError.Data.ConfigExtract = strings.TrimSuffix(configError.Data.ConfigExtract, "}")
+					configError.Data.ConfigExtract = fmt.Sprintf(`%s,"%s":{}}`, configError.Data.ConfigExtract, paramName)
+					break
 				}
 			}
 		}
 
-		configBag.AddErrors(*err)
+		configBag.AddErrors(*configError)
 	}
+}
+
+// validateStruct Validate struct with "validate" and "available" tag
+func validateStruct(s interface{}, version *versions.ConfigVersion) []validator.Error {
+	var errors []validator.Error
+
+	// use "available" tag in struct definition to validate params
+	errors = append(errors, available.Struct(s, version)...)
+	// use "validate" tag in struct definition to validate params
+	errors = append(errors, validate.Struct(s)...)
+
+	return errors
+}
+
+// convertValidatorError into models.ConfigError
+func convertValidatorError(vError validator.Error, instance interface{}, configExtract string) *models.ConfigError {
+	configError := &models.ConfigError{Data: models.ConfigErrorData{}}
+
+	// Convert error ID
+	switch vError.GetErrorID() {
+	case validator.ErrorRequired:
+		configError.ID = models.ConfigErrorMissingRequiredField
+	case validator.ErrorSince, validator.ErrorUntil:
+		configError.ID = models.ConfigErrorUnsupportedTileParamInThisVersion
+	default:
+		configError.ID = models.ConfigErrorInvalidFieldValue
+	}
+
+	// Inject extract
+	configError.Data.ConfigExtract = configExtract
+
+	// Convert FieldName into json fieldName
+	for _, field := range structs.Fields(instance) {
+		if field.Name() == vError.GetFieldName() {
+			// Replace FieldName By json FieldName
+			if jsonTagValue := pkgStructs.GetJSONFieldName(field); jsonTagValue != "" && jsonTagValue != "-" {
+				vError.SetFieldName(jsonTagValue)
+			}
+			break
+		}
+	}
+	configError.Data.FieldName = vError.GetFieldName()
+
+	// Convert Message
+	configError.Message = vError.Error()
+
+	// Convert Expected
+	configError.Data.Expected = vError.Expected()
+
+	return configError
 }
