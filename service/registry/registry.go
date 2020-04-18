@@ -7,6 +7,7 @@ import (
 
 	"github.com/monitoror/monitoror/api/config/models"
 	"github.com/monitoror/monitoror/api/config/versions"
+	"github.com/monitoror/monitoror/internal/pkg/monitorable/params"
 	coreModels "github.com/monitoror/monitoror/models"
 )
 
@@ -18,11 +19,11 @@ type (
 	}
 	// TileEnabler is returned to monitorable after register to enable monitorable tile with this variant if she is "valid"
 	TileEnabler interface {
-		Enable(variantName coreModels.VariantName, paramsValidator models.ParamsValidator, routePath string)
+		Enable(variantName coreModels.VariantName, paramsValidator params.Validator, routePath string)
 	}
 	// GeneratorEnabler is returned to monitorable after register to enable monitorable generator with this variant if she is "valid"
 	GeneratorEnabler interface {
-		Enable(variantName coreModels.VariantName, generatorParamsValidator models.ParamsValidator, tileGeneratorFunction models.TileGeneratorFunction)
+		Enable(variantName coreModels.VariantName, generatorParamsValidator params.Validator, tileGeneratorFunction models.TileGeneratorFunction)
 	}
 
 	// TileMetadataExplorer is used in verify. Matching tileMetadata and generatorMetadata.
@@ -34,7 +35,7 @@ type (
 	// VariantMetadataExplorer is used in verify. Matching tileVariantMetadata and generatorVariantMetadata.
 	VariantMetadataExplorer interface {
 		IsEnabled() bool
-		GetValidator() models.ParamsValidator
+		GetValidator() params.Validator
 	}
 )
 
@@ -63,7 +64,7 @@ type (
 		// RoutePath path of the api endpoint for this tile. Used by hydrate
 		RoutePath *string
 		// ParamsValidator is used to validate given params
-		ParamsValidator models.ParamsValidator
+		ParamsValidator params.Validator
 	}
 
 	generatorMetadata struct {
@@ -87,7 +88,7 @@ type (
 		// GeneratorFunction function used to generate tile config
 		GeneratorFunction models.TileGeneratorFunction
 		// GeneratorParamsValidator is used to validate given params for generator
-		GeneratorParamsValidator models.ParamsValidator
+		GeneratorParamsValidator params.Validator
 	}
 )
 
@@ -146,7 +147,7 @@ func (r *MetadataRegistry) RegisterGenerator(generatedTileType coreModels.TileTy
 
 // TILE METADATA
 // ----------------------------------------
-func (tm *tileMetadata) Enable(variantName coreModels.VariantName, paramsValidator models.ParamsValidator, routePath string) {
+func (tm *tileMetadata) Enable(variantName coreModels.VariantName, paramsValidator params.Validator, routePath string) {
 	variantMetadata, exists := tm.VariantsMetadata[variantName]
 	if !exists {
 		panic(fmt.Sprintf("unable to enable unknown variantName: %s for tile: %s. register it before.", variantName, tm.TileType))
@@ -178,7 +179,7 @@ func (tm *tileMetadata) GetVariantsNames() []coreModels.VariantName {
 
 // GENERATOR METADATA
 // ----------------------------------------
-func (gm *generatorMetadata) Enable(variantName coreModels.VariantName, generatorParamsValidator models.ParamsValidator, tileGeneratorFunction models.TileGeneratorFunction) {
+func (gm *generatorMetadata) Enable(variantName coreModels.VariantName, generatorParamsValidator params.Validator, tileGeneratorFunction models.TileGeneratorFunction) {
 	variantMetadata, exists := gm.VariantsMetadata[variantName]
 	if !exists {
 		panic(fmt.Sprintf("unable to enable unknown variantName: %s for tile: %s. register it before.", variantName, gm.TileType))
@@ -213,7 +214,7 @@ func (gm *generatorMetadata) GetVariantsNames() []coreModels.VariantName {
 func (tvm *tileVariantMetadata) IsEnabled() bool {
 	return tvm.Enabled
 }
-func (tvm *tileVariantMetadata) GetValidator() models.ParamsValidator {
+func (tvm *tileVariantMetadata) GetValidator() params.Validator {
 	return tvm.ParamsValidator
 }
 
@@ -224,7 +225,7 @@ func (tvm *tileVariantMetadata) GetValidator() models.ParamsValidator {
 func (gvm *generatorVariantMetadata) IsEnabled() bool {
 	return gvm.Enabled
 }
-func (gvm *generatorVariantMetadata) GetValidator() models.ParamsValidator {
+func (gvm *generatorVariantMetadata) GetValidator() params.Validator {
 	return gvm.GeneratorParamsValidator
 }
 
