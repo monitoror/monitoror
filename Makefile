@@ -93,8 +93,16 @@ clean: ## remove build artifacts
 	rm -rf ./binaries/*
 
 .PHONY: install
-install: ## installing tools / dependencies
+install: ## installing monitoror dependencies
 	@./scripts/install.sh
+
+.PHONY: install-tools
+install-tools: ## install development tools
+	@./scripts/install-tools.sh
+
+.PHONY: proxy
+proxy: ## starting UI proxy for tests
+	@./scripts/proxy.sh
 
 .PHONY: help
 help: ## print this help
