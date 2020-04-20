@@ -20,9 +20,9 @@ func TestValidateError(t *testing.T) {
 			expected: "",
 		},
 		{
-			err:      &validateError{errorID: validator.ErrorOneOf, fieldName: "test", tagParam: "test"},
-			message:  `Invalid "test" field. Must be one of [test].`,
-			expected: `test`,
+			err:      &validateError{errorID: validator.ErrorOneOf, fieldName: "test", tagParam: "test test2"},
+			message:  `Invalid "test" field. Must be one of [test, test2].`,
+			expected: `test, test2`,
 		},
 		{
 			err:      &validateError{errorID: validator.ErrorEq, fieldName: "test", tagParam: "1"},

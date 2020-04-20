@@ -19,7 +19,7 @@ type Params struct {
 	LessThan         int     `validate:"lt=1"`
 	LessThanEqual    int     `validate:"lte=0"`
 	Omitempty        *int    `validate:"omitempty,gt=0"`
-	OneOf            string  `validate:"omitempty,oneof=test"`
+	OneOf            string  `validate:"omitempty,oneof=value1 value2 value3"`
 	Regex            string  `validate:"regex"`
 	Other            string
 }
@@ -145,11 +145,11 @@ func TestValidate_WithError(t *testing.T) {
 			params: &Params{
 				URL:   pointer.ToString("http://exemple.com"),
 				Token: "xxxx",
-				OneOf: "test2",
+				OneOf: "test",
 			},
 			errorID:        validator.ErrorOneOf,
 			errorFieldName: "OneOf",
-			errorExpected:  "test",
+			errorExpected:  "value1, value2, value3",
 		},
 		{
 			params: &Params{

@@ -25,7 +25,7 @@ import (
 const (
 	regexTag    = "regex"    // Valid when regex compile
 	httpTag     = "http"     // Valid when string starts with http:// or https://
-	notEmptytag = "notempty" // Valid when slice is not empty (like gt=0 but with custom message / expected)
+	notEmptyTag = "notempty" // Valid when slice is not empty (like gt=0 but with custom message / expected)
 )
 
 var (
@@ -39,7 +39,7 @@ var (
 		"lte":       pkgValidator.ErrorLTE,
 		"lt":        pkgValidator.ErrorLT,
 		"url":       pkgValidator.ErrorURL,
-		notEmptytag: pkgValidator.ErrorNotEmpty,
+		notEmptyTag: pkgValidator.ErrorNotEmpty,
 		httpTag:     pkgValidator.ErrorHTTP,
 		regexTag:    pkgValidator.ErrorRegex,
 	}
@@ -50,7 +50,7 @@ var validate *validator.Validate
 
 func init() {
 	validate = validator.New()
-	_ = validate.RegisterValidation(notEmptytag, validateNotEmpty)
+	_ = validate.RegisterValidation(notEmptyTag, validateNotEmpty)
 	_ = validate.RegisterValidation(httpTag, validateHTTP)
 	_ = validate.RegisterValidation(regexTag, validateRegex)
 }

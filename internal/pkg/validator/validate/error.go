@@ -2,6 +2,7 @@ package validate
 
 import (
 	"fmt"
+	"strings"
 
 	pkgValidator "github.com/monitoror/monitoror/internal/pkg/validator"
 )
@@ -21,7 +22,7 @@ func (e *validateError) Error() string {
 	case pkgValidator.ErrorRequired:
 		return fmt.Sprintf(`Required %q field is missing.`, e.fieldName)
 	case pkgValidator.ErrorOneOf:
-		return fmt.Sprintf(`Invalid %q field. Must be one of [%s].`, e.fieldName, e.tagParam)
+		return fmt.Sprintf(`Invalid %q field. Must be one of [%s].`, e.fieldName, e.Expected())
 	case pkgValidator.ErrorEq:
 		return fmt.Sprintf(`Invalid %q field. Must be equal to %s.`, e.fieldName, e.tagParam)
 	case pkgValidator.ErrorNE:
@@ -54,7 +55,7 @@ func (e *validateError) GetFieldName() string             { return e.fieldName }
 func (e *validateError) Expected() string {
 	switch e.errorID {
 	case pkgValidator.ErrorOneOf:
-		return e.tagParam
+		return strings.ReplaceAll(e.tagParam, " ", ", ")
 	case pkgValidator.ErrorEq:
 		return fmt.Sprintf(`%s = %s`, e.fieldName, e.tagParam)
 	case pkgValidator.ErrorNE:
