@@ -5,32 +5,20 @@ package models
 import (
 	"regexp"
 
-	uiConfigModels "github.com/monitoror/monitoror/api/config/models"
+	"github.com/monitoror/monitoror/internal/pkg/validator"
 )
 
 type (
 	HTTPRawParams struct {
-		URL           string `json:"url" query:"url"`
-		Regex         string `json:"regex,omitempty" query:"regex"`
+		URL           string `json:"url" query:"url" validate:"required,url,http"`
+		Regex         string `json:"regex,omitempty" query:"regex" validate:"regex"`
 		StatusCodeMin *int   `json:"statusCodeMin,omitempty" query:"statusCodeMin"`
 		StatusCodeMax *int   `json:"statusCodeMax,omitempty" query:"statusCodeMax"`
 	}
 )
 
-func (p *HTTPRawParams) Validate(_ *uiConfigModels.ConfigVersion) *uiConfigModels.ConfigError {
-	if err := validateURL(p); err != nil {
-		return err
-	}
-
-	if err := validateStatusCode(p); err != nil {
-		return err
-	}
-
-	if err := validateRegex(p); err != nil {
-		return err
-	}
-
-	return nil
+func (p *HTTPRawParams) Validate() []validator.Error {
+	return validateStatusCode(p)
 }
 
 func (p *HTTPRawParams) GetURL() (url string) { return p.URL }

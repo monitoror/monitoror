@@ -2,16 +2,16 @@ package config
 
 type (
 	TravisCI struct {
-		URL         string
-		Timeout     int // In Millisecond
+		URL         string `validate:"required,url,http"`
 		Token       string
 		GithubToken string
+		Timeout     int `validate:"gte=0"` // In Millisecond
 	}
 )
 
 var Default = &TravisCI{
 	URL:         "https://api.travis-ci.com/",
-	Timeout:     2000,
 	Token:       "",
 	GithubToken: "",
+	Timeout:     2000,
 }

@@ -21,7 +21,7 @@ func NewGithubDelivery(p api.Usecase) *GithubDelivery {
 func (h *GithubDelivery) GetCount(c echo.Context) error {
 	// Bind / check Params
 	params := &models.CountParams{}
-	if err := delivery.BindAndValidateRequestParams(c, params); err != nil {
+	if err := delivery.BindAndValidateParams(c, params); err != nil {
 		return err
 	}
 
@@ -36,7 +36,7 @@ func (h *GithubDelivery) GetCount(c echo.Context) error {
 func (h *GithubDelivery) GetChecks(c echo.Context) error {
 	// Bind / check Params
 	params := &models.ChecksParams{}
-	if err := delivery.BindAndValidateRequestParams(c, params); err != nil {
+	if err := delivery.BindAndValidateParams(c, params); err != nil {
 		return err
 	}
 

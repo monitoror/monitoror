@@ -25,8 +25,8 @@ func TestNewMonitorable(t *testing.T) {
 
 	// GetVariantsNames and check
 	if assert.Len(t, monitorable.GetVariantsNames(), 2) {
-		_, err := monitorable.Validate("variant0")
-		assert.Error(t, err)
+		_, errors := monitorable.Validate("variant0")
+		assert.NotEmpty(t, errors)
 	}
 
 	// Enable

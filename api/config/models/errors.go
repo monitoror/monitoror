@@ -20,15 +20,6 @@ func (e *ConfigFileNotFoundError) Error() string {
 }
 func (e *ConfigFileNotFoundError) Unwrap() error { return e.Err }
 
-// ConfigVersionFormatError
-type ConfigVersionFormatError struct {
-	WrongVersion string
-}
-
-func (e *ConfigVersionFormatError) Error() string {
-	return fmt.Sprintf(`json: cannot unmarshal %s into Go struct field Config.Version of type string and X.y format`, e.WrongVersion)
-}
-
 //ConfigUnmarshalError
 type ConfigUnmarshalError struct {
 	Err       error

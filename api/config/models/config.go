@@ -1,6 +1,9 @@
 package models
 
-import coreModels "github.com/monitoror/monitoror/models"
+import (
+	"github.com/monitoror/monitoror/api/config/versions"
+	coreModels "github.com/monitoror/monitoror/models"
+)
 
 type (
 	ConfigBag struct {
@@ -9,18 +12,18 @@ type (
 	}
 
 	Config struct {
-		Version *ConfigVersion `json:"version"`
-		Columns *int           `json:"columns"`
-		Zoom    *float32       `json:"zoom,omitempty"`
-		Tiles   []TileConfig   `json:"tiles"`
+		Version *versions.ConfigVersion `json:"version"`
+		Columns *int                    `json:"columns" validate:"required,gt=0"`
+		Zoom    *float32                `json:"zoom,omitempty" validate:"omitempty,gt=0,lte=10"`
+		Tiles   []TileConfig            `json:"tiles" validate:"required,notempty"`
 	}
 
 	TileConfig struct {
-		Type coreModels.TileType `json:"type"`
+		Type coreModels.TileType `json:"type" validate:"required"`
 
 		Label      string `json:"label,omitempty"`
-		RowSpan    *int   `json:"rowSpan,omitempty"`
-		ColumnSpan *int   `json:"columnSpan,omitempty"`
+		RowSpan    *int   `json:"rowSpan,omitempty" validate:"omitempty,gt=0"`
+		ColumnSpan *int   `json:"columnSpan,omitempty" validate:"omitempty,gt=0"`
 
 		Tiles           []TileConfig `json:"tiles,omitempty"`
 		URL             string       `json:"url,omitempty"`

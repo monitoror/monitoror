@@ -2,28 +2,14 @@
 
 package models
 
-import (
-	"fmt"
-
-	uiConfigModels "github.com/monitoror/monitoror/api/config/models"
-)
+import "github.com/monitoror/monitoror/internal/pkg/monitorable/params"
 
 type (
 	CountParams struct {
-		Query string `json:"query" query:"query"`
+		params.Default
+
+		Query string `json:"query" query:"query" validate:"required"`
 
 		ValueValues []string `json:"valueValues" query:"valueValues"`
 	}
 )
-
-func (p *CountParams) Validate(_ *uiConfigModels.ConfigVersion) *uiConfigModels.ConfigError {
-	if p.Query == "" {
-		return &uiConfigModels.ConfigError{
-			ID:      uiConfigModels.ConfigErrorMissingRequiredField,
-			Message: fmt.Sprintf(`Required "query" field is missing.`),
-			Data:    uiConfigModels.ConfigErrorData{FieldName: "query"},
-		}
-	}
-
-	return nil
-}

@@ -5,16 +5,16 @@ package models
 import (
 	"regexp"
 
-	uiConfigModels "github.com/monitoror/monitoror/api/config/models"
+	"github.com/monitoror/monitoror/internal/pkg/validator"
 	coreModels "github.com/monitoror/monitoror/models"
 )
 
 type (
 	HTTPFormattedParams struct {
-		URL           string `json:"url" query:"url"`
-		Format        Format `json:"format" query:"format"`
-		Key           string `json:"key" query:"key"`
-		Regex         string `json:"regex,omitempty" query:"regex"`
+		URL           string `json:"url" query:"url" validate:"required,url,http"`
+		Format        Format `json:"format" query:"format" validate:"required,oneof=JSON YAML XML"`
+		Key           string `json:"key" query:"key" validate:"required,ne=."`
+		Regex         string `json:"regex,omitempty" query:"regex" validate:"regex"`
 		StatusCodeMin *int   `json:"statusCodeMin,omitempty" query:"statusCodeMin"`
 		StatusCodeMax *int   `json:"statusCodeMax,omitempty" query:"statusCodeMax"`
 
@@ -25,28 +25,8 @@ type (
 	}
 )
 
-func (p *HTTPFormattedParams) Validate(_ *uiConfigModels.ConfigVersion) *uiConfigModels.ConfigError {
-	if err := validateURL(p); err != nil {
-		return err
-	}
-
-	if err := validateStatusCode(p); err != nil {
-		return err
-	}
-
-	if err := validateFormat(p); err != nil {
-		return err
-	}
-
-	if err := validateKey(p); err != nil {
-		return err
-	}
-
-	if err := validateRegex(p); err != nil {
-		return err
-	}
-
-	return nil
+func (p *HTTPFormattedParams) Validate() []validator.Error {
+	return validateStatusCode(p)
 }
 
 func (p *HTTPFormattedParams) GetURL() (url string) { return p.URL }

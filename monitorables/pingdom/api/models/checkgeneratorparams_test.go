@@ -3,17 +3,16 @@ package models
 import (
 	"testing"
 
-	"github.com/monitoror/monitoror/internal/pkg/monitorable/validator"
-	"github.com/stretchr/testify/assert"
+	"github.com/monitoror/monitoror/internal/pkg/monitorable/test"
 )
 
 func TestCheckGeneratorParams_Validate(t *testing.T) {
 	param := &CheckGeneratorParams{}
-	assert.NoError(t, validator.Validate(param))
+	test.AssertParams(t, param, 0)
 
 	param = &CheckGeneratorParams{SortBy: "name"}
-	assert.NoError(t, validator.Validate(param))
+	test.AssertParams(t, param, 0)
 
 	param = &CheckGeneratorParams{SortBy: "test"}
-	assert.Error(t, validator.Validate(param))
+	test.AssertParams(t, param, 1)
 }

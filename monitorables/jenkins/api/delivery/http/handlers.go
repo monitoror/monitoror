@@ -21,7 +21,7 @@ func NewJenkinsDelivery(p api.Usecase) *JenkinsDelivery {
 func (h *JenkinsDelivery) GetBuild(c echo.Context) error {
 	// Bind / check Params
 	params := &models.BuildParams{}
-	if err := delivery.BindAndValidateRequestParams(c, params); err != nil {
+	if err := delivery.BindAndValidateParams(c, params); err != nil {
 		return err
 	}
 

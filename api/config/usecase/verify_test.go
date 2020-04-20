@@ -7,6 +7,7 @@ import (
 
 	"github.com/monitoror/monitoror/api/config/models"
 	"github.com/monitoror/monitoror/api/config/versions"
+	"github.com/monitoror/monitoror/internal/pkg/validator"
 	coreModels "github.com/monitoror/monitoror/models"
 	jenkinsApi "github.com/monitoror/monitoror/monitorables/jenkins/api"
 	jenkinsModels "github.com/monitoror/monitoror/monitorables/jenkins/api/models"
@@ -20,7 +21,7 @@ func initConfig(t *testing.T, rawConfig string) (tiles *models.TileConfig, conf 
 	err := json.Unmarshal([]byte(rawConfig), &tiles)
 	assert.NoError(t, err)
 
-	conf = &models.ConfigBag{Config: &models.Config{Version: models.ParseVersion(versions.CurrentVersion)}}
+	conf = &models.ConfigBag{Config: &models.Config{Version: versions.CurrentVersion.ToConfigVersion()}}
 
 	return
 }
@@ -30,6 +31,7 @@ func TestUsecase_Verify_Success(t *testing.T) {
 {
 	"version" : %q,
   "columns": 4,
+	"zoom": 2.5,
   "tiles": [
 		{ "type": "EMPTY" }
   ]
@@ -100,41 +102,43 @@ func TestUsecase_Verify_Failed(t *testing.T) {
 			rawConfig: fmt.Sprintf(`{"version": %q, "tiles": [{ "type": "EMPTY" }]}`, versions.CurrentVersion),
 			errorID:   models.ConfigErrorMissingRequiredField,
 			errorData: models.ConfigErrorData{
-				FieldName: "columns",
+				FieldName:     "columns",
+				ConfigExtract: fmt.Sprintf(`{"version":%q,"tiles":[{"type":"EMPTY"}]}`, versions.CurrentVersion),
 			},
 		},
 		{
 			rawConfig: fmt.Sprintf(`{"version": %q, "columns": 0, "tiles": [{ "type": "EMPTY" }]}`, versions.CurrentVersion),
 			errorID:   models.ConfigErrorInvalidFieldValue,
 			errorData: models.ConfigErrorData{
-				FieldName: "columns",
-				Value:     `0`,
-				Expected:  "columns > 0",
+				FieldName:     "columns",
+				Expected:      "columns > 0",
+				ConfigExtract: fmt.Sprintf(`{"version":%q,"columns":0,"tiles":[{"type":"EMPTY"}]}`, versions.CurrentVersion),
 			},
 		},
 		{
 			rawConfig: fmt.Sprintf(`{"version": %q, "columns": 1, "zoom": 0, "tiles": [{ "type": "EMPTY" }]}`, versions.CurrentVersion),
 			errorID:   models.ConfigErrorInvalidFieldValue,
 			errorData: models.ConfigErrorData{
-				FieldName: "zoom",
-				Value:     `0`,
-				Expected:  "0 < zoom <= 10",
+				FieldName:     "zoom",
+				Expected:      "zoom > 0",
+				ConfigExtract: fmt.Sprintf(`{"version":%q,"columns":1,"zoom":0,"tiles":[{"type":"EMPTY"}]}`, versions.CurrentVersion),
 			},
 		},
 		{
-			rawConfig: fmt.Sprintf(`{"version": %q, "columns": 1, "zoom": 20, "tiles": [{ "type": "EMPTY" }]}`, versions.CurrentVersion),
+			rawConfig: fmt.Sprintf(`{"version": %q, "columns": 1, "zoom": 19.8, "tiles": [{ "type": "EMPTY" }]}`, versions.CurrentVersion),
 			errorID:   models.ConfigErrorInvalidFieldValue,
 			errorData: models.ConfigErrorData{
-				FieldName: "zoom",
-				Value:     `20`,
-				Expected:  "0 < zoom <= 10",
+				FieldName:     "zoom",
+				Expected:      "zoom <= 10",
+				ConfigExtract: fmt.Sprintf(`{"version":%q,"columns":1,"zoom":19.8,"tiles":[{"type":"EMPTY"}]}`, versions.CurrentVersion),
 			},
 		},
 		{
 			rawConfig: fmt.Sprintf(`{"version": %q, "columns": 1}`, versions.CurrentVersion),
 			errorID:   models.ConfigErrorMissingRequiredField,
 			errorData: models.ConfigErrorData{
-				FieldName: "tiles",
+				FieldName:     "tiles",
+				ConfigExtract: fmt.Sprintf(`{"version":%q,"columns":1}`, versions.CurrentVersion),
 			},
 		},
 		{
@@ -291,6 +295,15 @@ func TestUsecase_VerifyTile_Failed(t *testing.T) {
 			},
 		},
 		{
+			rawConfig: `{ "type": "PORT", "params": { "hostname": "server.com", "port": -20 } }`,
+			errorID:   models.ConfigErrorInvalidFieldValue,
+			errorData: models.ConfigErrorData{
+				FieldName:     "port",
+				ConfigExtract: `{"type":"PORT","params":{"hostname":"server.com","port":-20},"configVariant":"default"}`,
+				Expected:      "port > 0",
+			},
+		},
+		{
 			rawConfig: `{ "type": "PING", "params": { "hostname": ["server.com"] } }`,
 			errorID:   models.ConfigErrorUnexpectedError,
 			errorData: models.ConfigErrorData{
@@ -422,5 +435,28 @@ func TestUsecase_VerifyTile_WithGenerator_WithWrongVariant(t *testing.T) {
 		assert.Equal(t, `"test"`, conf.Errors[0].Data.Value)
 		assert.Contains(t, conf.Errors[0].Data.Expected, coreModels.DefaultVariant)
 		assert.Equal(t, `{"type":"GENERATE:JENKINS-BUILD","params":{"job":"job1"},"configVariant":"test"}`, conf.Errors[0].Data.ConfigExtract)
+	}
+}
+
+type minimalVersionTest struct {
+	Field1 string `json:"field1" available:"since=999.0"`
+}
+
+func (s *minimalVersionTest) Validate() []validator.Error { return nil }
+
+func TestUsecase_VerifyTile_FieldMinimalVersion(t *testing.T) {
+	rawConfig := `{ "type": "TEST", "params": { "field1": "server.com" } }`
+	tile, conf := initConfig(t, rawConfig)
+	usecase := initConfigUsecase(nil)
+	usecase.registry.RegisterTile("TEST", versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
+		Enable(coreModels.DefaultVariant, &minimalVersionTest{}, "/test/default/test")
+
+	usecase.verifyTile(conf, tile, nil)
+
+	if assert.Len(t, conf.Errors, 1) {
+		assert.Equal(t, models.ConfigErrorUnsupportedTileParamInThisVersion, conf.Errors[0].ID)
+		assert.Equal(t, "field1", conf.Errors[0].Data.FieldName)
+		assert.Equal(t, "version >= 999.0", conf.Errors[0].Data.Expected)
+		assert.Equal(t, `{"type":"TEST","params":{"field1":"server.com"},"configVariant":"default"}`, conf.Errors[0].Data.ConfigExtract)
 	}
 }

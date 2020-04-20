@@ -21,7 +21,7 @@ func NewAzureDevOpsDelivery(p api.Usecase) *AzureDevOpsDelivery {
 func (h *AzureDevOpsDelivery) GetBuild(c echo.Context) error {
 	// Bind / check Params
 	params := &models.BuildParams{}
-	if err := delivery.BindAndValidateRequestParams(c, params); err != nil {
+	if err := delivery.BindAndValidateParams(c, params); err != nil {
 		return err
 	}
 
@@ -36,7 +36,7 @@ func (h *AzureDevOpsDelivery) GetBuild(c echo.Context) error {
 func (h *AzureDevOpsDelivery) GetRelease(c echo.Context) error {
 	// Bind / check Params
 	params := &models.ReleaseParams{}
-	if err := delivery.BindAndValidateRequestParams(c, params); err != nil {
+	if err := delivery.BindAndValidateParams(c, params); err != nil {
 		return err
 	}
 

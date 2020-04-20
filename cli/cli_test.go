@@ -114,7 +114,7 @@ func TestPrintMonitorable(t *testing.T) {
 
 	// Default is configured, a variant is errored
 	output.Reset()
-	cli.PrintMonitorable("TEST3", []coreModels.VariantName{coreModels.DefaultVariant}, []ErroredVariant{{"variant2", errors.New("config error details")}})
+	cli.PrintMonitorable("TEST3", []coreModels.VariantName{coreModels.DefaultVariant}, []ErroredVariant{{"variant2", []error{errors.New("config error details")}}})
 	actual = output.String()
 	expected = `  ! TEST3 [default]
     /!\ Errored "variant2" variant configuration
@@ -124,7 +124,7 @@ func TestPrintMonitorable(t *testing.T) {
 
 	// Default and a variant are configured, a variant is errored
 	output.Reset()
-	cli.PrintMonitorable("TEST3bis", []coreModels.VariantName{coreModels.DefaultVariant, "variant1"}, []ErroredVariant{{"variant2", errors.New("config error details")}})
+	cli.PrintMonitorable("TEST3bis", []coreModels.VariantName{coreModels.DefaultVariant, "variant1"}, []ErroredVariant{{"variant2", []error{errors.New("config error details")}}})
 	actual = output.String()
 	expected = `  ! TEST3bis [default, variants: [variant1]]
     /!\ Errored "variant2" variant configuration
@@ -134,7 +134,7 @@ func TestPrintMonitorable(t *testing.T) {
 
 	// Default not configured, a variant is errored
 	output.Reset()
-	cli.PrintMonitorable("TEST4", nil, []ErroredVariant{{"variant3", errors.New("config error details")}})
+	cli.PrintMonitorable("TEST4", nil, []ErroredVariant{{"variant3", []error{errors.New("config error details")}}})
 	actual = output.String()
 	expected = `  ✕ TEST4 ` + `
     /!\ Errored "variant3" variant configuration
@@ -144,7 +144,7 @@ func TestPrintMonitorable(t *testing.T) {
 
 	// Default is errored, no other variants
 	output.Reset()
-	cli.PrintMonitorable("TEST5", nil, []ErroredVariant{{coreModels.DefaultVariant, errors.New("boom")}})
+	cli.PrintMonitorable("TEST5", nil, []ErroredVariant{{coreModels.DefaultVariant, []error{errors.New("boom")}}})
 	actual = output.String()
 	expected = `  ✕ TEST5 ` + `
     /!\ Errored default configuration
@@ -154,7 +154,7 @@ func TestPrintMonitorable(t *testing.T) {
 
 	// Default is errored, a variant is configured
 	output.Reset()
-	cli.PrintMonitorable("TEST6 (faker)", []coreModels.VariantName{"variant1"}, []ErroredVariant{{coreModels.DefaultVariant, errors.New("boom")}})
+	cli.PrintMonitorable("TEST6 (faker)", []coreModels.VariantName{"variant1"}, []ErroredVariant{{coreModels.DefaultVariant, []error{errors.New("boom")}}})
 	actual = output.String()
 	expected = `  ! TEST6 (faker) [variants: [variant1]]
     /!\ Errored default configuration
@@ -164,13 +164,24 @@ func TestPrintMonitorable(t *testing.T) {
 
 	// Multiple errored variants
 	output.Reset()
-	cli.PrintMonitorable("TEST7", []coreModels.VariantName{"variant1"}, []ErroredVariant{{coreModels.DefaultVariant, errors.New("boom")}, {"errored", errors.New("bim")}})
+	cli.PrintMonitorable("TEST7", []coreModels.VariantName{"variant1"}, []ErroredVariant{{coreModels.DefaultVariant, []error{errors.New("boom")}}, {"errored", []error{errors.New("bim")}}})
 	actual = output.String()
 	expected = `  ! TEST7 [variants: [variant1]]` + `
     /!\ Errored default configuration
         boom
     /!\ Errored "errored" variant configuration
         bim
+`
+	assert.Equal(t, expected, actual)
+
+	// Multiple errors in same variant
+	output.Reset()
+	cli.PrintMonitorable("TEST9 (faker)", []coreModels.VariantName{"variant1"}, []ErroredVariant{{coreModels.DefaultVariant, []error{errors.New("boom"), errors.New("boom2")}}})
+	actual = output.String()
+	expected = `  ! TEST9 (faker) [variants: [variant1]]
+    /!\ Errored default configuration
+        boom
+        boom2
 `
 	assert.Equal(t, expected, actual)
 }

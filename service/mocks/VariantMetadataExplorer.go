@@ -3,7 +3,7 @@
 package mocks
 
 import (
-	models "github.com/monitoror/monitoror/api/config/models"
+	params "github.com/monitoror/monitoror/internal/pkg/monitorable/params"
 	mock "github.com/stretchr/testify/mock"
 )
 
@@ -13,15 +13,15 @@ type VariantMetadataExplorer struct {
 }
 
 // GetValidator provides a mock function with given fields:
-func (_m *VariantMetadataExplorer) GetValidator() models.ParamsValidator {
+func (_m *VariantMetadataExplorer) GetValidator() params.Validator {
 	ret := _m.Called()
 
-	var r0 models.ParamsValidator
-	if rf, ok := ret.Get(0).(func() models.ParamsValidator); ok {
+	var r0 params.Validator
+	if rf, ok := ret.Get(0).(func() params.Validator); ok {
 		r0 = rf()
 	} else {
 		if ret.Get(0) != nil {
-			r0 = ret.Get(0).(models.ParamsValidator)
+			r0 = ret.Get(0).(params.Validator)
 		}
 	}
 

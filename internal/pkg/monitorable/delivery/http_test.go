@@ -4,36 +4,62 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/monitoror/monitoror/api/config/mocks"
-	"github.com/monitoror/monitoror/api/config/models"
+	"github.com/monitoror/monitoror/internal/pkg/monitorable/params"
+	"github.com/monitoror/monitoror/internal/pkg/validator"
 
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/mock"
 )
 
-type FakeValidator map[string]string
+type (
+	Params1 struct {
+		params.Default
+		Field string `query:"field" validate:"required"`
+	}
 
-func (m *FakeValidator) Validate(_ *models.ConfigVersion) *models.ConfigError { return nil }
+	Params2 struct {
+		Field string `query:"field" validate:"required"`
+	}
 
-func TestBindAndValidateRequestParams(t *testing.T) {
+	Params3 struct {
+		Field string `query:"field" validate:"required"`
+	}
+
+	Params4 map[string]string
+)
+
+func (p *Params2) Validate() []validator.Error { return nil }
+
+func (p *Params3) Validate() []validator.Error {
+	return []validator.Error{validator.NewDefaultError("Field", "boom")}
+}
+
+func (m *Params4) Validate() []validator.Error { return nil }
+
+func TestBindAndValidateParams(t *testing.T) {
 	e := echo.New()
 	req := httptest.NewRequest(echo.GET, "/api/v1/xxx", nil)
 	res := httptest.NewRecorder()
 	ctx := e.NewContext(req, res)
 
-	ctx.QueryParams().Add("test", "test")
-
-	mockValidator := new(mocks.ParamsValidator)
-	mockValidator.On("Validate", mock.Anything).Return(nil)
-	assert.NoError(t, BindAndValidateRequestParams(ctx, mockValidator))
-
-	fake := make(FakeValidator)
-	assert.Error(t, BindAndValidateRequestParams(ctx, &fake))
-
-	mockValidator2 := new(mocks.ParamsValidator)
-	mockValidator2.On("Validate", mock.Anything).Return(&models.ConfigError{Message: "boom"})
-	err := BindAndValidateRequestParams(ctx, mockValidator2)
+	p := &Params1{}
+	err := BindAndValidateParams(ctx, p)
 	assert.Error(t, err)
-	assert.Equal(t, "boom", err.Error())
+	assert.Equal(t, `Required "field" field is missing.`, err.Error())
+
+	ctx.QueryParams().Add("field", "test")
+
+	p2 := &Params2{}
+	err = BindAndValidateParams(ctx, p2)
+	assert.NoError(t, err)
+
+	p3 := &Params3{}
+	err = BindAndValidateParams(ctx, p3)
+	assert.Error(t, err)
+	assert.Equal(t, `Invalid "field" field. Must be boom.`, err.Error())
+
+	p4 := &Params4{}
+	err = BindAndValidateParams(ctx, p4)
+	assert.Error(t, err)
+	assert.Equal(t, `invalid configuration, unable to parse request parameters`, err.Error())
 }

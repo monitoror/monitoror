@@ -3,17 +3,16 @@ package models
 import (
 	"testing"
 
-	"github.com/monitoror/monitoror/internal/pkg/monitorable/validator"
-	"github.com/stretchr/testify/assert"
+	"github.com/monitoror/monitoror/internal/pkg/monitorable/test"
 )
 
 func TestPullRequestGeneratorParams_Validate(t *testing.T) {
 	param := &PullRequestGeneratorParams{Owner: "test", Repository: "test"}
-	assert.NoError(t, validator.Validate(param))
+	test.AssertParams(t, param, 0)
 
 	param = &PullRequestGeneratorParams{Owner: "test"}
-	assert.Error(t, validator.Validate(param))
+	test.AssertParams(t, param, 1)
 
 	param = &PullRequestGeneratorParams{}
-	assert.Error(t, validator.Validate(param))
+	test.AssertParams(t, param, 2)
 }

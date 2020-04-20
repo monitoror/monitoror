@@ -2,9 +2,9 @@ package config
 
 type (
 	Ping struct {
-		Count    int
-		Timeout  int // In Millisecond
-		Interval int // In Millisecond
+		Count    int `validate:"gte=1"`
+		Timeout  int `validate:"gte=0"` // In Millisecond
+		Interval int `validate:"gte=0"` // In Millisecond
 	}
 )
 

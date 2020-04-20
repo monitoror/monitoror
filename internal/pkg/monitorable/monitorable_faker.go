@@ -11,6 +11,6 @@ func (m *DefaultMonitorableFaker) GetVariantsNames() []coreModels.VariantName {
 	return []coreModels.VariantName{coreModels.DefaultVariant}
 }
 
-func (m *DefaultMonitorableFaker) Validate(_ coreModels.VariantName) (bool, error) {
+func (m *DefaultMonitorableFaker) Validate(_ coreModels.VariantName) (bool, []error) {
 	return true, nil
 }

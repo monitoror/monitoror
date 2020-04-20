@@ -22,7 +22,7 @@ func NewHTTPDelivery(p api.Usecase) *HTTPDelivery {
 func (h *HTTPDelivery) GetHTTPStatus(c echo.Context) error {
 	// Bind / Check Params
 	params := &models.HTTPStatusParams{}
-	if err := delivery.BindAndValidateRequestParams(c, params); err != nil {
+	if err := delivery.BindAndValidateParams(c, params); err != nil {
 		return err
 	}
 
@@ -37,7 +37,7 @@ func (h *HTTPDelivery) GetHTTPStatus(c echo.Context) error {
 func (h *HTTPDelivery) GetHTTPRaw(c echo.Context) error {
 	// Bind / Check Params
 	params := &models.HTTPRawParams{}
-	if err := delivery.BindAndValidateRequestParams(c, params); err != nil {
+	if err := delivery.BindAndValidateParams(c, params); err != nil {
 		return err
 	}
 
@@ -52,7 +52,7 @@ func (h *HTTPDelivery) GetHTTPRaw(c echo.Context) error {
 func (h *HTTPDelivery) GetHTTPFormatted(c echo.Context) error {
 	// Bind / Check Params
 	params := &models.HTTPFormattedParams{}
-	if err := delivery.BindAndValidateRequestParams(c, params); err != nil {
+	if err := delivery.BindAndValidateParams(c, params); err != nil {
 		return err
 	}
 

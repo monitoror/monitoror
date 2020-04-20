@@ -1,6 +1,7 @@
 package http
 
 import (
+	"os"
 	"testing"
 
 	"github.com/monitoror/monitoror/internal/pkg/monitorable/test"
@@ -12,6 +13,10 @@ func TestNewMonitorable(t *testing.T) {
 	// init Store
 	store, mockMonitorableHelper := test.InitMockAndStore()
 
+	// init Env
+	// Wrong Timeout
+	_ = os.Setenv("MO_MONITORABLE_HTTP_VARIANT0_TIMEOUT", "-1000")
+
 	// NewMonitorable
 	monitorable := NewMonitorable(store)
 	assert.NotNil(t, monitorable)
@@ -20,7 +25,10 @@ func TestNewMonitorable(t *testing.T) {
 	assert.NotNil(t, monitorable.GetDisplayName())
 
 	// GetVariantsNames and check
-	assert.Len(t, monitorable.GetVariantsNames(), 1)
+	if assert.Len(t, monitorable.GetVariantsNames(), 2) {
+		_, errors := monitorable.Validate("variant0")
+		assert.NotEmpty(t, errors)
+	}
 
 	// Enable
 	for _, variantName := range monitorable.GetVariantsNames() {

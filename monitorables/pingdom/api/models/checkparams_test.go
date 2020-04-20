@@ -4,14 +4,14 @@ import (
 	"testing"
 
 	"github.com/AlekSi/pointer"
-	"github.com/monitoror/monitoror/internal/pkg/monitorable/validator"
-	"github.com/stretchr/testify/assert"
+
+	"github.com/monitoror/monitoror/internal/pkg/monitorable/test"
 )
 
 func TestCheckParams_Validate(t *testing.T) {
 	param := &CheckParams{}
-	assert.Error(t, validator.Validate(param))
+	test.AssertParams(t, param, 1)
 
 	param = &CheckParams{ID: pointer.ToInt(10)}
-	assert.NoError(t, validator.Validate(param))
+	test.AssertParams(t, param, 0)
 }

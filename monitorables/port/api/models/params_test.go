@@ -3,17 +3,16 @@ package models
 import (
 	"testing"
 
-	"github.com/monitoror/monitoror/internal/pkg/monitorable/validator"
-	"github.com/stretchr/testify/assert"
+	"github.com/monitoror/monitoror/internal/pkg/monitorable/test"
 )
 
 func TestPortParams_Validate(t *testing.T) {
 	param := &PortParams{}
-	assert.Error(t, validator.Validate(param))
+	test.AssertParams(t, param, 2)
 
 	param = &PortParams{Hostname: "test"}
-	assert.Error(t, validator.Validate(param))
+	test.AssertParams(t, param, 1)
 
 	param = &PortParams{Hostname: "test", Port: 22}
-	assert.NoError(t, validator.Validate(param))
+	test.AssertParams(t, param, 0)
 }

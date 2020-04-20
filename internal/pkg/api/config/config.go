@@ -4,8 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"reflect"
+	"regexp"
 	"strings"
 )
+
+var removeNull *regexp.Regexp
+
+func init() {
+	removeNull = regexp.MustCompile(`\"[^"]+\"\s*:\s*null,?`)
+}
 
 func Keys(m interface{}) string {
 	keys := reflect.ValueOf(m).MapKeys()
@@ -20,5 +27,9 @@ func Keys(m interface{}) string {
 
 func Stringify(v interface{}) string {
 	bytes, _ := json.Marshal(v)
-	return string(bytes)
+	s := string(bytes)
+	s = removeNull.ReplaceAllString(s, ``)
+	s = strings.ReplaceAll(s, `,}`, `}`)
+
+	return s
 }

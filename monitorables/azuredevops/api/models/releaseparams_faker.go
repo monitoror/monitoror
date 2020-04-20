@@ -3,17 +3,18 @@
 package models
 
 import (
-	"fmt"
 	"time"
 
-	uiConfigModels "github.com/monitoror/monitoror/api/config/models"
+	"github.com/monitoror/monitoror/internal/pkg/monitorable/params"
 	"github.com/monitoror/monitoror/models"
 )
 
 type (
 	ReleaseParams struct {
-		Project    string `json:"project" query:"project"`
-		Definition *int   `json:"definition" query:"definition"`
+		params.Default
+
+		Project    string `json:"project" query:"project" validate:"required"`
+		Definition *int   `json:"definition" query:"definition" validate:"required"`
 
 		AuthorName      string `json:"authorName" query:"authorName"`
 		AuthorAvatarURL string `json:"authorAvatarURL" query:"authorAvatarURL"`
@@ -26,23 +27,3 @@ type (
 		EstimatedDuration int64             `json:"estimatedDuration" query:"estimatedDuration"`
 	}
 )
-
-func (p *ReleaseParams) Validate(_ *uiConfigModels.ConfigVersion) *uiConfigModels.ConfigError {
-	if p.Project == "" {
-		return &uiConfigModels.ConfigError{
-			ID:      uiConfigModels.ConfigErrorMissingRequiredField,
-			Message: fmt.Sprintf(`Required "project" field is missing.`),
-			Data:    uiConfigModels.ConfigErrorData{FieldName: "project"},
-		}
-	}
-
-	if p.Definition == nil {
-		return &uiConfigModels.ConfigError{
-			ID:      uiConfigModels.ConfigErrorMissingRequiredField,
-			Message: fmt.Sprintf(`Required "definition" field is missing.`),
-			Data:    uiConfigModels.ConfigErrorData{FieldName: "definition"},
-		}
-	}
-
-	return nil
-}

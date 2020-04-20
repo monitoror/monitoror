@@ -15,7 +15,7 @@ type Monitorable interface {
 
 	//Validate test if config variant is valid
 	// return false if empty and error if config have an error (ex: wrong url format)
-	Validate(variantName coreModels.VariantName) (bool, error)
+	Validate(variantName coreModels.VariantName) (bool, []error)
 
 	//Enable monitorable variant (add route to echo and enable tile for config verify / hydrate)
 	Enable(variantName coreModels.VariantName)
@@ -49,7 +49,7 @@ func (m *Manager) EnableMonitorables() {
 		for _, variantName := range monitorable.GetVariantsNames() {
 			valid, err := monitorable.Validate(variantName)
 			if err != nil {
-				erroredVariants = append(erroredVariants, cli.ErroredVariant{VariantName: variantName, Err: err})
+				erroredVariants = append(erroredVariants, cli.ErroredVariant{VariantName: variantName, Errors: err})
 			}
 
 			if valid {

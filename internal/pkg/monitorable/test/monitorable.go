@@ -37,25 +37,25 @@ func InitMockAndStore() (*store.Store, MockMonitorableHelper) {
 	mockTileEnabler := new(serviceMocks.TileEnabler)
 	mockTileEnabler.On("Enable",
 		mock.AnythingOfType("models.VariantName"),
-		mock.Anything, //	I didn't find a way to test that it's an validator.SimpleValidator interface	:(
+		mock.Anything, //	I didn't find a way to test that it's an params.Validator interface	:(
 		mock.AnythingOfType("string"),
 	)
 	mockGeneratorEnabler := new(serviceMocks.GeneratorEnabler)
 	mockGeneratorEnabler.On("Enable",
 		mock.AnythingOfType("models.VariantName"),
-		mock.Anything, //	I didn't find a way to test that it's an validator.SimpleValidator interface :(
+		mock.Anything, //	I didn't find a way to test that it's an params.Validator interface :(
 		mock.AnythingOfType("models.TileGeneratorFunction"),
 	)
 
 	mockRegistry := new(serviceMocks.Registry)
 	mockRegistry.On("RegisterTile",
 		mock.AnythingOfType("models.TileType"),
-		mock.AnythingOfType("models.RawVersion"),
+		mock.AnythingOfType("versions.RawVersion"),
 		mock.AnythingOfType("[]models.VariantName"),
 	).Return(mockTileEnabler)
 	mockRegistry.On("RegisterGenerator",
 		mock.AnythingOfType("models.TileType"),
-		mock.AnythingOfType("models.RawVersion"),
+		mock.AnythingOfType("versions.RawVersion"),
 		mock.AnythingOfType("[]models.VariantName"),
 	).Return(mockGeneratorEnabler)
 

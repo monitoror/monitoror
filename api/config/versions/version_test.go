@@ -1,4 +1,4 @@
-package models
+package versions
 
 import (
 	"encoding/json"
@@ -93,7 +93,7 @@ func TestConfigVersion_IsEqualTo(t *testing.T) {
 		{v1: "1.0", v2: "1.0", equal: true},
 		{v1: "1.0", v2: "1.1", equal: false},
 	} {
-		version := ParseVersion(testcase.v1)
+		version := testcase.v1.ToConfigVersion()
 		result := version.IsEqualTo(testcase.v2)
 		assert.Equal(t, testcase.equal, result)
 	}
@@ -110,7 +110,7 @@ func TestConfigVersion_IsGreaterThan(t *testing.T) {
 		{v1: "1.0", v2: "0.8", greater: true},
 		{v1: "1.1", v2: "1.0", greater: true},
 	} {
-		version := ParseVersion(testcase.v1)
+		version := testcase.v1.ToConfigVersion()
 		result := version.IsGreaterThan(testcase.v2)
 		assert.Equal(t, testcase.greater, result)
 	}
@@ -127,7 +127,7 @@ func TestConfigVersion_IsGreaterThanOrEqualTo(t *testing.T) {
 		{v1: "1.0", v2: "0.8", greaterOrEqual: true},
 		{v1: "1.1", v2: "1.0", greaterOrEqual: true},
 	} {
-		version := ParseVersion(testcase.v1)
+		version := testcase.v1.ToConfigVersion()
 		result := version.IsGreaterThanOrEqualTo(testcase.v2)
 		assert.Equal(t, testcase.greaterOrEqual, result)
 	}
@@ -144,7 +144,7 @@ func TestConfigVersion_IsLessThan(t *testing.T) {
 		{v1: "1.0", v2: "1.1", less: true},
 		{v1: "1.0", v2: "2.0", less: true},
 	} {
-		version := ParseVersion(testcase.v1)
+		version := testcase.v1.ToConfigVersion()
 		result := version.IsLessThan(testcase.v2)
 		assert.Equal(t, testcase.less, result)
 	}
@@ -161,20 +161,20 @@ func TestConfigVersion_IsLessThanOrEqualTo(t *testing.T) {
 		{v1: "1.0", v2: "1.1", lessOrEqual: true},
 		{v1: "1.0", v2: "2.0", lessOrEqual: true},
 	} {
-		version := ParseVersion(testcase.v1)
+		version := testcase.v1.ToConfigVersion()
 		result := version.IsLessThanOrEqualTo(testcase.v2)
 		assert.Equal(t, testcase.lessOrEqual, result)
 	}
 }
 
 func TestConfigVersion_parseVersion(t *testing.T) {
-	version := ParseVersion(`"1.8"`)
+	version := RawVersion(`"1.8"`).ToConfigVersion()
 	assert.Equal(t, uint64(1), version.major)
 	assert.Equal(t, uint64(8), version.minor)
 
-	version = ParseVersion(`2.0`)
+	version = RawVersion(`2.0`).ToConfigVersion()
 	assert.Equal(t, uint64(2), version.major)
 	assert.Equal(t, uint64(0), version.minor)
 
-	assert.Panics(t, func() { ParseVersion("test") })
+	assert.Panics(t, func() { RawVersion("test").ToConfigVersion() })
 }
