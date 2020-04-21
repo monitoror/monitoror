@@ -34,7 +34,8 @@ func TestManager_RegisterMonitorables(t *testing.T) {
 	// ------------ GITHUB ------------
 	assert.NotNil(t, mr.TileMetadata[githubApi.GithubCountTileType])
 	assert.NotNil(t, mr.TileMetadata[githubApi.GithubChecksTileType])
-	assert.NotNil(t, mr.GeneratorMetadata[coreModels.NewGeneratorTileType(githubApi.GithubChecksTileType)])
+	assert.NotNil(t, mr.TileMetadata[githubApi.GithubPullRequestTileType])
+	assert.NotNil(t, mr.GeneratorMetadata[coreModels.NewGeneratorTileType(githubApi.GithubPullRequestTileType)])
 	// ------------ HTTP ------------
 	assert.NotNil(t, mr.TileMetadata[httpApi.HTTPStatusTileType])
 	assert.NotNil(t, mr.TileMetadata[httpApi.HTTPRawTileType])

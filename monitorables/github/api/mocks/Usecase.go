@@ -62,6 +62,29 @@ func (_m *Usecase) Count(params *models.CountParams) (*monitorormodels.Tile, err
 	return r0, r1
 }
 
+// PullRequest provides a mock function with given fields: params
+func (_m *Usecase) PullRequest(params *models.PullRequestParams) (*monitorormodels.Tile, error) {
+	ret := _m.Called(params)
+
+	var r0 *monitorormodels.Tile
+	if rf, ok := ret.Get(0).(func(*models.PullRequestParams) *monitorormodels.Tile); ok {
+		r0 = rf(params)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*monitorormodels.Tile)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*models.PullRequestParams) error); ok {
+		r1 = rf(params)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // PullRequestsGenerator provides a mock function with given fields: params
 func (_m *Usecase) PullRequestsGenerator(params interface{}) ([]configmodels.GeneratedTile, error) {
 	ret := _m.Called(params)

@@ -59,7 +59,8 @@ func (gu *githubUsecase) Checks(params *models.ChecksParams) (tile *coreModels.T
 	tile = coreModels.NewTile(api.GithubChecksTileType).WithBuild()
 	tile.Label = params.Repository
 
-	tile.Status = nonempty.Struct(params.Status, gu.computeStatus(params)).(coreModels.TileStatus)
+	projectID := fmt.Sprintf("%s-%s-%s", params.Owner, params.Repository, params.Ref)
+	tile.Status = nonempty.Struct(params.Status, gu.computeStatus(projectID)).(coreModels.TileStatus)
 
 	if tile.Status == coreModels.DisabledStatus {
 		return
@@ -86,7 +87,66 @@ func (gu *githubUsecase) Checks(params *models.ChecksParams) (tile *coreModels.T
 	// Duration / EstimatedDuration
 	if tile.Status == coreModels.RunningStatus {
 		estimatedDuration := nonempty.Duration(time.Duration(params.EstimatedDuration), time.Second*300)
-		tile.Build.Duration = pointer.ToInt64(nonempty.Int64(params.Duration, int64(gu.computeDuration(params, estimatedDuration).Seconds())))
+		tile.Build.Duration = pointer.ToInt64(nonempty.Int64(params.Duration, int64(gu.computeDuration(projectID, estimatedDuration).Seconds())))
+
+		if tile.Build.PreviousStatus != coreModels.UnknownStatus {
+			tile.Build.EstimatedDuration = pointer.ToInt64(int64(estimatedDuration.Seconds()))
+		} else {
+			tile.Build.EstimatedDuration = pointer.ToInt64(0)
+		}
+	}
+
+	// StartedAt / FinishedAt
+	if tile.Build.Duration == nil {
+		tile.Build.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Now().Add(-time.Minute*10)))
+	} else {
+		tile.Build.StartedAt = pointer.ToTime(nonempty.Time(params.StartedAt, time.Now().Add(-time.Second*time.Duration(*tile.Build.Duration))))
+	}
+
+	if tile.Status != coreModels.QueuedStatus && tile.Status != coreModels.RunningStatus {
+		tile.Build.FinishedAt = pointer.ToTime(nonempty.Time(params.FinishedAt, tile.Build.StartedAt.Add(time.Minute*5)))
+	}
+
+	return tile, nil
+}
+
+func (gu *githubUsecase) PullRequest(params *models.PullRequestParams) (tile *coreModels.Tile, err error) {
+	tile = coreModels.NewTile(api.GithubPullRequestTileType).WithBuild()
+	tile.Label = params.Repository
+
+	projectID := fmt.Sprintf("%s-%s-%s", params.Owner, params.Repository, params.ID)
+	tile.Status = nonempty.Struct(params.Status, gu.computeStatus(projectID)).(coreModels.TileStatus)
+
+	if tile.Status == coreModels.DisabledStatus {
+		return
+	}
+
+	if tile.Status == coreModels.WarningStatus {
+		// Warning can be Unstable Build
+		if rand.Intn(2) == 0 {
+			tile.Message = "Fake error message"
+			return
+		}
+	}
+
+	tile.Build.Branch = pointer.ToString(nonempty.String(git.HumanizeBranch(params.Branch), "feature-branch"))
+	tile.Build.PreviousStatus = nonempty.Struct(params.PreviousStatus, coreModels.SuccessStatus).(coreModels.TileStatus)
+	tile.Build.MergeRequest = &coreModels.TileMergeRequest{
+		ID:    *params.ID,
+		Title: nonempty.String(params.MergeRequestTitle, "Feature branch title"),
+	}
+
+	// Author
+	if tile.Status == coreModels.FailedStatus {
+		tile.Build.Author = &coreModels.Author{}
+		tile.Build.Author.Name = nonempty.String(params.AuthorName, "John Doe")
+		tile.Build.Author.AvatarURL = nonempty.String(params.AuthorAvatarURL, "https://monitoror.com/assets/images/avatar.png")
+	}
+
+	// Duration / EstimatedDuration
+	if tile.Status == coreModels.RunningStatus {
+		estimatedDuration := nonempty.Duration(time.Duration(params.EstimatedDuration), time.Second*300)
+		tile.Build.Duration = pointer.ToInt64(nonempty.Int64(params.Duration, int64(gu.computeDuration(projectID, estimatedDuration).Seconds())))
 
 		if tile.Build.PreviousStatus != coreModels.UnknownStatus {
 			tile.Build.EstimatedDuration = pointer.ToInt64(int64(estimatedDuration.Seconds()))
@@ -113,8 +173,7 @@ func (gu *githubUsecase) PullRequestsGenerator(params interface{}) ([]uiConfigMo
 	panic("unimplemented")
 }
 
-func (gu *githubUsecase) computeStatus(params *models.ChecksParams) coreModels.TileStatus {
-	projectID := fmt.Sprintf("%s-%s-%s", params.Owner, params.Repository, params.Ref)
+func (gu *githubUsecase) computeStatus(projectID string) coreModels.TileStatus {
 	value, ok := gu.timeRefByProject.Get(projectID)
 	if !ok || value == nil {
 		value = faker.GetRefTime()
@@ -124,8 +183,7 @@ func (gu *githubUsecase) computeStatus(params *models.ChecksParams) coreModels.T
 	return faker.ComputeStatus(value.(time.Time), availableBuildStatus)
 }
 
-func (gu *githubUsecase) computeDuration(params *models.ChecksParams, duration time.Duration) time.Duration {
-	projectID := fmt.Sprintf("%s-%s-%s", params.Owner, params.Repository, params.Ref)
+func (gu *githubUsecase) computeDuration(projectID string, duration time.Duration) time.Duration {
 	value, ok := gu.timeRefByProject.Get(projectID)
 	if !ok || value == nil {
 		value = faker.GetRefTime()
