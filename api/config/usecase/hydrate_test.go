@@ -245,3 +245,38 @@ func TestUsecase_Hydrate_WithGenerator_WithTimeoutCache(t *testing.T) {
 		assert.Equal(t, "/jenkins/default/build?job=test", config.Config.Tiles[0].URL)
 	}
 }
+
+func TestUsecase_Hydrate_TwoGenerators(t *testing.T) {
+	input := `
+{
+  "columns": 4,
+  "tiles": [
+    { "type": "GENERATE:JENKINS-BUILD", "params": {"job": "test"}},
+    { "type": "GENERATE:JENKINS-BUILD", "params": {"job": "test2"}}
+  ]
+}
+`
+	mockBuilder := func(_ interface{}) ([]models.GeneratedTile, error) {
+		return []models.GeneratedTile{
+			{Params: &jenkinsModels.BuildParams{Job: "test1"}},
+			{Params: &jenkinsModels.BuildParams{Job: "test2"}},
+		}, nil
+	}
+
+	usecase := initConfigUsecase(nil)
+	usecase.registry.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
+		Enable(coreModels.DefaultVariant, &jenkinsModels.BuildGeneratorParams{}, mockBuilder)
+	config, err := readConfig(input)
+	assert.NoError(t, err)
+
+	usecase.Hydrate(config)
+	assert.Len(t, config.Errors, 0)
+
+	if assert.Equal(t, 4, len(config.Config.Tiles)) {
+		assert.Equal(t, "/jenkins/default/build?job=test1", config.Config.Tiles[0].URL)
+		assert.Equal(t, "/jenkins/default/build?job=test2", config.Config.Tiles[1].URL)
+		assert.Equal(t, "/jenkins/default/build?job=test1", config.Config.Tiles[2].URL)
+		assert.Equal(t, "/jenkins/default/build?job=test2", config.Config.Tiles[3].URL)
+	}
+
+}

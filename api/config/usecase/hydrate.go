@@ -37,9 +37,12 @@ func (cu *configUsecase) hydrateTiles(configBag *models.ConfigBag, tiles *[]mode
 		} else {
 			generatorTiles := cu.hydrateGeneratorTile(configBag, tile)
 
-			// Remove Generator tile config and add real generated tiles in array
-			temp := append((*tiles)[:i], generatorTiles...)
-			*tiles = append(temp, (*tiles)[i+1:]...)
+			// Remove Generator tile config and add real generated *tiles in array
+			var temp []models.TileConfig
+			temp = append(temp, (*tiles)[:i]...)
+			temp = append(temp, generatorTiles...)
+			temp = append(temp, (*tiles)[i+1:]...)
+			*tiles = temp
 
 			i--
 		}
