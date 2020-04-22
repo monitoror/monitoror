@@ -17,14 +17,14 @@ type TestStruct struct {
 
 func TestLoadConfig(t *testing.T) {
 	// SETUP
-	prefix := "MO_TEST"
+	prefix := "TEST"
 	defaultVariant := models.DefaultVariant
 	conf := make(map[models.VariantName]*TestStruct)
 	defaultValue := &TestStruct{ValueA: "default", ValueB: true, ValueC: 1337}
 
 	// ENV
-	_ = os.Setenv("MO_TEST_TESTSTRUCT_VALUEA", "test value A")
-	_ = os.Setenv("MO_TEST_TESTSTRUCT_VARIANT1_VALUEC", "1000")
+	_ = os.Setenv("TEST_TESTSTRUCT_VALUEA", "test value A")
+	_ = os.Setenv("TEST_TESTSTRUCT_VARIANT1_VALUEC", "1000")
 
 	// TEST
 	LoadConfigWithVariant(prefix, defaultVariant, &conf, defaultValue)
