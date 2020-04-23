@@ -21,9 +21,9 @@ func (cu *configUsecase) hydrateTiles(configBag *models.ConfigBag, tiles *[]mode
 	for i := 0; i < len(*tiles); i++ {
 		tile := &((*tiles)[i])
 		if tile.Type != EmptyTileType && tile.Type != GroupTileType {
-			// Set ConfigVariant to DefaultVariant if empty
+			// Set ConfigVariant to DefaultVariantName if empty
 			if tile.ConfigVariant == "" {
-				tile.ConfigVariant = coreModels.DefaultVariant
+				tile.ConfigVariant = coreModels.DefaultVariantName
 			}
 		}
 

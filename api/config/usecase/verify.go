@@ -143,9 +143,9 @@ func (cu *configUsecase) verifyTile(configBag *models.ConfigBag, tile *models.Ti
 		return
 	}
 
-	// Set ConfigVariant to DefaultVariant if empty
+	// Set ConfigVariant to DefaultVariantName if empty
 	if tile.ConfigVariant == "" {
-		tile.ConfigVariant = coreModels.DefaultVariant
+		tile.ConfigVariant = coreModels.DefaultVariantName
 	}
 
 	// Get the metadataExplorer for current tile

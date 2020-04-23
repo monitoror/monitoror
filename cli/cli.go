@@ -109,7 +109,7 @@ func (cli *MonitororCLI) PrintMonitorable(displayName string, enabledVariantName
 
 	// Stringify variants
 	var strVariants string
-	if len(enabledVariantNames) == 1 && enabledVariantNames[0] == coreModels.DefaultVariant {
+	if len(enabledVariantNames) == 1 && enabledVariantNames[0] == coreModels.DefaultVariantName {
 		if len(erroredVariants) > 0 {
 			strVariants = "[default]"
 		}
@@ -118,7 +118,7 @@ func (cli *MonitororCLI) PrintMonitorable(displayName string, enabledVariantName
 		var variantsWithoutDefault []string
 
 		for _, variantName := range enabledVariantNames {
-			if variantName == coreModels.DefaultVariant {
+			if variantName == coreModels.DefaultVariantName {
 				strDefault = fmt.Sprintf("%s, ", variantName)
 			} else {
 				variantsWithoutDefault = append(variantsWithoutDefault, string(variantName))
@@ -143,7 +143,7 @@ func (cli *MonitororCLI) PrintMonitorable(displayName string, enabledVariantName
 
 	// Print Error
 	for _, erroredVariant := range erroredVariants {
-		if erroredVariant.VariantName == coreModels.DefaultVariant {
+		if erroredVariant.VariantName == coreModels.DefaultVariantName {
 			colorer.Printf(colorer.Red("    %s Errored %s configuration\n"), errorSymbol, erroredVariant.VariantName)
 		} else {
 			colorer.Printf(colorer.Red("    %s Errored \"%s\" variant configuration\n"), errorSymbol, erroredVariant.VariantName)

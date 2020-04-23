@@ -372,8 +372,8 @@ func TestUsecase_VerifyTile_WithGenerator(t *testing.T) {
 	}
 
 	usecase := initConfigUsecase(nil)
-	usecase.registry.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
-		Enable(coreModels.DefaultVariant, &jenkinsModels.BuildGeneratorParams{}, mockBuilder)
+	usecase.registry.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariantName}).
+		Enable(coreModels.DefaultVariantName, &jenkinsModels.BuildGeneratorParams{}, mockBuilder)
 	usecase.verifyTile(conf, tile, nil)
 
 	assert.Len(t, conf.Errors, 0)
@@ -384,8 +384,8 @@ func TestUsecase_VerifyTile_WithGenerator_WithWrongGenerator(t *testing.T) {
 
 	tile, conf := initConfig(t, rawConfig)
 	usecase := initConfigUsecase(nil)
-	usecase.registry.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
-		Enable(coreModels.DefaultVariant, &jenkinsModels.BuildGeneratorParams{}, nil)
+	usecase.registry.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariantName}).
+		Enable(coreModels.DefaultVariantName, &jenkinsModels.BuildGeneratorParams{}, nil)
 
 	usecase.verifyTile(conf, tile, nil)
 
@@ -409,7 +409,7 @@ func TestUsecase_VerifyTile_WithWrongVariant(t *testing.T) {
 		assert.Equal(t, models.ConfigErrorUnknownVariant, conf.Errors[0].ID)
 		assert.Equal(t, "configVariant", conf.Errors[0].Data.FieldName)
 		assert.Equal(t, `"test"`, conf.Errors[0].Data.Value)
-		assert.Contains(t, conf.Errors[0].Data.Expected, coreModels.DefaultVariant)
+		assert.Contains(t, conf.Errors[0].Data.Expected, coreModels.DefaultVariantName)
 		assert.Contains(t, conf.Errors[0].Data.Expected, "disabledVariant")
 		assert.Equal(t, `{"type":"JENKINS-BUILD","params":{"job":"job1"},"configVariant":"test"}`, conf.Errors[0].Data.ConfigExtract)
 	}
@@ -425,15 +425,15 @@ func TestUsecase_VerifyTile_WithGenerator_WithWrongVariant(t *testing.T) {
 	}
 
 	usecase := initConfigUsecase(nil)
-	usecase.registry.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
-		Enable(coreModels.DefaultVariant, &jenkinsModels.BuildGeneratorParams{}, mockBuilder)
+	usecase.registry.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariantName}).
+		Enable(coreModels.DefaultVariantName, &jenkinsModels.BuildGeneratorParams{}, mockBuilder)
 	usecase.verifyTile(conf, tile, nil)
 
 	if assert.Len(t, conf.Errors, 1) {
 		assert.Equal(t, models.ConfigErrorUnknownVariant, conf.Errors[0].ID)
 		assert.Equal(t, "configVariant", conf.Errors[0].Data.FieldName)
 		assert.Equal(t, `"test"`, conf.Errors[0].Data.Value)
-		assert.Contains(t, conf.Errors[0].Data.Expected, coreModels.DefaultVariant)
+		assert.Contains(t, conf.Errors[0].Data.Expected, coreModels.DefaultVariantName)
 		assert.Equal(t, `{"type":"GENERATE:JENKINS-BUILD","params":{"job":"job1"},"configVariant":"test"}`, conf.Errors[0].Data.ConfigExtract)
 	}
 }
@@ -448,8 +448,8 @@ func TestUsecase_VerifyTile_FieldMinimalVersion(t *testing.T) {
 	rawConfig := `{ "type": "TEST", "params": { "field1": "server.com" } }`
 	tile, conf := initConfig(t, rawConfig)
 	usecase := initConfigUsecase(nil)
-	usecase.registry.RegisterTile("TEST", versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
-		Enable(coreModels.DefaultVariant, &minimalVersionTest{}, "/test/default/test")
+	usecase.registry.RegisterTile("TEST", versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariantName}).
+		Enable(coreModels.DefaultVariantName, &minimalVersionTest{}, "/test/default/test")
 
 	usecase.verifyTile(conf, tile, nil)
 

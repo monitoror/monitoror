@@ -14,7 +14,7 @@ import (
 
 // LoadConfig load config wrapper for monitorable
 func LoadConfig(conf interface{}, defaultConf interface{}) {
-	pkgConfig.LoadConfigWithVariant(fmt.Sprintf("%s_%s", coreConfig.EnvPrefix, coreConfig.MonitorablePrefix), coreModels.DefaultVariant, conf, defaultConf)
+	pkgConfig.LoadConfigWithVariant(fmt.Sprintf("%s_%s", coreConfig.EnvPrefix, coreConfig.MonitorablePrefix), coreModels.DefaultVariantName, conf, defaultConf)
 }
 
 func ValidateConfig(conf interface{}, variantName coreModels.VariantName) []error {
@@ -42,7 +42,7 @@ func buildMonitorableEnvKey(conf interface{}, variantName models.VariantName, va
 
 	var env string
 	confName := reflect.TypeOf(conf).Elem().Name()
-	if variantName == models.DefaultVariant {
+	if variantName == models.DefaultVariantName {
 		env = strings.ToUpper(fmt.Sprintf("%s_%s_%s_%s", coreConfig.EnvPrefix, coreConfig.MonitorablePrefix, confName, variableName))
 	} else {
 		env = strings.ToUpper(fmt.Sprintf("%s_%s_%s_%s_%s", coreConfig.EnvPrefix, coreConfig.MonitorablePrefix, confName, variantName, variableName))

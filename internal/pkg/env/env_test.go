@@ -15,7 +15,7 @@ type TestEnv struct {
 
 func TestAnalyse_DefaultOverride(t *testing.T) {
 	_ = os.Setenv("VALUE1_TEST", "test")
-	defaultVariant := string(models.DefaultVariant)
+	defaultVariant := string(models.DefaultVariantName)
 
 	variantNames := InitEnvDefaultLabel("VALUE1", "TEST", defaultVariant)
 
@@ -27,7 +27,7 @@ func TestAnalyse_DefaultOverride(t *testing.T) {
 
 func TestAnalyse_WithoutSuffix(t *testing.T) {
 	_ = os.Setenv("VALUE2", "test")
-	defaultVariant := string(models.DefaultVariant)
+	defaultVariant := string(models.DefaultVariantName)
 
 	variantNames := InitEnvDefaultLabel("VALUE2", "", defaultVariant)
 
@@ -39,7 +39,7 @@ func TestAnalyse_WithoutSuffix(t *testing.T) {
 
 func TestAnalyse_SimpleLabel(t *testing.T) {
 	_ = os.Setenv("VALUE3_VARIANT1_TEST", "test")
-	defaultVariant := string(models.DefaultVariant)
+	defaultVariant := string(models.DefaultVariantName)
 
 	variantNames := InitEnvDefaultLabel("VALUE3", "TEST", defaultVariant)
 
@@ -53,7 +53,7 @@ func TestAddDefaultLabel_WithConflict(t *testing.T) {
 	_ = os.Setenv("VALUE4", "test")
 	_ = os.Setenv("VALUE4_DEFAULT", "test")
 
-	defaultVariant := string(models.DefaultVariant)
+	defaultVariant := string(models.DefaultVariantName)
 
 	_ = InitEnvDefaultLabel("VALUE4", "", defaultVariant)
 

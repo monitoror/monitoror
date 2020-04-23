@@ -35,8 +35,8 @@ func TestUsecase_Hydrate(t *testing.T) {
 `
 
 	usecase := initConfigUsecase(nil)
-	jenkinsTileEnabler := usecase.registry.RegisterTile(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant, "variant1"})
-	jenkinsTileEnabler.Enable(coreModels.DefaultVariant, &jenkinsModels.BuildParams{}, "/jenkins/default/build")
+	jenkinsTileEnabler := usecase.registry.RegisterTile(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariantName, "variant1"})
+	jenkinsTileEnabler.Enable(coreModels.DefaultVariantName, &jenkinsModels.BuildParams{}, "/jenkins/default/build")
 	jenkinsTileEnabler.Enable("variant1", &jenkinsModels.BuildParams{}, "/jenkins/variant1/build")
 
 	config, err := readConfig(input)
@@ -90,8 +90,8 @@ func TestUsecase_Hydrate_WithGenerator(t *testing.T) {
 	}
 
 	usecase := initConfigUsecase(nil)
-	usecase.registry.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
-		Enable(coreModels.DefaultVariant, &jenkinsModels.BuildGeneratorParams{}, mockBuilder)
+	usecase.registry.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariantName}).
+		Enable(coreModels.DefaultVariantName, &jenkinsModels.BuildGeneratorParams{}, mockBuilder)
 
 	config, err := readConfig(input)
 	assert.NoError(t, err)
@@ -134,8 +134,8 @@ func TestUsecase_Hydrate_WithGeneratorEmpty(t *testing.T) {
 	mockBuilder := func(_ interface{}) ([]models.GeneratedTile, error) { return []models.GeneratedTile{}, nil }
 
 	usecase := initConfigUsecase(nil)
-	usecase.registry.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
-		Enable(coreModels.DefaultVariant, &jenkinsModels.BuildGeneratorParams{}, mockBuilder)
+	usecase.registry.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariantName}).
+		Enable(coreModels.DefaultVariantName, &jenkinsModels.BuildGeneratorParams{}, mockBuilder)
 
 	config, err := readConfig(input)
 	assert.NoError(t, err)
@@ -169,8 +169,8 @@ func TestUsecase_Hydrate_WithGenerator_WithError(t *testing.T) {
 	mockBuilder2 := func(_ interface{}) ([]models.GeneratedTile, error) { return nil, errors.New("unable to find job") }
 
 	usecase := initConfigUsecase(nil)
-	tileGeneratorEnabler := usecase.registry.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant, "variant1"})
-	tileGeneratorEnabler.Enable(coreModels.DefaultVariant, &jenkinsModels.BuildGeneratorParams{}, mockBuilder)
+	tileGeneratorEnabler := usecase.registry.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariantName, "variant1"})
+	tileGeneratorEnabler.Enable(coreModels.DefaultVariantName, &jenkinsModels.BuildGeneratorParams{}, mockBuilder)
 	tileGeneratorEnabler.Enable("variant1", &jenkinsModels.BuildGeneratorParams{}, mockBuilder2)
 
 	config, err := readConfig(input)
@@ -205,8 +205,8 @@ func TestUsecase_Hydrate_WithGenerator_WithTimeoutError(t *testing.T) {
 	mockBuilder2 := func(_ interface{}) ([]models.GeneratedTile, error) { return nil, context.DeadlineExceeded }
 
 	usecase := initConfigUsecase(nil)
-	tileGeneratorEnabler := usecase.registry.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant, "variant1"})
-	tileGeneratorEnabler.Enable(coreModels.DefaultVariant, &jenkinsModels.BuildGeneratorParams{}, mockBuilder)
+	tileGeneratorEnabler := usecase.registry.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariantName, "variant1"})
+	tileGeneratorEnabler.Enable(coreModels.DefaultVariantName, &jenkinsModels.BuildGeneratorParams{}, mockBuilder)
 	tileGeneratorEnabler.Enable("variant1", &jenkinsModels.BuildGeneratorParams{}, mockBuilder2)
 	config, err := readConfig(input)
 	assert.NoError(t, err)
@@ -234,8 +234,8 @@ func TestUsecase_Hydrate_WithGenerator_WithTimeoutCache(t *testing.T) {
 	_ = usecase.generatorTileStore.Add(cacheKey, cachedResult, 0)
 
 	mockBuilder := func(_ interface{}) ([]models.GeneratedTile, error) { return nil, context.DeadlineExceeded }
-	usecase.registry.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
-		Enable(coreModels.DefaultVariant, &jenkinsModels.BuildGeneratorParams{}, mockBuilder)
+	usecase.registry.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariantName}).
+		Enable(coreModels.DefaultVariantName, &jenkinsModels.BuildGeneratorParams{}, mockBuilder)
 
 	config, err := readConfig(input)
 	if assert.NoError(t, err) {
@@ -264,8 +264,8 @@ func TestUsecase_Hydrate_TwoGenerators(t *testing.T) {
 	}
 
 	usecase := initConfigUsecase(nil)
-	usecase.registry.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
-		Enable(coreModels.DefaultVariant, &jenkinsModels.BuildGeneratorParams{}, mockBuilder)
+	usecase.registry.RegisterGenerator(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariantName}).
+		Enable(coreModels.DefaultVariantName, &jenkinsModels.BuildGeneratorParams{}, mockBuilder)
 	config, err := readConfig(input)
 	assert.NoError(t, err)
 

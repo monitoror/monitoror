@@ -18,7 +18,7 @@ type TestStruct struct {
 func TestLoadConfig(t *testing.T) {
 	// SETUP
 	prefix := "TEST"
-	defaultVariant := models.DefaultVariant
+	defaultVariant := models.DefaultVariantName
 	conf := make(map[models.VariantName]*TestStruct)
 	defaultValue := &TestStruct{ValueA: "default", ValueB: true, ValueC: 1337}
 
