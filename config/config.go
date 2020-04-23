@@ -2,7 +2,7 @@ package config
 
 import (
 	"fmt"
-	"reflect"
+	"os"
 	"strings"
 
 	"github.com/fatih/structs"
@@ -14,12 +14,13 @@ import (
 const (
 	EnvPrefix         = "MO"
 	MonitorablePrefix = "MONITORABLE"
+	ConfigPrefix      = "CONFIG"
 
 	DefaultConfigName ConfigName = "default"
 )
 
 type (
-	// Config contain backend Configuration
+	// NamedConfig contain backend Configuration
 	Config struct {
 		// --- General Configuration ---
 		Port int
@@ -34,7 +35,7 @@ type (
 		// InitialMaxDelay is used to add delay on first method to avoid bursting x requests in same time on start
 		InitialMaxDelay int // in Millisecond
 
-		// Config can contains ui config (path or url)
+		// NamedConfig can contains ui config (path or url)
 		// Can contains default or named config file
 		// Like:
 		// 		MO_CONFIG=./default.json
@@ -42,7 +43,7 @@ type (
 		//		MO_CONFIG_SCREEN2=https://config.example.com/screen2.json
 		//
 		// Note: it's the only way to load config file outside of monitoror directory
-		Config map[ConfigName]string
+		NamedConfigs map[ConfigName]string
 	}
 
 	//nolint:golint
@@ -59,7 +60,7 @@ var defaultConfig = &Config{
 
 // InitConfig from configuration file / env / default value
 func InitConfig() *Config {
-	var config Config
+	coreConfig := &Config{}
 
 	// Setup Env
 	v := viper.New()
@@ -67,21 +68,38 @@ func InitConfig() *Config {
 	v.SetEnvPrefix(EnvPrefix)
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
-	// Setup default named config
-	for _, field := range structs.Fields(&config) {
-		if reflect.DeepEqual(field.Value(), config.Config) {
-			envPrefix := strings.ToUpper(fmt.Sprintf("%s_%s", EnvPrefix, field.Name()))
-			env.InitEnvDefaultLabel(envPrefix, "", string(DefaultConfigName))
-			break
-		}
-	}
-
 	// Setup default values
 	for _, field := range structs.Fields(defaultConfig) {
 		v.SetDefault(field.Name(), field.Value())
 	}
 
-	_ = v.Unmarshal(&config)
+	_ = v.Unmarshal(coreConfig)
 
-	return &config
+	// Setup NamedConfig without viper
+	loadNamedConfig(coreConfig)
+
+	return coreConfig
+}
+
+// loadUiConfig load NamedConfig
+// Note: it's to "hacky" and complicated with viper so i do it manually
+func loadNamedConfig(config *Config) {
+	config.NamedConfigs = make(map[ConfigName]string)
+
+	// Setup default named config
+	envPrefix := strings.ToUpper(fmt.Sprintf("%s_%s", EnvPrefix, ConfigPrefix))
+	env.InitEnvDefaultLabel(envPrefix, "", string(DefaultConfigName))
+
+	for _, env := range os.Environ() {
+		if strings.HasPrefix(env, envPrefix) {
+			splittedEnv := strings.Split(env, "=")
+
+			configName := strings.TrimPrefix(splittedEnv[0], envPrefix)
+			configName = strings.Trim(configName, "_")
+			configName = strings.ToLower(configName)
+			value := splittedEnv[1]
+
+			config.NamedConfigs[ConfigName(configName)] = value
+		}
+	}
 }
