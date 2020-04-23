@@ -22,6 +22,7 @@ func InitApis(s *Server) {
 	confRepository := configRepository.NewConfigRepository()
 	confUsecase := configUsecase.NewConfigUsecase(confRepository, s.store)
 	confDelivery := configDelivery.NewConfigDelivery(confUsecase)
+	apiGroup.GET("/configs", s.store.CacheMiddleware.UpstreamCacheHandler(confDelivery.GetConfigList))
 	apiGroup.GET("/configs/:config", s.store.CacheMiddleware.UpstreamCacheHandler(confDelivery.GetConfig))
 
 	// ---------------------------------- //

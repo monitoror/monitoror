@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"net/url"
 
 	"github.com/labstack/echo/v4"
 
@@ -19,10 +20,18 @@ func NewConfigDelivery(cu config.Usecase) *ConfigDelivery {
 	return &ConfigDelivery{cu}
 }
 
+func (h *ConfigDelivery) GetConfigList(c echo.Context) error {
+	configList := h.configUsecase.GetConfigList()
+
+	return c.JSON(http.StatusOK, configList)
+}
+
 func (h *ConfigDelivery) GetConfig(c echo.Context) error {
 	// Bind / check Params
 	params := &models.ConfigParams{}
 	_ = c.Bind(params) // can't throw any error with this Params
+	// Decode params
+	params.Config, _ = url.QueryUnescape(params.Config)
 
 	configBag := h.configUsecase.GetConfig(params)
 

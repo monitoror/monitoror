@@ -24,6 +24,32 @@ func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 	return
 }
 
+func TestConfigDelivery_GetConfigList(t *testing.T) {
+	// Init
+	ctx, res := initEcho()
+
+	list := []models.ConfigMetadata{
+		{Name: "test"},
+		{Name: "test2"},
+	}
+
+	mockUsecase := new(mocks.Usecase)
+	mockUsecase.On("GetConfigList").Return(list)
+
+	// Expected
+	json, err := json.Marshal(list)
+	assert.NoError(t, err, "unable to marshal config")
+
+	handler := NewConfigDelivery(mockUsecase)
+	if assert.NoError(t, handler.GetConfigList(ctx)) {
+		assert.Equal(t, http.StatusOK, res.Code)
+		assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
+
+		mockUsecase.AssertNumberOfCalls(t, "GetConfigList", 1)
+		mockUsecase.AssertExpectations(t)
+	}
+}
+
 func TestDelivery_ConfigHandler_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()

@@ -14,6 +14,20 @@ import (
 	. "github.com/stretchr/testify/mock"
 )
 
+func TestConfigUsecase_GetConfigList(t *testing.T) {
+	usecase := configUsecase{
+		namedConfigs: map[coreConfig.ConfigName]string{
+			coreConfig.DefaultConfigName:     "test",
+			coreConfig.ConfigName("screen1"): "test2",
+		},
+	}
+
+	list := usecase.GetConfigList()
+	assert.Len(t, list, 2)
+	assert.Contains(t, list, models.ConfigMetadata{Name: "default"})
+	assert.Contains(t, list, models.ConfigMetadata{Name: "screen1"})
+}
+
 func TestUsecase_GetConfig_WithURL_Success(t *testing.T) {
 	mockRepo := new(mocks.Repository)
 	mockRepo.On("GetConfigFromURL", AnythingOfType("string")).Return(&models.Config{}, nil)

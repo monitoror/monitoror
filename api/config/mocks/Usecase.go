@@ -28,6 +28,22 @@ func (_m *Usecase) GetConfig(params *models.ConfigParams) *models.ConfigBag {
 	return r0
 }
 
+// GetConfigList provides a mock function with given fields:
+func (_m *Usecase) GetConfigList() []models.ConfigMetadata {
+	ret := _m.Called()
+
+	var r0 []models.ConfigMetadata
+	if rf, ok := ret.Get(0).(func() []models.ConfigMetadata); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]models.ConfigMetadata)
+		}
+	}
+
+	return r0
+}
+
 // Hydrate provides a mock function with given fields: _a0
 func (_m *Usecase) Hydrate(_a0 *models.ConfigBag) {
 	_m.Called(_a0)

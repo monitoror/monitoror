@@ -37,6 +37,19 @@ func init() {
 }
 
 // GetConfig and set default value for Config from repository
+func (cu *configUsecase) GetConfigList() []models.ConfigMetadata {
+	var configList []models.ConfigMetadata
+
+	for configName := range cu.namedConfigs {
+		configList = append(configList, models.ConfigMetadata{
+			Name: string(configName),
+		})
+	}
+
+	return configList
+}
+
+// GetConfig and set default value for Config from repository
 func (cu *configUsecase) GetConfig(params *models.ConfigParams) *models.ConfigBag {
 	configBag := &models.ConfigBag{}
 	var err error
@@ -45,11 +58,7 @@ func (cu *configUsecase) GetConfig(params *models.ConfigParams) *models.ConfigBa
 	if urlRegex.MatchString(params.Config) {
 		configBag.Config, err = cu.repository.GetConfigFromURL(params.Config)
 	} else {
-		// If config is empty, set default value
 		configName := coreConfig.ConfigName(params.Config)
-		if configName == "" {
-			configName = coreConfig.DefaultConfigName
-		}
 
 		// Lookup for a named Config
 		if namedConfig, ok := cu.namedConfigs[configName]; ok {
