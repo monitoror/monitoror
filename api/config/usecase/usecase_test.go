@@ -31,7 +31,7 @@ import (
 
 func initConfigUsecase(repository config.Repository) *configUsecase {
 	s := &store.Store{
-		CoreConfig: &coreConfig.Config{InitialMaxDelay: 1000},
+		CoreConfig: &coreConfig.CoreConfig{InitialMaxDelay: 1000},
 		CacheStore: cache.NewGoCacheStore(time.Second, time.Second),
 		Registry:   registry.NewRegistry(),
 	}

@@ -14,7 +14,7 @@ func TestInitUI_Dev(t *testing.T) {
 	InitUI(&Server{
 		Echo: nil,
 		store: &store.Store{
-			CoreConfig: &config.Config{Env: "develop"},
+			CoreConfig: &config.CoreConfig{Env: "develop"},
 			Cli:        cliMock,
 		},
 	})

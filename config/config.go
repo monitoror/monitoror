@@ -21,7 +21,7 @@ const (
 
 type (
 	// NamedConfig contain backend Configuration
-	Config struct {
+	CoreConfig struct {
 		// --- General Configuration ---
 		Port int
 		Env  string
@@ -50,7 +50,7 @@ type (
 	ConfigName string
 )
 
-var defaultConfig = &Config{
+var defaultConfig = &CoreConfig{
 	Port:                      8080,
 	Env:                       "production",
 	UpstreamCacheExpiration:   10000,
@@ -59,8 +59,8 @@ var defaultConfig = &Config{
 }
 
 // InitConfig from configuration file / env / default value
-func InitConfig() *Config {
-	coreConfig := &Config{}
+func InitConfig() *CoreConfig {
+	coreConfig := &CoreConfig{}
 
 	// Setup Env
 	v := viper.New()
@@ -83,7 +83,7 @@ func InitConfig() *Config {
 
 // loadUiConfig load NamedConfig
 // Note: it's to "hacky" and complicated with viper so i do it manually
-func loadNamedConfig(config *Config) {
+func loadNamedConfig(config *CoreConfig) {
 	config.NamedConfigs = make(map[ConfigName]string)
 
 	// Setup default named config

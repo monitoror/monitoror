@@ -53,7 +53,7 @@ func TestManager_EnableMonitorables(t *testing.T) {
 	}
 
 	manager := NewMonitorableManager(&store.Store{
-		CoreConfig: &config.Config{
+		CoreConfig: &config.CoreConfig{
 			Env: "production",
 		},
 		Cli: cliMock,
