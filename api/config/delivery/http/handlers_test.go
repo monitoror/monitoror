@@ -7,13 +7,12 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/monitoror/monitoror/api/config/mocks"
-	"github.com/monitoror/monitoror/api/config/models"
-	. "github.com/monitoror/monitoror/models"
-
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	. "github.com/stretchr/testify/mock"
+
+	"github.com/monitoror/monitoror/api/config/mocks"
+	"github.com/monitoror/monitoror/api/config/models"
 )
 
 func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
@@ -51,20 +50,6 @@ func TestDelivery_ConfigHandler_Success(t *testing.T) {
 		mockUsecase.AssertNumberOfCalls(t, "Hydrate", 1)
 		mockUsecase.AssertExpectations(t)
 	}
-}
-
-func TestDelivery_ConfigHandler_QueryParamsError(t *testing.T) {
-	// Init
-	ctx, _ := initEcho()
-	ctx.QueryParams().Del("hostname")
-
-	mockUsecase := new(mocks.Usecase)
-	handler := NewConfigDelivery(mockUsecase)
-
-	// Test
-	err := handler.GetConfig(ctx)
-	assert.Error(t, err)
-	assert.IsType(t, &MonitororError{}, err)
 }
 
 func TestDelivery_ConfigHandler_ErrorVerify(t *testing.T) {

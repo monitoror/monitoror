@@ -2,9 +2,8 @@ package validate
 
 import (
 	"regexp"
-	"strings"
 
-	"github.com/go-playground/validator/v10"
+	"github.com/go-playground/validator"
 
 	pkgValidator "github.com/monitoror/monitoror/internal/pkg/validator"
 )
@@ -26,6 +25,8 @@ const (
 	regexTag    = "regex"    // Valid when regex compile
 	httpTag     = "http"     // Valid when string starts with http:// or https://
 	notEmptyTag = "notempty" // Valid when slice is not empty (like gt=0 but with custom message / expected)
+
+	HTTPRegex = `^https?://`
 )
 
 var (
@@ -47,12 +48,15 @@ var (
 
 // use a single instance of Struct, it caches struct info
 var validate *validator.Validate
+var httpRegex *regexp.Regexp
 
 func init() {
 	validate = validator.New()
 	_ = validate.RegisterValidation(notEmptyTag, validateNotEmpty)
 	_ = validate.RegisterValidation(httpTag, validateHTTP)
 	_ = validate.RegisterValidation(regexTag, validateRegex)
+
+	httpRegex = regexp.MustCompile(HTTPRegex)
 }
 
 func Struct(s interface{}) []pkgValidator.Error {
@@ -87,7 +91,7 @@ func validateRegex(fl validator.FieldLevel) bool {
 
 // validateHTTP implements validator.Func
 func validateHTTP(fl validator.FieldLevel) bool {
-	return strings.HasPrefix(fl.Field().String(), "http://") || strings.HasPrefix(fl.Field().String(), "https://")
+	return httpRegex.MatchString(fl.Field().String())
 }
 
 // validateHTTP implements validator.Func

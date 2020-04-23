@@ -5,11 +5,10 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/labstack/echo/v4"
+
 	"github.com/monitoror/monitoror/api/config"
 	"github.com/monitoror/monitoror/api/config/models"
-	coreModels "github.com/monitoror/monitoror/models"
-
-	"github.com/labstack/echo/v4"
 )
 
 type ConfigDelivery struct {
@@ -23,10 +22,7 @@ func NewConfigDelivery(cu config.Usecase) *ConfigDelivery {
 func (h *ConfigDelivery) GetConfig(c echo.Context) error {
 	// Bind / check Params
 	params := &models.ConfigParams{}
-	err := c.Bind(params)
-	if err != nil || !params.IsValid() {
-		return coreModels.ParamsError
-	}
+	_ = c.Bind(params) // can't throw any error with this Params
 
 	configBag := h.configUsecase.GetConfig(params)
 

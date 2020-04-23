@@ -35,7 +35,7 @@ func TestConfigRepository_UnableToParse(t *testing.T) {
 		repository := NewConfigRepository()
 		_, err := repository.GetConfigFromPath(tmpFile.Name())
 		assert.Error(t, err)
-		assert.Equal(t, "", err.(*models.ConfigUnmarshalError).RawConfig)
+		assert.Equal(t, "xxxxxx", err.(*models.ConfigUnmarshalError).RawConfig)
 	}
 }
 
