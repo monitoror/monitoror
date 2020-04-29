@@ -10,8 +10,8 @@ import (
 	jenkinsDelivery "github.com/monitoror/monitoror/monitorables/jenkins/api/delivery/http"
 	jenkinsModels "github.com/monitoror/monitoror/monitorables/jenkins/api/models"
 	jenkinsUsecase "github.com/monitoror/monitoror/monitorables/jenkins/api/usecase"
-	"github.com/monitoror/monitoror/service/registry"
-	"github.com/monitoror/monitoror/service/store"
+	"github.com/monitoror/monitoror/registry"
+	"github.com/monitoror/monitoror/store"
 )
 
 type Monitorable struct {

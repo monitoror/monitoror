@@ -5,25 +5,22 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/monitoror/monitoror/cli"
-	"github.com/monitoror/monitoror/config"
-	"github.com/monitoror/monitoror/pkg/system"
 	"github.com/monitoror/monitoror/service/handlers"
 	"github.com/monitoror/monitoror/service/middlewares"
-	"github.com/monitoror/monitoror/service/registry"
-	"github.com/monitoror/monitoror/service/store"
+	"github.com/monitoror/monitoror/store"
 
-	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/color"
-	"github.com/labstack/gommon/log"
 )
 
 type (
 	Server struct {
 		// Echo Server
 		*echo.Echo
+
+		// CacheMiddleware using CacheStore to return cached data
+		CacheMiddleware *middlewares.CacheMiddleware
 
 		store *store.Store
 	}
@@ -36,13 +33,9 @@ func init() {
 }
 
 // Init create echo server with middlewares, ui, routes
-func Init(config *config.CoreConfig, cli cli.CLI) *Server {
+func Init(store *store.Store) *Server {
 	s := &Server{
-		store: &store.Store{
-			CoreConfig: config,
-			Cli:        cli,
-			Registry:   registry.NewRegistry(),
-		},
+		store: store,
 	}
 
 	s.setupEchoServer()
@@ -54,9 +47,8 @@ func Init(config *config.CoreConfig, cli cli.CLI) *Server {
 	return s
 }
 
-func (s *Server) Start() {
-	s.store.Cli.PrintServerStartup(system.GetNetworkIP(), s.store.CoreConfig.Port)
-	log.Fatal(s.Echo.Start(fmt.Sprintf(":%d", s.store.CoreConfig.Port)))
+func (s *Server) Start() error {
+	return s.Echo.Start(fmt.Sprintf(":%d", s.store.CoreConfig.Port))
 }
 
 func (s *Server) setupEchoServer() {
@@ -80,12 +72,11 @@ func (s *Server) setupEchoMiddleware() {
 	}
 
 	// Cache
-	s.store.CacheStore = cache.NewGoCacheStore(time.Minute*5, time.Second) // Default value, always override
-	s.store.CacheMiddleware = middlewares.NewCacheMiddleware(s.store.CacheStore,
+	s.CacheMiddleware = middlewares.NewCacheMiddleware(s.store.CacheStore,
 		time.Millisecond*time.Duration(s.store.CoreConfig.DownstreamCacheExpiration),
 		time.Millisecond*time.Duration(s.store.CoreConfig.UpstreamCacheExpiration),
 	) // Used as Handler wrapper in routes
-	s.Use(s.store.CacheMiddleware.DownstreamStoreMiddleware())
+	s.Use(s.CacheMiddleware.DownstreamStoreMiddleware())
 
 	// CORS
 	s.Use(echoMiddleware.CORSWithConfig(echoMiddleware.CORSConfig{

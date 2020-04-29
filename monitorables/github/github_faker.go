@@ -10,8 +10,8 @@ import (
 	githubDelivery "github.com/monitoror/monitoror/monitorables/github/api/delivery/http"
 	githubModels "github.com/monitoror/monitoror/monitorables/github/api/models"
 	githubUsecase "github.com/monitoror/monitoror/monitorables/github/api/usecase"
-	"github.com/monitoror/monitoror/service/registry"
-	"github.com/monitoror/monitoror/service/store"
+	"github.com/monitoror/monitoror/registry"
+	"github.com/monitoror/monitoror/store"
 )
 
 type Monitorable struct {

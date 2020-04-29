@@ -12,8 +12,8 @@ import (
 	jenkinsRepository "github.com/monitoror/monitoror/monitorables/jenkins/api/repository"
 	jenkinsUsecase "github.com/monitoror/monitoror/monitorables/jenkins/api/usecase"
 	jenkinsConfig "github.com/monitoror/monitoror/monitorables/jenkins/config"
-	"github.com/monitoror/monitoror/service/registry"
-	"github.com/monitoror/monitoror/service/store"
+	"github.com/monitoror/monitoror/registry"
+	"github.com/monitoror/monitoror/store"
 )
 
 type Monitorable struct {

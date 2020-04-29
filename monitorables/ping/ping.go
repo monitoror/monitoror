@@ -13,8 +13,8 @@ import (
 	pingUsecase "github.com/monitoror/monitoror/monitorables/ping/api/usecase"
 	pingConfig "github.com/monitoror/monitoror/monitorables/ping/config"
 	"github.com/monitoror/monitoror/pkg/system"
-	"github.com/monitoror/monitoror/service/registry"
-	"github.com/monitoror/monitoror/service/store"
+	"github.com/monitoror/monitoror/registry"
+	"github.com/monitoror/monitoror/store"
 )
 
 type Monitorable struct {

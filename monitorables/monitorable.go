@@ -3,7 +3,7 @@ package monitorables
 import (
 	"github.com/monitoror/monitoror/cli"
 	coreModels "github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/service/store"
+	"github.com/monitoror/monitoror/store"
 )
 
 type Monitorable interface {

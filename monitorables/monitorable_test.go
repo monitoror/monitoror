@@ -7,7 +7,7 @@ import (
 	cliMocks "github.com/monitoror/monitoror/cli/mocks"
 	"github.com/monitoror/monitoror/config"
 	coreModels "github.com/monitoror/monitoror/models"
-	"github.com/monitoror/monitoror/service/store"
+	"github.com/monitoror/monitoror/store"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )

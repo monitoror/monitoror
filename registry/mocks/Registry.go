@@ -6,7 +6,7 @@ import (
 	models "github.com/monitoror/monitoror/models"
 	mock "github.com/stretchr/testify/mock"
 
-	registry "github.com/monitoror/monitoror/service/registry"
+	registry "github.com/monitoror/monitoror/registry"
 
 	versions "github.com/monitoror/monitoror/api/config/versions"
 )

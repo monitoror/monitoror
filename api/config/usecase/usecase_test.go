@@ -22,8 +22,8 @@ import (
 	pindomModels "github.com/monitoror/monitoror/monitorables/pingdom/api/models"
 	portApi "github.com/monitoror/monitoror/monitorables/port/api"
 	portModels "github.com/monitoror/monitoror/monitorables/port/api/models"
-	"github.com/monitoror/monitoror/service/registry"
-	"github.com/monitoror/monitoror/service/store"
+	"github.com/monitoror/monitoror/registry"
+	"github.com/monitoror/monitoror/store"
 
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 	"github.com/stretchr/testify/assert"

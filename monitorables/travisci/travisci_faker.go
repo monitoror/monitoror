@@ -10,8 +10,8 @@ import (
 	travisciDelivery "github.com/monitoror/monitoror/monitorables/travisci/api/delivery/http"
 	travisciModels "github.com/monitoror/monitoror/monitorables/travisci/api/models"
 	travisciUsecase "github.com/monitoror/monitoror/monitorables/travisci/api/usecase"
-	"github.com/monitoror/monitoror/service/registry"
-	"github.com/monitoror/monitoror/service/store"
+	"github.com/monitoror/monitoror/registry"
+	"github.com/monitoror/monitoror/store"
 )
 
 type Monitorable struct {

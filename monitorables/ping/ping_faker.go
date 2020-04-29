@@ -10,8 +10,8 @@ import (
 	pingDelivery "github.com/monitoror/monitoror/monitorables/ping/api/delivery/http"
 	pingModels "github.com/monitoror/monitoror/monitorables/ping/api/models"
 	pingUsecase "github.com/monitoror/monitoror/monitorables/ping/api/usecase"
-	"github.com/monitoror/monitoror/service/registry"
-	"github.com/monitoror/monitoror/service/store"
+	"github.com/monitoror/monitoror/registry"
+	"github.com/monitoror/monitoror/store"
 )
 
 type Monitorable struct {

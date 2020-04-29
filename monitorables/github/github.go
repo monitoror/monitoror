@@ -14,9 +14,9 @@ import (
 	githubRepository "github.com/monitoror/monitoror/monitorables/github/api/repository"
 	githubUsecase "github.com/monitoror/monitoror/monitorables/github/api/usecase"
 	githubConfig "github.com/monitoror/monitoror/monitorables/github/config"
+	"github.com/monitoror/monitoror/registry"
 	"github.com/monitoror/monitoror/service/options"
-	"github.com/monitoror/monitoror/service/registry"
-	"github.com/monitoror/monitoror/service/store"
+	"github.com/monitoror/monitoror/store"
 )
 
 type Monitorable struct {

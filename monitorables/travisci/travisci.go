@@ -14,8 +14,8 @@ import (
 	travisciRepository "github.com/monitoror/monitoror/monitorables/travisci/api/repository"
 	travisciUsecase "github.com/monitoror/monitoror/monitorables/travisci/api/usecase"
 	travisciConfig "github.com/monitoror/monitoror/monitorables/travisci/config"
-	"github.com/monitoror/monitoror/service/registry"
-	"github.com/monitoror/monitoror/service/store"
+	"github.com/monitoror/monitoror/registry"
+	"github.com/monitoror/monitoror/store"
 )
 
 type Monitorable struct {
