@@ -23,8 +23,9 @@ type (
 	// NamedConfig contain backend Configuration
 	CoreConfig struct {
 		// --- General Configuration ---
-		Port int
-		Env  string
+		Port      int
+		Env       string
+		DisableUI bool
 
 		// --- Cache Configuration ---
 		// UpstreamCacheExpiration is used to respond before executing the request. Avoid overloading services.
@@ -53,6 +54,7 @@ type (
 var defaultConfig = &CoreConfig{
 	Port:                      8080,
 	Env:                       "production",
+	DisableUI:                 false,
 	UpstreamCacheExpiration:   10000,
 	DownstreamCacheExpiration: 120000,
 	InitialMaxDelay:           1700,
