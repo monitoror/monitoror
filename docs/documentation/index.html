@@ -320,6 +320,19 @@ chmod +x monitoror
           Application port <br>
           <span class="tag">Default:</span> <code>8080</code>
         </dd>
+        <dt><code>MO_CONFIG</code> <code class="type">string</code></dt>
+        <dd>
+          Default configuration URL or path <br>
+          Can be a path to file on the filesystem where Monitoror Core is running, or an URL.
+          Should point to a valid JSON UI Configuration file. <br>
+          <span class="tag">Note:</span> This config will be used if no <code>config</code> param is set on UI.
+        </dd>
+        <dt><code>MO_CONFIG_{{configName}}</code> <code class="type">string</code></dt>
+        <dd>
+          You can provide several named configuration, allowing us to only point to the <code>configName</code> on UI side.
+          This make config path and/or URLs server-side only, and keep them private. <br>
+          <span class="tag">Example:</span> <code>MO_CONFIG_SCREEN1=https://internal.server/monitoror-config-screen1.json</code>
+        </dd>
       </dl>
 
       <p>
@@ -344,30 +357,21 @@ chmod +x monitoror
       <ul>
         <li>
           By URL: <br>
-          <code>http://localhost:8080?<strong>configUrl</strong>=https://example.com/config.json</code>
+          <code>http://localhost:8080?<strong>config</strong>=https://example.com/config.json</code>
         </li>
         <li>
-          By path: <br>
-          <code>http://localhost:8080?<strong>configPath</strong>=./config.json</code>
+          By name: <br>
+          <code>http://localhost:8080?<strong>config</strong>=screen1</code><br>
+          See <a href="#core-configuration">Core configuration</a> to know how to define named configurations.
         </li>
       </ul>
 
       <h5 class="m-documentation--configuration-side-title">UI query string parameters</h5>
 
-      <p class="note">
-        <span class="tag">Note</span>
-        One of <code>configUrl</code> or <code>configPath</code> is required to get the UI working.
-      </p>
-
       <dl>
-        <dt><code>configUrl</code> <code class="type">string</code></dt>
+        <dt><code>config</code> <code class="type">string</code></dt>
         <dd>
-          URL to a <code>.json</code> file accessible via HTTP(S)
-        </dd>
-
-        <dt><code>configPath</code> <code class="type">string</code></dt>
-        <dd>
-          A path to a <code>.json</code> file, relative to Monitoror installation folder
+          URL to a <code>.json</code> file accessible via HTTP(S), or a config name
         </dd>
 
         <dt><code>theme</code> <code class="type">string</code></dt>
