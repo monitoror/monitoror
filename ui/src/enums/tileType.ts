@@ -6,6 +6,7 @@ export enum TileType {
   Port = 'PORT',
   Pingdom = 'PINGDOM-CHECK',
   GitHubChecks = 'GITHUB-CHECKS',
+  GitHubPullRequest = 'GITHUB-PULLREQUEST',
   GitHubCount = 'GITHUB-COUNT',
   GitLab = 'GITLAB-BUILD',
   Travis = 'TRAVISCI-BUILD',

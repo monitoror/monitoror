@@ -87,7 +87,8 @@
             <ul>
               <li><a href="#tile-github-count">GITHUB-COUNT</a></li>
               <li><a href="#tile-github-checks">GITHUB-CHECKS</a></li>
-              <li><a href="#tile-generate-github-checks">GENERATE:GITHUB-CHECKS</a></li>
+              <li><a href="#tile-github-pullrequest">GITHUB-PULLREQUEST</a></li>
+              <li><a href="#tile-generate-github-pullrequest">GENERATE:GITHUB-PULLREQUEST</a></li>
             </ul>
           </li>
           <li><a href="#http">HTTP</a>
@@ -879,7 +880,7 @@ chmod +x monitoror
       <h3 id="github">GitHub</h3>
 
       <p>
-        Show branch checks status and display search result counters.
+        Show branch or pull request checks status and display search result counters.
       </p>
 
       <h5 class="m-documentation--configuration-side-title">Core configuration</h5>
@@ -991,7 +992,7 @@ chmod +x monitoror
       <h4 id="tile-github-checks">GITHUB-CHECKS</h4>
 
       <p>
-        Show the status of all checks for a given commit reference.
+        Show the status of all checks for a given git reference.
       </p>
 
       <h5 class="m-documentation--configuration-side-title">UI configuration</h5>
@@ -1052,22 +1053,101 @@ chmod +x monitoror
           </div>
           <div class="m-documentation--demo-switch">
             <label class="m-documentation--demo-switch-label m-documentation--demo-switch-running">
-              <input data-state-switch name="github-release-state" type="radio" value="running">
+              <input data-state-switch name="github-checks-state" type="radio" value="running">
               Running
             </label>
             <label class="m-documentation--demo-switch-label m-documentation--demo-switch-warning">
-              <input data-state-switch name="azuredevops-release-state" type="radio" value="warning">
+              <input data-state-switch name="github-checks-state" type="radio" value="warning">
               Warning
             </label>
             <label class="m-documentation--demo-switch-label m-documentation--demo-switch-error">
-              <input data-state-switch name="azuredevops-release-state" type="radio" value="error">
+              <input data-state-switch name="github-checks-state" type="radio" value="error">
               Error
             </label>
           </div>
         </div>
       </div>
 
-      <h4 id="tile-generate-github-checks">GENERATE:GITHUB-CHECKS</h4>
+      <h4 id="tile-github-pullrequest">GITHUB-PULLREQUEST</h4>
+
+      <p>
+        Show the status of all checks for a given pull request.
+      </p>
+
+      <h5 class="m-documentation--configuration-side-title">UI configuration</h5>
+
+      <dl>
+        <dt><code>owner</code> <code class="type">string</code> <span class="required">required</span></dt>
+        <dd>
+          GitHub group or user (from URL)
+        </dd>
+
+        <dt><code>repository</code> <code class="type">string</code> <span class="required">required</span></dt>
+        <dd>
+          GitHub repository name (from URL)
+        </dd>
+
+        <dt><code>id</code> <code class="type">number</code> <span class="required">required</span></dt>
+        <dd>
+          GitHub pull request ID <br>
+        </dd>
+      </dl>
+
+      <div class="m-documentation--example-and-demo">
+        <pre class="example"><code class="language-json">
+{
+  "type": "GITHUB-PULLREQUEST",
+  "params": {
+    "owner": "monitoror",
+    "repository": "monitoror",
+    "id": 10
+  }
+}
+        </code></pre>
+
+        <div class="m-documentation--demo">
+          <div class="m-documentation--demo-tile">
+            <div class="m-documentation--demo-label">PR#10 @ monitoror</div>
+            <svg class="m-documentation--demo-icon" fill="currentColor" viewBox="0 0 33 33"
+                 style="transform: translateY(2px)" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M16.288 0C7.293 0 0 7.293 0 16.29c0 7.197 4.667 13.302 11.14 15.457.815.149 1.112-.354 1.112-.786 0-.386-.014-1.411-.022-2.77-4.531.984-5.487-2.184-5.487-2.184-.741-1.881-1.809-2.382-1.809-2.382-1.479-1.011.112-.991.112-.991 1.635.116 2.495 1.679 2.495 1.679 1.453 2.489 3.813 1.77 4.741 1.354.148-1.053.568-1.771 1.034-2.178-3.617-.411-7.42-1.809-7.42-8.051 0-1.778.635-3.232 1.677-4.371-.168-.412-.727-2.068.159-4.311 0 0 1.368-.438 4.48 1.67a15.602 15.602 0 014.078-.548c1.383.006 2.777.187 4.078.548 3.11-2.108 4.475-1.67 4.475-1.67.889 2.243.33 3.899.162 4.311 1.044 1.139 1.675 2.593 1.675 4.371 0 6.258-3.809 7.635-7.438 8.038.585.503 1.106 1.497 1.106 3.017 0 2.177-.02 3.934-.02 4.468 0 .436.293.943 1.12.784 6.468-2.159 11.131-8.26 11.131-15.455C32.579 7.293 25.285 0 16.288 0"/>
+            </svg>
+            <div class="m-documentation--demo-message" data-status-running>
+              0:42
+            </div>
+            <div class="m-documentation--demo-message" data-status-warning>
+              5 minutes ago
+            </div>
+            <div class="m-documentation--demo-message" data-status-error>
+              5 minutes ago
+            </div>
+            <div class="m-documentation--demo-author" data-status-error>
+              <img alt="" class="m-documentation--demo-author-avatar" src="../assets/images/avatar.png">
+              John Doe
+            </div>
+            <div class="m-documentation--demo-progress" data-status-running>
+              <div class="m-documentation--demo-progress-bar"></div>
+            </div>
+          </div>
+          <div class="m-documentation--demo-switch">
+            <label class="m-documentation--demo-switch-label m-documentation--demo-switch-running">
+              <input data-state-switch name="github-pullrequest-state" type="radio" value="running">
+              Running
+            </label>
+            <label class="m-documentation--demo-switch-label m-documentation--demo-switch-warning">
+              <input data-state-switch name="github-pullrequest-state" type="radio" value="warning">
+              Warning
+            </label>
+            <label class="m-documentation--demo-switch-label m-documentation--demo-switch-error">
+              <input data-state-switch name="github-pullrequest-state" type="radio" value="error">
+              Error
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <h4 id="tile-generate-github-pullrequest">GENERATE:GITHUB-PULLREQUEST</h4>
 
       <p>
         Show each open pull request status.
@@ -1076,7 +1156,7 @@ chmod +x monitoror
       <p class="note">
         <span class="tag">Note</span>
         This tile is a generator tile that will be replaced by N classic
-        <code><a href="#tile-github-checks">GITHUB-CHECKS</a></code> tiles. <br>
+        <code><a href="#tile-github-checks">GITHUB-PULLREQUEST</a></code> tiles. <br>
         N being the number of open pull requests.
       </p>
 
@@ -1097,7 +1177,7 @@ chmod +x monitoror
       <div class="m-documentation--example">
         <pre class="example"><code class="language-json">
 {
-  "type": "GENERATE:GITHUB-CHECKS",
+  "type": "GENERATE:GITHUB-PULLREQUEST",
   "params": {
     "owner": "monitoror",
     "repository": "monitoror"

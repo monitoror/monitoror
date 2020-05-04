@@ -23,7 +23,7 @@ func TestChecksParams_Validate(t *testing.T) {
 	test.AssertParams(t, param, 3)
 }
 
-func TestBuildParams_String(t *testing.T) {
+func TestChecksParams_String(t *testing.T) {
 	param := &ChecksParams{Owner: "test", Repository: "test", Ref: "master"}
 	assert.Equal(t, "CHECKS-test-test-master", fmt.Sprint(param))
 }

@@ -190,6 +190,68 @@ func TestRepository_GetPullRequest_Error(t *testing.T) {
 	githubErr := errors.New("github error")
 
 	mocksPullRequestService := new(mocks.PullRequestService)
+	mocksPullRequestService.On("Get", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("int")).
+		Return(nil, nil, githubErr)
+
+	repository := initRepository(t)
+	if repository != nil {
+		repository.pullRequestService = mocksPullRequestService
+
+		_, err := repository.GetPullRequest("test", "test", 10)
+		if assert.Error(t, err) {
+			assert.Contains(t, err.Error(), "github error")
+			mocksPullRequestService.AssertNumberOfCalls(t, "Get", 1)
+			mocksPullRequestService.AssertExpectations(t)
+		}
+	}
+}
+
+func TestRepository_GetPullRequest_Success(t *testing.T) {
+	mocksPullRequestService := new(mocks.PullRequestService)
+	mocksPullRequestService.On("Get", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("int")).
+		Return(&github.PullRequest{
+			Number: ToInt(10),
+			Title:  ToString("Test"),
+			User: &github.User{
+				Login:     ToString("avatar-user-login"),
+				AvatarURL: ToString("http://avatar.example.com"),
+			},
+			Head: &github.PullRequestBranch{
+				User: &github.User{
+					Login: ToString("owner-user-login"),
+				},
+				Repo: &github.Repository{
+					Name: ToString("repo-name"),
+				},
+				Ref: ToString("feat/new-feature"),
+				SHA: ToString("xxxx"),
+			},
+		}, nil, nil)
+
+	repository := initRepository(t)
+	if repository != nil {
+		repository.pullRequestService = mocksPullRequestService
+
+		pullRequest, err := repository.GetPullRequest("test", "test", 10)
+		if assert.NoError(t, err) {
+			assert.Equal(t, 10, pullRequest.ID)
+			assert.Equal(t, "avatar-user-login", pullRequest.Author.Name)
+			assert.Equal(t, "http://avatar.example.com", pullRequest.Author.AvatarURL)
+			assert.Equal(t, "owner-user-login", pullRequest.Owner)
+			assert.Equal(t, "repo-name", pullRequest.Repository)
+			assert.Equal(t, "feat/new-feature", pullRequest.Branch)
+			assert.Equal(t, "xxxx", pullRequest.CommitSHA)
+
+			mocksPullRequestService.AssertNumberOfCalls(t, "Get", 1)
+			mocksPullRequestService.AssertExpectations(t)
+		}
+	}
+}
+
+func TestRepository_GetPullRequests_Error(t *testing.T) {
+	githubErr := errors.New("github error")
+
+	mocksPullRequestService := new(mocks.PullRequestService)
 	mocksPullRequestService.On("List", Anything, AnythingOfType("string"), AnythingOfType("string"), Anything).
 		Return(nil, nil, githubErr)
 
@@ -206,14 +268,27 @@ func TestRepository_GetPullRequest_Error(t *testing.T) {
 	}
 }
 
-func TestRepository_GetPullRequest_Success(t *testing.T) {
+func TestRepository_GetPullRequests_Success(t *testing.T) {
 	mocksPullRequestService := new(mocks.PullRequestService)
 	mocksPullRequestService.On("List", Anything, AnythingOfType("string"), AnythingOfType("string"), Anything).
 		Return([]*github.PullRequest{
 			{
 				Number: ToInt(10),
 				Title:  ToString("Test"),
-				Head:   &github.PullRequestBranch{Ref: ToString("master")},
+				User: &github.User{
+					Login:     ToString("avatar-user-login"),
+					AvatarURL: ToString("http://avatar.example.com"),
+				},
+				Head: &github.PullRequestBranch{
+					User: &github.User{
+						Login: ToString("owner-user-login"),
+					},
+					Repo: &github.Repository{
+						Name: ToString("repo-name"),
+					},
+					Ref: ToString("feat/new-feature"),
+					SHA: ToString("xxxx"),
+				},
 			},
 		}, nil, nil)
 
@@ -225,9 +300,12 @@ func TestRepository_GetPullRequest_Success(t *testing.T) {
 		if assert.NoError(t, err) {
 			assert.Len(t, pullRequests, 1)
 			assert.Equal(t, 10, pullRequests[0].ID)
-			assert.Equal(t, "test", pullRequests[0].Owner)
-			assert.Equal(t, "test", pullRequests[0].Repository)
-			assert.Equal(t, "master", pullRequests[0].Ref)
+			assert.Equal(t, "avatar-user-login", pullRequests[0].Author.Name)
+			assert.Equal(t, "http://avatar.example.com", pullRequests[0].Author.AvatarURL)
+			assert.Equal(t, "owner-user-login", pullRequests[0].Owner)
+			assert.Equal(t, "repo-name", pullRequests[0].Repository)
+			assert.Equal(t, "feat/new-feature", pullRequests[0].Branch)
+			assert.Equal(t, "xxxx", pullRequests[0].CommitSHA)
 
 			mocksPullRequestService.AssertNumberOfCalls(t, "List", 1)
 			mocksPullRequestService.AssertExpectations(t)
@@ -259,7 +337,7 @@ func TestRepository_GetCommit_Success(t *testing.T) {
 	mocksGitService.On("GetCommit", Anything, AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(&github.Commit{
 			Author: &github.CommitAuthor{
-				Name:  ToString("Test"),
+				Login: ToString("test"),
 				Email: ToString("test@example.com"),
 			},
 		}, nil, nil)
@@ -271,7 +349,7 @@ func TestRepository_GetCommit_Success(t *testing.T) {
 		commit, err := repository.GetCommit("test", "test", "sha")
 		if assert.NoError(t, err) {
 			assert.Equal(t, "sha", commit.SHA)
-			assert.Equal(t, "Test", commit.Author.Name)
+			assert.Equal(t, "test", commit.Author.Name)
 			assert.Equal(t, gravatar.GetGravatarURL("test@example.com"), commit.Author.AvatarURL)
 			mocksGitService.AssertNumberOfCalls(t, "GetCommit", 1)
 			mocksGitService.AssertExpectations(t)

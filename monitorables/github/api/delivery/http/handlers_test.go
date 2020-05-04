@@ -8,6 +8,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/AlekSi/pointer"
+
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/github/api"
 	"github.com/monitoror/monitoror/monitorables/github/api/mocks"
@@ -151,6 +153,72 @@ func TestDelivery_GetChecks_Error(t *testing.T) {
 	if assert.Error(t, err) {
 		assert.Equal(t, http.StatusOK, res.Code)
 		mockUsecase.AssertNumberOfCalls(t, "Checks", 1)
+		mockUsecase.AssertExpectations(t)
+	}
+}
+
+func TestDelivery_GetPullRequest_Success(t *testing.T) {
+	// Init
+	ctx, res := initEcho()
+
+	ctx.QueryParams().Set("owner", "test")
+	ctx.QueryParams().Set("repository", "test")
+	ctx.QueryParams().Set("id", "10")
+
+	tile := coreModels.NewTile(api.GithubPullRequestTileType)
+	tile.Status = coreModels.SuccessStatus
+
+	mockUsecase := new(mocks.Usecase)
+	mockUsecase.On("PullRequest", &models.PullRequestParams{Owner: "test", Repository: "test", ID: pointer.ToInt(10)}).Return(tile, nil)
+	handler := NewGithubDelivery(mockUsecase)
+
+	// Expected
+	json, err := json.Marshal(tile)
+	assert.NoError(t, err, "unable to marshal tile")
+
+	// Test
+	if assert.NoError(t, handler.GetPullRequest(ctx)) {
+		assert.Equal(t, http.StatusOK, res.Code)
+		assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
+		mockUsecase.AssertNumberOfCalls(t, "PullRequest", 1)
+		mockUsecase.AssertExpectations(t)
+	}
+}
+
+func TestDelivery_GetPullRequest_MissingParams(t *testing.T) {
+	// Init
+	ctx, res := initEcho()
+
+	mockUsecase := new(mocks.Usecase)
+	handler := NewGithubDelivery(mockUsecase)
+
+	// Test
+	err := handler.GetPullRequest(ctx)
+	if assert.Error(t, err) {
+		assert.Equal(t, http.StatusOK, res.Code)
+		assert.IsType(t, &coreModels.MonitororError{}, err)
+		mockUsecase.AssertNumberOfCalls(t, "PullRequest", 0)
+		mockUsecase.AssertExpectations(t)
+	}
+}
+
+func TestDelivery_GetPullRequest_Error(t *testing.T) {
+	// Init
+	ctx, res := initEcho()
+
+	ctx.QueryParams().Set("owner", "test")
+	ctx.QueryParams().Set("repository", "test")
+	ctx.QueryParams().Set("id", "10")
+
+	mockUsecase := new(mocks.Usecase)
+	mockUsecase.On("PullRequest", Anything).Return(nil, errors.New("build error"))
+	handler := NewGithubDelivery(mockUsecase)
+
+	// Test
+	err := handler.GetPullRequest(ctx)
+	if assert.Error(t, err) {
+		assert.Equal(t, http.StatusOK, res.Code)
+		mockUsecase.AssertNumberOfCalls(t, "PullRequest", 1)
 		mockUsecase.AssertExpectations(t)
 	}
 }

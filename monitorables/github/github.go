@@ -27,7 +27,8 @@ type Monitorable struct {
 	// Config tile settings
 	countTileEnabler            registry.TileEnabler
 	checksTileEnabler           registry.TileEnabler
-	pullrequestGeneratorEnabler registry.GeneratorEnabler
+	pullRequestTileEnabler      registry.TileEnabler
+	pullRequestGeneratorEnabler registry.GeneratorEnabler
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
@@ -41,7 +42,8 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	// Register Monitorable Tile in config manager
 	m.countTileEnabler = store.Registry.RegisterTile(api.GithubCountTileType, versions.MinimalVersion, m.GetVariantsNames())
 	m.checksTileEnabler = store.Registry.RegisterTile(api.GithubChecksTileType, versions.MinimalVersion, m.GetVariantsNames())
-	m.pullrequestGeneratorEnabler = store.Registry.RegisterGenerator(api.GithubChecksTileType, versions.MinimalVersion, m.GetVariantsNames())
+	m.pullRequestTileEnabler = store.Registry.RegisterTile(api.GithubPullRequestTileType, versions.MinimalVersion, m.GetVariantsNames())
+	m.pullRequestGeneratorEnabler = store.Registry.RegisterGenerator(api.GithubPullRequestTileType, versions.MinimalVersion, m.GetVariantsNames())
 
 	return m
 }
@@ -84,9 +86,11 @@ func (m *Monitorable) Enable(variantName coreModels.VariantName) {
 	routeGroup := m.store.MonitorableRouter.Group("/github", variantName)
 	routeCount := routeGroup.GET("/count", delivery.GetCount, options.WithCustomCacheExpiration(countCacheExpiration))
 	routeChecks := routeGroup.GET("/checks", delivery.GetChecks)
+	routePullRequest := routeGroup.GET("/pullrequest", delivery.GetPullRequest)
 
 	// EnableTile data for config hydration
 	m.countTileEnabler.Enable(variantName, &githubModels.CountParams{}, routeCount.Path)
 	m.checksTileEnabler.Enable(variantName, &githubModels.ChecksParams{}, routeChecks.Path)
-	m.pullrequestGeneratorEnabler.Enable(variantName, &githubModels.PullRequestGeneratorParams{}, usecase.PullRequestsGenerator)
+	m.pullRequestTileEnabler.Enable(variantName, &githubModels.PullRequestParams{}, routePullRequest.Path)
+	m.pullRequestGeneratorEnabler.Enable(variantName, &githubModels.PullRequestGeneratorParams{}, usecase.PullRequestsGenerator)
 }

@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"errors"
-	"fmt"
 	"testing"
 	"time"
 
@@ -29,7 +28,7 @@ func TestCount_Error(t *testing.T) {
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
 		assert.IsType(t, &coreModels.MonitororError{}, err)
-		assert.Equal(t, "unable to find count or wrong query", err.Error())
+		assert.Equal(t, "unable to load count or wrong query", err.Error())
 		mockRepository.AssertNumberOfCalls(t, "GetCount", 1)
 		mockRepository.AssertExpectations(t)
 	}
@@ -68,7 +67,7 @@ func TestChecks_Error(t *testing.T) {
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
 		assert.IsType(t, &coreModels.MonitororError{}, err)
-		assert.Equal(t, "unable to find ref checks", err.Error())
+		assert.Equal(t, "unable to load ref checks", err.Error())
 		mockRepository.AssertNumberOfCalls(t, "GetChecks", 1)
 		mockRepository.AssertExpectations(t)
 	}
@@ -270,6 +269,130 @@ func TestChecks_Running(t *testing.T) {
 	}
 }
 
+func TestPullRequest_ErrorOnPullRequest(t *testing.T) {
+	mockRepository := new(mocks.Repository)
+	mockRepository.On("GetPullRequest", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("int")).
+		Return(nil, errors.New("boom"))
+
+	gu := NewGithubUsecase(mockRepository)
+
+	tile, err := gu.PullRequest(&models.PullRequestParams{Owner: "test", Repository: "test", ID: ToInt(10)})
+	if assert.Error(t, err) {
+		assert.Nil(t, tile)
+		assert.IsType(t, &coreModels.MonitororError{}, err)
+		assert.Equal(t, "unable to load pull request", err.Error())
+		mockRepository.AssertNumberOfCalls(t, "GetPullRequest", 1)
+		mockRepository.AssertExpectations(t)
+	}
+}
+
+func TestPullRequest_ErrorOnChecks(t *testing.T) {
+	mockRepository := new(mocks.Repository)
+	mockRepository.On("GetPullRequest", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("int")).
+		Return(&models.PullRequest{ID: 10, Title: "Test", CommitSHA: "xxx"}, nil)
+	mockRepository.On("GetChecks", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
+		Return(nil, errors.New("boom"))
+
+	gu := NewGithubUsecase(mockRepository)
+
+	tile, err := gu.PullRequest(&models.PullRequestParams{Owner: "test", Repository: "test", ID: ToInt(10)})
+	if assert.Error(t, err) {
+		assert.Nil(t, tile)
+		assert.IsType(t, &coreModels.MonitororError{}, err)
+		assert.Equal(t, "unable to load ref checks", err.Error())
+		mockRepository.AssertNumberOfCalls(t, "GetPullRequest", 1)
+		mockRepository.AssertNumberOfCalls(t, "GetChecks", 1)
+		mockRepository.AssertExpectations(t)
+	}
+}
+
+func TestPullRequest_NoChecks(t *testing.T) {
+	mockRepository := new(mocks.Repository)
+	mockRepository.On("GetPullRequest", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("int")).
+		Return(&models.PullRequest{ID: 10, Title: "Test", Owner: "test2", Branch: "master", CommitSHA: "xxx"}, nil)
+	mockRepository.On("GetChecks", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
+		Return(&models.Checks{}, nil)
+
+	gu := NewGithubUsecase(mockRepository)
+
+	expected := coreModels.NewTile(api.GithubPullRequestTileType).WithBuild()
+	expected.Label = "test"
+	expected.Build.Branch = ToString("test2:master")
+	expected.Status = coreModels.SuccessStatus
+	expected.Build.PreviousStatus = coreModels.UnknownStatus
+	expected.Build.MergeRequest = &coreModels.TileMergeRequest{
+		ID:    10,
+		Title: "Test",
+	}
+
+	tile, err := gu.PullRequest(&models.PullRequestParams{Owner: "test", Repository: "test", ID: ToInt(10)})
+	if assert.NoError(t, err) {
+		assert.NotNil(t, tile)
+		assert.Equal(t, expected, tile)
+
+		mockRepository.AssertNumberOfCalls(t, "GetPullRequest", 1)
+		mockRepository.AssertNumberOfCalls(t, "GetChecks", 1)
+		mockRepository.AssertExpectations(t)
+	}
+}
+
+func TestPullRequest_Success(t *testing.T) {
+	refTime := time.Now()
+	startedAt := refTime.Add(-time.Second * 30)
+	finishedAt := refTime.Add(-time.Second * 15)
+
+	mockRepository := new(mocks.Repository)
+	mockRepository.On("GetPullRequest", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("int")).
+		Return(&models.PullRequest{
+			ID:        10,
+			Title:     "Test",
+			Owner:     "test2",
+			Branch:    "master",
+			CommitSHA: "xxx",
+			Author: coreModels.Author{
+				Name:      "test",
+				AvatarURL: "https://test.example.com",
+			},
+		}, nil)
+	mockRepository.On("GetChecks", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
+		Return(&models.Checks{
+			Runs: []models.Run{
+				{
+					ID:          10,
+					Status:      "completed",
+					Conclusion:  "failure",
+					StartedAt:   ToTime(startedAt),
+					CompletedAt: ToTime(finishedAt),
+				},
+			},
+		}, nil)
+
+	gu := NewGithubUsecase(mockRepository)
+
+	expected := coreModels.NewTile(api.GithubPullRequestTileType).WithBuild()
+	expected.Label = "test"
+	expected.Build.Branch = ToString("test2:master")
+	expected.Build.MergeRequest = &coreModels.TileMergeRequest{ID: 10, Title: "Test"}
+	expected.Status = coreModels.FailedStatus
+	expected.Build.PreviousStatus = coreModels.UnknownStatus
+	expected.Build.StartedAt = ToTime(startedAt)
+	expected.Build.FinishedAt = ToTime(finishedAt)
+	expected.Build.Author = &coreModels.Author{
+		Name:      "test",
+		AvatarURL: "https://test.example.com",
+	}
+
+	tile, err := gu.PullRequest(&models.PullRequestParams{Owner: "test", Repository: "test", ID: ToInt(10)})
+	if assert.NoError(t, err) {
+		assert.NotNil(t, tile)
+		assert.Equal(t, expected, tile)
+
+		mockRepository.AssertNumberOfCalls(t, "GetPullRequest", 1)
+		mockRepository.AssertNumberOfCalls(t, "GetChecks", 1)
+		mockRepository.AssertExpectations(t)
+	}
+}
+
 func TestPullRequestsGenerator_Error(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetPullRequests", AnythingOfType("string"), AnythingOfType("string")).
@@ -281,7 +404,7 @@ func TestPullRequestsGenerator_Error(t *testing.T) {
 	if assert.Error(t, err) {
 		assert.Nil(t, results)
 		assert.IsType(t, &coreModels.MonitororError{}, err)
-		assert.Equal(t, "unable to find pull request", err.Error())
+		assert.Equal(t, "unable to load pull request", err.Error())
 		mockRepository.AssertNumberOfCalls(t, "GetPullRequests", 1)
 		mockRepository.AssertExpectations(t)
 	}
@@ -295,13 +418,13 @@ func TestPullRequestsGenerator_Success(t *testing.T) {
 				ID:         2,
 				Owner:      "test",
 				Repository: "test",
-				Ref:        "master",
+				CommitSHA:  "xxxx",
 			},
 			{
 				ID:         3,
 				Owner:      "test",
 				Repository: "test",
-				Ref:        "develop",
+				CommitSHA:  "yyyy",
 			},
 		}, nil)
 
@@ -311,35 +434,29 @@ func TestPullRequestsGenerator_Success(t *testing.T) {
 	if assert.NoError(t, err) {
 		assert.NotNil(t, results)
 		assert.Len(t, results, 2)
-		assert.Equal(t, "PR#2 @ test", results[0].Label)
-		params, ok := results[0].Params.(*models.ChecksParams)
+		params, ok := results[0].Params.(*models.PullRequestParams)
 		if assert.True(t, ok) {
 			assert.Equal(t, "test", params.Owner)
 			assert.Equal(t, "test", params.Repository)
-			assert.Equal(t, "master", params.Ref)
+			assert.Equal(t, 2, *params.ID)
 		}
-		params, ok = results[1].Params.(*models.ChecksParams)
+		params, ok = results[1].Params.(*models.PullRequestParams)
 		if assert.True(t, ok) {
 			assert.Equal(t, "test", params.Owner)
 			assert.Equal(t, "test", params.Repository)
-			assert.Equal(t, "develop", params.Ref)
+			assert.Equal(t, 3, *params.ID)
 		}
 		mockRepository.AssertNumberOfCalls(t, "GetPullRequests", 1)
 		mockRepository.AssertExpectations(t)
 	}
 }
 
-func TestComputeRefStatus_Status(t *testing.T) {
-	for index, testcase := range []struct {
+func TestConvertChecks_Status(t *testing.T) {
+	for _, testcase := range []struct {
 		runs           []models.Run
 		statuses       []models.Status
 		expectedStatus coreModels.TileStatus
 	}{
-		{
-			runs:           []models.Run{},
-			statuses:       []models.Status{},
-			expectedStatus: coreModels.UnknownStatus,
-		},
 		{
 			runs: []models.Run{
 				{Status: "completed", Conclusion: "success"},
@@ -456,16 +573,16 @@ func TestComputeRefStatus_Status(t *testing.T) {
 			expectedStatus: coreModels.ActionRequiredStatus,
 		},
 	} {
-		status, _, _, _ := computeChecks(&models.Checks{Runs: testcase.runs, Statuses: testcase.statuses})
-		assert.Equal(t, testcase.expectedStatus, status, fmt.Sprintf("test %d failed", index))
+		status, _, _, _ := convertChecks(&models.Checks{Runs: testcase.runs, Statuses: testcase.statuses})
+		assert.Equal(t, testcase.expectedStatus, status[0])
 	}
 }
 
-func TestComputeRefStatus_Time(t *testing.T) {
+func TestConvertChecks_Time(t *testing.T) {
 	expectedStartedAt := time.Now().Add(-time.Minute * 2)
 	expectedFinishedAt := time.Now().Add(+time.Minute * 2)
 
-	refStatus := &models.Checks{
+	checks := &models.Checks{
 		Runs: []models.Run{
 			{StartedAt: ToTime(time.Now()), CompletedAt: ToTime(time.Now())},
 			{StartedAt: ToTime(time.Now().Add(-time.Minute * 1)), CompletedAt: ToTime(time.Now().Add(+time.Minute * 1))},
@@ -475,14 +592,13 @@ func TestComputeRefStatus_Time(t *testing.T) {
 		},
 	}
 
-	_, startedAt, finishedAt, _ := computeChecks(refStatus)
+	_, startedAt, finishedAt, _ := convertChecks(checks)
 	assert.Equal(t, expectedStartedAt, *startedAt)
 	assert.Equal(t, expectedFinishedAt, *finishedAt)
 }
 
-func TestComputeRefStatus_ID(t *testing.T) {
-
-	refStatus := &models.Checks{
+func TestConvertChecks_ID(t *testing.T) {
+	checks := &models.Checks{
 		Runs: []models.Run{
 			{ID: 12},
 			{ID: 13},
@@ -492,6 +608,6 @@ func TestComputeRefStatus_ID(t *testing.T) {
 		},
 	}
 
-	_, _, _, id := computeChecks(refStatus)
+	_, _, _, id := convertChecks(checks)
 	assert.Equal(t, "b103a99f8ef3da68771355b76aa05ccf", id)
 }

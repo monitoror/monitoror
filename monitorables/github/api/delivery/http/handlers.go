@@ -47,3 +47,18 @@ func (h *GithubDelivery) GetChecks(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, tile)
 }
+
+func (h *GithubDelivery) GetPullRequest(c echo.Context) error {
+	// Bind / check Params
+	params := &models.PullRequestParams{}
+	if err := delivery.BindAndValidateParams(c, params); err != nil {
+		return err
+	}
+
+	tile, err := h.githubUsecase.PullRequest(params)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, tile)
+}

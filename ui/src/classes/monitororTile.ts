@@ -7,6 +7,7 @@ import TileType from '@/enums/tileType'
 import TileAuthor from '@/interfaces/tileAuthor'
 import TileBuild from '@/interfaces/tileBuild'
 import TileConfig from '@/interfaces/tileConfig'
+import TileMergeRequest from '@/interfaces/tileMergeRequest'
 import TileState from '@/interfaces/tileState'
 
 export default abstract class AbstractMonitororTile extends Vue {
@@ -45,8 +46,25 @@ export default abstract class AbstractMonitororTile extends Vue {
     return this.$store.state.tilesState[this.stateKey]
   }
 
+  get mergeRequestLabelPrefix(): string | undefined {
+    if (this.mergeRequest === undefined) {
+      return
+    }
+
+    let mergeRequestPrefix = 'MR'
+    if (this.type === TileType.GitHubPullRequest) {
+      mergeRequestPrefix = 'PR'
+    }
+
+    return mergeRequestPrefix + '#' + this.mergeRequest.id
+  }
+
   get label(): string | undefined {
     if (this.config.label) {
+      if (this.config.label === '-') {
+        return
+      }
+
       return this.config.label
     }
 
@@ -71,6 +89,14 @@ export default abstract class AbstractMonitororTile extends Vue {
     }
 
     return this.build.branch
+  }
+
+  get mergeRequest(): TileMergeRequest | undefined {
+    if (this.build === undefined) {
+      return
+    }
+
+    return this.build.mergeRequest
   }
 
   get status(): string | undefined {

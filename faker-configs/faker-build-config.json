@@ -28,6 +28,14 @@
     { "type": "AZUREDEVOPS-RELEASE", "params": { "project": "monitoror", "definition": 423, "status": "RUNNING" } },
     { "type": "GITHUB-CHECKS", "params": { "owner": "monitoror", "repository": "monitoror", "ref": "master" } },
     { "type": "GITHUB-CHECKS", "params": { "owner": "monitoror", "repository": "monitoror", "ref": "master", "status": "ACTION_REQUIRED" } },
-    { "type": "GITHUB-CHECKS", "params": { "owner": "monitoror", "repository": "monitoror", "ref": "master", "status": "RUNNING" } }
+    { "type": "GITHUB-CHECKS", "params": { "owner": "monitoror", "repository": "monitoror", "ref": "master", "status": "RUNNING" } },
+    { "type": "GITHUB-PULLREQUEST", "label": "-", "params": { "owner": "monitoror", "repository": "monitoror", "id": 1337, "mergeRequestTitle": "Feature branch which adds a super new thing", "branch": "fork:feature-branch", "status": "SUCCESS" } },
+    {
+      "type": "GROUP",
+      "label": "Merge requests in group",
+      "tiles": [
+        { "type": "GITHUB-PULLREQUEST", "params": { "owner": "monitoror", "repository": "monitoror", "id": 42, "branch": "fork:fix-branch", "status": "RUNNING" } }
+      ]
+    }
   ]
 }
