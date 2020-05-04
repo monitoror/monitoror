@@ -67,6 +67,7 @@ func TestUsecase_GetConfig_WithNamedVariant_UnknownConfigName(t *testing.T) {
 	mockRepo := new(mocks.Repository)
 	usecase := initConfigUsecase(mockRepo)
 	usecase.namedConfigs = make(map[coreConfig.ConfigName]string)
+	usecase.namedConfigs["test"] = "test"
 
 	configBag := usecase.GetConfig(&models.ConfigParams{})
 	if assert.Len(t, configBag.Errors, 1) {

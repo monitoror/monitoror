@@ -68,9 +68,14 @@ func (cu *configUsecase) GetConfig(params *models.ConfigParams) *models.ConfigBa
 				configBag.Config, err = cu.repository.GetConfigFromPath(namedConfig)
 			}
 		} else {
+			message := fmt.Sprintf(`Unknown %q named config. No named configuration found.`, params.Config)
+			if len(cu.namedConfigs) != 0 {
+				message = fmt.Sprintf(`Unknown %q named config. Must be %s`, params.Config, config.Keys(cu.namedConfigs))
+			}
+
 			configBag.AddErrors(models.ConfigError{
 				ID:      models.ConfigErrorUnknownNamedConfig,
-				Message: fmt.Sprintf(`Unknown %q named config. Must be %s`, params.Config, config.Keys(cu.namedConfigs)),
+				Message: message,
 				Data: models.ConfigErrorData{
 					Value:    params.Config,
 					Expected: config.Keys(cu.namedConfigs),
