@@ -60,7 +60,7 @@ func InitMockAndStore() (*store.Store, MockMonitorableHelper) {
 	).Return(mockGeneratorEnabler)
 
 	return &store.Store{
-			CoreConfig:        &coreConfig.Config{},
+			CoreConfig:        &coreConfig.CoreConfig{},
 			MonitorableRouter: mockRouter,
 			Registry:          mockRegistry,
 		},

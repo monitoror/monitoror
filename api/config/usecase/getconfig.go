@@ -7,13 +7,20 @@ import (
 
 	"github.com/monitoror/monitoror/api/config/models"
 	"github.com/monitoror/monitoror/api/config/versions"
+	coreConfig "github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/internal/pkg/api/config"
+	"github.com/monitoror/monitoror/internal/pkg/validator/validate"
 
 	"github.com/fatih/structs"
 )
 
-var unknownFieldRegex *regexp.Regexp
-var fieldTypeMismatchRegex *regexp.Regexp
-var invalidEscapedCharacterRegex *regexp.Regexp
+var (
+	unknownFieldRegex            *regexp.Regexp
+	fieldTypeMismatchRegex       *regexp.Regexp
+	invalidEscapedCharacterRegex *regexp.Regexp
+
+	urlRegex *regexp.Regexp
+)
 
 func init() {
 	// Based on: https://github.com/golang/go/blob/release-branch.go1.14/src/encoding/json/decode.go#L755
@@ -24,17 +31,57 @@ func init() {
 
 	// Based on: https://github.com/golang/go/blob/go1.14/src/encoding/json/scanner.go#L343
 	invalidEscapedCharacterRegex = regexp.MustCompile(`'(.*)' in string escape code`)
+
+	// Simple regex that identifies url
+	urlRegex = regexp.MustCompile(validate.HTTPRegex)
+}
+
+// GetConfig and set default value for Config from repository
+func (cu *configUsecase) GetConfigList() []models.ConfigMetadata {
+	var configList []models.ConfigMetadata
+
+	for configName := range cu.namedConfigs {
+		configList = append(configList, models.ConfigMetadata{
+			Name: string(configName),
+		})
+	}
+
+	return configList
 }
 
 // GetConfig and set default value for Config from repository
 func (cu *configUsecase) GetConfig(params *models.ConfigParams) *models.ConfigBag {
 	configBag := &models.ConfigBag{}
-
 	var err error
-	if params.URL != "" {
-		configBag.Config, err = cu.repository.GetConfigFromURL(params.URL)
-	} else if params.Path != "" {
-		configBag.Config, err = cu.repository.GetConfigFromPath(params.Path)
+
+	// Lookup for a url
+	if urlRegex.MatchString(params.Config) {
+		configBag.Config, err = cu.repository.GetConfigFromURL(params.Config)
+	} else {
+		configName := coreConfig.ConfigName(params.Config)
+
+		// Lookup for a named Config
+		if namedConfig, ok := cu.namedConfigs[configName]; ok {
+			if urlRegex.MatchString(namedConfig) {
+				configBag.Config, err = cu.repository.GetConfigFromURL(namedConfig)
+			} else {
+				configBag.Config, err = cu.repository.GetConfigFromPath(namedConfig)
+			}
+		} else {
+			message := fmt.Sprintf(`Unknown %q named config. No named configuration found.`, params.Config)
+			if len(cu.namedConfigs) != 0 {
+				message = fmt.Sprintf(`Unknown %q named config. Must be %s`, params.Config, config.Keys(cu.namedConfigs))
+			}
+
+			configBag.AddErrors(models.ConfigError{
+				ID:      models.ConfigErrorUnknownNamedConfig,
+				Message: message,
+				Data: models.ConfigErrorData{
+					Value:    params.Config,
+					Expected: config.Keys(cu.namedConfigs),
+				},
+			})
+		}
 	}
 
 	if err == nil {

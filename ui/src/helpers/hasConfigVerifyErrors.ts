@@ -4,7 +4,7 @@ import ConfigError from '@/interfaces/configError'
 const CONFIG_NON_VERIFY_ERRORS = [
   ConfigErrorId.CannotBeFetched,
   ConfigErrorId.ConfigNotFound,
-  ConfigErrorId.MissingPathOrUrl,
+  ConfigErrorId.UnknownNamedConfig,
 ]
 
 export default function hasConfigVerifyErrors(errors: ConfigError[]): boolean {

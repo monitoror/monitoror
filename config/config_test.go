@@ -13,15 +13,14 @@ func TestInitConfig_Default(t *testing.T) {
 }
 
 func TestInitConfig_WithEnv(t *testing.T) {
-	err := os.Setenv(EnvPrefix+"_PORT", "3000")
-	assert.NoError(t, err, "unable to setEnv")
-	err = os.Setenv(EnvPrefix+"_MONITORABLE_JENKINS_URL", "test")
-	assert.NoError(t, err, "unable to setEnv")
-	err = os.Setenv(EnvPrefix+"_MONITORABLE_AZUREDEVOPS_URL", "test")
-	assert.NoError(t, err, "unable to setEnv")
+	assert.NoError(t, os.Setenv(EnvPrefix+"_PORT", "3000"))
+	assert.NoError(t, os.Setenv(EnvPrefix+"_CONFIG", "default"))
+	assert.NoError(t, os.Setenv(EnvPrefix+"_CONFIG_SCREEN1", "1"))
 
 	config := InitConfig()
 
 	assert.Equal(t, "production", config.Env)
 	assert.Equal(t, 3000, config.Port)
+	assert.Equal(t, "default", config.NamedConfigs["default"])
+	assert.Equal(t, "1", config.NamedConfigs["screen1"])
 }

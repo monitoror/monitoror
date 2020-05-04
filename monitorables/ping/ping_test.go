@@ -33,7 +33,7 @@ func TestNewMonitorable(t *testing.T) {
 
 	// Enable
 	for _, variantName := range monitorable.GetVariantsNames() {
-		if valid, _ := monitorable.Validate(variantName); valid || variantName == models.DefaultVariant { // Force enable Default Variant
+		if valid, _ := monitorable.Validate(variantName); valid || variantName == models.DefaultVariantName { // Force enable Default Variant
 			monitorable.Enable(variantName)
 		}
 	}

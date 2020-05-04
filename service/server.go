@@ -36,7 +36,7 @@ func init() {
 }
 
 // Init create echo server with middlewares, ui, routes
-func Init(config *config.Config, cli cli.CLI) *Server {
+func Init(config *config.CoreConfig, cli cli.CLI) *Server {
 	s := &Server{
 		store: &store.Store{
 			CoreConfig: config,

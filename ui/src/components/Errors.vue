@@ -6,10 +6,13 @@
     <template v-else-if="hasErrors">
       <div class="c-monitoror-errors--config-info">
         <div class="c-monitoror-errors-title" v-if="hasConfigVerifyErrors">
-          We found {{errors.length}} error{{errors.length > 1 ? 's' : ''}} in this configuration file:
+          We found {{errors.length}} error{{errors.length > 1 ? 's' : ''}}
+          <template v-if="configParam !== undefined">
+            in this configuration:
+          </template>
         </div>
-        <template v-if="configUrlOrPath !== 'undefined'">
-          <code>{{configUrlOrPath}}</code> <br><br>
+        <template v-if="configParam !== undefined">
+          <code>{{configParam}}</code> <br><br>
         </template>
         Last refresh at {{lastRefreshDate}}
 
@@ -22,7 +25,7 @@
             Monitoror Core seems down
           </p>
           <p>
-            Is there a Monitoror Core running at <code>{{ apiBaseUrl }}</code>?<br>
+            Is there a Monitoror Core running at <code>{{apiBaseUrl}}</code>?<br>
             Configuration cannot be fetch
           </p>
         </template>
@@ -31,14 +34,18 @@
             Your configuration URL or path seems broken, please verify it
           </p>
         </template>
-        <template v-else-if="error.id === ConfigErrorId.MissingPathOrUrl">
+        <template v-else-if="error.id === ConfigErrorId.UnknownNamedConfig">
           <p class="c-monitoror-errors--error-title">
-            Missing <code>configPath</code> or <code>configUrl</code> query param
+            <code>{{error.data.value}}</code> named configuration cannot be found
           </p>
-          <p>
-            <a href="https://monitoror.com/documentation/#ui-configuration" target="_blank">
-              Check UI configuration documentation
-            </a>
+          <p v-if="error.data.expected">
+            Must be one of:
+            <template v-for="(namedConfig, index) in splitList(error.data.expected)">
+              <code>{{namedConfig}}</code><template v-if="index !== splitList(error.data.expected).length - 1">, </template>
+            </template>
+          </p>
+          <p v-else>
+            You must give a UI configuration via <code>config</code> query parameter in order to use Monitoror
           </p>
         </template>
 
@@ -52,7 +59,7 @@
           <p>
             Expected type: <code>{{error.data.expected}}</code>
           </p>
-          <pre v-if="error.data.configExtract" :data-config-path-or-url="configUrlOrPath"><code
+          <pre v-if="error.data.configExtract" :data-config-param="configParam"><code
             v-html="formatConfigExtract(error)"></code></pre>
           <p class="go-to-documentation">
             <a href="https://monitoror.com/documentation/" target="_blank">
@@ -68,7 +75,7 @@
           <p>
             Try to escape the backslash: <code>\{{error.data.configExtractHighlight}}</code>
           </p>
-          <pre v-if="error.data.configExtract" :data-config-path-or-url="configUrlOrPath"><code
+          <pre v-if="error.data.configExtract" :data-config-param="configParam"><code
             v-html="formatConfigExtract(error)"></code></pre>
           <p class="go-to-documentation">
             <a href="https://monitoror.com/documentation/" target="_blank">
@@ -82,7 +89,7 @@
             <code>{{error.data.fieldName}}</code>
             value
           </p>
-          <pre v-if="error.data.configExtract" :data-config-path-or-url="configUrlOrPath"><code
+          <pre v-if="error.data.configExtract" :data-config-param="configParam"><code
             v-html="formatConfigExtract(error)"></code></pre>
           <p class="go-to-documentation" v-if="getTileDocUrl(error) !== undefined">
             <a :href="getTileDocUrl(error)" target="_blank">
@@ -94,7 +101,7 @@
           <p class="c-monitoror-errors--error-title">
             Missing required <code>{{error.data.fieldName}}</code> field
           </p>
-          <pre :data-config-path-or-url="configUrlOrPath"><code v-html="formatConfigExtract(error)"></code></pre>
+          <pre :data-config-param="configParam"><code v-html="formatConfigExtract(error)"></code></pre>
           <p class="go-to-documentation">
             <a href="https://monitoror.com/documentation/" target="_blank">
               Go to documentation
@@ -108,7 +115,7 @@
           <p>
             {{error.message}}
           </p>
-          <pre :data-config-path-or-url="configUrlOrPath"><code v-html="formatConfigExtract(error)"></code></pre>
+          <pre :data-config-param="configParam"><code v-html="formatConfigExtract(error)"></code></pre>
           <p class="go-to-documentation">
             <a href="https://monitoror.com/documentation/" target="_blank">
               Go to documentation
@@ -126,7 +133,7 @@
             Did you mean
             <code>{{guessExpectedFieldName(error.data.fieldName, splitList(error.data.expected))}}</code>?
           </p>
-          <pre :data-config-path-or-url="configUrlOrPath"><code v-html="formatConfigExtract(error)"></code></pre>
+          <pre :data-config-param="configParam"><code v-html="formatConfigExtract(error)"></code></pre>
           <p class="go-to-documentation">
             <a href="https://monitoror.com/documentation/" target="_blank">
               Go to documentation
@@ -145,7 +152,7 @@
             <code>{{guessExpectedValue(error.data.configExtract, error.data.fieldName,
               splitList(error.data.expected))}}</code>?
           </p>
-          <pre :data-config-path-or-url="configUrlOrPath"><code v-html="formatConfigExtract(error)"></code></pre>
+          <pre :data-config-param="configParam"><code v-html="formatConfigExtract(error)"></code></pre>
           <p class="go-to-documentation">
             <a href="https://monitoror.com/documentation/#tile-definitions" target="_blank">
               Go to <strong>Tile definitions</strong> documentation section
@@ -158,7 +165,7 @@
             <code>{{parsedExtractFieldValue(error.data.configExtractHighlight, 'type')}}</code>
             type as <code>GROUP</code> subtile
           </p>
-          <pre :data-config-path-or-url="configUrlOrPath"><code
+          <pre :data-config-param="configParam"><code
             v-html="ellipsisUnnecessaryParams(formatConfigExtract(error))"></code></pre>
         </template>
         <template v-else-if="error.id === ConfigErrorId.UnsupportedVersion">
@@ -194,7 +201,7 @@
           <p>
             {{error.id}}
           </p>
-          <pre :data-config-path-or-url="configUrlOrPath"><code
+          <pre :data-config-param="configParam"><code
             v-html="formatConfigExtract(error)"></code></pre>
         </template>
       </div>
@@ -229,8 +236,8 @@
       }
     }
 
-    get configUrlOrPath(): string {
-      return this.$store.getters.configUrl || decodeURIComponent(this.$store.getters.configPath)
+    get configParam(): string {
+      return this.$store.getters.configParam
     }
 
     get lastRefreshDate(): string {
@@ -337,9 +344,9 @@
       color: var(--color-spring-wood);
     }
 
-    pre[data-config-path-or-url] {
+    pre[data-config-param] {
       &::after {
-        content: "// " attr(data-config-path-or-url);
+        content: "// " attr(data-config-param);
         position: absolute;
         top: 30px;
         left: $error-padding;

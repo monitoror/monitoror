@@ -13,6 +13,7 @@ export enum ConfigErrorId {
   UnableToParseConfig = 'ERROR_UNABLE_TO_PARSE_CONFIG',
   UnexpectedError = 'ERROR_UNEXPECTED',
   UnknownField = 'ERROR_UNKNOWN_FIELD',
+  UnknownNamedConfig = 'ERROR_UNKNOWN_NAMED_CONFIG',
   UnknownTileType = 'ERROR_UNKNOWN_TILE_TYPE',
   UnknownVariant = 'ERROR_UNKNOWN_VARIANT',
   UnsupportedVersion = 'ERROR_UNSUPPORTED_VERSION',

@@ -31,21 +31,21 @@ import (
 
 func initConfigUsecase(repository config.Repository) *configUsecase {
 	s := &store.Store{
-		CoreConfig: &coreConfig.Config{InitialMaxDelay: 1000},
+		CoreConfig: &coreConfig.CoreConfig{InitialMaxDelay: 1000},
 		CacheStore: cache.NewGoCacheStore(time.Second, time.Second),
 		Registry:   registry.NewRegistry(),
 	}
 
 	usecase := NewConfigUsecase(repository, s).(*configUsecase)
 
-	usecase.registry.RegisterTile(pingApi.PingTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
-		Enable(coreModels.DefaultVariant, &pingModels.PingParams{}, "/ping/default/ping")
-	usecase.registry.RegisterTile(portApi.PortTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
-		Enable(coreModels.DefaultVariant, &portModels.PortParams{}, "/port/default/port")
-	usecase.registry.RegisterTile(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant, "disabledVariant"}).
-		Enable(coreModels.DefaultVariant, &jenkinsModels.BuildParams{}, "/jenkins/default/build")
-	usecase.registry.RegisterTile(pingdomApi.PingdomCheckTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariant}).
-		Enable(coreModels.DefaultVariant, &pindomModels.CheckParams{}, "/pingdom/default/check")
+	usecase.registry.RegisterTile(pingApi.PingTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariantName}).
+		Enable(coreModels.DefaultVariantName, &pingModels.PingParams{}, "/ping/default/ping")
+	usecase.registry.RegisterTile(portApi.PortTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariantName}).
+		Enable(coreModels.DefaultVariantName, &portModels.PortParams{}, "/port/default/port")
+	usecase.registry.RegisterTile(jenkinsApi.JenkinsBuildTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariantName, "disabledVariant"}).
+		Enable(coreModels.DefaultVariantName, &jenkinsModels.BuildParams{}, "/jenkins/default/build")
+	usecase.registry.RegisterTile(pingdomApi.PingdomCheckTileType, versions.MinimalVersion, []coreModels.VariantName{coreModels.DefaultVariantName}).
+		Enable(coreModels.DefaultVariantName, &pindomModels.CheckParams{}, "/pingdom/default/check")
 
 	return usecase
 }

@@ -68,6 +68,7 @@ const (
 	ConfigErrorUnexpectedError                   ConfigErrorID = "ERROR_UNEXPECTED"
 	ConfigErrorUnknownField                      ConfigErrorID = "ERROR_UNKNOWN_FIELD"
 	ConfigErrorUnknownGeneratorTileType          ConfigErrorID = "ERROR_UNKNOWN_GENERATOR_TILE_TYPE"
+	ConfigErrorUnknownNamedConfig                ConfigErrorID = "ERROR_UNKNOWN_NAMED_CONFIG"
 	ConfigErrorUnknownTileType                   ConfigErrorID = "ERROR_UNKNOWN_TILE_TYPE"
 	ConfigErrorUnknownVariant                    ConfigErrorID = "ERROR_UNKNOWN_VARIANT"
 	ConfigErrorUnsupportedVersion                ConfigErrorID = "ERROR_UNSUPPORTED_VERSION"

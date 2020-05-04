@@ -21,7 +21,7 @@ func TestNewMonitorableRouter(t *testing.T) {
 	monitorableRouter := NewMonitorableRouter(g, cacheMiddleware)
 	handler := func(context echo.Context) error { return nil }
 
-	routeGroup := monitorableRouter.Group("/test", coreModels.DefaultVariant)
+	routeGroup := monitorableRouter.Group("/test", coreModels.DefaultVariantName)
 	test1 := routeGroup.GET("/test1", handler)
 	test2 := routeGroup.GET("/test2", handler, options.WithNoCache())
 	test3 := routeGroup.GET("/test3", handler, options.WithCustomCacheExpiration(cache.NEVER))

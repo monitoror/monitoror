@@ -17,7 +17,7 @@ type (
 		Cli cli.CLI
 
 		// Global CoreConfig
-		CoreConfig *coreConfig.Config
+		CoreConfig *coreConfig.CoreConfig
 
 		// CacheStore for every memory persistent data
 		CacheStore cache.Store

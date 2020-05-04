@@ -41,19 +41,19 @@ func TestManager_EnableMonitorables(t *testing.T) {
 
 	mockMonitorable1 := &monitorableMock{
 		displayName:    "Monitorable mock 1",
-		variants:       []coreModels.VariantName{coreModels.DefaultVariant},
+		variants:       []coreModels.VariantName{coreModels.DefaultVariantName},
 		validateBool:   true,
 		validateErrors: nil,
 	}
 	mockMonitorable2 := &monitorableMock{
 		displayName:    "Monitorable mock 2 (faker)",
-		variants:       []coreModels.VariantName{coreModels.DefaultVariant},
+		variants:       []coreModels.VariantName{coreModels.DefaultVariantName},
 		validateBool:   false,
 		validateErrors: []error{errors.New("boom"), errors.New("boom2")},
 	}
 
 	manager := NewMonitorableManager(&store.Store{
-		CoreConfig: &config.Config{
+		CoreConfig: &config.CoreConfig{
 			Env: "production",
 		},
 		Cli: cliMock,

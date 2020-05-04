@@ -5,6 +5,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/monitoror/monitoror/internal/pkg/env"
 	"github.com/monitoror/monitoror/models"
 
 	"github.com/fatih/structs"
@@ -36,12 +37,17 @@ func LoadConfigWithVariant(envPrefix string, defaultVariantName models.VariantNa
 	v.SetEnvPrefix(envPrefix)
 	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
-	// Transform Env and define Label for setting default value
-	variantNames := initEnvAndVariant(envPrefix, defaultVariantName, unboxedDefaultConfigType)
+	variantNames := make(map[string]bool)
+	for _, field := range structs.Fields(defaultConf) {
+		// Init env default variant name
+		for k, v := range env.InitEnvDefaultLabel(envPrefix, strings.ToUpper(field.Name()), string(defaultVariantName)) {
+			variantNames[k] = v
+		}
+	}
 
 	// Setup default value
-	for variantName := range variantNames {
-		for _, field := range structs.Fields(defaultConf) {
+	for _, field := range structs.Fields(defaultConf) {
+		for variantName := range variantNames {
 			v.SetDefault(fmt.Sprintf("%s.%s", variantName, field.Name()), field.Value())
 		}
 	}

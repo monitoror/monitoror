@@ -47,7 +47,7 @@ func TestGetVariantsNames(t *testing.T) {
 
 func TestBuildMonitorableEnvKey(t *testing.T) {
 	assert.Equal(t, "MO_MONITORABLE_PING_TEST_TEST", buildMonitorableEnvKey(pingConfig.Default, "test", "test"))
-	assert.Equal(t, "MO_MONITORABLE_PING_TEST", buildMonitorableEnvKey(pingConfig.Default, coreModels.DefaultVariant, "test"))
+	assert.Equal(t, "MO_MONITORABLE_PING_TEST", buildMonitorableEnvKey(pingConfig.Default, coreModels.DefaultVariantName, "test"))
 	assert.Panics(t, func() {
 		buildMonitorableEnvKey("test", "test", "test")
 	})
