@@ -6,9 +6,12 @@
     <template v-else-if="hasErrors">
       <div class="c-monitoror-errors--config-info">
         <div class="c-monitoror-errors-title" v-if="hasConfigVerifyErrors">
-          We found {{errors.length}} error{{errors.length > 1 ? 's' : ''}} in this configuration file:
+          We found {{errors.length}} error{{errors.length > 1 ? 's' : ''}}
+          <template v-if="configParam !== undefined">
+            in this configuration:
+          </template>
         </div>
-        <template v-if="configParam !== 'undefined'">
+        <template v-if="configParam !== undefined">
           <code>{{configParam}}</code> <br><br>
         </template>
         Last refresh at {{lastRefreshDate}}
@@ -22,13 +25,27 @@
             Monitoror Core seems down
           </p>
           <p>
-            Is there a Monitoror Core running at <code>{{ apiBaseUrl }}</code>?<br>
+            Is there a Monitoror Core running at <code>{{apiBaseUrl}}</code>?<br>
             Configuration cannot be fetch
           </p>
         </template>
         <template v-else-if="error.id === ConfigErrorId.ConfigNotFound">
           <p class="c-monitoror-errors--error-title">
             Your configuration URL or path seems broken, please verify it
+          </p>
+        </template>
+        <template v-else-if="error.id === ConfigErrorId.UnknownNamedConfig">
+          <p class="c-monitoror-errors--error-title">
+            <code>{{error.data.value}}</code> named configuration cannot be found
+          </p>
+          <p v-if="error.data.expected">
+            Must be one of:
+            <template v-for="(namedConfig, index) in splitList(error.data.expected)">
+              <code>{{namedConfig}}</code><template v-if="index !== splitList(error.data.expected).length - 1">, </template>
+            </template>
+          </p>
+          <p v-else>
+            You must give a UI configuration via <code>config</code> query parameter in order to use Monitoror
           </p>
         </template>
 
