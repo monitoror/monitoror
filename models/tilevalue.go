@@ -16,6 +16,13 @@ const (
 	RawUnit         TileValuesUnit = "RAW"         // String
 )
 
+var AvailableTileValuesUnit = map[TileValuesUnit]bool{
+	MillisecondUnit: true,
+	RatioUnit:       true,
+	NumberUnit:      true,
+	RawUnit:         true,
+}
+
 func (t *Tile) WithValue(unit TileValuesUnit) *Tile {
 	t.Value = &TileValue{
 		Values: []string{},

@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/AlekSi/pointer"
+
 	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/http/api"
 	"github.com/monitoror/monitoror/monitorables/http/api/models"
@@ -41,19 +43,86 @@ func NewHTTPUsecase(repository api.Repository, store cache.Store, cacheExpiratio
 }
 
 func (hu *httpUsecase) HTTPStatus(params *models.HTTPStatusParams) (*coreModels.Tile, error) {
-	return hu.httpAll(api.HTTPStatusTileType, params)
+	return hu.http(api.HTTPStatusTileType, params)
 }
 
 func (hu *httpUsecase) HTTPRaw(params *models.HTTPRawParams) (*coreModels.Tile, error) {
-	return hu.httpAll(api.HTTPRawTileType, params)
+	return hu.http(api.HTTPRawTileType, params)
 }
 
 func (hu *httpUsecase) HTTPFormatted(params *models.HTTPFormattedParams) (*coreModels.Tile, error) {
-	return hu.httpAll(api.HTTPFormattedTileType, params)
+	return hu.http(api.HTTPFormattedTileType, params)
 }
 
-// httpAll handle all http usecase by checking if params match interfaces listed in coreModels.params
-func (hu *httpUsecase) httpAll(tileType coreModels.TileType, params models.GenericParamsProvider) (*coreModels.Tile, error) {
+func (hu *httpUsecase) HTTPProxy(params *models.HTTPProxyParams) (*coreModels.Tile, error) {
+	tile := coreModels.NewTile(api.HTTPProxyTileType)
+
+	// Download page
+	response, err := hu.repository.Get(params.URL)
+	if err != nil {
+		return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: fmt.Sprintf(`unable to get "%s"`, params.URL)}
+	}
+
+	// Check Status
+	if response.StatusCode < 200 || response.StatusCode > 399 {
+		return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: fmt.Sprintf("wrong status code for %s", params.URL)}
+	}
+
+	// Parse result into tile
+	err = json.Unmarshal(response.Body, tile)
+	if err != nil {
+		return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: fmt.Sprintf(`unable to parse "%s" into tile structure`, params.URL)}
+	}
+
+	// Override tile type
+	tile.Type = api.HTTPProxyTileType
+
+	// Content check
+	// Status
+	if ok := coreModels.AvailableTileStatuses[tile.Status]; !ok {
+		return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: fmt.Sprintf(`unauthorized tile.status: "%s"`, tile.Status)}
+	}
+
+	// Value and Build
+	if tile.Value != nil && tile.Build != nil {
+		return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: "tile.value and tile.build are exclusive"}
+	}
+
+	// Value
+	if tile.Value != nil {
+		if ok := coreModels.AvailableTileValuesUnit[tile.Value.Unit]; !ok {
+			return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: fmt.Sprintf(`unauthorized tile.value.unit: "%s"`, tile.Value.Unit)}
+		}
+
+		if len(tile.Value.Values) == 0 {
+			return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: "unauthorized empty tile.value.values"}
+		}
+	}
+
+	// Build
+	if (tile.Status == coreModels.RunningStatus) && tile.Build == nil {
+		return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: fmt.Sprintf(`unauthorized empty tile.build with "%s" tile.status`, tile.Status)}
+	}
+
+	if tile.Build != nil {
+		if tile.Status == coreModels.RunningStatus && tile.Build.Duration == nil {
+			return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: fmt.Sprintf(`unauthorized empty tile.build.duration with "%s" tile.status`, tile.Status)}
+		}
+
+		if tile.Status == coreModels.RunningStatus && tile.Build.EstimatedDuration == nil {
+			tile.Build.EstimatedDuration = pointer.ToInt64(int64(0))
+		}
+
+		if tile.Build.PreviousStatus == "" {
+			tile.Build.PreviousStatus = coreModels.UnknownStatus
+		}
+	}
+
+	return tile, nil
+}
+
+// http handle all http usecase by checking if params match interfaces listed in coreModels.params
+func (hu *httpUsecase) http(tileType coreModels.TileType, params models.GenericParamsProvider) (*coreModels.Tile, error) {
 	tile := coreModels.NewTile(tileType)
 	tile.Label = params.GetURL()
 	tile.Status = coreModels.SuccessStatus

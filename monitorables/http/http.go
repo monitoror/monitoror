@@ -25,6 +25,7 @@ type Monitorable struct {
 	statusTileEnabler    registry.TileEnabler
 	rawTileEnabler       registry.TileEnabler
 	formattedTileEnabler registry.TileEnabler
+	proxyTileEnabler     registry.TileEnabler
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
@@ -39,6 +40,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	m.statusTileEnabler = store.Registry.RegisterTile(api.HTTPStatusTileType, versions.MinimalVersion, m.GetVariantsNames())
 	m.rawTileEnabler = store.Registry.RegisterTile(api.HTTPRawTileType, versions.MinimalVersion, m.GetVariantsNames())
 	m.formattedTileEnabler = store.Registry.RegisterTile(api.HTTPFormattedTileType, versions.MinimalVersion, m.GetVariantsNames())
+	m.proxyTileEnabler = store.Registry.RegisterTile(api.HTTPProxyTileType, versions.MinimalVersion, m.GetVariantsNames())
 
 	return m
 }
@@ -74,9 +76,11 @@ func (m *Monitorable) Enable(variantName coreModels.VariantName) {
 	routeStatus := routeGroup.GET("/status", delivery.GetHTTPStatus)
 	routeRaw := routeGroup.GET("/raw", delivery.GetHTTPRaw)
 	routeJSON := routeGroup.GET("/formatted", delivery.GetHTTPFormatted)
+	routeProxy := routeGroup.GET("/proxy", delivery.GetHTTPProxy)
 
 	// EnableTile data for config hydration
 	m.statusTileEnabler.Enable(variantName, &httpModels.HTTPStatusParams{}, routeStatus.Path)
 	m.rawTileEnabler.Enable(variantName, &httpModels.HTTPRawParams{}, routeRaw.Path)
 	m.formattedTileEnabler.Enable(variantName, &httpModels.HTTPFormattedParams{}, routeJSON.Path)
+	m.proxyTileEnabler.Enable(variantName, &httpModels.HTTPProxyParams{}, routeProxy.Path)
 }

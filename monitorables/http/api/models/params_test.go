@@ -40,9 +40,12 @@ func TestHTTPParams(t *testing.T) {
 		{&HTTPFormattedParams{URL: "http://example.com", Format: "JSON", Key: "key", StatusCodeMin: pointer.ToInt(299), StatusCodeMax: pointer.ToInt(300)}, 0},
 		{&HTTPFormattedParams{URL: "http://example.com", Format: "JSON", Key: "key", Regex: "("}, 1},
 		{&HTTPFormattedParams{URL: "http://example.com", Format: "JSON", Key: "key", Regex: "(.*)"}, 0},
+
+		{&HTTPProxyParams{URL: ""}, 1},
+		{&HTTPProxyParams{URL: "http://example.com"}, 0},
 	} {
 		test.AssertParams(t, testcase.params, testcase.errorCount)
-		if testcase.errorCount == 0 {
+		if _, ok := testcase.params.(GenericParamsProvider); ok && testcase.errorCount == 0 {
 			assert.NotEmpty(t, testcase.params.(GenericParamsProvider).GetURL())
 		}
 	}

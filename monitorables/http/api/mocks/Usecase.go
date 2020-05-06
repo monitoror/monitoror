@@ -36,6 +36,29 @@ func (_m *Usecase) HTTPFormatted(params *models.HTTPFormattedParams) (*monitoror
 	return r0, r1
 }
 
+// HTTPProxy provides a mock function with given fields: params
+func (_m *Usecase) HTTPProxy(params *models.HTTPProxyParams) (*monitorormodels.Tile, error) {
+	ret := _m.Called(params)
+
+	var r0 *monitorormodels.Tile
+	if rf, ok := ret.Get(0).(func(*models.HTTPProxyParams) *monitorormodels.Tile); ok {
+		r0 = rf(params)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*monitorormodels.Tile)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*models.HTTPProxyParams) error); ok {
+		r1 = rf(params)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // HTTPRaw provides a mock function with given fields: params
 func (_m *Usecase) HTTPRaw(params *models.HTTPRawParams) (*monitorormodels.Tile, error) {
 	ret := _m.Called(params)

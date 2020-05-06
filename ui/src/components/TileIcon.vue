@@ -81,6 +81,7 @@
         TileType.HttpStatus,
         TileType.HttpRaw,
         TileType.HttpFormatted,
+        TileType.HttpProxy,
       ].includes(this.tileType)
     }
 

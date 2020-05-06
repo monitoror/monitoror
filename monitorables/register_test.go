@@ -40,6 +40,7 @@ func TestManager_RegisterMonitorables(t *testing.T) {
 	assert.NotNil(t, mr.TileMetadata[httpApi.HTTPStatusTileType])
 	assert.NotNil(t, mr.TileMetadata[httpApi.HTTPRawTileType])
 	assert.NotNil(t, mr.TileMetadata[httpApi.HTTPFormattedTileType])
+	assert.NotNil(t, mr.TileMetadata[httpApi.HTTPProxyTileType])
 	// ------------ JENKINS ------------
 	assert.NotNil(t, mr.TileMetadata[jenkinsApi.JenkinsBuildTileType])
 	assert.NotNil(t, mr.GeneratorMetadata[coreModels.NewGeneratorTileType(jenkinsApi.JenkinsBuildTileType)])
