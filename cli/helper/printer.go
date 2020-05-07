@@ -214,7 +214,7 @@ func (mi *monitorableInfo) StringifyEnabledVariants() string {
 			if v.VariantName == string(coreModels.DefaultVariantName) {
 				strDefault = fmt.Sprintf("%s, ", v.VariantName)
 			} else {
-				variantsWithoutDefault = append(variantsWithoutDefault, string(v.VariantName))
+				variantsWithoutDefault = append(variantsWithoutDefault, v.VariantName)
 			}
 		}
 		if len(variantsWithoutDefault) > 0 {

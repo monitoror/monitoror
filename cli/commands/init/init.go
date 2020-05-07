@@ -23,7 +23,7 @@ func NewInitCommand(monitororCli *cli.MonitororCli) *cobra.Command {
 	return cmd
 }
 
-func runInit(defaultFilePath string, monitororCli *cli.MonitororCli) error {
+func runInit(defaultFilePath string, _ *cli.MonitororCli) error {
 	// Remove LocateAppend and LocateFS because we don't use it and it cause tests issue
 	riceConfig := rice.Config{
 		LocateOrder: []rice.LocateMethod{rice.LocateEmbedded},
