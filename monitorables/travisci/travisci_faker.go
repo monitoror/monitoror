@@ -33,7 +33,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	return m
 }
 
-func (m *Monitorable) GetDisplayName() string { return "Travis CI (faker)" }
+func (m *Monitorable) GetDisplayName() string { return "Travis CI" }
 
 func (m *Monitorable) Enable(variantName coreModels.VariantName) {
 	usecase := travisciUsecase.NewTravisCIUsecase()

@@ -35,7 +35,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 }
 
 func (m *Monitorable) GetDisplayName() string {
-	return "Azure DevOps (faker)"
+	return "Azure DevOps"
 }
 
 func (m *Monitorable) Enable(variantName coreModels.VariantName) {

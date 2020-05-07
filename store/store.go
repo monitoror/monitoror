@@ -4,7 +4,6 @@ import (
 	"github.com/jsdidierlaurent/echo-middleware/cache"
 
 	coreConfig "github.com/monitoror/monitoror/config"
-	pkgMonitorable "github.com/monitoror/monitoror/internal/pkg/monitorable"
 	"github.com/monitoror/monitoror/registry"
 	"github.com/monitoror/monitoror/service/router"
 )
@@ -23,8 +22,5 @@ type (
 
 		// MonitorableRouter helper wrapping echo Router monitorable
 		MonitorableRouter router.MonitorableRouter
-
-		// MonitorableMetadata store data to print startup log
-		MonitorableMetadata []pkgMonitorable.Metadata
 	}
 )

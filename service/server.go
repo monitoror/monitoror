@@ -48,7 +48,7 @@ func Init(store *store.Store) *Server {
 }
 
 func (s *Server) Start() error {
-	return s.Echo.Start(fmt.Sprintf(":%d", s.store.CoreConfig.Port))
+	return s.Echo.Start(fmt.Sprintf("%s:%d", s.store.CoreConfig.Address, s.store.CoreConfig.Port))
 }
 
 func (s *Server) setupEchoServer() {
@@ -65,7 +65,7 @@ func (s *Server) setupEchoMiddleware() {
 	s.Use(echoMiddleware.Recover())
 
 	// Log requests
-	if s.store.CoreConfig.Env != "production" {
+	if s.store.CoreConfig.Debug {
 		s.Use(echoMiddleware.LoggerWithConfig(echoMiddleware.LoggerConfig{
 			Format: `[-] ` + colorer.Green("${method}") + ` ${uri} status:${status} latency:` + colorer.Green("${latency_human}") + ` error:"${error}"` + "\n",
 		}))

@@ -16,6 +16,22 @@ type Registry struct {
 	mock.Mock
 }
 
+// GetMonitorables provides a mock function with given fields:
+func (_m *Registry) GetMonitorables() []*registry.MonitorableMetadata {
+	ret := _m.Called()
+
+	var r0 []*registry.MonitorableMetadata
+	if rf, ok := ret.Get(0).(func() []*registry.MonitorableMetadata); ok {
+		r0 = rf()
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]*registry.MonitorableMetadata)
+		}
+	}
+
+	return r0
+}
+
 // RegisterGenerator provides a mock function with given fields: generatedTileType, minimalVersion, variantNames
 func (_m *Registry) RegisterGenerator(generatedTileType models.TileType, minimalVersion versions.RawVersion, variantNames []models.VariantName) registry.GeneratorEnabler {
 	ret := _m.Called(generatedTileType, minimalVersion, variantNames)
@@ -30,6 +46,11 @@ func (_m *Registry) RegisterGenerator(generatedTileType models.TileType, minimal
 	}
 
 	return r0
+}
+
+// RegisterMonitorable provides a mock function with given fields: monitorable
+func (_m *Registry) RegisterMonitorable(monitorable models.Monitorable) {
+	_m.Called(monitorable)
 }
 
 // RegisterTile provides a mock function with given fields: tileType, minimalVersion, variantNames

@@ -37,7 +37,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	return m
 }
 
-func (m *Monitorable) GetDisplayName() string { return "HTTP (faker)" }
+func (m *Monitorable) GetDisplayName() string { return "HTTP" }
 
 func (m *Monitorable) Enable(variantName coreModels.VariantName) {
 	usecase := httpUsecase.NewHTTPUsecase()

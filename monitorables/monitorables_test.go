@@ -23,8 +23,7 @@ func TestManager_RegisterMonitorables(t *testing.T) {
 	store, _ := test.InitMockAndStore()
 	store.Registry = registry.NewRegistry()
 
-	manager := &Manager{store: store}
-	manager.RegisterMonitorables()
+	RegisterMonitorables(store)
 
 	mr := store.Registry.(*registry.MetadataRegistry)
 

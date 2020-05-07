@@ -38,7 +38,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 }
 
 func (m *Monitorable) GetDisplayName() string {
-	return "GitHub (faker)"
+	return "GitHub"
 }
 
 func (m *Monitorable) Enable(variantName coreModels.VariantName) {

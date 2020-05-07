@@ -33,7 +33,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	return m
 }
 
-func (m *Monitorable) GetDisplayName() string { return "Jenkins (faker)" }
+func (m *Monitorable) GetDisplayName() string { return "Jenkins" }
 
 func (m *Monitorable) Enable(variantName coreModels.VariantName) {
 	usecase := jenkinsUsecase.NewJenkinsUsecase()

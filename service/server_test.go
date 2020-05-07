@@ -16,7 +16,7 @@ import (
 
 func TestInit_Dev(t *testing.T) {
 	s := &store.Store{
-		CoreConfig: &config.CoreConfig{Env: "develop"},
+		CoreConfig: &config.CoreConfig{DisableUI: true, Debug: true},
 		Registry:   registry.NewRegistry(),
 	}
 
@@ -27,7 +27,7 @@ func TestInit_Dev(t *testing.T) {
 
 func TestInit_Prod_WithoutRicebox(t *testing.T) {
 	s := &store.Store{
-		CoreConfig: &config.CoreConfig{Env: "production"},
+		CoreConfig: &config.CoreConfig{DisableUI: false},
 		Registry:   registry.NewRegistry(),
 	}
 
@@ -39,7 +39,7 @@ func TestInit_Prod_WithoutRicebox(t *testing.T) {
 
 func TestInit_Prod_WithRicebox(t *testing.T) {
 	s := &store.Store{
-		CoreConfig: &config.CoreConfig{Env: "production"},
+		CoreConfig: &config.CoreConfig{DisableUI: false},
 		Registry:   registry.NewRegistry(),
 	}
 

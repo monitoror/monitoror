@@ -31,7 +31,13 @@ func InitApis(s *Server) {
 	// ---------------------------------- //
 
 	// ------------- MONITORABLES ------------- //
-	monitorableManager := monitorables.NewMonitorableManager(s.store)
-	monitorableManager.RegisterMonitorables()
-	monitorableManager.EnableMonitorables()
+	monitorables.RegisterMonitorables(s.store)
+
+	for _, mm := range s.store.Registry.GetMonitorables() {
+		for _, vm := range mm.VariantsMetadata {
+			if vm.Enabled {
+				mm.Monitorable.Enable(vm.VariantName)
+			}
+		}
+	}
 }
