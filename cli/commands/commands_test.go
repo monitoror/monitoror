@@ -15,5 +15,6 @@ func TestAddCommands(t *testing.T) {
 
 	AddCommands(cli)
 
-	assert.Equal(t, "version", command.Commands()[0].Use)
+	assert.Equal(t, "init", command.Commands()[0].Use)
+	assert.Equal(t, "version", command.Commands()[1].Use)
 }
