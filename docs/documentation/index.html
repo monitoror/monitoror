@@ -1329,6 +1329,8 @@ chmod +x monitoror
           Match or first group will be show in tile. <br>
           Regex format is RE2, described at <a href="https://golang.org/s/re2syntax">https://golang.org/s/re2syntax</a>
           <br>
+          <span class="tag">Note:</span> Regex must be JSON-escaped
+          <br>
           <span class="tag">Default:</span> <code>.*</code>
         </dd>
       </dl>
@@ -1427,6 +1429,8 @@ chmod +x monitoror
         <dd>
           Match or first group will be show in tile. <br>
           Regex format is RE2, described at <a href="https://golang.org/s/re2syntax">https://golang.org/s/re2syntax</a>
+          <br>
+          <span class="tag">Note:</span> Regex must be JSON-escaped
           <br>
           <span class="tag">Default:</span> <code>.*</code>
         </dd>
@@ -1633,20 +1637,23 @@ chmod +x monitoror
 
         <dt><code>match</code> <code class="type">string</code></dt>
         <dd>
-          Filter branch names with a regex (whitelist)<br>
-          Regex format is RE2, described at <a href="https://golang.org/s/re2syntax">https://golang.org/s/re2syntax</a>
+          Filter branch names with a regex (whitelist)
         </dd>
 
         <dt><code>unmatch</code> <code class="type">string</code></dt>
         <dd>
-          Inverted regex filter based on branch names (blacklist)<br>
-          Regex format is RE2, described at <a href="https://golang.org/s/re2syntax">https://golang.org/s/re2syntax</a>
+          Inverted regex filter based on branch names (blacklist)
         </dd>
       </dl>
 
       <div class="note">
         <span class="tag">Note</span>
         <code>match</code> and <code>unmatch</code> options cannot be used at the same time.
+      </div>
+      <div class="note">
+        <span class="tag">Note</span>
+        Regex format is RE2, described at <a href="https://golang.org/s/re2syntax">https://golang.org/s/re2syntax</a>,
+        and must be JSON-escaped
       </div>
 
       <pre class="example"><code class="language-json">
