@@ -1,4 +1,4 @@
-package helper
+package printer
 
 import (
 	"bytes"
@@ -59,7 +59,7 @@ Monitoror is running at:
 
 `
 
-	assert.NoError(t, PrintMonitororStartupLog(monitororCli))
+	assert.NoError(t, PrintStartupLog(monitororCli))
 	assert.Equal(t, expected, output.String())
 }
 
@@ -106,7 +106,7 @@ Monitoror is running at:
 
 `
 
-	assert.NoError(t, PrintMonitororStartupLog(monitororCli))
+	assert.NoError(t, PrintStartupLog(monitororCli))
 	assert.Equal(t, expected, output.String())
 }
 
@@ -133,7 +133,7 @@ Monitoror is running at:
   http://localhost:3000
   http://`
 
-	assert.NoError(t, PrintMonitororStartupLog(monitororCli))
+	assert.NoError(t, PrintStartupLog(monitororCli))
 	assert.True(t, strings.HasPrefix(output.String(), expected))
 }
 
@@ -189,7 +189,7 @@ Monitoror is running at:
 
 `
 
-	assert.NoError(t, PrintMonitororStartupLog(monitororCli))
+	assert.NoError(t, PrintStartupLog(monitororCli))
 	assert.Equal(t, expected, output.String())
 }
 
@@ -243,7 +243,7 @@ Monitoror is running at:
 
 `
 
-	assert.NoError(t, PrintMonitororStartupLog(monitororCli))
+	assert.NoError(t, PrintStartupLog(monitororCli))
 	assert.Equal(t, expected, output.String())
 }
 
@@ -282,7 +282,7 @@ Monitoror is running at:
 
 `
 
-	assert.NoError(t, PrintMonitororStartupLog(monitororCli))
+	assert.NoError(t, PrintStartupLog(monitororCli))
 	assert.Equal(t, expected, output.String())
 }
 

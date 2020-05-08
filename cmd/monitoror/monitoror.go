@@ -8,7 +8,7 @@ import (
 
 	"github.com/monitoror/monitoror/cli"
 	"github.com/monitoror/monitoror/cli/commands"
-	"github.com/monitoror/monitoror/cli/helper"
+	"github.com/monitoror/monitoror/cli/printer"
 	"github.com/monitoror/monitoror/cli/version"
 	"github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/registry"
@@ -30,7 +30,7 @@ func newMonitororRootCommand(monitororCli *cli.MonitororCli) {
 			// Init Service
 			server := service.Init(monitororCli.Store)
 
-			if err := helper.PrintMonitororStartupLog(monitororCli); err != nil {
+			if err := printer.PrintStartupLog(monitororCli); err != nil {
 				return err
 			}
 			return server.Start()

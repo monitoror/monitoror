@@ -1,4 +1,4 @@
-package helper
+package printer
 
 import (
 	"fmt"
@@ -14,7 +14,7 @@ import (
 	"github.com/monitoror/monitoror/pkg/templates"
 )
 
-var monitororTemplate = `
+var startupTemplate = `
     __  ___            _ __
    /  |/  /___  ____  (_) /_____  _________  _____
   / /|_/ / __ \/ __ \/ / __/ __ \/ ___/ __ \/ ___/
@@ -75,7 +75,7 @@ Monitoror is running at:
 `
 
 type (
-	monitororInfo struct {
+	startupInfo struct {
 		Version       string // From ldflags
 		BuildTags     string // From ldflagsl
 		LookupPort    int    // From .env
@@ -106,11 +106,11 @@ var parsedTemplate *template.Template
 
 func init() {
 	// Print this error when you want to debug template
-	parsedTemplate, _ = templates.New("monitoror").Parse(monitororTemplate)
+	parsedTemplate, _ = templates.New("monitoror").Parse(startupTemplate)
 }
 
-func PrintMonitororStartupLog(monitororCli *cli.MonitororCli) error {
-	monitororInfo := &monitororInfo{
+func PrintStartupLog(monitororCli *cli.MonitororCli) error {
+	monitororInfo := &startupInfo{
 		Version:       version.Version,
 		BuildTags:     version.BuildTags,
 		DisableUI:     monitororCli.Store.CoreConfig.DisableUI,
@@ -162,7 +162,7 @@ func sortNamedConfigs(namedConfigs []namedConfigInfo) []namedConfigInfo {
 	return namedConfigs
 }
 
-func (mi *monitororInfo) DocumentationVersion() string {
+func (mi *startupInfo) DocumentationVersion() string {
 	if !strings.HasSuffix(mi.Version, "-dev") {
 		return ""
 	}
@@ -173,7 +173,7 @@ func (mi *monitororInfo) DocumentationVersion() string {
 	return documentationVersion
 }
 
-func (mi *monitororInfo) DisabledMonitorableCount() int {
+func (mi *startupInfo) DisabledMonitorableCount() int {
 	disabledMonitorableCount := 0
 	for _, m := range mi.Monitorables {
 		if m.IsDisabled() {
@@ -183,7 +183,7 @@ func (mi *monitororInfo) DisabledMonitorableCount() int {
 	return disabledMonitorableCount
 }
 
-func (mi *monitororInfo) DisplayedAddresses() []string {
+func (mi *startupInfo) DisplayedAddresses() []string {
 	var adressess []string
 
 	if mi.LookupAddress != "" {
