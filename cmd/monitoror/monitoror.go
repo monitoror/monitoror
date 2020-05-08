@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/monitoror/monitoror/cli"
@@ -11,6 +10,7 @@ import (
 	"github.com/monitoror/monitoror/cli/printer"
 	"github.com/monitoror/monitoror/cli/version"
 	"github.com/monitoror/monitoror/config"
+	"github.com/monitoror/monitoror/internal/pkg/path"
 	"github.com/monitoror/monitoror/registry"
 	"github.com/monitoror/monitoror/service"
 	"github.com/monitoror/monitoror/store"
@@ -58,9 +58,8 @@ func main() {
 	log.SetLevel(log.INFO)
 
 	// Load .env
-	dir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
 	_ = godotenv.Load(".env")
-	_ = godotenv.Load(filepath.Join(dir, ".env"))
+	_ = godotenv.Load(path.ToAbsolute(path.MonitororBaseDir, ".env"))
 
 	// Setup Store
 	store := &store.Store{

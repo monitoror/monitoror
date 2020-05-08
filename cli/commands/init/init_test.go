@@ -41,7 +41,7 @@ func TestRunInit(t *testing.T) {
 	if assert.NoError(t, err) {
 		defer os.RemoveAll(tmpDir)
 
-		assert.NoError(t, runInit(tmpDir, monitororCli))
+		assert.NoError(t, runInit(monitororCli, tmpDir))
 		files, err := ioutil.ReadDir(tmpDir)
 		assert.NoError(t, err)
 		assert.Len(t, files, 2)

@@ -2,29 +2,27 @@ package init
 
 import (
 	"io/ioutil"
-	"path"
 	"strings"
 
 	"github.com/monitoror/monitoror/cli"
+	"github.com/monitoror/monitoror/internal/pkg/path"
 
 	rice "github.com/GeertJohan/go.rice"
 	"github.com/spf13/cobra"
 )
-
-const DefaultFilePath = "."
 
 func NewInitCommand(monitororCli *cli.MonitororCli) *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "init",
 		Short: "Init monitoror with default config.json and .env",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			return runInit(DefaultFilePath, monitororCli)
+			return runInit(monitororCli, path.MonitororBaseDir)
 		},
 	}
 	return cmd
 }
 
-func runInit(defaultFilePath string, _ *cli.MonitororCli) error {
+func runInit(_ *cli.MonitororCli, basedir string) error {
 	// Remove LocateAppend and LocateFS because we don't use it and it cause tests issue
 	riceConfig := rice.Config{
 		LocateOrder: []rice.LocateMethod{rice.LocateEmbedded},
@@ -36,12 +34,12 @@ func runInit(defaultFilePath string, _ *cli.MonitororCli) error {
 	}
 
 	// Create defautl config.json
-	_ = ioutil.WriteFile(path.Join(defaultFilePath, "config.json"), defaultFiles.MustBytes("config-example.json"), 0644)
+	_ = ioutil.WriteFile(path.ToAbsolute(basedir, "config.json"), defaultFiles.MustBytes("config-example.json"), 0644)
 
 	// Create default .env
 	dotEnv := defaultFiles.MustString(".env.example")
 	dotEnv = strings.Replace(dotEnv, "config-example.json", "config.json", 1)
-	_ = ioutil.WriteFile(path.Join(defaultFilePath, ".env"), []byte(dotEnv), 0644)
+	_ = ioutil.WriteFile(path.ToAbsolute(basedir, ".env"), []byte(dotEnv), 0644)
 
 	return nil
 }

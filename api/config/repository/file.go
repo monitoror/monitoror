@@ -4,12 +4,14 @@ import (
 	"os"
 
 	"github.com/monitoror/monitoror/api/config/models"
+	"github.com/monitoror/monitoror/internal/pkg/path"
 )
 
-func (cr *configRepository) GetConfigFromPath(path string) (config *models.Config, err error) {
-	file, err := os.Open(path)
+func (cr *configRepository) GetConfigFromPath(baseDir, filePath string) (config *models.Config, err error) {
+	filePath = path.ToAbsolute(baseDir, filePath)
+	file, err := os.Open(filePath)
 	if err != nil {
-		return nil, &models.ConfigFileNotFoundError{Err: err, PathOrURL: path}
+		return nil, &models.ConfigFileNotFoundError{Err: err, PathOrURL: filePath}
 	}
 	defer file.Close()
 

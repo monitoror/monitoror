@@ -9,6 +9,7 @@ import (
 	"github.com/monitoror/monitoror/api/config/versions"
 	coreConfig "github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/internal/pkg/api/config"
+	"github.com/monitoror/monitoror/internal/pkg/path"
 	"github.com/monitoror/monitoror/internal/pkg/validator/validate"
 
 	"github.com/fatih/structs"
@@ -65,7 +66,7 @@ func (cu *configUsecase) GetConfig(params *models.ConfigParams) *models.ConfigBa
 			if urlRegex.MatchString(namedConfig) {
 				configBag.Config, err = cu.repository.GetConfigFromURL(namedConfig)
 			} else {
-				configBag.Config, err = cu.repository.GetConfigFromPath(namedConfig)
+				configBag.Config, err = cu.repository.GetConfigFromPath(path.MonitororBaseDir, namedConfig)
 			}
 		} else {
 			message := fmt.Sprintf(`Unknown %q named config. No named configuration found.`, params.Config)

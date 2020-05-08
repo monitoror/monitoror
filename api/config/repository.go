@@ -8,7 +8,7 @@ import (
 
 type (
 	Repository interface {
-		GetConfigFromURL(string) (*models.Config, error)
-		GetConfigFromPath(string) (*models.Config, error)
+		GetConfigFromURL(url string) (*models.Config, error)
+		GetConfigFromPath(baseDir, filePath string) (*models.Config, error)
 	}
 )

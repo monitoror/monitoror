@@ -21,7 +21,7 @@ func TestConfigRepository_GetConfigFromPath(t *testing.T) {
 		_, _ = tmpFile.WriteString("{}")
 
 		repository := NewConfigRepository()
-		_, err := repository.GetConfigFromPath(tmpFile.Name())
+		_, err := repository.GetConfigFromPath("", tmpFile.Name())
 		assert.NoError(t, err)
 	}
 }
@@ -33,7 +33,7 @@ func TestConfigRepository_UnableToParse(t *testing.T) {
 		_, _ = tmpFile.WriteString("xxxxxx")
 
 		repository := NewConfigRepository()
-		_, err := repository.GetConfigFromPath(tmpFile.Name())
+		_, err := repository.GetConfigFromPath("", tmpFile.Name())
 		assert.Error(t, err)
 		assert.Equal(t, "xxxxxx", err.(*models.ConfigUnmarshalError).RawConfig)
 	}
@@ -41,6 +41,7 @@ func TestConfigRepository_UnableToParse(t *testing.T) {
 
 func TestConfigRepository_GetConfigFromPath_MissingFile(t *testing.T) {
 	repository := NewConfigRepository()
-	_, err := repository.GetConfigFromPath("monitoror-missing-file")
+	_, err := repository.GetConfigFromPath("/test", "monitoror-missing-file")
 	assert.Error(t, err)
+	assert.Equal(t, "Config not found at: /test/monitoror-missing-file, open /test/monitoror-missing-file: no such file or directory", err.Error())
 }
