@@ -3,6 +3,7 @@ package init
 import (
 	"io/ioutil"
 	"path"
+	"strings"
 
 	"github.com/monitoror/monitoror/cli"
 
@@ -34,8 +35,13 @@ func runInit(defaultFilePath string, _ *cli.MonitororCli) error {
 		panic("static default config files not found. Build them with `make package-defaultconfig` first.")
 	}
 
-	_ = ioutil.WriteFile(path.Join(defaultFilePath, ".env"), defaultFiles.MustBytes(".env.example"), 0644)
+	// Create defautl config.json
 	_ = ioutil.WriteFile(path.Join(defaultFilePath, "config.json"), defaultFiles.MustBytes("config-example.json"), 0644)
+
+	// Create default .env
+	dotEnv := defaultFiles.MustString(".env.example")
+	dotEnv = strings.Replace(dotEnv, "config-example.json", "config.json", 1)
+	_ = ioutil.WriteFile(path.Join(defaultFilePath, ".env"), []byte(dotEnv), 0644)
 
 	return nil
 }
