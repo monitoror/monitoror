@@ -331,8 +331,9 @@ chmod +x monitoror
         <dt><code>MO_CONFIG_{{configName}}</code> <code class="type">string</code></dt>
         <dd>
           You can provide several named configuration, allowing us to only point to the <code>configName</code> on UI side.
-          This make config path and/or URLs server-side only, and keep them private. <br>
-          <span class="tag">Example:</span> <code>MO_CONFIG_SCREEN1=https://internal.server/monitoror-config-screen1.json</code>
+          This make config path and/or URLs server-side only, and keep them private.
+          <br>
+          <span class="tag">Note:</span> <code>MO_CONFIG</code> is an alias for <code>MO_CONFIG_DEFAULT</code>
         </dd>
       </dl>
 
@@ -344,6 +345,16 @@ chmod +x monitoror
       <p>
         See <a href="#advanced-options">Advanced options</a> section to see more about advanced Core configuration.
       </p>
+
+      <pre class="example"><code>
+# Changing port to 8888
+MO_PORT=8888
+
+# UI named configurations
+MO_CONFIG="./config.json"
+MO_CONFIG_SCREEN1="https://example.com/monitoror-screen1.json"
+MO_CONFIG_PRODUCTION="/etc/monitoror/production.json"
+      </code></pre>
 
       <h4 id="ui-configuration">UI configuration</h4>
 
@@ -713,6 +724,12 @@ chmod +x monitoror
         <a href="#configuration-variants">Configuration Variants</a> are available for Azure DevOps
       </p>
 
+      <pre class="example"><code>
+MO_MONITORABLE_AZUREDEVOPS_URL="https://azure.example.com/"
+MO_MONITORABLE_AZUREDEVOPS_TOKEN="thisisyourtoken"
+MO_MONITORABLE_AZUREDEVOPS_TIMEOUT=1000
+      </code></pre>
+
       <h4 id="tile-azuredevops-build">AZUREDEVOPS-BUILD</h4>
 
       <p>
@@ -933,6 +950,13 @@ chmod +x monitoror
         </svg>
         <a href="#configuration-variants">Configuration Variants</a> are available for GitHub
       </p>
+
+      <pre class="example"><code>
+MO_MONITORABLE_GITHUB_URL="https://api.github.com/"
+MO_MONITORABLE_GITHUB_TOKEN="thisisyourtoken"
+MO_MONITORABLE_GITHUB_TIMEOUT=5000
+MO_MONITORABLE_GITHUB_COUNTCACHEEXPIRATION=30000
+      </code></pre>
 
       <h4 id="tile-github-count">GITHUB-COUNT</h4>
 
@@ -1225,6 +1249,11 @@ chmod +x monitoror
         </svg>
         <a href="#configuration-variants">Configuration Variants</a> are available for HTTP
       </p>
+
+      <pre class="example"><code>
+MO_MONITORABLE_HTTP_TIMEOUT=1000
+MO_MONITORABLE_HTTP_SSLVERIFY=true
+      </code></pre>
 
       <h4 id="tile-http-status">HTTP-STATUS</h4>
 
@@ -1538,6 +1567,14 @@ chmod +x monitoror
         <a href="#configuration-variants">Configuration Variants</a> are available for Jenkins
       </p>
 
+      <pre class="example"><code>
+MO_MONITORABLE_JENKINS_URL="https://jenkins.example.com"
+MO_MONITORABLE_JENKINS_LOGIN="username"
+MO_MONITORABLE_JENKINS_TOKEN="thisisyourtoken"
+MO_MONITORABLE_JENKINS_TIMEOUT=2000
+MO_MONITORABLE_JENKINS_SSLVERIFY=true
+      </code></pre>
+
       <h4 id="tile-jenkins-build">JENKINS-BUILD</h4>
 
       <p>
@@ -1660,8 +1697,7 @@ chmod +x monitoror
 {
   "type": "GENERATE:JENKINS-BUILD",
   "params": {
-    "job": "test-job
-          ",
+    "job": "test-job",
     "match": "^feat/"
   }
 }
@@ -1714,6 +1750,12 @@ chmod +x monitoror
         </svg>
         <a href="#configuration-variants">Configuration Variants</a> are available for Ping
       </p>
+
+      <pre class="example"><code>
+MO_MONITORABLE_PING_COUNT=2
+MO_MONITORABLE_PING_INTERVAL=100
+MO_MONITORABLE_PING_TIMEOUT=1000
+      </code></pre>
 
       <p class="alert-block">
         <svg fill="currentColor" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
@@ -1841,6 +1883,13 @@ chmod +x monitoror
         <a href="#configuration-variants">Configuration Variants</a> are available for Pingdom
       </p>
 
+      <pre class="example"><code>
+MO_MONITORABLE_PINGDOM_URL="https://api.pingdom.com/api/3.1"
+MO_MONITORABLE_PINGDOM_TOKEN="thisisyourtoken"
+MO_MONITORABLE_PINGDOM_TIMEOUT=1000
+MO_MONITORABLE_PINGDOM_CACHEEXPIRATION=30000
+      </code></pre>
+
       <h4 id="tile-pingdom-check">PINGDOM-CHECK</h4>
 
       <p>
@@ -1966,6 +2015,10 @@ chmod +x monitoror
         <a href="#configuration-variants">Configuration Variants</a> are available for Port
       </p>
 
+      <pre class="example"><code>
+MO_MONITORABLE_PORT_TIMEOUT=1000
+      </code></pre>
+
       <h4 id="tile-port">PORT</h4>
 
       <p>
@@ -2077,6 +2130,12 @@ chmod +x monitoror
         </svg>
         <a href="#configuration-variants">Configuration Variants</a> are available for Travis CI
       </p>
+
+      <pre class="example"><code>
+MO_MONITORABLE_TRAVISCI_URL="https://api.travis-ci.com/"
+MO_MONITORABLE_TRAVISCI_TOKEN="thisisyourtoken"
+MO_MONITORABLE_TRAVISCI_TIMEOUT=2000
+      </code></pre>
 
       <h4 id="tile-travisci-build">TRAVISCI-BUILD</h4>
 
@@ -2198,15 +2257,15 @@ chmod +x monitoror
         UI configuration.
       </p>
 
-      <pre class="example"><code class="language-bash">
+      <pre class="example"><code>
 # In your .env file
 MO_MONITORABLE_JENKINS_URL="http://jenkins.example.com"
 MO_MONITORABLE_JENKINS_LOGIN="username"
-MO_MONITORABLE_JENKINS_TOKEN="xxxxxxxxxxxxxxxxxxxxxxxx"
+MO_MONITORABLE_JENKINS_TOKEN="thisisyourtoken"
 
 MO_MONITORABLE_JENKINS_PROD_URL="http://jenkins-prod.example.com"
 MO_MONITORABLE_JENKINS_PROD_LOGIN="username"
-MO_MONITORABLE_JENKINS_PROD_TOKEN="xxxxxxxxxxxxxxxxxxxxxxxx"
+MO_MONITORABLE_JENKINS_PROD_TOKEN="thisisyourtoken"
       </code></pre>
 
       <pre><code class="language-json">
