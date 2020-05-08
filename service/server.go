@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"time"
 
+	"github.com/monitoror/monitoror/cli/debug"
 	"github.com/monitoror/monitoror/service/handlers"
 	"github.com/monitoror/monitoror/service/middlewares"
 	"github.com/monitoror/monitoror/store"
@@ -65,7 +66,7 @@ func (s *Server) setupEchoMiddleware() {
 	s.Use(echoMiddleware.Recover())
 
 	// Log requests
-	if s.store.CoreConfig.Debug {
+	if debug.IsEnabled() {
 		s.Use(echoMiddleware.LoggerWithConfig(echoMiddleware.LoggerConfig{
 			Format: `[-] ` + colorer.Green("${method}") + ` ${uri} status:${status} latency:` + colorer.Green("${latency_human}") + ` error:"${error}"` + "\n",
 		}))

@@ -26,7 +26,6 @@ type (
 		Port      int
 		Address   string
 		DisableUI bool
-		Debug     bool
 
 		// --- Cache Configuration ---
 		// UpstreamCacheExpiration is used to respond before executing the request. Avoid overloading services.
@@ -56,7 +55,6 @@ var defaultConfig = &CoreConfig{
 	Port:                      8080,
 	Address:                   "",
 	DisableUI:                 false,
-	Debug:                     false,
 	UpstreamCacheExpiration:   10000,
 	DownstreamCacheExpiration: 120000,
 	InitialMaxDelay:           1700,

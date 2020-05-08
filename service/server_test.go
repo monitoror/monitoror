@@ -3,6 +3,7 @@ package service
 import (
 	"testing"
 
+	"github.com/monitoror/monitoror/cli/debug"
 	"github.com/monitoror/monitoror/config"
 	"github.com/monitoror/monitoror/registry"
 	"github.com/monitoror/monitoror/store"
@@ -16,9 +17,10 @@ import (
 
 func TestInit_Dev(t *testing.T) {
 	s := &store.Store{
-		CoreConfig: &config.CoreConfig{DisableUI: true, Debug: true},
+		CoreConfig: &config.CoreConfig{DisableUI: true},
 		Registry:   registry.NewRegistry(),
 	}
+	debug.Enable()
 
 	assert.NotPanics(t, func() {
 		Init(s)
