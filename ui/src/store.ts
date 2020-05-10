@@ -58,7 +58,7 @@ const store: StoreOptions<RootState> = {
   },
   getters: {
     apiBaseUrl(): string {
-      const defaultApiBaseUrl = window.location.origin
+      const defaultApiBaseUrl = window.location.href
       let apiBaseUrl = getQueryParamValue('apiBaseUrl', defaultApiBaseUrl) as string
 
       apiBaseUrl = apiBaseUrl.replace(/\/+$/, '')
