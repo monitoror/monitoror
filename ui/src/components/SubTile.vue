@@ -119,6 +119,7 @@
   .c-monitoror-sub-tile--label {
     display: inline-block;
     font-weight: 600;
+    word-break: break-word;
   }
 
   .c-monitoror-sub-tile__status-queued .c-monitoror-sub-tile--label,
