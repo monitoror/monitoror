@@ -10,8 +10,8 @@ import (
 	httpDelivery "github.com/monitoror/monitoror/monitorables/http/api/delivery/http"
 	httpModels "github.com/monitoror/monitoror/monitorables/http/api/models"
 	httpUsecase "github.com/monitoror/monitoror/monitorables/http/api/usecase"
-	"github.com/monitoror/monitoror/service/registry"
-	"github.com/monitoror/monitoror/service/store"
+	"github.com/monitoror/monitoror/registry"
+	"github.com/monitoror/monitoror/store"
 )
 
 type Monitorable struct {
@@ -37,7 +37,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	return m
 }
 
-func (m *Monitorable) GetDisplayName() string { return "HTTP (faker)" }
+func (m *Monitorable) GetDisplayName() string { return "HTTP" }
 
 func (m *Monitorable) Enable(variantName coreModels.VariantName) {
 	usecase := httpUsecase.NewHTTPUsecase()

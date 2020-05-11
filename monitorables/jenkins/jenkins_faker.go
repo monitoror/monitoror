@@ -10,8 +10,8 @@ import (
 	jenkinsDelivery "github.com/monitoror/monitoror/monitorables/jenkins/api/delivery/http"
 	jenkinsModels "github.com/monitoror/monitoror/monitorables/jenkins/api/models"
 	jenkinsUsecase "github.com/monitoror/monitoror/monitorables/jenkins/api/usecase"
-	"github.com/monitoror/monitoror/service/registry"
-	"github.com/monitoror/monitoror/service/store"
+	"github.com/monitoror/monitoror/registry"
+	"github.com/monitoror/monitoror/store"
 )
 
 type Monitorable struct {
@@ -33,7 +33,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	return m
 }
 
-func (m *Monitorable) GetDisplayName() string { return "Jenkins (faker)" }
+func (m *Monitorable) GetDisplayName() string { return "Jenkins" }
 
 func (m *Monitorable) Enable(variantName coreModels.VariantName) {
 	usecase := jenkinsUsecase.NewJenkinsUsecase()

@@ -12,8 +12,8 @@ import (
 	portRepository "github.com/monitoror/monitoror/monitorables/port/api/repository"
 	portUsecase "github.com/monitoror/monitoror/monitorables/port/api/usecase"
 	portConfig "github.com/monitoror/monitoror/monitorables/port/config"
-	"github.com/monitoror/monitoror/service/registry"
-	"github.com/monitoror/monitoror/service/store"
+	"github.com/monitoror/monitoror/registry"
+	"github.com/monitoror/monitoror/store"
 )
 
 type Monitorable struct {

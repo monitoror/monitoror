@@ -9,23 +9,24 @@ import (
 	"github.com/monitoror/monitoror/monitorables/pingdom"
 	"github.com/monitoror/monitoror/monitorables/port"
 	"github.com/monitoror/monitoror/monitorables/travisci"
+	"github.com/monitoror/monitoror/store"
 )
 
-func (m *Manager) RegisterMonitorables() {
+func RegisterMonitorables(s *store.Store) {
 	// ------------ AZURE DEVOPS ------------
-	m.register(azuredevops.NewMonitorable(m.store))
+	s.Registry.RegisterMonitorable(azuredevops.NewMonitorable(s))
 	// ------------ GITHUB ------------
-	m.register(github.NewMonitorable(m.store))
+	s.Registry.RegisterMonitorable(github.NewMonitorable(s))
 	// ------------ HTTP ------------
-	m.register(http.NewMonitorable(m.store))
+	s.Registry.RegisterMonitorable(http.NewMonitorable(s))
 	// ------------ JENKINS ------------
-	m.register(jenkins.NewMonitorable(m.store))
+	s.Registry.RegisterMonitorable(jenkins.NewMonitorable(s))
 	// ------------ PING ------------
-	m.register(ping.NewMonitorable(m.store))
+	s.Registry.RegisterMonitorable(ping.NewMonitorable(s))
 	// ------------ PINGDOM ------------
-	m.register(pingdom.NewMonitorable(m.store))
+	s.Registry.RegisterMonitorable(pingdom.NewMonitorable(s))
 	// ------------ PORT ------------
-	m.register(port.NewMonitorable(m.store))
+	s.Registry.RegisterMonitorable(port.NewMonitorable(s))
 	// ------------ TRAVIS CI ------------
-	m.register(travisci.NewMonitorable(m.store))
+	s.Registry.RegisterMonitorable(travisci.NewMonitorable(s))
 }

@@ -34,40 +34,44 @@ mocks: ## generate mocks
 
 # ============= BUILDS =============
 .PHONY: build
-build: package-front ## build executable for current environment
+build: package-front package-defaultconfig ## build executable for current environment
 	@./scripts/build.sh
 
 .PHONY: build-cross
-build-cross: package-front ## build all executables
+build-cross: package-front package-defaultconfig ## build all executables
 	@./scripts/build.sh linux/amd64
 	@./scripts/build.sh linux/ARMv5
 	@./scripts/build.sh windows
 	@./scripts/build.sh macos
 
 .PHONY: build-linux-amd64
-build-linux-amd64: package-front ## build executable for Linux
+build-linux-amd64: package-front package-defaultconfig ## build executable for Linux
 	@./scripts/build.sh linux/amd64
 
 .PHONY: build-linux-ARMv5
-build-linux-ARMv5: package-front ## build executable for Raspberry Pi (ARM V5)
+build-linux-ARMv5: package-front package-defaultconfig ## build executable for Raspberry Pi (ARM V5)
 	@./scripts/build.sh linux/ARMv5
 
 .PHONY: build-windows
-build-windows: package-front ## build executable for Windows
+build-windows: package-front package-defaultconfig ## build executable for Windows
 	@./scripts/build.sh windows
 
 .PHONY: build-macos
-build-macos: package-front ## build executable for MacOs
+build-macos: package-front package-defaultconfig ## build executable for MacOs
 	@./scripts/build.sh macos
 
 .PHONY: build-faker-linux-amd64
-build-faker-linux-amd64: package-front ## build faker executable linux amd64 (only for demo)
+build-faker-linux-amd64: package-front package-defaultconfig ## build faker executable linux amd64 (only for demo)
 	@MB_GO_TAGS="faker" ./scripts/build.sh linux/amd64
 
 # ============= PACKAGE =============
 .PHONY: package-front
 package-front: ## package front directory ui/dist into go source
 	@./scripts/package/front.sh
+
+.PHONY: package-defaultconfig
+package-defaultconfig: ## package .env.example and config.example.json go source
+	@./scripts/package/default-config.sh
 
 .PHONY: package-docker
 package-docker: ## package linux amd64 into docker image
@@ -80,7 +84,7 @@ run: ## run monitoror
 
 .PHONY: run-faker
 run-faker: ## run monitoror in faker mode
-	@MB_GO_TAGS="faker"  ./scripts/run.sh
+	@MB_GO_TAGS="faker" ./scripts/run.sh
 
 # ============= VERSION =============
 .PHONY: version

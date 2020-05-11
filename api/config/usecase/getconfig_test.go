@@ -43,7 +43,7 @@ func TestUsecase_GetConfig_WithURL_Success(t *testing.T) {
 
 func TestUsecase_GetConfig_WithNamedVariant_Success(t *testing.T) {
 	mockRepo := new(mocks.Repository)
-	mockRepo.On("GetConfigFromPath", AnythingOfType("string")).Return(&models.Config{}, nil)
+	mockRepo.On("GetConfigFromPath", AnythingOfType("string"), AnythingOfType("string")).Return(&models.Config{}, nil)
 	mockRepo.On("GetConfigFromURL", AnythingOfType("string")).Return(&models.Config{}, nil)
 
 	usecase := initConfigUsecase(mockRepo)
@@ -122,7 +122,7 @@ func TestUsecase_GetConfig_WithError(t *testing.T) {
 		},
 	} {
 		mockRepo := new(mocks.Repository)
-		mockRepo.On("GetConfigFromPath", AnythingOfType("string")).Return(nil, testcase.err)
+		mockRepo.On("GetConfigFromPath", AnythingOfType("string"), AnythingOfType("string")).Return(nil, testcase.err)
 
 		usecase := initConfigUsecase(mockRepo)
 		usecase.namedConfigs = make(map[coreConfig.ConfigName]string)

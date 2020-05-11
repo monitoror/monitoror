@@ -12,8 +12,8 @@ import (
 	azuredevopsRepository "github.com/monitoror/monitoror/monitorables/azuredevops/api/repository"
 	azuredevopsUsecase "github.com/monitoror/monitoror/monitorables/azuredevops/api/usecase"
 	azuredevopsConfig "github.com/monitoror/monitoror/monitorables/azuredevops/config"
-	"github.com/monitoror/monitoror/service/registry"
-	"github.com/monitoror/monitoror/service/store"
+	"github.com/monitoror/monitoror/registry"
+	"github.com/monitoror/monitoror/store"
 )
 
 type Monitorable struct {

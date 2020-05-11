@@ -17,7 +17,7 @@ import (
 	"github.com/monitoror/monitoror/internal/pkg/validator/validate"
 	coreModels "github.com/monitoror/monitoror/models"
 	pkgStructs "github.com/monitoror/monitoror/pkg/structs"
-	"github.com/monitoror/monitoror/service/registry"
+	"github.com/monitoror/monitoror/registry"
 )
 
 func (cu *configUsecase) Verify(configBag *models.ConfigBag) {

@@ -1,4 +1,4 @@
-//go:generate mockery -name Registry|TileEnabler|GeneratorEnabler|TileMetadataExplorer|VariantMetadataExplorer -output ../mocks
+//go:generate mockery -name Registry|TileEnabler|GeneratorEnabler|TileMetadataExplorer|VariantMetadataExplorer
 
 package registry
 
@@ -14,8 +14,10 @@ import (
 type (
 	// Registry is used to register Tile and Generator in config for verify / hydrate
 	Registry interface {
+		RegisterMonitorable(monitorable coreModels.Monitorable)
 		RegisterTile(tileType coreModels.TileType, minimalVersion versions.RawVersion, variantNames []coreModels.VariantName) TileEnabler
 		RegisterGenerator(generatedTileType coreModels.TileType, minimalVersion versions.RawVersion, variantNames []coreModels.VariantName) GeneratorEnabler
+		GetMonitorables() []*MonitorableMetadata
 	}
 	// TileEnabler is returned to monitorable after register to enable monitorable tile with this variant if she is "valid"
 	TileEnabler interface {
@@ -41,8 +43,21 @@ type (
 
 type (
 	MetadataRegistry struct {
-		TileMetadata      map[coreModels.TileType]*tileMetadata
-		GeneratorMetadata map[coreModels.TileType]*generatorMetadata
+		MonitorableMetadata []*MonitorableMetadata
+		TileMetadata        map[coreModels.TileType]*tileMetadata
+		GeneratorMetadata   map[coreModels.TileType]*generatorMetadata
+	}
+
+	MonitorableMetadata struct {
+		Monitorable      coreModels.Monitorable
+		VariantsMetadata []*MonitorableVariantMetadata
+	}
+
+	MonitorableVariantMetadata struct {
+		VariantName coreModels.VariantName
+
+		Enabled bool
+		Errors  []error
 	}
 
 	tileMetadata struct {
@@ -94,15 +109,34 @@ type (
 
 func NewRegistry() *MetadataRegistry {
 	return &MetadataRegistry{
-		TileMetadata:      make(map[coreModels.TileType]*tileMetadata),
-		GeneratorMetadata: make(map[coreModels.TileType]*generatorMetadata),
+		MonitorableMetadata: []*MonitorableMetadata{},
+		TileMetadata:        make(map[coreModels.TileType]*tileMetadata),
+		GeneratorMetadata:   make(map[coreModels.TileType]*generatorMetadata),
 	}
 }
 
 // REGISTRY
 // ----------------------------------------
+func (r *MetadataRegistry) RegisterMonitorable(monitorable coreModels.Monitorable) {
+	monitorableMetadata := &MonitorableMetadata{
+		Monitorable: monitorable,
+	}
+
+	for _, variantName := range monitorable.GetVariantsNames() {
+		isValid, errors := monitorable.Validate(variantName)
+
+		monitorableMetadata.VariantsMetadata = append(monitorableMetadata.VariantsMetadata, &MonitorableVariantMetadata{
+			VariantName: variantName,
+			Enabled:     isValid,
+			Errors:      errors,
+		})
+	}
+
+	r.MonitorableMetadata = append(r.MonitorableMetadata, monitorableMetadata)
+}
+
 func (r *MetadataRegistry) RegisterTile(tileType coreModels.TileType, minimalVersion versions.RawVersion, variantNames []coreModels.VariantName) TileEnabler {
-	tileSetting := &tileMetadata{
+	tileMetadata := &tileMetadata{
 		TileType:         tileType,
 		MinimalVersion:   minimalVersion,
 		VariantsMetadata: make(map[coreModels.VariantName]*tileVariantMetadata),
@@ -110,21 +144,21 @@ func (r *MetadataRegistry) RegisterTile(tileType coreModels.TileType, minimalVer
 
 	// Register Variant with Enabled False
 	for _, variantName := range variantNames {
-		tileSetting.VariantsMetadata[variantName] = &tileVariantMetadata{
+		tileMetadata.VariantsMetadata[variantName] = &tileVariantMetadata{
 			VariantName: variantName,
 		}
 	}
 
-	r.TileMetadata[tileType] = tileSetting
+	r.TileMetadata[tileType] = tileMetadata
 
-	return tileSetting
+	return tileMetadata
 }
 
 func (r *MetadataRegistry) RegisterGenerator(generatedTileType coreModels.TileType, minimalVersion versions.RawVersion, variantNames []coreModels.VariantName) GeneratorEnabler {
 	// Boxing tile type into generator
 	tileType := coreModels.NewGeneratorTileType(generatedTileType)
 
-	generatorSetting := &generatorMetadata{
+	generatorMetadata := &generatorMetadata{
 		TileType:          tileType,
 		GeneratedTileType: generatedTileType,
 		MinimalVersion:    minimalVersion,
@@ -133,14 +167,18 @@ func (r *MetadataRegistry) RegisterGenerator(generatedTileType coreModels.TileTy
 
 	// Register Variant with Enabled False
 	for _, variantName := range variantNames {
-		generatorSetting.VariantsMetadata[variantName] = &generatorVariantMetadata{
+		generatorMetadata.VariantsMetadata[variantName] = &generatorVariantMetadata{
 			VariantName: variantName,
 		}
 	}
 
-	r.GeneratorMetadata[tileType] = generatorSetting
+	r.GeneratorMetadata[tileType] = generatorMetadata
 
-	return generatorSetting
+	return generatorMetadata
+}
+
+func (r *MetadataRegistry) GetMonitorables() []*MonitorableMetadata {
+	return r.MonitorableMetadata
 }
 
 // ----------------------------------------

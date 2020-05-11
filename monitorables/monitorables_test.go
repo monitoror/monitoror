@@ -13,7 +13,7 @@ import (
 	pingdomApi "github.com/monitoror/monitoror/monitorables/pingdom/api"
 	portApi "github.com/monitoror/monitoror/monitorables/port/api"
 	travisCIApi "github.com/monitoror/monitoror/monitorables/travisci/api"
-	"github.com/monitoror/monitoror/service/registry"
+	"github.com/monitoror/monitoror/registry"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -23,8 +23,7 @@ func TestManager_RegisterMonitorables(t *testing.T) {
 	store, _ := test.InitMockAndStore()
 	store.Registry = registry.NewRegistry()
 
-	manager := &Manager{store: store}
-	manager.RegisterMonitorables()
+	RegisterMonitorables(store)
 
 	mr := store.Registry.(*registry.MetadataRegistry)
 

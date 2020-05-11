@@ -19,7 +19,7 @@ func TestInitConfig_WithEnv(t *testing.T) {
 
 	config := InitConfig()
 
-	assert.Equal(t, "production", config.Env)
+	assert.Equal(t, false, config.DisableUI)
 	assert.Equal(t, 3000, config.Port)
 	assert.Equal(t, "default", config.NamedConfigs["default"])
 	assert.Equal(t, "1", config.NamedConfigs["screen1"])

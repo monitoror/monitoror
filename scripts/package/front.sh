@@ -8,4 +8,4 @@ set -e
 #######################################################
 
 rm -f service/rice-box.go
-rice embed-go -i service/server.go
+rice embed-go -i ./service

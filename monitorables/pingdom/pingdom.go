@@ -5,7 +5,7 @@ package pingdom
 import (
 	"github.com/monitoror/monitoror/api/config/versions"
 	pkgMonitorable "github.com/monitoror/monitoror/internal/pkg/monitorable"
-	"github.com/monitoror/monitoror/service/registry"
+	"github.com/monitoror/monitoror/registry"
 
 	coreModels "github.com/monitoror/monitoror/models"
 
@@ -15,7 +15,7 @@ import (
 	pingdomRepository "github.com/monitoror/monitoror/monitorables/pingdom/api/repository"
 	pingdomUsecase "github.com/monitoror/monitoror/monitorables/pingdom/api/usecase"
 	pingdomConfig "github.com/monitoror/monitoror/monitorables/pingdom/config"
-	"github.com/monitoror/monitoror/service/store"
+	"github.com/monitoror/monitoror/store"
 )
 
 type Monitorable struct {

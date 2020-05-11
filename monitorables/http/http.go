@@ -12,8 +12,8 @@ import (
 	httpRepository "github.com/monitoror/monitoror/monitorables/http/api/repository"
 	httpUsecase "github.com/monitoror/monitoror/monitorables/http/api/usecase"
 	httpConfig "github.com/monitoror/monitoror/monitorables/http/config"
-	"github.com/monitoror/monitoror/service/registry"
-	"github.com/monitoror/monitoror/service/store"
+	"github.com/monitoror/monitoror/registry"
+	"github.com/monitoror/monitoror/store"
 )
 
 type Monitorable struct {

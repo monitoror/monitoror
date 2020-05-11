@@ -1,16 +1,19 @@
 package registry
 
 import (
+	"errors"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 
 	"github.com/monitoror/monitoror/api/config/versions"
 	"github.com/monitoror/monitoror/models"
 	coreModels "github.com/monitoror/monitoror/models"
-
-	"github.com/stretchr/testify/assert"
+	"github.com/monitoror/monitoror/models/mocks"
 )
 
-func TestSettingManager(t *testing.T) {
+func TestRegistry_Tiles(t *testing.T) {
 	registry := NewRegistry()
 	registry.RegisterTile("TEST", versions.CurrentVersion, []coreModels.VariantName{"test-variant"}).
 		Enable("test-variant", nil, "test-route")
@@ -39,7 +42,7 @@ func TestSettingManager(t *testing.T) {
 	}
 }
 
-func TestTileSetting_Enable_Panic(t *testing.T) {
+func TestEnabler_Enable_Panic(t *testing.T) {
 	registry := NewRegistry()
 	tileEnabler := registry.RegisterTile("TEST", versions.CurrentVersion, []coreModels.VariantName{"test-variant"})
 	assert.Panics(t, func() {
@@ -50,4 +53,29 @@ func TestTileSetting_Enable_Panic(t *testing.T) {
 	assert.Panics(t, func() {
 		tileGeneratorEnabler.Enable("wrong-variant", nil, nil)
 	})
+}
+
+func TestRegistry_Monitorable(t *testing.T) {
+	mockMonitorable := new(mocks.Monitorable)
+	mockMonitorable.On("GetDisplayName").Return("Monitorable Mock")
+	mockMonitorable.On("GetVariantsNames").Return([]models.VariantName{models.DefaultVariantName, "variant1", "variant2"})
+	mockMonitorable.On("Validate", mock.AnythingOfType("models.VariantName")).Return(true, nil).Once()
+	mockMonitorable.On("Validate", mock.AnythingOfType("models.VariantName")).Return(false, nil).Once()
+	mockMonitorable.On("Validate", mock.AnythingOfType("models.VariantName")).Return(false, []error{errors.New("boom")}).Once()
+	mockMonitorable.On("Enable", mock.AnythingOfType("models.VariantName"))
+
+	registry := NewRegistry()
+	registry.RegisterMonitorable(mockMonitorable)
+
+	if assert.Len(t, registry.GetMonitorables(), 1) {
+		m := registry.GetMonitorables()[0]
+		assert.Equal(t, "Monitorable Mock", m.Monitorable.GetDisplayName())
+
+		assert.Equal(t, models.DefaultVariantName, m.VariantsMetadata[0].VariantName)
+		assert.Equal(t, true, m.VariantsMetadata[0].Enabled)
+		assert.Equal(t, models.VariantName("variant1"), m.VariantsMetadata[1].VariantName)
+		assert.Equal(t, false, m.VariantsMetadata[1].Enabled)
+		assert.Equal(t, models.VariantName("variant2"), m.VariantsMetadata[2].VariantName)
+		assert.Equal(t, false, m.VariantsMetadata[2].Enabled)
+	}
 }

@@ -10,8 +10,8 @@ import (
 	pingdomDelivery "github.com/monitoror/monitoror/monitorables/pingdom/api/delivery/http"
 	pingdomModels "github.com/monitoror/monitoror/monitorables/pingdom/api/models"
 	pingdomUsecase "github.com/monitoror/monitoror/monitorables/pingdom/api/usecase"
-	"github.com/monitoror/monitoror/service/registry"
-	"github.com/monitoror/monitoror/service/store"
+	"github.com/monitoror/monitoror/registry"
+	"github.com/monitoror/monitoror/store"
 )
 
 type Monitorable struct {
@@ -33,7 +33,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	return m
 }
 
-func (m *Monitorable) GetDisplayName() string { return "Pingdom (faker)" }
+func (m *Monitorable) GetDisplayName() string { return "Pingdom" }
 
 func (m *Monitorable) Enable(variantName coreModels.VariantName) {
 	usecase := pingdomUsecase.NewPingdomUsecase()

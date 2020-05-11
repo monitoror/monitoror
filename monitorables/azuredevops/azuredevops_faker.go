@@ -10,8 +10,8 @@ import (
 	azuredevopsDelivery "github.com/monitoror/monitoror/monitorables/azuredevops/api/delivery/http"
 	azuredevopsModels "github.com/monitoror/monitoror/monitorables/azuredevops/api/models"
 	azuredevopsUsecase "github.com/monitoror/monitoror/monitorables/azuredevops/api/usecase"
-	"github.com/monitoror/monitoror/service/registry"
-	"github.com/monitoror/monitoror/service/store"
+	"github.com/monitoror/monitoror/registry"
+	"github.com/monitoror/monitoror/store"
 )
 
 type Monitorable struct {
@@ -35,7 +35,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 }
 
 func (m *Monitorable) GetDisplayName() string {
-	return "Azure DevOps (faker)"
+	return "Azure DevOps"
 }
 
 func (m *Monitorable) Enable(variantName coreModels.VariantName) {
