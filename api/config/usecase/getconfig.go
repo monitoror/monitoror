@@ -59,7 +59,7 @@ func (cu *configUsecase) GetConfig(params *models.ConfigParams) *models.ConfigBa
 	if urlRegex.MatchString(params.Config) {
 		configBag.Config, err = cu.repository.GetConfigFromURL(params.Config)
 	} else {
-		configName := coreConfig.ConfigName(params.Config)
+		configName := coreConfig.ConfigName(strings.ToLower(params.Config))
 
 		// Lookup for a named Config
 		if namedConfig, ok := cu.namedConfigs[configName]; ok {

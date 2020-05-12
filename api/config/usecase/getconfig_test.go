@@ -49,14 +49,14 @@ func TestUsecase_GetConfig_WithNamedVariant_Success(t *testing.T) {
 	usecase := initConfigUsecase(mockRepo)
 	usecase.namedConfigs = make(map[coreConfig.ConfigName]string)
 	usecase.namedConfigs[coreConfig.DefaultConfigName] = "./config.json"
-	usecase.namedConfigs["withUrl"] = "http://example.com/config.json"
+	usecase.namedConfigs["with-url"] = "http://example.com/config.json"
 
 	configBag := usecase.GetConfig(&models.ConfigParams{Config: string(coreConfig.DefaultConfigName)})
 	if assert.Len(t, configBag.Errors, 0) {
 		mockRepo.AssertNumberOfCalls(t, "GetConfigFromPath", 1)
 	}
 
-	configBag = usecase.GetConfig(&models.ConfigParams{Config: "withUrl"})
+	configBag = usecase.GetConfig(&models.ConfigParams{Config: "WITH-URL"})
 	if assert.Len(t, configBag.Errors, 0) {
 		mockRepo.AssertNumberOfCalls(t, "GetConfigFromPath", 1)
 	}
