@@ -53,7 +53,7 @@ type (
 
 var defaultConfig = &CoreConfig{
 	Port:                      8080,
-	Address:                   "",
+	Address:                   "0.0.0.0",
 	DisableUI:                 false,
 	UpstreamCacheExpiration:   10000,
 	DownstreamCacheExpiration: 120000,

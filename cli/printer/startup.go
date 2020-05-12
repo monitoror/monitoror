@@ -186,11 +186,11 @@ func (mi *startupInfo) DisabledMonitorableCount() int {
 func (mi *startupInfo) DisplayedAddresses() []string {
 	var adressess []string
 
-	if mi.LookupAddress != "" {
-		adressess = append(adressess, mi.LookupAddress)
-	} else {
+	if mi.LookupAddress == "" || mi.LookupAddress == "0.0.0.0" {
 		adressess = append(adressess, "localhost")
 		adressess = append(adressess, system.GetNetworkIP())
+	} else {
+		adressess = append(adressess, mi.LookupAddress)
 	}
 
 	return adressess
