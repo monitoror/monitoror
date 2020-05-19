@@ -7,7 +7,6 @@ import (
 	"strings"
 	"time"
 
-	coreModels "github.com/monitoror/monitoror/models"
 	"github.com/monitoror/monitoror/monitorables/github/api"
 	"github.com/monitoror/monitoror/monitorables/github/api/models"
 	"github.com/monitoror/monitoror/monitorables/github/config"
@@ -156,18 +155,25 @@ func (gr *githubRepository) GetPullRequests(owner, repository string) ([]models.
 }
 
 func fillPullRequest(pr *githubApi.PullRequest) *models.PullRequest {
-	return &models.PullRequest{
-		ID:    pr.GetNumber(),
-		Title: pr.GetTitle(),
-		Author: coreModels.Author{
-			Name:      pr.GetUser().GetLogin(),
-			AvatarURL: pr.GetUser().GetAvatarURL(),
-		},
+	pullRequest := &models.PullRequest{
+		ID:         pr.GetNumber(),
+		Title:      pr.GetTitle(),
 		Owner:      pr.GetHead().GetUser().GetLogin(),
 		Repository: pr.GetHead().GetRepo().GetName(),
 		Branch:     pr.GetHead().GetRef(),
 		CommitSHA:  pr.GetHead().GetSHA(),
 	}
+
+	if pr.GetUser() != nil {
+		pullRequest.Author.Name = pr.GetUser().GetName()
+		pullRequest.Author.AvatarURL = pr.GetUser().GetAvatarURL()
+
+		if pullRequest.Author.Name == "" {
+			pullRequest.Author.Name = pr.GetUser().GetLogin()
+		}
+	}
+
+	return pullRequest
 }
 
 func (gr *githubRepository) GetCommit(owner, repository, sha string) (*models.Commit, error) {
@@ -178,10 +184,15 @@ func (gr *githubRepository) GetCommit(owner, repository, sha string) (*models.Co
 
 	result := &models.Commit{
 		SHA: sha,
-		Author: &coreModels.Author{
-			Name:      commit.Author.GetLogin(),
-			AvatarURL: gravatar.GetGravatarURL(commit.Author.GetEmail()),
-		},
+	}
+
+	if commit.GetAuthor() != nil {
+		result.Author.Name = commit.GetAuthor().GetName()
+		result.Author.AvatarURL = gravatar.GetGravatarURL(commit.GetAuthor().GetEmail())
+
+		if result.Author.Name == "" {
+			result.Author.Name = commit.GetAuthor().GetLogin()
+		}
 	}
 
 	return result, nil
