@@ -23,7 +23,13 @@ export default function formatConfigExtract(configError: ConfigError): string {
   try {
     JSON.parse(configExtract)
   } catch (err) {
-    return jsonSyntaxColor(configExtract.replace(/\\\\/g, '\\'))
+    const sanitizedConfigExtract = configExtract
+      .replace(/[\u00A0-\u9999<>&]/gim, (match) => {
+        return `&#${match.charCodeAt(0)};`
+      })
+      .replace(/\\\\/g, '\\')
+
+    return jsonSyntaxColor(sanitizedConfigExtract)
   }
 
   const formattedConfigExtract = JSON.stringify(JSON.parse(configExtract), null, 2)
