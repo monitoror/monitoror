@@ -77,6 +77,7 @@
     private shouldShowCursorTimeout!: number
     private shouldDisableTransitionsTimeout!: number
     private taskRunnerInterval!: number
+    private isReady: boolean = false
 
     /*
      * Computed
@@ -153,7 +154,7 @@
     }
 
     get shouldShowWelcomePage(): boolean {
-      return this.$store.getters.hasUnknownDefaultConfigError || this.$store.getters.isNewUser
+      return this.isReady && this.$store.getters.shouldShowWelcomePage
     }
 
     get isOnline(): boolean {
@@ -204,6 +205,10 @@
       }, 50)
 
       await this.$store.dispatch('init')
+
+      setTimeout(() => {
+        this.isReady = true
+      })
     }
 
     private beforeDestroy() {
@@ -327,6 +332,7 @@
     pointer-events: none;
 
     .c-app--logo-slide-in {
+      transition: transform 350ms;
       animation: logoSlideIn 1s;
     }
 
@@ -485,7 +491,6 @@
 
   .loading-fade-leave-to .c-app--logo-slide-in {
     transform: translateY(-15%);
-    opacity: 0;
   }
 
   .loading-fade-leave-to .c-app--loading-progress-bar {

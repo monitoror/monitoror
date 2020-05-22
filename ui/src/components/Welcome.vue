@@ -1,6 +1,6 @@
 <template>
   <div class="c-monitoror-welcome" :class="classes">
-    <template v-if="isNewUser">
+    <template v-if="shouldShowWelcomeNextStep">
       <h1 class="c-monitoror-welcome--title">Welcome</h1>
       <h2 class="c-monitoror-welcome--subtitle">You're almost there!</h2>
 
@@ -54,13 +54,29 @@
       </div>
     </template>
     <template v-else>
-      Named config list
+      <h1 class="c-monitoror-welcome--title">Welcome back</h1>
+      <h2 class="c-monitoror-welcome--subtitle">Choose a configuration</h2>
+
+      <div class="c-monitoror-welcome--content c-monitoror-welcome--content__choose-configuration">
+        <p v-for="configMetadata in configList" >
+          <a :href="configMetadata.uiUrl" class="c-monitoror-welcome--button">
+            Load <code>{{configMetadata.name}}</code>
+            <svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+              <path d="M31.2 14L18.7 1.6c-1.1-1.1-3-1.1-4.1 0-1.1 1.1-1.1 2.9 0 4.1L25 16 14.6 26.3c-1.1 1.1-1.1 2.9 0 4.1 1.1 1.1 3 1.1 4.1 0L31.2 18c.6-.6.9-1.3.8-2 0-.7-.3-1.5-.8-2z" fill="currentColor"></path>
+              <path d="M2.3 13h22.9c1.3 0 2.3 1 2.3 2.3v1.5c0 1.3-1 2.3-2.3 2.3H2.3c-1.3 0-2.3-1-2.3-2.3v-1.5C0 14.1 1 13 2.3 13z" fill="currentColor"></path>
+            </svg>
+          </a>
+        </p>
+      </div>
     </template>
   </div>
 </template>
 
 <script lang="ts">
   import {Component, Vue} from 'vue-property-decorator'
+
+  import Route from '@/enums/route'
+  import ConfigMetadata from '@/interfaces/configMetadata'
 
   @Component({})
   export default class MonitororWelcome extends Vue {
@@ -79,8 +95,14 @@
       }
     }
 
-    get isNewUser(): boolean {
-      return this.$store.getters.isNewUser
+    get shouldShowWelcomeNextStep(): boolean {
+      const isOnWelcomeNextStepRoute = Route.Welcome === this.$store.getters.currentRoute
+
+      return isOnWelcomeNextStepRoute || this.$store.getters.isNewUser
+    }
+
+    get configList(): ConfigMetadata[] {
+      return this.$store.state.configList
     }
 
     /*
@@ -88,6 +110,8 @@
      */
 
     private mounted() {
+      this.$store.dispatch('fetchConfigList')
+
       setTimeout(() => {
         this.shouldHaveScroll = true
       }, 1650)
@@ -148,6 +172,10 @@
     font-size: 20px;
     line-height: 1.6;
     text-align: left;
+
+    &__choose-configuration {
+      text-align: center;
+    }
   }
 
   .c-monitoror-welcome--next-step-sup-title {
