@@ -305,13 +305,8 @@
   $error-padding: 40px;
 
   .c-monitoror-errors {
-    a {
-      color: var(--color-succeeded);
-
-      code {
-        color: inherit;
-      }
-    }
+    font-weight: 400;
+    font-size: 24px;
 
     hr {
       width: 250px;
@@ -326,6 +321,10 @@
       margin-top: 5px;
       padding: 3px 7px;
       border-radius: 4px;
+    }
+
+    :not(pre) > code {
+      word-break: break-all;
     }
 
     pre {

@@ -26,6 +26,7 @@ import TileState from '@/interfaces/tileState'
 Vue.use(Vuex)
 
 const API_BASE_PATH = '/api/v1'
+const DEFAULT_CONFIG_NAME = 'default'
 const INFO_URL = '/info'
 
 export interface RootState {
@@ -66,7 +67,7 @@ const store: StoreOptions<RootState> = {
       return apiBaseUrl
     },
     configParam(): string {
-      return getQueryParamValue('config', 'default') as string
+      return getQueryParamValue('config', DEFAULT_CONFIG_NAME) as string
     },
     proxyfiedConfigUrl(state, getters): string | undefined {
       const configProxyUrl = `${getters.apiBaseUrl}${API_BASE_PATH}/configs`
@@ -143,6 +144,28 @@ const store: StoreOptions<RootState> = {
       }
 
       return loadingProgress
+    },
+    hasUnknownDefaultConfigError(state, getters): boolean {
+      if (state.errors.length === 0) {
+        return false
+      }
+
+      const error = state.errors[0]
+
+      const isDefaultConfig = getters.configParam === DEFAULT_CONFIG_NAME
+      const isUnknownNamedConfigError = error.id === ConfigErrorId.UnknownNamedConfig
+
+      return isDefaultConfig && isUnknownNamedConfigError
+    },
+    isNewUser(state, getters): boolean {
+      if (!getters.hasUnknownDefaultConfigError) {
+        return false
+      }
+
+      const error = state.errors[0]
+      const hasNamedConfig = error.data.expected !== undefined
+
+      return !hasNamedConfig
     },
   },
   mutations: {
