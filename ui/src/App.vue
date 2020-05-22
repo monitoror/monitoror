@@ -320,7 +320,7 @@
     height: 100vh;
     max-width: calc(100% - var(--logo-margin) * 2);
     transform: translateY(var(--logo-translate-y)) scale(var(--logo-scale));
-    animation: fadeIn 1s;
+    animation: fadeIn 1s both;
     transition: transform 350ms, opacity 750ms;
     will-change: transform, opacity;
     z-index: 1;
@@ -430,6 +430,11 @@
   .c-app--loading__small-logo .c-app--logo {
     --logo-scale: 1;
     --logo-translate-y: calc(-50vh + 130px);
+
+    // Fix for Edge 12-18 (before Chromium)
+    @supports (-ms-ime-align:auto) {
+      transform: translateY(calc(-50vh + 130px)) scale(0.55);
+    }
 
     @media (min-width: 700px) {
       --logo-scale: 0.8;
