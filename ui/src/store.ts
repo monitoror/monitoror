@@ -381,7 +381,7 @@ const store: StoreOptions<RootState> = {
 
           const configCannotBeFetch: ConfigError = {
             id: ConfigErrorId.CannotBeFetched,
-            message: 'Configuration cannot be fetch from Monitoror Core',
+            message: 'Configuration cannot be fetched from Monitoror Core',
             data: {},
           }
           commit('setErrors', [configCannotBeFetch])
