@@ -28,7 +28,7 @@ import TileState from '@/interfaces/tileState'
 Vue.use(Vuex)
 
 const API_BASE_PATH = '/api/v1'
-const DEFAULT_CONFIG_NAME = 'default'
+export const DEFAULT_CONFIG_NAME = 'default'
 const INFO_URL = '/info'
 const QUERY_PARAM_KEYS = {
   API_BASE_URL: 'apiBaseUrl',

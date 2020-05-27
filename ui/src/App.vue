@@ -281,7 +281,7 @@
   }
 
   .c-app--loading {
-    --color-logo-background: #87d7af;
+    --color-logo-background: var(--color-succeeded);
     --color-logo-m: #ffffff;
 
     position: fixed;
@@ -382,6 +382,7 @@
 
   .c-app__welcome-page {
     .c-app--logo,
+    path,
     stop {
       transition-delay: 1s;
     }
@@ -502,7 +503,7 @@
   }
 
   .loading-fade-leave-to .c-app--loading-progress-bar {
-    transform: translateX(0);
+    transform: translateX(0) !important; /* Overrides computed style attribute */
   }
 
   .c-app__welcome-page .c-app--loading-progress,

@@ -11,22 +11,27 @@
             in this configuration:
           </template>
         </div>
-        <template v-if="configParam !== undefined">
+        <template v-if="configParam !== undefined && !isUsingDefaultConfig">
           <code>{{configParam}}</code> <br><br>
         </template>
-        Last refresh at {{lastRefreshDate}}
+        <template v-if="!isCoreDown">
+          Last refresh at {{lastRefreshDate}}
 
-        <hr v-if="!hasConfigVerifyErrors">
+          <hr v-if="!hasConfigVerifyErrors">
+        </template>
       </div>
       <div class="c-monitoror-errors--error" v-for="error in errors">
         <!-- Blocking single-line errors -->
-        <template v-if="error.id === ConfigErrorId.CannotBeFetched">
+        <template v-if="isCoreDown">
           <p class="c-monitoror-errors--error-title">
             Monitoror Core seems down
           </p>
           <p>
-            Is there a Monitoror Core running at <code>{{apiBaseUrl}}</code>?<br>
-            Configuration cannot be fetch
+            Is there a Monitoror Core running at <code>{{apiBaseUrl}}</code>?
+          </p>
+          <hr>
+          <p class="c-monitoror-errors--last-refresh">
+            Last refresh at {{lastRefreshDate}}
           </p>
         </template>
         <template v-else-if="error.id === ConfigErrorId.ConfigNotFound">
@@ -223,6 +228,7 @@
   import parsedExtractFieldValue from '@/helpers/parsedExpectedValue'
   import splitList from '@/helpers/splitList'
   import ConfigError from '@/interfaces/configError'
+  import {DEFAULT_CONFIG_NAME} from '@/store'
 
   @Component({})
   export default class MonitororErrors extends Vue {
@@ -238,6 +244,18 @@
 
     get configParam(): string {
       return this.$store.getters.configParam
+    }
+
+    get isUsingDefaultConfig(): boolean {
+      return this.configParam === DEFAULT_CONFIG_NAME
+    }
+
+    get isCoreDown(): boolean {
+      if (!this.hasErrors) {
+        return false
+      }
+
+      return this.errors[0].id === ConfigErrorId.CannotBeFetched
     }
 
     get lastRefreshDate(): string {
@@ -412,6 +430,10 @@
     &:not(.c-monitoror-errors__config-verify-errors) p {
       margin: 0.2rem;
     }
+  }
+
+  .c-monitoror-errors--last-refresh {
+    font-size: 22px;
   }
 
   .c-monitoror-errors--error {
