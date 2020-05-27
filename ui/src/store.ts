@@ -24,7 +24,6 @@ import Info from '@/interfaces/info'
 import TaskOptions from '@/interfaces/taskOptions'
 import TileConfig from '@/interfaces/tileConfig'
 import TileState from '@/interfaces/tileState'
-import {config} from '@vue/test-utils'
 
 Vue.use(Vuex)
 
