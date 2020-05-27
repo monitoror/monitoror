@@ -275,6 +275,8 @@ const store: StoreOptions<RootState> = {
             configMetadata.uiUrl = uiUrl
 
             return configMetadata
+          }).sort((configMetadataA: ConfigMetadata, configMetadataB: ConfigMetadata) => {
+            return configMetadataA.name.localeCompare(configMetadataB.name)
           })
 
           commit('setConfigList', configList)
