@@ -115,6 +115,10 @@
       }
     }
 
+    get shouldInit(): boolean {
+      return this.$store.getters.shouldInit
+    }
+
     get columns(): number {
       return this.$store.state.columns
     }
@@ -204,7 +208,9 @@
         this.$store.dispatch('runTasks')
       }, 50)
 
-      await this.$store.dispatch('init')
+      if (this.shouldInit) {
+        await this.$store.dispatch('init')
+      }
 
       setTimeout(() => {
         this.isReady = true

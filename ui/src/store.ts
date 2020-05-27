@@ -198,6 +198,11 @@ const store: StoreOptions<RootState> = {
 
       return isOnWelcomePageRoute || getters.isNewUser || getters.hasUnknownDefaultConfigError
     },
+    shouldInit(state, getters): boolean {
+      const isOnChooseConfigurationPageRoute = Route.ChooseConfiguration === getters.currentRoute
+
+      return !isOnChooseConfigurationPageRoute
+    },
   },
   mutations: {
     setAppVersion(state, payload: string): void {
