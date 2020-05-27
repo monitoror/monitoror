@@ -440,32 +440,34 @@
   }
 
   .c-app--loading__small-logo .c-app--logo {
+    $default-scale: 0.4;
+    $margin-top: 90px;
     --logo-scale: 1;
-    --logo-translate-y: calc(-50vh + 130px);
+    --logo-translate-y: calc(-50vh + #{$margin-top});
 
     // Fix for Edge 12-18 (before Chromium)
     @supports (-ms-ime-align:auto) {
-      transform: translateY(calc(-50vh + 130px)) scale(0.55);
+      transform: translateY(calc(-50vh + #{$margin-top})) scale(#{$default-scale});
     }
 
     @media (min-width: 700px) {
-      --logo-scale: 0.8;
-    }
-
-    @media (min-width: 1000px) {
       --logo-scale: 0.7;
     }
 
-    @media (min-width: 1200px) {
+    @media (min-width: 1000px) {
       --logo-scale: 0.6;
     }
 
+    @media (min-width: 1200px) {
+      --logo-scale: 0.5;
+    }
+
     @media (min-width: 1400px) {
-      --logo-scale: 0.55
+      --logo-scale: #{$default-scale};
     }
 
     @media (min-width: 2000px) {
-      --logo-scale: 0.45;
+      --logo-scale: 0.35;
     }
   }
 
