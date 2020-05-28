@@ -381,10 +381,12 @@
   }
 
   .c-app__welcome-page {
-    .c-app--logo,
-    path,
-    stop {
-      transition-delay: 1s;
+    .c-app--logo {
+      &,
+      path,
+      stop {
+        transition-delay: 1s;
+      }
     }
 
     .c-app--logo-slide-welcome {
