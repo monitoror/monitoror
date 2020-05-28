@@ -23,8 +23,10 @@ export default function formatConfigExtract(configError: ConfigError): string {
   try {
     JSON.parse(configExtract)
   } catch (err) {
+    // Escape special characters to display the config as text, not as HTML
     const sanitizedConfigExtract = configExtract
       .replace(/[\u00A0-\u9999<>&]/gim, (match) => {
+        // Replace with the HTML Entity of the character
         return `&#${match.charCodeAt(0)};`
       })
       .replace(/\\\\/g, '\\')
