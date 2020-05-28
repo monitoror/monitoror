@@ -52,6 +52,7 @@
   --color-succeeded: #88d8b0;
   --color-failed: #ff6f69;
   --color-warning: #ffcc5c;
+  --color-action-required: #57c0ff;
   --color-succeeded-dark: #252d30;
   --color-failed-dark: #342c30;
   --color-warning-dark: #34342f;
@@ -1148,7 +1149,7 @@ input {
 }
 
 .m-documentation ::-webkit-scrollbar-thumb:hover {
-  background: #364b61;
+  background: var(--color-action-required);
 }
 
 .m-sidebar {
