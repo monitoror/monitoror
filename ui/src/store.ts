@@ -30,6 +30,7 @@ Vue.use(Vuex)
 const API_BASE_PATH = '/api/v1'
 export const DEFAULT_CONFIG_NAME = 'default'
 const INFO_URL = '/info'
+const CONFIGS_URL = '/configs'
 const QUERY_PARAM_KEYS = {
   API_BASE_URL: 'apiBaseUrl',
   CONFIG: 'config',
@@ -78,8 +79,11 @@ const store: StoreOptions<RootState> = {
     configParam(): string {
       return getQueryParamValue(QUERY_PARAM_KEYS.CONFIG, DEFAULT_CONFIG_NAME) as string
     },
+    infoUrl(state, getters): string {
+      return getters.apiBaseUrl + API_BASE_PATH + INFO_URL
+    },
     configProxyUrl(state, getters): string {
-      return `${getters.apiBaseUrl}${API_BASE_PATH}/configs`
+      return getters.apiBaseUrl + API_BASE_PATH + CONFIGS_URL
     },
     proxyfiedConfigUrl(state, getters): string | undefined {
       const urlEncodedConfigParam = encodeURIComponent(getters.configParam)
@@ -246,9 +250,7 @@ const store: StoreOptions<RootState> = {
   },
   actions: {
     async autoUpdate({commit, state, getters}) {
-      const infoUrl = getters.apiBaseUrl + API_BASE_PATH + INFO_URL
-
-      return axios.get(infoUrl)
+      return axios.get(getters.infoUrl)
         .then((response) => {
           const info: Info = response.data
 
