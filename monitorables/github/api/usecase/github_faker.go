@@ -114,7 +114,7 @@ func (gu *githubUsecase) PullRequest(params *models.PullRequestParams) (tile *co
 	tile = coreModels.NewTile(api.GithubPullRequestTileType).WithBuild()
 	tile.Label = params.Repository
 
-	projectID := fmt.Sprintf("%s-%s-%s", params.Owner, params.Repository, params.ID)
+	projectID := fmt.Sprintf("%s-%s-%d", params.Owner, params.Repository, params.ID)
 	tile.Status = nonempty.Struct(params.Status, gu.computeStatus(projectID)).(coreModels.TileStatus)
 
 	if tile.Status == coreModels.DisabledStatus {

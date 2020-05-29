@@ -149,7 +149,7 @@ func TestChecks_Failure(t *testing.T) {
 		}, nil)
 	mockRepository.On("GetCommit", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(&models.Commit{
-			Author: &coreModels.Author{
+			Author: coreModels.Author{
 				Name:      "test",
 				AvatarURL: "https://test.example.com",
 			},
@@ -309,7 +309,7 @@ func TestPullRequest_ErrorOnChecks(t *testing.T) {
 func TestPullRequest_NoChecks(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetPullRequest", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("int")).
-		Return(&models.PullRequest{ID: 10, Title: "Test", Owner: "test2", Branch: "master", CommitSHA: "xxx"}, nil)
+		Return(&models.PullRequest{ID: 10, Title: "Test", SourceOwner: "test2", SourceBranch: "master", CommitSHA: "xxx"}, nil)
 	mockRepository.On("GetChecks", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("string")).
 		Return(&models.Checks{}, nil)
 
@@ -344,11 +344,11 @@ func TestPullRequest_Success(t *testing.T) {
 	mockRepository := new(mocks.Repository)
 	mockRepository.On("GetPullRequest", AnythingOfType("string"), AnythingOfType("string"), AnythingOfType("int")).
 		Return(&models.PullRequest{
-			ID:        10,
-			Title:     "Test",
-			Owner:     "test2",
-			Branch:    "master",
-			CommitSHA: "xxx",
+			ID:           10,
+			Title:        "Test",
+			SourceOwner:  "test2",
+			SourceBranch: "master",
+			CommitSHA:    "xxx",
 			Author: coreModels.Author{
 				Name:      "test",
 				AvatarURL: "https://test.example.com",
@@ -415,16 +415,16 @@ func TestPullRequestsGenerator_Success(t *testing.T) {
 	mockRepository.On("GetPullRequests", AnythingOfType("string"), AnythingOfType("string")).
 		Return([]models.PullRequest{
 			{
-				ID:         2,
-				Owner:      "test",
-				Repository: "test",
-				CommitSHA:  "xxxx",
+				ID:               2,
+				SourceOwner:      "test",
+				SourceRepository: "test",
+				CommitSHA:        "xxxx",
 			},
 			{
-				ID:         3,
-				Owner:      "test",
-				Repository: "test",
-				CommitSHA:  "yyyy",
+				ID:               3,
+				SourceOwner:      "test",
+				SourceRepository: "test",
+				CommitSHA:        "yyyy",
 			},
 		}, nil)
 

@@ -9,8 +9,8 @@ type PullRequest struct {
 	Title  string
 	Author coreModels.Author
 
-	Owner      string
-	Repository string
-	Branch     string
-	CommitSHA  string
+	SourceOwner      string
+	SourceRepository string
+	SourceBranch     string
+	CommitSHA        string
 }

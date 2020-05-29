@@ -156,12 +156,12 @@ func (gr *githubRepository) GetPullRequests(owner, repository string) ([]models.
 
 func fillPullRequest(pr *githubApi.PullRequest) *models.PullRequest {
 	pullRequest := &models.PullRequest{
-		ID:         pr.GetNumber(),
-		Title:      pr.GetTitle(),
-		Owner:      pr.GetHead().GetUser().GetLogin(),
-		Repository: pr.GetHead().GetRepo().GetName(),
-		Branch:     pr.GetHead().GetRef(),
-		CommitSHA:  pr.GetHead().GetSHA(),
+		ID:               pr.GetNumber(),
+		Title:            pr.GetTitle(),
+		SourceOwner:      pr.GetHead().GetUser().GetLogin(),
+		SourceRepository: pr.GetHead().GetRepo().GetName(),
+		SourceBranch:     pr.GetHead().GetRef(),
+		CommitSHA:        pr.GetHead().GetSHA(),
 	}
 
 	if pr.GetUser() != nil {
