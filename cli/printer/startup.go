@@ -21,7 +21,7 @@ var startupTemplate = `
  / /  / / /_/ / / / / / /_/ /_/ / /  / /_/ / / {{ with .BuildTags }}{{ printf " %s " . | inverseColor }}{{ end }}
 /_/  /_/\____/_/ /_/_/\__/\____/_/   \____/_/  {{ .Version | green }}
 
-{{ blue "https://monitoror.com" }}
+{{ "https://monitoror.com" | blue }}
 {{ if .DisableUI }}
 
 ┌─ {{ "DEVELOPMENT MODE" | yellow }} ──────────────────────────────┐
@@ -30,16 +30,9 @@ var startupTemplate = `
 │ {{ "https://monitoror.com/guides/#development" | blue }}       │
 └─────────────────────────────────────────────────┘
 {{ end }}
-{{ with .NamedConfigs }}
-{{ "AVAILABLE NAMED CONFIGURATIONS" | green }}
-{{ range . }}
-  {{ .Name }}{{ printf " -> %s" .Value | grey }}
-{{- end }}
 
-{{ end }}
 {{ "ENABLED MONITORABLES" | green }}
 {{ range .Monitorables }}{{ if not .IsDisabled }}
-
   {{- if not .ErroredVariants }}
   {{ "✓ " | green }}
   {{- else if .EnabledVariants }}
@@ -67,10 +60,21 @@ Check the documentation to know how to enabled them:
 {{ printf "https://monitoror.com/%sdocumentation/" .DocumentationVersion | blue }}
 
 {{ end }}
-Monitoror is running at:
+{{- with .NamedConfigs }}
+{{ "AVAILABLE NAMED CONFIGURATIONS" | green }}
+{{ range . }}
+  {{ .Name }}{{ printf " -> %s" .Value | grey }}
+{{- end }}
+
+{{ end }}
+─────────────────────────────────────────────────
+
+{{ "MONITOROR IS RUNNING AT:" | green }}
 {{- range .DisplayedAddresses }}
   {{ printf "http://%s:%d" . $.LookupPort | blue }}
 {{- end }}
+
+─────────────────────────────────────────────────
 
 `
 

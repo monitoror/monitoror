@@ -7,6 +7,7 @@
   src: url('../fonts/open-sans-light.woff2') format('woff2');
   font-weight: 300;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -14,6 +15,7 @@
   src: url('../fonts/open-sans-regular.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -21,6 +23,7 @@
   src: url('../fonts/open-sans-semibold.woff2') format('woff2');
   font-weight: 600;
   font-style: normal;
+  font-display: swap;
 }
 
 @font-face {
@@ -28,6 +31,7 @@
   src: url('../fonts/jetbrains-mono-regular.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
+  font-display: swap;
 }
 
 
@@ -36,9 +40,10 @@
  */
 
 :root {
-  --color-background: #20252a;
+  --color-background: #1b2229;
   --color-code-background: #171b20;
   --color-cello: #204263;
+  --color-firefly: #11263a;
   --color-pickled-bluewood: #2c3e50;
   --color-spindle: #cfdff0;
   --color-loblolly: #b3bdc7;
@@ -47,6 +52,7 @@
   --color-succeeded: #88d8b0;
   --color-failed: #ff6f69;
   --color-warning: #ffcc5c;
+  --color-action-required: #57c0ff;
   --color-succeeded-dark: #252d30;
   --color-failed-dark: #342c30;
   --color-warning-dark: #34342f;
@@ -297,7 +303,7 @@ input {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(to top right, #192532, var(--color-cello));
+  background: linear-gradient(to top right, var(--color-firefly), var(--color-cello));
   transform: skewY(-7deg) scaleY(1.5);
   transform-origin: bottom center;
   z-index: -1;
@@ -604,7 +610,7 @@ input {
   height: 90%;
   background: var(--color-code-background);
   background: var(--color-cello);
-  background: linear-gradient(to top right, #192532, var(--color-cello));
+  background: linear-gradient(to top right, var(--color-firefly), var(--color-cello));
   border-right: none;
   border-left: none;
   transform: skewY(-7deg);
@@ -1143,7 +1149,7 @@ input {
 }
 
 .m-documentation ::-webkit-scrollbar-thumb:hover {
-  background: #364b61;
+  background: var(--color-action-required);
 }
 
 .m-sidebar {
@@ -1154,7 +1160,7 @@ input {
   left: 0;
   width: 300px;
   background: var(--color-cello);
-  background: linear-gradient(to bottom right, var(--color-cello), #192532 120%);
+  background: linear-gradient(to bottom right, var(--color-cello), var(--color-firefly) 120%);
   border-right: 1px solid var(--color-background);
   padding: 20px;
   z-index: 10;

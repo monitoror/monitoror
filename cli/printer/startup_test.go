@@ -54,8 +54,12 @@ ENABLED MONITORABLES
 
 
 
-Monitoror is running at:
+─────────────────────────────────────────────────
+
+MONITOROR IS RUNNING AT:
   http://1.2.3.4:3000
+
+─────────────────────────────────────────────────
 
 `
 
@@ -101,8 +105,12 @@ Check the documentation to know how to enabled them:
 https://monitoror.com/1.0/documentation/
 
 
-Monitoror is running at:
+─────────────────────────────────────────────────
+
+MONITOROR IS RUNNING AT:
   http://1.2.3.4:3000
+
+─────────────────────────────────────────────────
 
 `
 
@@ -129,7 +137,9 @@ ENABLED MONITORABLES
 
 
 
-Monitoror is running at:
+─────────────────────────────────────────────────
+
+MONITOROR IS RUNNING AT:
   http://localhost:3000
   http://`
 
@@ -184,8 +194,12 @@ Check the documentation to know how to enabled them:
 https://monitoror.com/documentation/
 
 
-Monitoror is running at:
+─────────────────────────────────────────────────
+
+MONITOROR IS RUNNING AT:
   http://1.2.3.4:3000
+
+─────────────────────────────────────────────────
 
 `
 
@@ -238,8 +252,12 @@ ENABLED MONITORABLES
   ✓ Monitorable 3 [default, variants: [variant1, variant2]]
 
 
-Monitoror is running at:
+─────────────────────────────────────────────────
+
+MONITOROR IS RUNNING AT:
   http://1.2.3.4:3000
+
+─────────────────────────────────────────────────
 
 `
 
@@ -266,6 +284,10 @@ func TestPrintMonitororStartupLog_WithNamedConfigs(t *testing.T) {
 https://monitoror.com
 
 
+ENABLED MONITORABLES
+
+
+
 AVAILABLE NAMED CONFIGURATIONS
 
   default -> default
@@ -273,12 +295,12 @@ AVAILABLE NAMED CONFIGURATIONS
   test2 -> test2
 
 
-ENABLED MONITORABLES
+─────────────────────────────────────────────────
 
-
-
-Monitoror is running at:
+MONITOROR IS RUNNING AT:
   http://1.2.3.4:3000
+
+─────────────────────────────────────────────────
 
 `
 
