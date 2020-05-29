@@ -7,6 +7,7 @@ import (
 	coreModels "github.com/monitoror/monitoror/models"
 	azureDevOpsApi "github.com/monitoror/monitoror/monitorables/azuredevops/api"
 	githubApi "github.com/monitoror/monitoror/monitorables/github/api"
+	gitlabApi "github.com/monitoror/monitoror/monitorables/gitlab/api"
 	httpApi "github.com/monitoror/monitoror/monitorables/http/api"
 	jenkinsApi "github.com/monitoror/monitoror/monitorables/jenkins/api"
 	pingApi "github.com/monitoror/monitoror/monitorables/ping/api"
@@ -35,6 +36,10 @@ func TestManager_RegisterMonitorables(t *testing.T) {
 	assert.NotNil(t, mr.TileMetadata[githubApi.GithubChecksTileType])
 	assert.NotNil(t, mr.TileMetadata[githubApi.GithubPullRequestTileType])
 	assert.NotNil(t, mr.GeneratorMetadata[coreModels.NewGeneratorTileType(githubApi.GithubPullRequestTileType)])
+	// ------------ GITLAB ------------
+	assert.NotNil(t, mr.TileMetadata[gitlabApi.GitlabPipelineTileType])
+	assert.NotNil(t, mr.TileMetadata[gitlabApi.GitlabMergeRequestTileType])
+	assert.NotNil(t, mr.GeneratorMetadata[coreModels.NewGeneratorTileType(gitlabApi.GitlabMergeRequestTileType)])
 	// ------------ HTTP ------------
 	assert.NotNil(t, mr.TileMetadata[httpApi.HTTPStatusTileType])
 	assert.NotNil(t, mr.TileMetadata[httpApi.HTTPRawTileType])
