@@ -91,6 +91,14 @@
               <li><a href="#tile-generate-github-pullrequest">GENERATE:GITHUB-PULLREQUEST</a></li>
             </ul>
           </li>
+          <li><a href="#gitlab">GitLab</a>
+            <ul>
+              <li><a href="#tile-gitlab-issues">GITLAB-ISSUES</a></li>
+              <li><a href="#tile-gitlab-pipeline">GITLAB-PIPELINE</a></li>
+              <li><a href="#tile-gitlab-mergerequest">GITLAB-MERGEREQUEST</a></li>
+              <li><a href="#tile-generate-gitlab-mergerequest">GENERATE:GITLAB-MERGEREQUEST</a></li>
+            </ul>
+          </li>
           <li><a href="#http">HTTP</a>
             <ul>
               <li><a href="#tile-http-status">HTTP-STATUS</a></li>
@@ -911,7 +919,7 @@ MO_MONITORABLE_AZUREDEVOPS_TIMEOUT=1000
       <dl>
         <dt><code>MO_MONITORABLE_GITHUB_URL</code> <code class="type">string</code></dt>
         <dd>
-          Github API base URL <br>
+          GitHub API base URL <br>
           <span class="tag">Default:</span> <code>https://api.github.com/</code>
         </dd>
 
@@ -1211,6 +1219,323 @@ MO_MONITORABLE_GITHUB_COUNTCACHEEXPIRATION=30000
   "params": {
     "owner": "monitoror",
     "repository": "monitoror"
+  }
+}
+        </code></pre>
+      </div>
+    </div>
+
+    <div class="m-documentation--block">
+      <svg class="m-documentation--tile-icon" fill="currentColor" viewBox="0 0 33 33"
+           xmlns="http://www.w3.org/2000/svg">
+        <path
+                d="M16.288 0C7.293 0 0 7.293 0 16.29c0 7.197 4.667 13.302 11.14 15.457.815.149 1.112-.354 1.112-.786 0-.386-.014-1.411-.022-2.77-4.531.984-5.487-2.184-5.487-2.184-.741-1.881-1.809-2.382-1.809-2.382-1.479-1.011.112-.991.112-.991 1.635.116 2.495 1.679 2.495 1.679 1.453 2.489 3.813 1.77 4.741 1.354.148-1.053.568-1.771 1.034-2.178-3.617-.411-7.42-1.809-7.42-8.051 0-1.778.635-3.232 1.677-4.371-.168-.412-.727-2.068.159-4.311 0 0 1.368-.438 4.48 1.67a15.602 15.602 0 014.078-.548c1.383.006 2.777.187 4.078.548 3.11-2.108 4.475-1.67 4.475-1.67.889 2.243.33 3.899.162 4.311 1.044 1.139 1.675 2.593 1.675 4.371 0 6.258-3.809 7.635-7.438 8.038.585.503 1.106 1.497 1.106 3.017 0 2.177-.02 3.934-.02 4.468 0 .436.293.943 1.12.784 6.468-2.159 11.131-8.26 11.131-15.455C32.579 7.293 25.285 0 16.288 0"/>
+      </svg>
+
+      <h3 id="gitlab">GitLab</h3>
+
+      <p>
+        Show branch or merge request pipeline status and display search issues counters.
+      </p>
+
+      <h5 class="m-documentation--configuration-side-title">Core configuration</h5>
+
+      <dl>
+        <dt><code>MO_MONITORABLE_GITLAB_URL</code> <code class="type">string</code></dt>
+        <dd>
+          GitLab API base URL <br>
+          <span class="tag">Default:</span> <code>https://gitlab.com/</code>
+        </dd>
+
+        <dt><code>MO_MONITORABLE_GITLAB_TOKEN</code> <code class="type">string</code> <span class="required">required</span>
+        </dt>
+        <dd>
+          Personal access token <br>
+          <a href="https://gitlab.com/profile/personal_access_tokens">
+            Create a personal access token for Monitoror
+          </a>
+        </dd>
+
+        <dt><code>MO_MONITORABLE_GITLAB_TIMEOUT</code> <code class="type">number</code></dt>
+        <dd>
+          Timeout in milliseconds before returning error <br>
+          <span class="tag">Default:</span> <code>5000</code>
+        </dd>
+      </dl>
+
+      <p class="configuration-variants-available">
+        <svg clip-rule="evenodd" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2"
+             viewBox="0 0 510 510" xmlns="http://www.w3.org/2000/svg">
+          <path
+                  d="M130.122 165.707h101.614l83.236 211.052h133.126l-25.75 25.748c-6.332 6.332-6.332 16.628 0 22.96 6.331 6.331 16.624 6.331 22.955 0l64.941-64.941-64.941-64.941c-6.331-6.332-16.624-6.332-22.955 0-6.332 6.332-6.332 16.628 0 22.959l25.75 25.748H337.084L266.64 165.707h181.458l-25.75 25.748c-6.332 6.332-6.332 16.624 0 22.956 6.331 6.331 16.624 6.331 22.955 0l64.941-64.937-64.941-64.941c-6.331-6.331-16.624-6.331-22.955 0-6.332 6.332-6.332 16.624 0 22.956l25.748 25.748H130.122v32.47zm-32.47 0v-32.47H65.185v32.47h32.467zm-64.937 0v-32.47H.244v32.47h32.471z"
+                  fill="currentColor" fill-rule="nonzero"/>
+        </svg>
+        <a href="#configuration-variants">Configuration Variants</a> are available for GitLab
+      </p>
+
+      <pre class="example"><code>
+MO_MONITORABLE_GITLAB_URL="https://gitlab.com/"
+MO_MONITORABLE_GITLAB_TOKEN="thisisyourtoken"
+MO_MONITORABLE_GITLAB_TIMEOUT=5000
+      </code></pre>
+
+      <h4 id="tile-gitlab-issues">GITLAB-ISSUES</h4>
+
+      <p>
+        Show a counter of issues.
+      </p>
+
+      <h5 class="m-documentation--configuration-side-title">UI configuration</h5>
+
+      <dl>
+        <dt><code>projectId</code> <code class="type">number</code></dt>
+        <dd>
+          GitLab project ID (from project setting page)
+        </dd>
+
+        <dt><code>state</code> <code class="type">string</code></dt>
+        <dd>
+          GitLab issue state
+        </dd>
+
+        <dt><code>labels</code> <code class="type">[]string</code></dt>
+        <dd>
+          GitLab issue labels
+        </dd>
+
+        <dt><code>milestone</code> <code class="type">string</code></dt>
+        <dd>
+          GitLab issue milestone
+        </dd>
+
+        <dt><code>scope</code> <code class="type">string</code></dt>
+        <dd>
+          GitLab issue scope
+        </dd>
+
+        <dt><code>search</code> <code class="type">string</code></dt>
+        <dd>
+          Keyword to search in the title or description
+        </dd>
+
+        <dt><code>authorId</code> <code class="type">number</code></dt>
+        <dd>
+          GitLab user ID (from user setting page)
+        </dd>
+
+        <dt><code>assigneeId</code> <code class="type">number</code></dt>
+        <dd>
+          GitLab user ID (from user setting page)
+        </dd>
+      </dl>
+
+      <div class="m-documentation--example-and-demo">
+        <pre class="example"><code class="language-json">
+{
+  "type": "GITLAB-ISSUES",
+  "label": "Monitoror open issues",
+  "params": {
+    "projectId": 42,
+    "state": "opened"
+  }
+}
+        </code></pre>
+
+        <div class="m-documentation--demo">
+          <div class="m-documentation--demo-tile">
+            <div class="m-documentation--demo-label">Monitoror open issues</div>
+            <svg class="m-documentation--demo-icon" fill="currentColor" viewBox="0 0 33 33"
+                 style="transform: translateY(2px)" xmlns="http://www.w3.org/2000/svg">
+              <path
+                      d="M16.288 0C7.293 0 0 7.293 0 16.29c0 7.197 4.667 13.302 11.14 15.457.815.149 1.112-.354 1.112-.786 0-.386-.014-1.411-.022-2.77-4.531.984-5.487-2.184-5.487-2.184-.741-1.881-1.809-2.382-1.809-2.382-1.479-1.011.112-.991.112-.991 1.635.116 2.495 1.679 2.495 1.679 1.453 2.489 3.813 1.77 4.741 1.354.148-1.053.568-1.771 1.034-2.178-3.617-.411-7.42-1.809-7.42-8.051 0-1.778.635-3.232 1.677-4.371-.168-.412-.727-2.068.159-4.311 0 0 1.368-.438 4.48 1.67a15.602 15.602 0 014.078-.548c1.383.006 2.777.187 4.078.548 3.11-2.108 4.475-1.67 4.475-1.67.889 2.243.33 3.899.162 4.311 1.044 1.139 1.675 2.593 1.675 4.371 0 6.258-3.809 7.635-7.438 8.038.585.503 1.106 1.497 1.106 3.017 0 2.177-.02 3.934-.02 4.468 0 .436.293.943 1.12.784 6.468-2.159 11.131-8.26 11.131-15.455C32.579 7.293 25.285 0 16.288 0"/>
+            </svg>
+            <div class="m-documentation--demo-value">
+              18
+            </div>
+          </div>
+          <div class="m-documentation--demo-switch">
+            <label class="m-documentation--demo-switch-label m-documentation--demo-switch-succeeded">
+              <input data-state-switch name="gitlab-issues-state" type="radio" value="success">
+              Success
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <h4 id="tile-gitlab-pipeline">GITLAB-PIPELINE</h4>
+
+      <p>
+        Show the status of a pipeline for a given git reference.
+      </p>
+
+      <h5 class="m-documentation--configuration-side-title">UI configuration</h5>
+
+      <dl>
+        <dt><code>projectId</code> <code class="type">number</code> <span class="required">required</span></dt>
+        <dd>
+          GitLab project ID (from project setting page)
+        </dd>
+
+        <dt><code>ref</code> <code class="type">string</code> <span class="required">required</span></dt>
+        <dd>
+          A git reference, commonly a branch name
+        </dd>
+      </dl>
+
+      <div class="m-documentation--example-and-demo">
+        <pre class="example"><code class="language-json">
+{
+  "type": "GITLAB-PIPELINE",
+  "params": {
+    "projectId": 42,
+    "ref": "develop"
+  }
+}
+        </code></pre>
+
+        <div class="m-documentation--demo">
+          <div class="m-documentation--demo-tile">
+            <div class="m-documentation--demo-label">monitoror @ develop</div>
+            <svg class="m-documentation--demo-icon" fill="currentColor" viewBox="0 0 33 33"
+                 style="transform: translateY(2px)" xmlns="http://www.w3.org/2000/svg">
+              <path
+                      d="M16.288 0C7.293 0 0 7.293 0 16.29c0 7.197 4.667 13.302 11.14 15.457.815.149 1.112-.354 1.112-.786 0-.386-.014-1.411-.022-2.77-4.531.984-5.487-2.184-5.487-2.184-.741-1.881-1.809-2.382-1.809-2.382-1.479-1.011.112-.991.112-.991 1.635.116 2.495 1.679 2.495 1.679 1.453 2.489 3.813 1.77 4.741 1.354.148-1.053.568-1.771 1.034-2.178-3.617-.411-7.42-1.809-7.42-8.051 0-1.778.635-3.232 1.677-4.371-.168-.412-.727-2.068.159-4.311 0 0 1.368-.438 4.48 1.67a15.602 15.602 0 014.078-.548c1.383.006 2.777.187 4.078.548 3.11-2.108 4.475-1.67 4.475-1.67.889 2.243.33 3.899.162 4.311 1.044 1.139 1.675 2.593 1.675 4.371 0 6.258-3.809 7.635-7.438 8.038.585.503 1.106 1.497 1.106 3.017 0 2.177-.02 3.934-.02 4.468 0 .436.293.943 1.12.784 6.468-2.159 11.131-8.26 11.131-15.455C32.579 7.293 25.285 0 16.288 0"/>
+            </svg>
+            <div class="m-documentation--demo-message" data-status-running>
+              0:42
+            </div>
+            <div class="m-documentation--demo-message" data-status-warning>
+              5 minutes ago
+            </div>
+            <div class="m-documentation--demo-message" data-status-error>
+              5 minutes ago
+            </div>
+            <div class="m-documentation--demo-author" data-status-error>
+              <img alt="" class="m-documentation--demo-author-avatar" src="../assets/images/avatar.png">
+              John Doe
+            </div>
+            <div class="m-documentation--demo-progress" data-status-running>
+              <div class="m-documentation--demo-progress-bar"></div>
+            </div>
+          </div>
+          <div class="m-documentation--demo-switch">
+            <label class="m-documentation--demo-switch-label m-documentation--demo-switch-running">
+              <input data-state-switch name="gitlab-pipeline-state" type="radio" value="running">
+              Running
+            </label>
+            <label class="m-documentation--demo-switch-label m-documentation--demo-switch-warning">
+              <input data-state-switch name="gitlab-pipeline-state" type="radio" value="warning">
+              Warning
+            </label>
+            <label class="m-documentation--demo-switch-label m-documentation--demo-switch-error">
+              <input data-state-switch name="gitlab-pipeline-state" type="radio" value="error">
+              Error
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <h4 id="tile-gitlab-mergerequest">GITLAB-MERGEREQUEST</h4>
+
+      <p>
+        Show the status of a pipeline for a given merge request.
+      </p>
+
+      <h5 class="m-documentation--configuration-side-title">UI configuration</h5>
+
+      <dl>
+        <dt><code>projectId</code> <code class="type">number</code> <span class="required">required</span></dt>
+        <dd>
+          GitLab project ID (from project setting page)
+        </dd>
+
+        <dt><code>id</code> <code class="type">number</code> <span class="required">required</span></dt>
+        <dd>
+          GitLab merge request ID
+        </dd>
+      </dl>
+
+      <div class="m-documentation--example-and-demo">
+        <pre class="example"><code class="language-json">
+{
+  "type": "GITLAB-MERGEREQUEST",
+  "params": {
+    "projectId": 42,
+    "id": 10
+  }
+}
+        </code></pre>
+
+        <div class="m-documentation--demo">
+          <div class="m-documentation--demo-tile">
+            <div class="m-documentation--demo-label">PR#10 @ monitoror</div>
+            <svg class="m-documentation--demo-icon" fill="currentColor" viewBox="0 0 33 33"
+                 style="transform: translateY(2px)" xmlns="http://www.w3.org/2000/svg">
+              <path
+                      d="M16.288 0C7.293 0 0 7.293 0 16.29c0 7.197 4.667 13.302 11.14 15.457.815.149 1.112-.354 1.112-.786 0-.386-.014-1.411-.022-2.77-4.531.984-5.487-2.184-5.487-2.184-.741-1.881-1.809-2.382-1.809-2.382-1.479-1.011.112-.991.112-.991 1.635.116 2.495 1.679 2.495 1.679 1.453 2.489 3.813 1.77 4.741 1.354.148-1.053.568-1.771 1.034-2.178-3.617-.411-7.42-1.809-7.42-8.051 0-1.778.635-3.232 1.677-4.371-.168-.412-.727-2.068.159-4.311 0 0 1.368-.438 4.48 1.67a15.602 15.602 0 014.078-.548c1.383.006 2.777.187 4.078.548 3.11-2.108 4.475-1.67 4.475-1.67.889 2.243.33 3.899.162 4.311 1.044 1.139 1.675 2.593 1.675 4.371 0 6.258-3.809 7.635-7.438 8.038.585.503 1.106 1.497 1.106 3.017 0 2.177-.02 3.934-.02 4.468 0 .436.293.943 1.12.784 6.468-2.159 11.131-8.26 11.131-15.455C32.579 7.293 25.285 0 16.288 0"/>
+            </svg>
+            <div class="m-documentation--demo-message" data-status-running>
+              0:42
+            </div>
+            <div class="m-documentation--demo-message" data-status-warning>
+              5 minutes ago
+            </div>
+            <div class="m-documentation--demo-message" data-status-error>
+              5 minutes ago
+            </div>
+            <div class="m-documentation--demo-author" data-status-error>
+              <img alt="" class="m-documentation--demo-author-avatar" src="../assets/images/avatar.png">
+              John Doe
+            </div>
+            <div class="m-documentation--demo-progress" data-status-running>
+              <div class="m-documentation--demo-progress-bar"></div>
+            </div>
+          </div>
+          <div class="m-documentation--demo-switch">
+            <label class="m-documentation--demo-switch-label m-documentation--demo-switch-running">
+              <input data-state-switch name="gitlab-mergerequest-state" type="radio" value="running">
+              Running
+            </label>
+            <label class="m-documentation--demo-switch-label m-documentation--demo-switch-warning">
+              <input data-state-switch name="gitlab-mergerequest-state" type="radio" value="warning">
+              Warning
+            </label>
+            <label class="m-documentation--demo-switch-label m-documentation--demo-switch-error">
+              <input data-state-switch name="gitlab-mergerequest-state" type="radio" value="error">
+              Error
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <h4 id="tile-generate-gitlab-mergerequest">GENERATE:GITLAB-MERGEREQUEST</h4>
+
+      <p>
+        Show each open merge request status.
+      </p>
+
+      <p class="note">
+        <span class="tag">Note</span>
+        This tile is a generator tile that will be replaced by N classic
+        <code><a href="#tile-gitlab-mergerequest">GITLAB-MERGEREQUEST</a></code> tiles. <br>
+        N being the number of open merge requests.
+      </p>
+
+      <h5 class="m-documentation--configuration-side-title">UI configuration</h5>
+
+      <dl>
+        <dt><code>projectId</code> <code class="type">number</code> <span class="required">required</span></dt>
+        <dd>
+          GitLab project ID (from project setting page)
+        </dd>
+      </dl>
+
+      <div class="m-documentation--example">
+        <pre class="example"><code class="language-json">
+{
+  "type": "GENERATE:GITLAB-MERGEREQUEST",
+  "params": {
+    "projectId": 42
   }
 }
         </code></pre>
