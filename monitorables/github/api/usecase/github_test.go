@@ -42,7 +42,7 @@ func TestCount_Success(t *testing.T) {
 	gu := NewGithubUsecase(mockRepository)
 
 	expected := coreModels.NewTile(api.GithubCountTileType).WithValue(coreModels.NumberUnit)
-	expected.Label = "test"
+	expected.Label = "GitHub count"
 	expected.Status = coreModels.SuccessStatus
 	expected.Value.Values = []string{"10"}
 
