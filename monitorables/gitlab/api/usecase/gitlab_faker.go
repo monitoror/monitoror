@@ -54,7 +54,7 @@ func (gu *gitlabUsecase) Issues(params *models.IssuesParams) (*coreModels.Tile, 
 
 func (gu *gitlabUsecase) Pipeline(params *models.PipelineParams) (tile *coreModels.Tile, err error) {
 	tile = coreModels.NewTile(api.GitlabPipelineTileType).WithBuild()
-	tile.Label = fmt.Sprintf("%d", params.ProjectID)
+	tile.Label = fmt.Sprintf("Project %d name", *params.ProjectID)
 
 	projectID := fmt.Sprintf("%d-%s", params.ProjectID, params.Ref)
 	tile.Status = nonempty.Struct(params.Status, gu.computeStatus(projectID)).(coreModels.TileStatus)
@@ -97,7 +97,7 @@ func (gu *gitlabUsecase) Pipeline(params *models.PipelineParams) (tile *coreMode
 
 func (gu *gitlabUsecase) MergeRequest(params *models.MergeRequestParams) (tile *coreModels.Tile, err error) {
 	tile = coreModels.NewTile(api.GitlabMergeRequestTileType).WithBuild()
-	tile.Label = fmt.Sprintf("%d", params.ProjectID)
+	tile.Label = fmt.Sprintf("Project %d name", *params.ProjectID)
 
 	projectID := fmt.Sprintf("%d-%d", params.ProjectID, params.ID)
 	tile.Status = nonempty.Struct(params.Status, gu.computeStatus(projectID)).(coreModels.TileStatus)
