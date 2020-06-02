@@ -6,9 +6,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/AlekSi/pointer"
-	uuid "github.com/satori/go.uuid"
-
 	uiConfigModels "github.com/monitoror/monitoror/api/config/models"
 	monitorableCache "github.com/monitoror/monitoror/internal/pkg/monitorable/cache"
 	coreModels "github.com/monitoror/monitoror/models"
@@ -16,7 +13,9 @@ import (
 	"github.com/monitoror/monitoror/monitorables/gitlab/api/models"
 	"github.com/monitoror/monitoror/pkg/git"
 
+	"github.com/AlekSi/pointer"
 	"github.com/jsdidierlaurent/echo-middleware/cache"
+	uuid "github.com/satori/go.uuid"
 )
 
 type (
@@ -25,7 +24,7 @@ type (
 		// Used to generate store key by repository
 		repositoryUID string
 
-		// store is used to store persistent data (project,
+		// store is used to store persistent data (project, merge requests)
 		store cache.Store
 
 		// builds cache. used for save small history of build for stats
