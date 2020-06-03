@@ -105,7 +105,11 @@
     }
 
     get isGitLab(): boolean {
-      return this.tileType === TileType.GitLab
+      return [
+        TileType.GitLabPipeline,
+        TileType.GitLabMergeRequest,
+        TileType.GitLabIssues,
+      ].includes(this.tileType)
     }
 
     get isTravis(): boolean {

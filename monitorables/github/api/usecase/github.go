@@ -50,7 +50,7 @@ func NewGithubUsecase(repository api.Repository) api.Usecase {
 
 func (gu *githubUsecase) Count(params *models.CountParams) (*coreModels.Tile, error) {
 	tile := coreModels.NewTile(api.GithubCountTileType).WithValue(coreModels.NumberUnit)
-	tile.Label = params.Query
+	tile.Label = "GitHub count"
 
 	count, err := gu.repository.GetCount(params.Query)
 	if err != nil {
@@ -105,9 +105,9 @@ func (gu *githubUsecase) PullRequest(params *models.PullRequestParams) (*coreMod
 	}
 
 	tile.Label = params.Repository
-	tile.Build.Branch = pointer.ToString(git.HumanizeBranch(pullRequest.Branch))
-	if params.Owner != pullRequest.Owner {
-		tile.Build.Branch = pointer.ToString(fmt.Sprintf("%s:%s", pullRequest.Owner, *tile.Build.Branch))
+	tile.Build.Branch = pointer.ToString(git.HumanizeBranch(pullRequest.SourceBranch))
+	if params.Owner != pullRequest.SourceOwner {
+		tile.Build.Branch = pointer.ToString(fmt.Sprintf("%s:%s", pullRequest.SourceOwner, *tile.Build.Branch))
 	}
 	tile.Build.MergeRequest = &coreModels.TileMergeRequest{
 		ID:    pullRequest.ID,

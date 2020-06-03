@@ -4,13 +4,12 @@ import (
 	coreModels "github.com/monitoror/monitoror/models"
 )
 
-type PullRequest struct {
+type MergeRequest struct {
 	ID     int
 	Title  string
 	Author coreModels.Author
 
-	SourceOwner      string
-	SourceRepository string
-	SourceBranch     string
-	CommitSHA        string
+	SourceProjectID int
+	SourceBranch    string
+	CommitSHA       string
 }

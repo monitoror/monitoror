@@ -3,6 +3,7 @@ package monitorables
 import (
 	"github.com/monitoror/monitoror/monitorables/azuredevops"
 	"github.com/monitoror/monitoror/monitorables/github"
+	"github.com/monitoror/monitoror/monitorables/gitlab"
 	"github.com/monitoror/monitoror/monitorables/http"
 	"github.com/monitoror/monitoror/monitorables/jenkins"
 	"github.com/monitoror/monitoror/monitorables/ping"
@@ -17,6 +18,8 @@ func RegisterMonitorables(s *store.Store) {
 	s.Registry.RegisterMonitorable(azuredevops.NewMonitorable(s))
 	// ------------ GITHUB ------------
 	s.Registry.RegisterMonitorable(github.NewMonitorable(s))
+	// ------------ GITLAB ------------
+	s.Registry.RegisterMonitorable(gitlab.NewMonitorable(s))
 	// ------------ HTTP ------------
 	s.Registry.RegisterMonitorable(http.NewMonitorable(s))
 	// ------------ JENKINS ------------

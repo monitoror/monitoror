@@ -30,6 +30,10 @@
     { "type": "GITHUB-CHECKS", "params": { "owner": "monitoror", "repository": "monitoror", "ref": "master", "status": "ACTION_REQUIRED" } },
     { "type": "GITHUB-CHECKS", "params": { "owner": "monitoror", "repository": "monitoror", "ref": "master", "status": "RUNNING" } },
     { "type": "GITHUB-PULLREQUEST", "label": "-", "params": { "owner": "monitoror", "repository": "monitoror", "id": 1337, "mergeRequestTitle": "Feature branch which adds a super new thing", "branch": "fork:feature-branch", "status": "SUCCESS" } },
+    { "type": "GITLAB-PIPELINE", "params": { "projectId": 10, "ref": "master" } },
+    { "type": "GITLAB-PIPELINE", "params": { "projectId": 10, "ref": "master", "status": "ACTION_REQUIRED" } },
+    { "type": "GITLAB-PIPELINE", "params": { "projectId": 10, "ref": "master", "status": "RUNNING" } },
+    { "type": "GITLAB-MERGEREQUEST", "label": "-", "params": { "projectId": 10, "id": 1337, "mergeRequestTitle": "Feature branch which adds a super new thing", "branch": "fork:feature-branch", "status": "SUCCESS" } },
     {
       "type": "GROUP",
       "label": "Merge requests in group",

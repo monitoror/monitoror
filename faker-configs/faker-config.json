@@ -23,6 +23,7 @@
     ]},
     { "type": "PINGDOM-CHECK", "params": { "id": 1000 } },
     { "type": "GITHUB-COUNT", "label": "Monitoror open issues", "params": { "query": "is:open is:issue repo:monitoror/monitoror", "valueValues": ["10"] } },
+    { "type": "GITLAB-ISSUES", "label": "Monitoror open issues", "params": { "valueValues": ["10"] } },
     { "type": "HTTP-STATUS", "params": { "url": "http://monitoror.test" } },
     { "type": "HTTP-STATUS", "params": { "url": "http://monitoror.test", "status": "SUCCESS"} },
     { "type": "HTTP-FORMATTED", "params": { "format": "JSON", "url": "http://monitoror.test", "key": ".key", "status": "SUCCESS", "valueValues": ["1337", "1337"] } }
