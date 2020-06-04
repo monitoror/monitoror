@@ -13,7 +13,7 @@ GO111MODULE=off go get -u github.com/GeertJohan/go.rice/rice
 
 # mockery, used by `make mocks`. Generating mock for backend
 echo "Installing mockery"
-GO111MODULE=off go get -u github.com/Willyham/mockery/.../
+GO111MODULE=off go get -u github.com/vektra/mockery/.../
 
 # revproxy, usef by `make proxy`. Start a proxy for test
 echo "Installing revproxy"
