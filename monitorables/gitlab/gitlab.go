@@ -22,7 +22,7 @@ type Monitorable struct {
 	config map[coreModels.VariantName]*gitlabConfig.Gitlab
 
 	// Config tile settings
-	issuesTileEnabler            registry.TileEnabler
+	countIssuesTileEnabler       registry.TileEnabler
 	pipelineTileEnabler          registry.TileEnabler
 	mergeRequestTileEnabler      registry.TileEnabler
 	mergeRequestGeneratorEnabler registry.GeneratorEnabler
@@ -37,7 +37,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	pkgMonitorable.LoadConfig(&m.config, gitlabConfig.Default)
 
 	// Register Monitorable Tile in config manager
-	m.issuesTileEnabler = store.Registry.RegisterTile(api.GitlabIssuesTileType, versions.MinimalVersion, m.GetVariantsNames())
+	m.countIssuesTileEnabler = store.Registry.RegisterTile(api.GitlabCountIssuesTileType, versions.MinimalVersion, m.GetVariantsNames())
 	m.pipelineTileEnabler = store.Registry.RegisterTile(api.GitlabPipelineTileType, versions.MinimalVersion, m.GetVariantsNames())
 	m.mergeRequestTileEnabler = store.Registry.RegisterTile(api.GitlabMergeRequestTileType, versions.MinimalVersion, m.GetVariantsNames())
 	m.mergeRequestGeneratorEnabler = store.Registry.RegisterGenerator(api.GitlabMergeRequestTileType, versions.MinimalVersion, m.GetVariantsNames())
@@ -78,12 +78,12 @@ func (m *Monitorable) Enable(variantName coreModels.VariantName) {
 
 	// EnableTile route to echo
 	routeGroup := m.store.MonitorableRouter.Group("/gitlab", variantName)
-	routeIssues := routeGroup.GET("/issues", delivery.GetIssues)
+	routeCountIssues := routeGroup.GET("/count-issues", delivery.GetCountIssues)
 	routePipeline := routeGroup.GET("/pipeline", delivery.GetPipeline)
 	routeMergeRequest := routeGroup.GET("/mergerequest", delivery.GetMergeRequest)
 
 	// EnableTile data for config hydration
-	m.issuesTileEnabler.Enable(variantName, &gitlabModels.IssuesParams{}, routeIssues.Path)
+	m.countIssuesTileEnabler.Enable(variantName, &gitlabModels.IssuesParams{}, routeCountIssues.Path)
 	m.pipelineTileEnabler.Enable(variantName, &gitlabModels.PipelineParams{}, routePipeline.Path)
 	m.mergeRequestTileEnabler.Enable(variantName, &gitlabModels.MergeRequestParams{}, routeMergeRequest.Path)
 	m.mergeRequestGeneratorEnabler.Enable(variantName, &gitlabModels.MergeRequestGeneratorParams{}, usecase.MergeRequestsGenerator)

@@ -51,11 +51,11 @@ func NewGitlabUsecase(repository api.Repository, store cache.Store) api.Usecase 
 	}
 }
 
-func (gu *gitlabUsecase) Issues(params *models.IssuesParams) (*coreModels.Tile, error) {
-	tile := coreModels.NewTile(api.GitlabIssuesTileType).WithValue(coreModels.NumberUnit)
+func (gu *gitlabUsecase) CountIssues(params *models.IssuesParams) (*coreModels.Tile, error) {
+	tile := coreModels.NewTile(api.GitlabCountIssuesTileType).WithValue(coreModels.NumberUnit)
 	tile.Label = "GitLab count"
 
-	count, err := gu.repository.GetIssues(params)
+	count, err := gu.repository.GetCountIssues(params)
 	if err != nil {
 		return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: "unable to load issues"}
 	}

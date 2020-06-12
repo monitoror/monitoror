@@ -12,8 +12,8 @@ type Repository struct {
 	mock.Mock
 }
 
-// GetIssues provides a mock function with given fields: params
-func (_m *Repository) GetIssues(params *models.IssuesParams) (int, error) {
+// GetCountIssues provides a mock function with given fields: params
+func (_m *Repository) GetCountIssues(params *models.IssuesParams) (int, error) {
 	ret := _m.Called(params)
 
 	var r0 int

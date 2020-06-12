@@ -16,8 +16,8 @@ type Usecase struct {
 	mock.Mock
 }
 
-// Issues provides a mock function with given fields: params
-func (_m *Usecase) Issues(params *models.IssuesParams) (*monitorormodels.Tile, error) {
+// CountIssues provides a mock function with given fields: params
+func (_m *Usecase) CountIssues(params *models.IssuesParams) (*monitorormodels.Tile, error) {
 	ret := _m.Called(params)
 
 	var r0 *monitorormodels.Tile

@@ -42,7 +42,7 @@ func TestNewGitlabRepository_Panic(t *testing.T) {
 	})
 }
 
-func TestRepository_GetIssues_Error(t *testing.T) {
+func TestRepository_GetCountIssues_Error(t *testing.T) {
 	gitlabErr := errors.New("gitlab error")
 
 	mockIssueService := new(mocks.IssuesService)
@@ -55,11 +55,11 @@ func TestRepository_GetIssues_Error(t *testing.T) {
 	if repository != nil {
 		repository.issuesService = mockIssueService
 
-		_, err := repository.GetIssues(&models.IssuesParams{})
+		_, err := repository.GetCountIssues(&models.IssuesParams{})
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "gitlab error")
 		}
-		_, err = repository.GetIssues(&models.IssuesParams{ProjectID: pointer.ToInt(10)})
+		_, err = repository.GetCountIssues(&models.IssuesParams{ProjectID: pointer.ToInt(10)})
 		if assert.Error(t, err) {
 			assert.Contains(t, err.Error(), "gitlab error")
 		}
@@ -70,7 +70,7 @@ func TestRepository_GetIssues_Error(t *testing.T) {
 	}
 }
 
-func TestRepository_GetIssues_Success(t *testing.T) {
+func TestRepository_GetCountIssues_Success(t *testing.T) {
 	mockIssueService := new(mocks.IssuesService)
 	mockIssueService.On("ListIssues", Anything, Anything).
 		Return(nil, &gitlab.Response{TotalItems: 42}, nil)
@@ -81,12 +81,12 @@ func TestRepository_GetIssues_Success(t *testing.T) {
 	if repository != nil {
 		repository.issuesService = mockIssueService
 
-		value, err := repository.GetIssues(&models.IssuesParams{})
+		value, err := repository.GetCountIssues(&models.IssuesParams{})
 		if assert.NoError(t, err) {
 			assert.Equal(t, 42, value)
 		}
 
-		value, err = repository.GetIssues(&models.IssuesParams{ProjectID: pointer.ToInt(10)})
+		value, err = repository.GetCountIssues(&models.IssuesParams{ProjectID: pointer.ToInt(10)})
 		if assert.NoError(t, err) {
 			assert.Equal(t, 42, value)
 		}

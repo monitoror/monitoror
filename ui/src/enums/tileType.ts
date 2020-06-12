@@ -10,7 +10,7 @@ export enum TileType {
   GitHubCount = 'GITHUB-COUNT',
   GitLabPipeline = 'GITLAB-PIPELINE',
   GitLabMergeRequest = 'GITLAB-MERGEREQUEST',
-  GitLabIssues = 'GITLAB-ISSUES',
+  GitLabIssues = 'GITLAB-COUNT-ISSUES',
   Travis = 'TRAVISCI-BUILD',
   Jenkins = 'JENKINS-BUILD',
   AzureDevOpsBuild = 'AZUREDEVOPS-BUILD',

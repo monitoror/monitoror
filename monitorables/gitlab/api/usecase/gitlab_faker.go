@@ -37,8 +37,8 @@ func NewGitlabUsecase() api.Usecase {
 	return &gitlabUsecase{cmap.New()}
 }
 
-func (gu *gitlabUsecase) Issues(params *models.IssuesParams) (*coreModels.Tile, error) {
-	tile := coreModels.NewTile(api.GitlabIssuesTileType).WithValue(coreModels.NumberUnit)
+func (gu *gitlabUsecase) CountIssues(params *models.IssuesParams) (*coreModels.Tile, error) {
+	tile := coreModels.NewTile(api.GitlabCountIssuesTileType).WithValue(coreModels.NumberUnit)
 	tile.Label = "GitLab issues"
 
 	tile.Status = coreModels.SuccessStatus

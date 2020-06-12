@@ -28,18 +28,18 @@ func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 	return
 }
 
-func TestDelivery_GetIssues_Success(t *testing.T) {
+func TestDelivery_GetCountIssues_Success(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
 	ctx.QueryParams().Set("projectId", "10")
 	ctx.QueryParams().Set("query", "test")
 
-	tile := coreModels.NewTile(api.GitlabIssuesTileType)
+	tile := coreModels.NewTile(api.GitlabCountIssuesTileType)
 	tile.Status = coreModels.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("Issues", &models.IssuesParams{ProjectID: pointer.ToInt(10)}).Return(tile, nil)
+	mockUsecase.On("CountIssues", &models.IssuesParams{ProjectID: pointer.ToInt(10)}).Return(tile, nil)
 	handler := NewGitlabDelivery(mockUsecase)
 
 	// Expected
@@ -47,29 +47,29 @@ func TestDelivery_GetIssues_Success(t *testing.T) {
 	assert.NoError(t, err, "unable to marshal tile")
 
 	// Test
-	if assert.NoError(t, handler.GetIssues(ctx)) {
+	if assert.NoError(t, handler.GetCountIssues(ctx)) {
 		assert.Equal(t, http.StatusOK, res.Code)
 		assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
-		mockUsecase.AssertNumberOfCalls(t, "Issues", 1)
+		mockUsecase.AssertNumberOfCalls(t, "CountIssues", 1)
 		mockUsecase.AssertExpectations(t)
 	}
 }
 
-func TestDelivery_GetIssues_Error(t *testing.T) {
+func TestDelivery_GetCountIssues_Error(t *testing.T) {
 	// Init
 	ctx, res := initEcho()
 
 	ctx.QueryParams().Set("query", "test")
 
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("Issues", Anything).Return(nil, errors.New("build error"))
+	mockUsecase.On("CountIssues", Anything).Return(nil, errors.New("build error"))
 	handler := NewGitlabDelivery(mockUsecase)
 
 	// Test
-	err := handler.GetIssues(ctx)
+	err := handler.GetCountIssues(ctx)
 	if assert.Error(t, err) {
 		assert.Equal(t, http.StatusOK, res.Code)
-		mockUsecase.AssertNumberOfCalls(t, "Issues", 1)
+		mockUsecase.AssertNumberOfCalls(t, "CountIssues", 1)
 		mockUsecase.AssertExpectations(t)
 	}
 }
