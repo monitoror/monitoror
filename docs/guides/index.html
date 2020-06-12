@@ -24,6 +24,14 @@
   <meta name="twitter:description" content="Guides to use Monitoror, which is a wallboard monitoring app to monitor server status; monitor CI builds progress or even display critical values" />
 </head>
 <body class="m-documentation">
+<!-- Used to avoid custom scrollbar on macOS -->
+<script>
+  const isMacOs = navigator.platform.toLowerCase().includes('mac')
+  if (isMacOs) {
+    document.body.classList.add('macos')
+  }
+</script>
+
 <div class="m-documentation--header-mobile">
   <button id="js-toggle-menu" class="m-documentation--header-menu-icon">Menu</button>
   <a href="/">

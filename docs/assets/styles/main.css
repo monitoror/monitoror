@@ -58,26 +58,30 @@
   --color-warning-dark: #34342f;
   --color-unknown: #9ca3ab;
 
+  /* For Firefox */
   scrollbar-color: var(--color-cello) var(--color-code-background);
 }
 
-
-::-webkit-scrollbar {
+body:not(.macos)::-webkit-scrollbar,
+body:not(.macos) *::-webkit-scrollbar {
   width: 17px;
 }
 
-::-webkit-scrollbar-track {
+body:not(.macos)::-webkit-scrollbar-track,
+body:not(.macos) *::-webkit-scrollbar-track {
   background: var(--color-code-background);
 }
 
-::-webkit-scrollbar-thumb {
+body:not(.macos)::-webkit-scrollbar-thumb,
+body:not(.macos) *::-webkit-scrollbar-thumb {
   background: var(--color-cello);
   border: 2px solid var(--color-code-background);
   border-top: 0;
   border-bottom: 0;
 }
 
-::-webkit-scrollbar-thumb:hover {
+body:not(.macos)::-webkit-scrollbar-thumb:hover,
+body:not(.macos) *::-webkit-scrollbar-thumb:hover {
   background: var(--color-action-required);
 }
 
@@ -1955,6 +1959,7 @@ _:not(a,b), .m-documentation-card--mask {
   clip-path: none;
   border-radius: 4px !important;
 }
+
 _:not(a,b), .m-documentation-card--mask::after {
   border-radius: 4px 4px 0 0;
 }
