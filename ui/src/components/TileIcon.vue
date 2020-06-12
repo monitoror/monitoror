@@ -93,7 +93,10 @@
     }
 
     get isPingdom(): boolean {
-      return this.tileType === TileType.Pingdom
+      return [
+        TileType.PingdomCheck,
+        TileType.PingdomTransactionCheck,
+      ].includes(this.tileType)
     }
 
     get isGitHub(): boolean {

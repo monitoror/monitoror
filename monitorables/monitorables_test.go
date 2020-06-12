@@ -51,7 +51,9 @@ func TestManager_RegisterMonitorables(t *testing.T) {
 	assert.NotNil(t, mr.TileMetadata[pingApi.PingTileType])
 	// ------------ PINGDOM ------------
 	assert.NotNil(t, mr.TileMetadata[pingdomApi.PingdomCheckTileType])
+	assert.NotNil(t, mr.TileMetadata[pingdomApi.PingdomTransactionCheckTileType])
 	assert.NotNil(t, mr.GeneratorMetadata[coreModels.NewGeneratorTileType(pingdomApi.PingdomCheckTileType)])
+	assert.NotNil(t, mr.GeneratorMetadata[coreModels.NewGeneratorTileType(pingdomApi.PingdomTransactionCheckTileType)])
 	// ------------ PORT ------------
 	assert.NotNil(t, mr.TileMetadata[portApi.PortTileType])
 	// ------------ TRAVIS CI ------------

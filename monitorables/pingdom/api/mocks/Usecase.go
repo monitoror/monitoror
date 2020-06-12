@@ -61,3 +61,49 @@ func (_m *Usecase) CheckGenerator(params interface{}) ([]configmodels.GeneratedT
 
 	return r0, r1
 }
+
+// TransactionCheck provides a mock function with given fields: params
+func (_m *Usecase) TransactionCheck(params *models.TransactionCheckParams) (*monitorormodels.Tile, error) {
+	ret := _m.Called(params)
+
+	var r0 *monitorormodels.Tile
+	if rf, ok := ret.Get(0).(func(*models.TransactionCheckParams) *monitorormodels.Tile); ok {
+		r0 = rf(params)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(*monitorormodels.Tile)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(*models.TransactionCheckParams) error); ok {
+		r1 = rf(params)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// TransactionCheckGenerator provides a mock function with given fields: params
+func (_m *Usecase) TransactionCheckGenerator(params interface{}) ([]configmodels.GeneratedTile, error) {
+	ret := _m.Called(params)
+
+	var r0 []configmodels.GeneratedTile
+	if rf, ok := ret.Get(0).(func(interface{}) []configmodels.GeneratedTile); ok {
+		r0 = rf(params)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]configmodels.GeneratedTile)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(interface{}) error); ok {
+		r1 = rf(params)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}

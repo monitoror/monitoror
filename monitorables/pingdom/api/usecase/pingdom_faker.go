@@ -16,7 +16,7 @@ import (
 
 type (
 	pingdomUsecase struct {
-		timeRefByCheck map[int]time.Time
+		timeRefByCheck map[string]time.Time
 	}
 )
 
@@ -27,7 +27,7 @@ var availableStatuses = faker.Statuses{
 }
 
 func NewPingdomUsecase() api.Usecase {
-	return &pingdomUsecase{make(map[int]time.Time)}
+	return &pingdomUsecase{make(map[string]time.Time)}
 }
 
 func (pu *pingdomUsecase) Check(params *pingdomModels.CheckParams) (tile *models.Tile, error error) {
@@ -35,7 +35,7 @@ func (pu *pingdomUsecase) Check(params *pingdomModels.CheckParams) (tile *models
 	tile.Label = fmt.Sprintf(fmt.Sprintf("Check %d", *params.ID))
 
 	// Code
-	tile.Status = nonempty.Struct(params.Status, pu.computeStatus(params)).(models.TileStatus)
+	tile.Status = nonempty.Struct(params.Status, pu.computeStatus(fmt.Sprintf("%d", *params.ID))).(models.TileStatus)
 
 	return
 }
@@ -44,10 +44,24 @@ func (pu *pingdomUsecase) CheckGenerator(params interface{}) ([]uiConfigModels.G
 	panic("unimplemented")
 }
 
-func (pu *pingdomUsecase) computeStatus(params *pingdomModels.CheckParams) models.TileStatus {
-	value, ok := pu.timeRefByCheck[*params.ID]
+func (pu *pingdomUsecase) TransactionCheck(params *pingdomModels.TransactionCheckParams) (tile *models.Tile, error error) {
+	tile = models.NewTile(api.PingdomTransactionCheckTileType)
+	tile.Label = fmt.Sprintf(fmt.Sprintf("Transaction Check %d", *params.ID))
+
+	// Code
+	tile.Status = nonempty.Struct(params.Status, pu.computeStatus(fmt.Sprintf("t%d", *params.ID))).(models.TileStatus)
+
+	return
+}
+
+func (pu *pingdomUsecase) TransactionCheckGenerator(params interface{}) ([]uiConfigModels.GeneratedTile, error) {
+	panic("unimplemented")
+}
+
+func (pu *pingdomUsecase) computeStatus(id string) models.TileStatus {
+	value, ok := pu.timeRefByCheck[id]
 	if !ok {
-		pu.timeRefByCheck[*params.ID] = faker.GetRefTime()
+		pu.timeRefByCheck[id] = faker.GetRefTime()
 	}
 
 	return faker.ComputeStatus(value, availableStatuses)
