@@ -47,7 +47,7 @@ func NewGitlabRepository(config *config.Gitlab) api.Repository {
 	}
 }
 
-func (gr *gitlabRepository) GetIssues(params *models.IssuesParams) (int, error) {
+func (gr *gitlabRepository) GetCountIssues(params *models.IssuesParams) (int, error) {
 
 	var resp *gitlab.Response
 	var err error

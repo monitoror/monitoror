@@ -18,12 +18,12 @@ func NewGitlabDelivery(p api.Usecase) *GitlabDelivery {
 	return &GitlabDelivery{p}
 }
 
-func (gd *GitlabDelivery) GetIssues(c echo.Context) error {
+func (gd *GitlabDelivery) GetCountIssues(c echo.Context) error {
 	// Bind / check Params
 	params := &models.IssuesParams{}
 	_ = delivery.BindAndValidateParams(c, params)
 
-	tile, err := gd.gitlabUsecase.Issues(params)
+	tile, err := gd.gitlabUsecase.CountIssues(params)
 	if err != nil {
 		return err
 	}

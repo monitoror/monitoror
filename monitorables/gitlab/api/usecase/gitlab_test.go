@@ -24,39 +24,39 @@ func initUsecase(mockRepository api.Repository) *gitlabUsecase {
 	return castedGu
 }
 
-func TestUsecase_Issues_Error(t *testing.T) {
+func TestUsecase_CountIssues_Error(t *testing.T) {
 	mockRepository := new(mocks.Repository)
-	mockRepository.On("GetIssues", mock.Anything).
+	mockRepository.On("GetCountIssues", mock.Anything).
 		Return(0, errors.New("boom"))
 
 	gu := initUsecase(mockRepository)
 
-	tile, err := gu.Issues(&models.IssuesParams{})
+	tile, err := gu.CountIssues(&models.IssuesParams{})
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
 		assert.IsType(t, &coreModels.MonitororError{}, err)
 		assert.Equal(t, "unable to load issues", err.Error())
-		mockRepository.AssertNumberOfCalls(t, "GetIssues", 1)
+		mockRepository.AssertNumberOfCalls(t, "GetCountIssues", 1)
 		mockRepository.AssertExpectations(t)
 	}
 }
 
-func TestUsecase_Issues_Success(t *testing.T) {
+func TestUsecase_CountIssues_Success(t *testing.T) {
 	mockRepository := new(mocks.Repository)
-	mockRepository.On("GetIssues", mock.Anything).
+	mockRepository.On("GetCountIssues", mock.Anything).
 		Return(42, nil)
 
 	gu := initUsecase(mockRepository)
 
-	expected := coreModels.NewTile(api.GitlabIssuesTileType).WithValue(coreModels.NumberUnit)
+	expected := coreModels.NewTile(api.GitlabCountIssuesTileType).WithValue(coreModels.NumberUnit)
 	expected.Label = "GitLab count"
 	expected.Status = coreModels.SuccessStatus
 	expected.Value.Values = []string{"42"}
 
-	tile, err := gu.Issues(&models.IssuesParams{})
+	tile, err := gu.CountIssues(&models.IssuesParams{})
 	if assert.NoError(t, err) {
 		assert.Equal(t, expected, tile)
-		mockRepository.AssertNumberOfCalls(t, "GetIssues", 1)
+		mockRepository.AssertNumberOfCalls(t, "GetCountIssues", 1)
 		mockRepository.AssertExpectations(t)
 	}
 }

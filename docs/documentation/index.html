@@ -90,7 +90,7 @@
             </svg>
             <a href="#gitlab">GitLab</a>
             <ul>
-              <li><a href="#tile-gitlab-issues">GITLAB-ISSUES</a></li>
+              <li><a href="#tile-gitlab-count-issues">GITLAB-COUNT-ISSUES</a></li>
               <li><a href="#tile-gitlab-pipeline">GITLAB-PIPELINE</a></li>
               <li><a href="#tile-gitlab-mergerequest">GITLAB-MERGEREQUEST</a></li>
               <li><a href="#tile-generate-gitlab-mergerequest"><span class="tag-generate">GENERATE:</span>GITLAB-MERGEREQUEST</a></li>
@@ -1147,7 +1147,7 @@ MO_MONITORABLE_GITLAB_TOKEN="thisisyourtoken"
 MO_MONITORABLE_GITLAB_TIMEOUT=5000
       </code></pre>
 
-      <h4 id="tile-gitlab-issues">GITLAB-ISSUES</h4>
+      <h4 id="tile-gitlab-count-issues">GITLAB-COUNT-ISSUES</h4>
 
       <p>
         Show a counter of issues.
@@ -1200,7 +1200,7 @@ MO_MONITORABLE_GITLAB_TIMEOUT=5000
       <div class="m-documentation--example-and-demo">
         <pre class="example"><code class="language-json">
 {
-  "type": "GITLAB-ISSUES",
+  "type": "GITLAB-COUNT-ISSUES",
   "label": "Monitoror open issues",
   "params": {
     "projectId": 42,
@@ -1221,7 +1221,7 @@ MO_MONITORABLE_GITLAB_TIMEOUT=5000
           </div>
           <div class="m-documentation--demo-switch">
             <label class="m-documentation--demo-switch-label m-documentation--demo-switch-succeeded">
-              <input data-state-switch name="gitlab-issues-state" type="radio" value="success">
+              <input data-state-switch name="gitlab-count-issues-state" type="radio" value="success">
               Success
             </label>
           </div>
