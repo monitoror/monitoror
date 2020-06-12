@@ -133,7 +133,9 @@
             <a href="#pingdom">Pingdom</a>
             <ul>
               <li><a href="#tile-pingdom-check">PINGDOM-CHECK</a></li>
+              <li><a href="#tile-pingdom-transaction-check">PINGDOM-TRANSACTION-CHECK</a></li>
               <li><a href="#tile-generate-pingdom-check"><span class="tag-generate">GENERATE:</span>PINGDOM-CHECK</a></li>
+              <li><a href="#tile-generate-pingdom-transaction-check"><span class="tag-generate">GENERATE:</span>PINGDOM-TRANSACTION-CHECK</a></li>
             </ul>
           </li>
           <li>
@@ -2090,6 +2092,51 @@ MO_MONITORABLE_PINGDOM_CACHEEXPIRATION=30000
         </div>
       </div>
 
+      <h4 id="tile-pingdom-transaction-check">PINGDOM-TRANSACTION-CHECK</h4>
+
+      <p>
+        Show state of a Pingdom specific transaction check.
+      </p>
+
+      <h5 class="m-documentation--configuration-side-title">UI configuration</h5>
+
+      <dl>
+        <dt><code>id</code> <code class="type">number</code> <span class="required">required</span></dt>
+        <dd>
+          Pingdom transaction check ID
+        </dd>
+      </dl>
+
+      <div class="m-documentation--example-and-demo">
+        <pre class="example"><code class="language-json">
+{
+  "type": "PINGDOM-TRANSACTION-CHECK",
+  "params": {
+    "id": 10
+  }
+}
+        </code></pre>
+
+        <div class="m-documentation--demo">
+          <div class="m-documentation--demo-tile">
+            <div class="m-documentation--demo-label">Check name</div>
+            <svg class="m-documentation--demo-icon" xmlns="http://www.w3.org/2000/svg">
+              <use xlink:href="/assets/images/icons.svg#pingdom"/>
+            </svg>
+          </div>
+          <div class="m-documentation--demo-switch">
+            <label class="m-documentation--demo-switch-label m-documentation--demo-switch-succeeded">
+              <input data-state-switch name="pingdom-transaction-check-state" type="radio" value="succeeded">
+              Success
+            </label>
+            <label class="m-documentation--demo-switch-label m-documentation--demo-switch-error">
+              <input data-state-switch name="pingdom-transaction-check-state" type="radio" value="error">
+              Error
+            </label>
+          </div>
+        </div>
+      </div>
+
       <h4 id="tile-generate-pingdom-check">GENERATE:PINGDOM-CHECK</h4>
 
       <p>
@@ -2123,6 +2170,46 @@ MO_MONITORABLE_PINGDOM_CACHEEXPIRATION=30000
       <pre class="example"><code class="language-json">
 {
   "type": "GENERATE:PINGDOM-CHECK",
+  "params": {
+    "tags": "eu-west",
+    "sortBy": "name"
+  }
+}
+      </code></pre>
+
+      <h4 id="tile-generate-pingdom-transaction-check">GENERATE:PINGDOM-TRANSACTION-CHECK</h4>
+
+      <p>
+        Show state of all Pingdom transaction checks.
+      </p>
+
+      <p class="note">
+        <span class="tag">Note</span>
+        This tile is a generator tile that will be replaced by N classic
+        <code><a href="#tile-pingdom-transaction-check">PINGDOM-TRANSACTION-CHECK</a></code> tiles. <br>
+        N being the number of checks that match the filters that have been set.
+      </p>
+
+      <h5 class="m-documentation--configuration-side-title">UI configuration</h5>
+
+      <dl>
+        <dt><code>tags</code> <code class="type">string</code></dt>
+        <dd>
+          Pingdom transaction check tag list separated by commas
+        </dd>
+
+        <dt><code>sortBy</code> <code class="type">string</code></dt>
+        <dd>
+          Allow to sort transaction checks by following:
+          <ul>
+            <li><code>name</code></li>
+          </ul>
+        </dd>
+      </dl>
+
+      <pre class="example"><code class="language-json">
+{
+  "type": "GENERATE:PINGDOM-TRANSACTION-CHECK",
   "params": {
     "tags": "eu-west",
     "sortBy": "name"
