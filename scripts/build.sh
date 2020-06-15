@@ -45,7 +45,7 @@ if [[ $MB_GO_TAGS != "" ]]; then
   targetTags="-${MB_GO_TAGS/,/-}"
 fi
 
-# Define target extention
+# Define target extension
 ext=""
 if [[ $GOOS == "windows" ]]; then
   ext=".exe"
