@@ -2700,6 +2700,12 @@ MO_MONITORABLE_JENKINS_PROD_TOKEN="thisisyourtoken"
           negative on CI checks <br>
           <span class="tag">Default:</span> <code>120000</code>
         </dd>
+
+        <dt><code>MO_INITIALMAXDELAY</code> <code class="type">number</code></dt>
+        <dd>
+          Duration in milliseconds used as the maximum delay on each tile's first update to avoid bursting N requests at the same time on start <br>
+          <span class="tag">Default:</span> <code>1700</code>
+        </dd>
       </dl>
 
 <!--      <pre>-->
