@@ -34,13 +34,20 @@ type (
 )
 
 const (
-	PingdomChecksStoreKeyPrefix   = "monitoror.pingdom.checks.store"
-	PingdomCheckStoreKeyPrefix    = "monitoror.pingdom.check.store"
-	PingdomTagsByIDStoreKeyPrefix = "monitoror.pingdom.tagsById.store"
+	PingdomChecksTagsByIDStoreKeyPrefix            = "monitoror.pingdom.checksTagsById.store"
+	PingdomChecksStoreKeyPrefix                    = "monitoror.pingdom.checks.store"
+	PingdomCheckStoreKeyPrefix                     = "monitoror.pingdom.check.store"
+	PingdomTransactionChecksTagsByIDStoreKeyPrefix = "monitoror.pingdom.transactionChecksTagsById.store"
+	PingdomTransactionChecksStoreKeyPrefix         = "monitoror.pingdom.transactionChecks.store"
+	PingdomTransactionCheckStoreKeyPrefix          = "monitoror.pingdom.transactionCheck.store"
 
-	PausedStatus = "paused"
-	UpStatus     = "up"
-	DownStatus   = "down"
+	UpCheckStatus     = "up"
+	DownCheckStatus   = "down"
+	PausedCheckStatus = "paused"
+
+	SuccessfulTransactionCheckStatus = "successful"
+	FailingTransactionCheckStatus    = "failing"
+	UnknownTransactionCheckStatus    = "unknown"
 )
 
 func NewPingdomUsecase(repository api.Repository, store cache.Store, cacheExpiration int) api.Usecase {
@@ -53,15 +60,22 @@ func NewPingdomUsecase(repository api.Repository, store cache.Store, cacheExpira
 }
 
 func (pu *pingdomUsecase) Check(params *models.CheckParams) (*coreModels.Tile, error) {
+	return pu.check(false, *params.ID)
+}
+
+func (pu *pingdomUsecase) TransactionCheck(params *models.TransactionCheckParams) (*coreModels.Tile, error) {
+	return pu.check(true, *params.ID)
+}
+
+func (pu *pingdomUsecase) check(transaction bool, checkID int) (*coreModels.Tile, error) {
 	tile := coreModels.NewTile(api.PingdomCheckTileType)
 
-	checkID := *params.ID
 	var result models.Check
 	var tags string
 
 	// Lookup in store for bulk query for this ID, if found, use it
-	if err := pu.store.Get(pu.getTagsByIDStoreKey(checkID), &tags); err == nil {
-		checks, err := pu.loadChecks(tags)
+	if err := pu.store.Get(pu.getTagsByIDStoreKey(transaction, checkID), &tags); err == nil {
+		checks, err := pu.loadChecks(transaction, tags)
 		if err != nil {
 			return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: "unable to find checks"}
 		}
@@ -75,7 +89,7 @@ func (pu *pingdomUsecase) Check(params *models.CheckParams) (*coreModels.Tile, e
 		}
 	} else // Bulk not found, request single check
 	{
-		check, err := pu.loadCheck(checkID)
+		check, err := pu.loadCheck(transaction, checkID)
 		if err != nil {
 			return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: "unable to find check"}
 		}
@@ -84,20 +98,28 @@ func (pu *pingdomUsecase) Check(params *models.CheckParams) (*coreModels.Tile, e
 
 	// Parse result to tile
 	tile.Label = result.Name
-	tile.Status = parseStatus(result.Status)
+	tile.Status = parseCheckStatus(result.Status)
 
 	return tile, nil
 }
 
 func (pu *pingdomUsecase) CheckGenerator(params interface{}) ([]uiConfigModels.GeneratedTile, error) {
-	lcParams := params.(*models.CheckGeneratorParams)
+	cParams := params.(*models.CheckGeneratorParams)
+	return pu.checkGenerator(false, cParams.Tags, cParams.SortBy)
+}
 
-	checks, err := pu.loadChecks(lcParams.Tags)
+func (pu *pingdomUsecase) TransactionCheckGenerator(params interface{}) ([]uiConfigModels.GeneratedTile, error) {
+	cParams := params.(*models.TransactionCheckGeneratorParams)
+	return pu.checkGenerator(true, cParams.Tags, cParams.SortBy)
+}
+
+func (pu *pingdomUsecase) checkGenerator(transaction bool, tags, sortBy string) ([]uiConfigModels.GeneratedTile, error) {
+	checks, err := pu.loadChecks(transaction, tags)
 	if err != nil {
 		return nil, &coreModels.MonitororError{Err: err, Message: "unable to list checks"}
 	}
 
-	if lcParams.SortBy == "name" {
+	if sortBy == "name" {
 		sort.SliceStable(checks, func(i, j int) bool { return checks[i].Name < checks[j].Name })
 	}
 
@@ -105,37 +127,51 @@ func (pu *pingdomUsecase) CheckGenerator(params interface{}) ([]uiConfigModels.G
 	for _, check := range checks {
 		// Adding id -> tags in the store for one minute. This value will be refresh each time we call this route
 		// This store will be use to find the best route to call for loading check result.
-		_ = pu.store.Set(pu.getTagsByIDStoreKey(check.ID), lcParams.Tags, time.Minute)
+		_ = pu.store.Set(pu.getTagsByIDStoreKey(transaction, check.ID), tags, time.Minute)
+
+		if check.Status == PausedCheckStatus || check.Status == UnknownTransactionCheckStatus {
+			continue
+		}
 
 		// Build results
-		if check.Status != PausedStatus {
-			p := models.CheckParams{}
-			p.ID = pointer.ToInt(check.ID)
-
-			results = append(results, uiConfigModels.GeneratedTile{
-				Label:  check.Name,
-				Params: p,
-			})
+		var p interface{}
+		if transaction {
+			p = models.TransactionCheckParams{
+				ID: pointer.ToInt(check.ID),
+			}
+		} else {
+			p = models.CheckParams{
+				ID: pointer.ToInt(check.ID),
+			}
 		}
+
+		results = append(results, uiConfigModels.GeneratedTile{
+			Label:  check.Name,
+			Params: p,
+		})
 	}
 
 	return results, err
 }
 
-func (pu *pingdomUsecase) loadCheck(id int) (result *models.Check, err error) {
+func (pu *pingdomUsecase) loadCheck(transaction bool, id int) (result *models.Check, err error) {
 	// Synchronize to avoid multi call on pingdom api
 	pu.Lock()
 	defer pu.Unlock()
 
 	// Lookup in cache
 	result = &models.Check{}
-	key := pu.getCheckStoreKey(id)
+	key := pu.getCheckStoreKey(transaction, id)
 	if err = pu.store.Get(key, result); err == nil {
 		// Cache found, return
 		return
 	}
 
-	result, err = pu.repository.GetCheck(id)
+	if transaction {
+		result, err = pu.repository.GetTransactionCheck(id)
+	} else {
+		result, err = pu.repository.GetCheck(id)
+	}
 	if err != nil {
 		return
 	}
@@ -146,19 +182,23 @@ func (pu *pingdomUsecase) loadCheck(id int) (result *models.Check, err error) {
 	return
 }
 
-func (pu *pingdomUsecase) loadChecks(tags string) (results []models.Check, err error) {
+func (pu *pingdomUsecase) loadChecks(transaction bool, tags string) (results []models.Check, err error) {
 	// Synchronize to avoid multi call on pingdom api
 	pu.Lock()
 	defer pu.Unlock()
 
 	// Lookup in cache
-	key := pu.getChecksStoreKey(tags)
+	key := pu.getChecksStoreKey(transaction, tags)
 	if err = pu.store.Get(key, &results); err == nil {
 		// Cache found, return
 		return
 	}
 
-	results, err = pu.repository.GetChecks(tags)
+	if transaction {
+		results, err = pu.repository.GetTransactionChecks(tags)
+	} else {
+		results, err = pu.repository.GetChecks(tags)
+	}
 	if err != nil {
 		return
 	}
@@ -169,25 +209,37 @@ func (pu *pingdomUsecase) loadChecks(tags string) (results []models.Check, err e
 	return
 }
 
-func (pu *pingdomUsecase) getChecksStoreKey(tags string) string {
-	return fmt.Sprintf("%s:%s-%s", PingdomChecksStoreKeyPrefix, pu.repositoryUID, tags)
+func (pu *pingdomUsecase) getTagsByIDStoreKey(transaction bool, id int) string {
+	prefix := PingdomChecksTagsByIDStoreKeyPrefix
+	if transaction {
+		prefix = PingdomTransactionChecksTagsByIDStoreKeyPrefix
+	}
+	return fmt.Sprintf("%s:%s-%d", prefix, pu.repositoryUID, id)
 }
 
-func (pu *pingdomUsecase) getCheckStoreKey(id int) string {
-	return fmt.Sprintf("%s:%s-%d", PingdomCheckStoreKeyPrefix, pu.repositoryUID, id)
+func (pu *pingdomUsecase) getChecksStoreKey(transaction bool, tags string) string {
+	prefix := PingdomChecksStoreKeyPrefix
+	if transaction {
+		prefix = PingdomTransactionChecksStoreKeyPrefix
+	}
+	return fmt.Sprintf("%s:%s-%s", prefix, pu.repositoryUID, tags)
 }
 
-func (pu *pingdomUsecase) getTagsByIDStoreKey(id int) string {
-	return fmt.Sprintf("%s:%s-%d", PingdomTagsByIDStoreKeyPrefix, pu.repositoryUID, id)
+func (pu *pingdomUsecase) getCheckStoreKey(transaction bool, id int) string {
+	prefix := PingdomCheckStoreKeyPrefix
+	if transaction {
+		prefix = PingdomTransactionCheckStoreKeyPrefix
+	}
+	return fmt.Sprintf("%s:%s-%d", prefix, pu.repositoryUID, id)
 }
 
-func parseStatus(status string) coreModels.TileStatus {
+func parseCheckStatus(status string) coreModels.TileStatus {
 	switch status {
-	case UpStatus:
+	case UpCheckStatus, SuccessfulTransactionCheckStatus:
 		return coreModels.SuccessStatus
-	case DownStatus:
+	case DownCheckStatus, FailingTransactionCheckStatus:
 		return coreModels.FailedStatus
-	case PausedStatus:
+	case PausedCheckStatus, UnknownTransactionCheckStatus:
 		return coreModels.DisabledStatus
 	default:
 		return coreModels.UnknownStatus

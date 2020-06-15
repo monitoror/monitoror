@@ -10,5 +10,7 @@ type (
 	Repository interface {
 		GetCheck(checkID int) (*models.Check, error)
 		GetChecks(tags string) ([]models.Check, error)
+		GetTransactionCheck(checkID int) (*models.Check, error)
+		GetTransactionChecks(tags string) ([]models.Check, error)
 	}
 )

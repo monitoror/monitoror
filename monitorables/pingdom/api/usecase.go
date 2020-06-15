@@ -9,12 +9,15 @@ import (
 )
 
 const (
-	PingdomCheckTileType coreModels.TileType = "PINGDOM-CHECK"
+	PingdomCheckTileType            coreModels.TileType = "PINGDOM-CHECK"
+	PingdomTransactionCheckTileType coreModels.TileType = "PINGDOM-TRANSACTION-CHECK"
 )
 
 type (
 	Usecase interface {
 		Check(params *models.CheckParams) (*coreModels.Tile, error)
 		CheckGenerator(params interface{}) ([]uiConfigModels.GeneratedTile, error)
+		TransactionCheck(params *models.TransactionCheckParams) (*coreModels.Tile, error)
+		TransactionCheckGenerator(params interface{}) ([]uiConfigModels.GeneratedTile, error)
 	}
 )

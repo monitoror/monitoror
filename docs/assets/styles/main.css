@@ -58,26 +58,30 @@
   --color-warning-dark: #34342f;
   --color-unknown: #9ca3ab;
 
+  /* For Firefox */
   scrollbar-color: var(--color-cello) var(--color-code-background);
 }
 
-
-::-webkit-scrollbar {
+body:not(.macos)::-webkit-scrollbar,
+body:not(.macos) *::-webkit-scrollbar {
   width: 17px;
 }
 
-::-webkit-scrollbar-track {
+body:not(.macos)::-webkit-scrollbar-track,
+body:not(.macos) *::-webkit-scrollbar-track {
   background: var(--color-code-background);
 }
 
-::-webkit-scrollbar-thumb {
+body:not(.macos)::-webkit-scrollbar-thumb,
+body:not(.macos) *::-webkit-scrollbar-thumb {
   background: var(--color-cello);
   border: 2px solid var(--color-code-background);
   border-top: 0;
   border-bottom: 0;
 }
 
-::-webkit-scrollbar-thumb:hover {
+body:not(.macos)::-webkit-scrollbar-thumb:hover,
+body:not(.macos) *::-webkit-scrollbar-thumb:hover {
   background: var(--color-action-required);
 }
 
@@ -279,6 +283,7 @@ input {
   position: relative;
   text-decoration: none;
   padding-bottom: 4px;
+  white-space: nowrap;
 }
 
 .c-underlined::after,
@@ -1270,11 +1275,17 @@ input {
 
 .m-documentation--menu ul,
 .m-documentation--menu li {
+  display: block;
   position: relative;
   margin: 0;
   padding: 0;
   list-style: none;
   font-size: 20px;
+  clear: both;
+}
+
+.m-documentation--menu li {
+  min-height: 32px;
 }
 
 .m-documentation--menu > ul > li {
@@ -1296,12 +1307,18 @@ input {
 }
 
 .m-documentation--menu > ul ul ul a {
+  display: inline-block;
   max-width: 100%;
   font-size: 16px;
   color: var(--color-spindle);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  float: left;
+}
+
+.m-documentation--menu > ul ul ul a::after {
+  bottom: 3px !important;
 }
 
 .m-documentation--menu > ul > li > a,
@@ -1685,7 +1702,7 @@ input {
 }
 
 .m-documentation--content .love-block {
-  color: hsl(324, 85%, 90%);
+  color: #fcd9ee;
   background: linear-gradient(to right, #422436, #381e2e);
 }
 
@@ -1706,7 +1723,7 @@ input {
 }
 
 .love-block .c-button {
-  color: inherit;
+  color: #fef1f9;
   background: #522d43;
   border-color: #522d43;
 }
@@ -1955,6 +1972,7 @@ _:not(a,b), .m-documentation-card--mask {
   clip-path: none;
   border-radius: 4px !important;
 }
+
 _:not(a,b), .m-documentation-card--mask::after {
   border-radius: 4px 4px 0 0;
 }

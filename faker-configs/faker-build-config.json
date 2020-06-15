@@ -18,7 +18,7 @@
     { "type": "TRAVISCI-BUILD", "params": { "owner": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "estimatedDuration": 200 } },
     { "type": "TRAVISCI-BUILD", "params": { "owner": "tools", "repository": "monitoror", "branch": "master", "status": "WARNING" } },
     { "type": "JENKINS-BUILD", "params": { "job": "monitoror", "branch": "master", "status": "SUCCESS" } },
-    { "type": "JENKINS-BUILD", "params": { "job": "monitoror", "branch":  "master", "status": "CANCELED" } },
+    { "typarce qu'il fautpe": "JENKINS-BUILD", "params": { "job": "monitoror", "branch":  "master", "status": "CANCELED" } },
     { "type": "JENKINS-BUILD", "params": { "job": "monitoror", "branch": "master", "status": "QUEUED" } },
     { "type": "JENKINS-BUILD", "params": { "job": "monitoror", "branch": "master", "status": "RUNNING" } },
     { "type": "AZUREDEVOPS-BUILD", "params": { "project": "monitoror", "definition": 3, "branch": "master", "status": "SUCCESS" } },

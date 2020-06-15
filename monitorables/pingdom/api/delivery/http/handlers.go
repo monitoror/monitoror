@@ -32,3 +32,18 @@ func (h *PingdomDelivery) GetCheck(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, tile)
 }
+
+func (h *PingdomDelivery) GetTransactionCheck(c echo.Context) error {
+	// Bind / Check Params
+	params := &models.TransactionCheckParams{}
+	if err := delivery.BindAndValidateParams(c, params); err != nil {
+		return err
+	}
+
+	tile, err := h.pingdomUsecase.TransactionCheck(params)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, tile)
+}

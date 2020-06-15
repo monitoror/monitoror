@@ -20,7 +20,8 @@ type Monitorable struct {
 	store *store.Store
 
 	// Config tile settings
-	checkTileEnabler registry.TileEnabler
+	checkTileEnabler            registry.TileEnabler
+	transactionCheckTileEnabler registry.TileEnabler
 }
 
 func NewMonitorable(store *store.Store) *Monitorable {
@@ -29,6 +30,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 
 	// Register Monitorable Tile in config manager
 	m.checkTileEnabler = store.Registry.RegisterTile(api.PingdomCheckTileType, versions.MinimalVersion, m.GetVariantsNames())
+	m.transactionCheckTileEnabler = store.Registry.RegisterTile(api.PingdomTransactionCheckTileType, versions.MinimalVersion, m.GetVariantsNames())
 
 	return m
 }
@@ -41,8 +43,10 @@ func (m *Monitorable) Enable(variantName coreModels.VariantName) {
 
 	// EnableTile route to echo
 	routeGroup := m.store.MonitorableRouter.Group("/pingdom", variantName)
-	route := routeGroup.GET("/pingdom", delivery.GetCheck)
+	checkRoute := routeGroup.GET("/check", delivery.GetCheck)
+	transactionCheckRoute := routeGroup.GET("/transaction-check", delivery.GetTransactionCheck)
 
 	// EnableTile data for config hydration
-	m.checkTileEnabler.Enable(variantName, &pingdomModels.CheckParams{}, route.Path)
+	m.checkTileEnabler.Enable(variantName, &pingdomModels.CheckParams{}, checkRoute.Path)
+	m.transactionCheckTileEnabler.Enable(variantName, &pingdomModels.TransactionCheckParams{}, transactionCheckRoute.Path)
 }
