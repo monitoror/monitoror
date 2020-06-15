@@ -1,8 +1,8 @@
 {
-  "version": "1.0",
+  "version": "2.0",
   "columns": 4,
   "tiles": [
-    { "type": "HTTP-STATUS", "label": "Monitoror.com", "params": { "url": "monitoror.com", "status": "SUCCESS" } },
+    { "type": "HTTP-STATUS", "label": "Monitoror.com", "params": { "url": "https://monitoror.com", "status": "SUCCESS" } },
     { "type": "PING", "label": "Ping GitHub.com", "params": { "hostname": "github.com", "status": "SUCCESS" } },
     { "type": "PORT", "label": "bastion:22", "params": { "hostname": "bastion", "port": 22, "status": "SUCCESS" } },
     { "type": "GROUP", "label": "Production nodes", "tiles": [
@@ -33,6 +33,6 @@
     { "type": "AZUREDEVOPS-BUILD", "params": { "project": "monitoror", "definition": 8, "branch": "master", "status": "RUNNING" } },
     { "type": "GITHUB-CHECKS", "label": "PR#43 @ monitoror", "params": { "owner": "monitoror", "repository": "monitoror", "ref": "feat-github-checks", "status": "FAILURE" } },
     { "type": "GITHUB-CHECKS", "params": { "owner": "monitoror", "repository": "monitoror", "ref": "action-required", "status": "ACTION_REQUIRED" } },
-    { "type": "HTTP-STATUS", "label": "Please note that all the shown results are faked for demo purposes", "params": { "url": "monitoror.com", "status": "UNKNOWN" } }
+    { "type": "HTTP-STATUS", "label": "Please note that all the shown results are faked for demo purposes", "params": { "url": "https://monitoror.com", "status": "UNKNOWN" } }
   ]
 }
