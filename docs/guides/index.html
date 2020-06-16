@@ -122,6 +122,7 @@ sudo curl -s -o /opt/monitoror/monitoror https://github.com/monitoror/monitoror/
 sudo chmod +x /opt/monitoror/monitoror
 
 # Create backend configuration file
+# Setup default UI config with MO_CONFIG
 touch /opt/monitoror/.env
       </code></pre>
 
@@ -141,7 +142,7 @@ touch /opt/monitoror/.env
 
 # Starting UI
 chromium-browser --kiosk --password-store=basic --disable-infobars \
-  --app=http://localhost:8080/?configUrl={CONFIG_URL}
+  --app=http://localhost:8080/
       </code></pre>
 
       <h5 class="m-documentation--configuration-side-title">Automatically</h5>
@@ -184,7 +185,7 @@ sudo service rsyslog restart
 cat > ~/.config/autostart/chromium-browser.desktop &lt;&lt;END
   [Desktop Entry]
   Type=Application
-  Exec=chromium-browser --kiosk --password-store=basic --disable-infobars --app=http://localhost:8080/?configUrl={CONFIG_URL}
+  Exec=chromium-browser --kiosk --password-store=basic --disable-infobars --app=http://localhost:8080/
   Hidden=false
   X-MATE-Autostart-enabled=true
   Name[fr_FR]=chromium-browse
