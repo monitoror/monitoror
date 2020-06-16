@@ -1,0 +1,8 @@
+{
+  "version": "2.0",
+  "columns": 2,
+  "tiles": [
+    { "type": "PORT", "label": "Welcome config example", "params": { "hostname": "127.0.0.1", "port": 8080 } },
+    { "type": "HTTP-RAW", "label": "Monitoror stars", "params": { "url": "https://github.com/monitoror/monitoror", "regex": "(\\d+) users starred" } }
+  ]
+}

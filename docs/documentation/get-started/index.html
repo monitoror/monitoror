@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1" name="viewport">
+  <title>Get started — Monitoror, unified monitoring wallboard</title>
+  <meta content="Get started with Monitoror, a wallboard monitoring app to monitor server status; monitor CI builds progress or even display critical values"
+        name="description">
+  <link href="/favicon.png" rel="icon" type="image/png">
+  <link href="/favicon.ico" rel="icon">
+  <link href="/assets/styles/main.css" rel="stylesheet" type="text/css">
+  <link rel="canonical" href="https://monitoror.com/documentation/get-started/">
+
+  <!-- OpenGraph / Twitter cards -->
+  <meta property="og:image" content="https://monitoror.com/assets/images/opengraph.png" />
+  <meta property="og:site_name" content="Monitoror" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Get started — Monitoror, unified monitoring wallboard" />
+  <meta property="og:url" content="https://monitoror.com/documentation/get-started/" />
+  <meta property="og:description" content="Get started with Monitoror, a wallboard monitoring app to monitor server status; monitor CI builds progress or even display critical values" />
+  <meta name="twitter:image:src" content="https://monitoror.com/assets/images/opengraph.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Get started — Monitoror, unified monitoring wallboard" />
+  <meta name="twitter:description" content="Get started with Monitoror, a wallboard monitoring app to monitor server status; monitor CI builds progress or even display critical values" />
+</head>
+<body class="m-documentation">
+<!-- Used to avoid custom scrollbar on macOS -->
+<script>
+  const isMacOs = navigator.platform.toLowerCase().includes('mac')
+  if (isMacOs) {
+    document.body.classList.add('macos')
+  }
+</script>
+
+<div class="m-documentation--header-mobile">
+  <button id="js-toggle-menu" class="m-documentation--header-menu-icon">Menu</button>
+  <a href="/">
+    <img alt="Monitoror" class="m-documentation--header-mobile-logo" src="/assets/images/logo.svg">
+  </a>
+</div>
+
+<div class="m-sidebar">
+  <header class="m-documentation--header">
+    <a href="/documentation/">
+      <img alt="Monitoror" class="m-documentation--logo" src="/assets/images/logo.svg">
+    </a>
+    <h1 class="m-documentation--header-title">
+      Documentation
+    </h1>
+  </header>
+
+  <aside class="m-documentation--menu">
+    <ul>
+      <li>
+        <a href="#get-started">Get started</a>
+        <ul>
+          <li><a href="#how-it-works">How it works?</a></li>
+          <li><a href="#installation">Installation</a></li>
+          <li><a href="#run-the-core">Run the Core</a></li>
+          <li><a href="#access-the-ui">Access the UI</a></li>
+          <li><a href="#create-your-ui-configuration">Create your UI configuration</a></li>
+          <li><a href="#setup-core-configuration">Setup Core configuration</a></li>
+          <li><a href="#restart-the-core">Restart the Core</a></li>
+          <li><a href="#you-are-done">You're done!</a></li>
+        </ul>
+      </li>
+      <li>
+        <span>What's next?</span>
+        <ul>
+          <li><a href="/documentation/#configuration">Configuration</a></li>
+          <li><a href="/documentation/#monitorables">Monitorable tiles</a></li>
+        </ul>
+      </li>
+    </ul>
+  </aside>
+</div>
+
+<main class="m-documentation--content">
+  <section class="m-documentation--section" id="get-started">
+    <h2 class="m-documentation--section-title">Get started</h2>
+
+    <div class="m-documentation--block">
+      <h3 id="how-it-works">How it works?</h3>
+
+      <p>
+        Monitoror is a <em>single file app</em>, divided into two parts:
+      </p>
+
+      <h5 class="m-documentation--configuration-side-title">Core</h5>
+      <p>
+        Core is the server-side Monitoror's HTTP API,
+        configured by the <strong>environment variables</strong> or <code>.env</code> file.
+      </p>
+
+      <h5 class="m-documentation--configuration-side-title">UI</h5>
+      <p>
+        UI is the client-side Monitoror loaded in browser, which is the wallboard itself.
+      </p>
+
+      <!-- TODO: schema -->
+    </div>
+
+    <div class="m-documentation--block">
+      <h3 id="installation">Installation</h3>
+
+      <div class="m-documentation--installation">
+        <p>
+          Download the latest release from our download page.
+        </p>
+
+        <div class="m-documentation--cards-container" style="--min-column-width: 250px;">
+          <a href="/download/" class="m-documentation-card m-documentation-card__big m-documentation-card__green">
+            <span class="m-documentation-card--mask">
+              <span class="m-documentation-card--title">Download</span>
+
+              <svg class="m-documentation-card--icon" xmlns="http://www.w3.org/2000/svg" style="transform: translateY(3px)">
+                <use xlink:href="/assets/images/icons.svg#download"/>
+              </svg>
+            </span>
+          </a>
+          <a href="/download/#docker" class="m-documentation-card m-documentation-card__big m-documentation-card__blue">
+            <span class="m-documentation-card--mask">
+              <span class="m-documentation-card--title">Use Docker</span>
+
+              <svg class="m-documentation-card--icon" xmlns="http://www.w3.org/2000/svg" style="transform: translateY(2px)">
+                <use xlink:href="/assets/images/icons.svg#docker"/>
+              </svg>
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="m-documentation--block">
+      <h3 id="run-the-core">Run the Core</h3>
+
+      <h5 class="m-documentation--configuration-side-title">
+        <svg xmlns="http://www.w3.org/2000/svg">
+          <use xlink:href="/assets/images/icons.svg#linux"/>
+        </svg>
+        Linux /
+        <svg xmlns="http://www.w3.org/2000/svg" style="transform: translateY(-1px)">
+          <use xlink:href="/assets/images/icons.svg#apple"/>
+        </svg>
+        macOS
+      </h5>
+      <p>
+        Open your terminal, make <code>monitoror</code> executable, and run it:
+      </p>
+
+      <pre><code class="language-shell">
+chmod +x monitoror
+./monitoror
+      </code></pre>
+
+
+      <h5 class="m-documentation--configuration-side-title">
+        <svg xmlns="http://www.w3.org/2000/svg">
+          <use xlink:href="/assets/images/icons.svg#windows"/>
+        </svg>
+        Windows
+      </h5>
+      <p>
+        Open PowerShell or cmd, then run:
+      </p>
+
+      <pre><code class="language-shell">
+.\monitoror.exe
+      </code></pre>
+
+      <h5 class="m-documentation--configuration-side-title">
+        <svg xmlns="http://www.w3.org/2000/svg">
+          <use xlink:href="/assets/images/icons.svg#docker"/>
+        </svg>
+        Docker
+      </h5>
+      <p>
+        The Core is already running, go to the next step.
+      </p>
+    </div>
+
+    <div class="m-documentation--block">
+      <h3 id="access-the-ui">Access the UI</h3>
+
+      <p>
+        Once the Core is launched, you should be able to go to:
+        <a href="http://localhost:8080" target="_blank">http://localhost:8080</a>
+      </p>
+      <p class="note">
+        <span class="tag">Note</span>
+        Change <code>localhost</code> for the Monitoror host IP if needed
+      </p>
+      <p class="note">
+        <span class="tag">Port 8080 already used?</span>
+        Go to <a href="/documentation/#core-configuration">Core documentation</a> and search for <code>MO_PORT</code>
+      </p>
+    </div>
+
+    <div class="m-documentation--block">
+      <h3 id="create-your-ui-configuration">Create your UI configuration</h3>
+
+      <p>
+        As a starting point, save this in a <code>config.json</code> file next to <code>monitoror</code> binary:
+      </p>
+      <pre><code>
+{
+  "version": "2.0",
+  "columns": 2,
+  "tiles": [
+    {
+      "type": "PORT",
+      "label": "Welcome config example",
+      "params": {
+        "hostname": "127.0.0.1",
+        "port": 8080
+      }
+    },
+    {
+      "type": "HTTP-RAW",
+      "label": "Monitoror stars",
+      "params": {
+        "url": "https://github.com/monitoror/monitoror",
+        "regex": "(\\d+) users starred"
+      }
+    }
+  ]
+}
+      </code></pre>
+      <p class="blue-block">
+        <svg xmlns="http://www.w3.org/2000/svg">
+          <use xlink:href="/assets/images/icons.svg#gear"/>
+        </svg>
+        <strong>Hey, what's that "UI configuration"?</strong> <br>
+        It's a JSON file where you will define what you want to display.
+      </p>
+    </div>
+
+    <div class="m-documentation--block">
+      <h3 id="setup-core-configuration">Setup Core configuration</h3>
+
+      <p>
+        You need to tell to the Core that you have a new UI configuration.
+        To do so, put the following in a file named <code>.env</code> next to <code>monitoror</code> binary file:
+      </p>
+      <pre><code>
+MO_CONFIG="./config.json"
+      </code></pre>
+      <p class="blue-block">
+        <svg xmlns="http://www.w3.org/2000/svg">
+          <use xlink:href="/assets/images/icons.svg#gear"/>
+        </svg>
+        <strong>Another configuration?</strong> <br>
+        Yes! This one is mostly here to register UI configurations and to setup <em>monitorables</em>,
+        which are things that you can use in your UI configurations.
+      </p>
+    </div>
+
+    <div class="m-documentation--block">
+      <h3 id="restart-the-core">Restart the Core</h3>
+
+      <p>
+        As you have updated the <code>.env</code> file, you need to stop and start again the
+        <code>monitoror</code> command, and you should see that in start logs:
+      </p>
+      <pre><code>
+AVAILABLE NAMED CONFIGURATIONS
+
+  default -> ./config.json
+      </code></pre>
+      <p class="blue-block">
+        <svg xmlns="http://www.w3.org/2000/svg">
+          <use xlink:href="/assets/images/icons.svg#rocket"/>
+        </svg>
+        <strong>Wait, when did I need to restart?</strong> <br>
+        You need to restart the Core (the <code>monitoror</code> binary) each time you update the
+        <code>.env</code> file.
+      </p>
+    </div>
+
+    <div class="m-documentation--block">
+      <h3 id="you-are-done">You're done! &#x1F389; <!-- Party Popper Emoji 🎉 --></h3>
+      <p>
+        You should now see the UI with 2 tiles, and you're ready to go!
+      </p>
+    </div>
+
+    <div class="m-documentation--block">
+      <h3>What's next?</h3>
+
+      <div class="m-documentation--cards-container" style="--min-column-width: 250px;">
+        <a href="/documentation/#configuration" class="m-documentation-card m-documentation-card__big m-documentation-card__blue">
+          <span class="m-documentation-card--mask">
+            <span class="m-documentation-card--title">Configuration</span>
+
+            <svg class="m-documentation-card--icon" xmlns="http://www.w3.org/2000/svg">
+              <use xlink:href="/assets/images/icons.svg#gear"/>
+            </svg>
+          </span>
+        </a>
+        <a href="/documentation/#monitorables" class="m-documentation-card m-documentation-card__big">
+          <span class="m-documentation-card--mask">
+            <span class="m-documentation-card--title">Monitorable tiles</span>
+
+            <svg class="m-documentation-card--icon" xmlns="http://www.w3.org/2000/svg">
+              <use xlink:href="/assets/images/icons.svg#ping"/>
+            </svg>
+          </span>
+        </a>
+      </div>
+
+      <div class="m-documentation--configuration-side-title"><span>Other resources</span></div>
+      <div class="m-documentation--cards-container" style="--min-column-width: 150px;">
+        <a href="/guides/" class="m-documentation-card m-documentation-card__dark">
+          <span class="m-documentation-card--mask">
+            <span class="m-documentation-card--title">Guides</span>
+
+            <svg class="m-documentation-card--icon" xmlns="http://www.w3.org/2000/svg">
+              <use xlink:href="/assets/images/icons.svg#book"/>
+            </svg>
+          </span>
+        </a>
+        <a href="https://github.com/monitoror/monitoror/issues" class="m-documentation-card m-documentation-card__dark">
+          <span class="m-documentation-card--mask">
+            <span class="m-documentation-card--title">Bug reports & Feature requests</span>
+
+            <svg class="m-documentation-card--icon" xmlns="http://www.w3.org/2000/svg">
+              <use xlink:href="/assets/images/icons.svg#bug"/>
+            </svg>
+          </span>
+        </a>
+        <a href="/documentation/#donate" class="m-documentation-card m-documentation-card__dark">
+          <span class="m-documentation-card--mask">
+            <span class="m-documentation-card--title">Donate</span>
+
+            <svg class="m-documentation-card--icon" xmlns="http://www.w3.org/2000/svg">
+              <use xlink:href="/assets/images/icons.svg#heart"/>
+            </svg>
+          </span>
+        </a>
+      </div>
+    </div>
+  </section>
+</main>
+<script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.17.1/build/highlight.min.js"></script>
+<script src="/js/main.js"></script>
+</body>
+</html>

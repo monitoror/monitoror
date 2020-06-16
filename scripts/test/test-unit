@@ -1,5 +1,0 @@
-#!/usr/bin/env bash
-
-# Executing unit test
-go clean testdata ./...
-gotestsum -- `go list ./... | grep -v mocks`

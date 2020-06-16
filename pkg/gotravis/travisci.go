@@ -1,3 +1,5 @@
+//go:generate mockery -name TravisCI
+
 package gotravis
 
 import (

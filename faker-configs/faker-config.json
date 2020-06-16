@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "2.0",
   "columns": 4,
   "tiles": [
     { "type": "PING", "columnSpan": 2, "label": "test1" ,"params": { "hostname": "example.com", "status": "SUCCESS" } },
@@ -22,9 +22,11 @@
       { "type": "PORT", "params": { "hostname": "bserver.com", "port": 22, "status": "FAILURE" } }
     ]},
     { "type": "PINGDOM-CHECK", "params": { "id": 1000 } },
-    { "type": "GITHUB-COUNT", "label": "Monitoror open issues", "params": { "query": "is:open is:issue repo:monitoror/monitoror", "values": [10] } },
+    { "type": "PINGDOM-TRANSACTION-CHECK", "params": { "id": 1000 } },
+    { "type": "GITHUB-COUNT", "label": "Monitoror open issues", "params": { "query": "is:open is:issue repo:monitoror/monitoror", "valueValues": ["10"] } },
+    { "type": "GITLAB-COUNT-ISSUES", "label": "Monitoror open issues", "params": { "valueValues": ["10"] } },
     { "type": "HTTP-STATUS", "params": { "url": "http://monitoror.test" } },
     { "type": "HTTP-STATUS", "params": { "url": "http://monitoror.test", "status": "SUCCESS"} },
-    { "type": "HTTP-FORMATTED", "params": { "format": "JSON", "url": "http://monitoror.test", "key": ".key", "status": "SUCCESS", "values": [1337, 1337] } }
+    { "type": "HTTP-FORMATTED", "params": { "format": "JSON", "url": "http://monitoror.test", "key": ".key", "status": "SUCCESS", "valueValues": ["1337", "1337"] } }
   ]
 }

@@ -56,6 +56,37 @@
  * Docs
  */
 
+// Load latest version number
+;(function () {
+  const latestVersionSlots = Array.from(document.querySelectorAll('.js-latest-version'))
+
+  if (latestVersionSlots.length === 0) {
+    return
+  }
+
+  function setLatestVersion (latestVersion) {
+    latestVersionSlots.forEach((latestVersionSlot) => {
+      latestVersionSlot.innerText = latestVersion
+    })
+  }
+
+  const date = new Date()
+  const latestVersionKey = 'latestVersion_' + date.getHours() + '_' + date.getDay() + '_' + date.getMonth() + '_' + date.getFullYear()
+  const latestVersion = sessionStorage.getItem(latestVersionKey)
+  if (!latestVersion) {
+    fetch('https://api.github.com/repos/monitoror/monitoror/releases/latest').then((response) => {
+      response.json().then((body) => {
+        const latestVersion = body.name
+        sessionStorage.clear()
+        sessionStorage.setItem(latestVersionKey, latestVersion)
+        setLatestVersion(latestVersion)
+      })
+    })
+  } else {
+    setLatestVersion(latestVersion)
+  }
+})()
+
 // Toggle menu
 ;(function () {
   const toggleMenuButton = document.getElementById('js-toggle-menu')
@@ -84,7 +115,13 @@
   document.querySelector('.m-sidebar').addEventListener('click', (e) => {
     e.stopPropagation()
   })
-  document.body.addEventListener('click', () => {
+  document.body.addEventListener('click', (e) => {
+    if (!document.body.classList.contains('m-documentation__sidebar-open')) {
+      return
+    }
+
+    e.preventDefault()
+    e.stopPropagation()
     document.body.classList.remove('m-documentation__sidebar-open')
   })
 })()
@@ -138,7 +175,7 @@ Array.from(document.querySelectorAll('.m-documentation h3[id], .m-documentation 
   anchor.href = '#' + title.id
   anchor.title = 'Permalink to ' + title.innerText
   anchor.classList.add('m-documentation--title-link')
-  anchor.innerHTML = '<svg><use xlink:href="#link-icon"></use></svg>'
+  anchor.innerHTML = '<svg><use xlink:href="/assets/images/icons.svg#link-icon"></use></svg>'
   // title.parentNode.insertBefore(anchor, title.nextSibling)
   title.appendChild(anchor)
 })

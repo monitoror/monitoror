@@ -1,49 +1,88 @@
 import extractFieldValue from '@/helpers/extractFieldValue'
+import guessExpectedFieldName from '@/helpers/guessExpectedFieldName'
 import jsonSyntaxColor from '@/helpers/jsonSyntaxColor'
+import splitList from '@/helpers/splitList'
 import ConfigError from '@/interfaces/configError'
 
 export default function formatConfigExtract(configError: ConfigError): string {
-  if (configError.data.configExtract === undefined) {
+  let configExtract = configError.data.configExtract
+  if (configExtract === undefined) {
     return ''
   }
 
-  const formattedConfigExtract = JSON.stringify(JSON.parse(configError.data.configExtract), null, 2)
-  let html = formattedConfigExtract
+  // Avoid parse issue due to wrong escape sequences (e.g: \s is invalid in JSON)
+  // This will allow us to format the JSON, then we will revert this in the result string
+  configExtract = configExtract.replace(/\\/g, '\\\\')
 
-  let configExtractHighlight = configError.data.configExtractHighlight
-  let patternPrefix = ''
-
-  if (configExtractHighlight === undefined && configError.data.fieldName !== undefined) {
-    patternPrefix = `"${configError.data.fieldName}":\\s+`
-    configExtractHighlight = extractFieldValue(configError.data.configExtract, configError.data.fieldName)
+  let highlight = true
+  if (configError.data.fieldName && configError.data.expected) {
+    const guessedFieldName = guessExpectedFieldName(configError.data.fieldName, splitList(configError.data.expected))
+    highlight = guessedFieldName === configError.data.fieldName
   }
 
-  if (configExtractHighlight !== undefined) {
-    const formattedConfigExtractHighlight = JSON.stringify(JSON.parse(configExtractHighlight), null, 2)
-    const isHighlightMultiline = formattedConfigExtractHighlight.includes('\n')
-    const multilinePrefix = isHighlightMultiline ? ' *' : ''
-    const multilineSuffix = isHighlightMultiline ? ',?' : ''
-    const pattern = [
-      multilinePrefix,
-      patternPrefix,
-      formattedConfigExtractHighlight.replace(/\s+/g, '\\s+'),
-      multilineSuffix,
-    ].join('')
-    const find = new RegExp(pattern)
-    const matches = formattedConfigExtract.match(find)
+  try {
+    JSON.parse(configExtract)
+  } catch (err) {
+    // Escape special characters to display the config as text, not as HTML
+    const sanitizedConfigExtract = configExtract
+      .replace(/[\u00A0-\u9999<>&]/gim, (match) => {
+        // Replace with the HTML Entity of the character
+        return `&#${match.charCodeAt(0)};`
+      })
+      .replace(/\\\\/g, '\\')
 
-    if (matches === null) {
-      return html
+    return jsonSyntaxColor(sanitizedConfigExtract)
+  }
+
+  const formattedConfigExtract = JSON.stringify(JSON.parse(configExtract), null, 2)
+  let html = formattedConfigExtract.replace(/\\\\/g, '\\')
+
+  if (highlight) {
+    let configExtractHighlight = configError.data.configExtractHighlight
+    let patternPrefix = ''
+
+    if (configExtractHighlight === undefined && configError.data.fieldName !== undefined) {
+      patternPrefix = `"${configError.data.fieldName}":\\s+`
+      configExtractHighlight = extractFieldValue(configExtract, configError.data.fieldName)
     }
 
-    const match = matches[0]
-    const markClassAttr = isHighlightMultiline ? 'class="multiline-mark"' : ''
+    if (configExtractHighlight !== undefined) {
+      let formattedConfigExtractHighlight = configExtractHighlight
+      try {
+        formattedConfigExtractHighlight = JSON.stringify(JSON.parse(configExtractHighlight), null, 2)
+      } catch (err) {
+        // Escape unescaped char to be a string used as regex
+        // \w => \\w
+        if (formattedConfigExtractHighlight.startsWith('\\')) {
+          formattedConfigExtractHighlight = '\\' + formattedConfigExtractHighlight
+        }
+      }
+      const isHighlightMultiline = formattedConfigExtractHighlight.includes('\n')
+      const multilinePrefix = isHighlightMultiline ? ' *' : ''
+      const multilineSuffix = isHighlightMultiline ? ',?' : ''
+      const pattern = [
+        multilinePrefix,
+        patternPrefix,
+        formattedConfigExtractHighlight.replace(/\s+/g, '\\s+'),
+        multilineSuffix,
+      ].join('')
+      const find = new RegExp(pattern)
+      const matches = formattedConfigExtract.match(find)
 
-    html = formattedConfigExtract.replace(match, `<mark ${markClassAttr}>${match}</mark>`)
-  }
+      if (matches === null) {
+        return jsonSyntaxColor(html)
+      }
 
-  if (html.includes('</mark>')) {
-    html = `<span class="has-mark">${html}</span>`
+      const match = matches[0]
+      const matchRegexPrefix = match.startsWith('\\') ? '\\' : ''
+      const markClassAttr = isHighlightMultiline ? 'class="multiline-mark"' : ''
+
+      html = formattedConfigExtract.replace(matchRegexPrefix + match, `<mark ${markClassAttr}>${match}</mark>`)
+    }
+
+    if (html.includes('</mark>')) {
+      html = `<span class="has-mark">${html}</span>`
+    }
   }
 
   return jsonSyntaxColor(html)

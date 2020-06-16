@@ -8,6 +8,7 @@ import DISPLAYABLE_SUBTILE_STATUS from '@/constants/displayableSubtileStatus'
 
 import Task from '@/classes/task'
 import ConfigErrorId from '@/enums/configErrorId'
+import Route from '@/enums/route'
 import TaskInterval from '@/enums/taskInterval'
 import TaskType from '@/enums/taskType'
 import Theme from '@/enums/theme'
@@ -18,6 +19,7 @@ import mostImportantStatus from '@/helpers/mostImportantStatus'
 import Config from '@/interfaces/config'
 import ConfigBag from '@/interfaces/configBag'
 import ConfigError from '@/interfaces/configError'
+import ConfigMetadata from '@/interfaces/configMetadata'
 import Info from '@/interfaces/info'
 import TaskOptions from '@/interfaces/taskOptions'
 import TileConfig from '@/interfaces/tileConfig'
@@ -26,7 +28,14 @@ import TileState from '@/interfaces/tileState'
 Vue.use(Vuex)
 
 const API_BASE_PATH = '/api/v1'
+export const DEFAULT_CONFIG_NAME = 'default'
 const INFO_URL = '/info'
+const CONFIGS_URL = '/configs'
+const QUERY_PARAM_KEYS = {
+  API_BASE_URL: 'apiBaseUrl',
+  CONFIG: 'config',
+  THEME: 'theme',
+}
 
 export interface RootState {
   appVersion: string | undefined,
@@ -40,6 +49,7 @@ export interface RootState {
   online: boolean,
   now: Date,
   lastRefreshDate: Date,
+  configList: ConfigMetadata[],
 }
 
 const store: StoreOptions<RootState> = {
@@ -55,40 +65,44 @@ const store: StoreOptions<RootState> = {
     online: true,
     now: new Date(),
     lastRefreshDate: new Date(),
+    configList: [],
   },
   getters: {
     apiBaseUrl(): string {
-      const defaultApiBaseUrl = window.location.origin
-      let apiBaseUrl = getQueryParamValue('apiBaseUrl', defaultApiBaseUrl) as string
+      const defaultApiBaseUrl = window.location.origin + window.location.pathname
+      let apiBaseUrl = getQueryParamValue(QUERY_PARAM_KEYS.API_BASE_URL, defaultApiBaseUrl) as string
 
       apiBaseUrl = apiBaseUrl.replace(/\/+$/, '')
 
       return apiBaseUrl
     },
-    configPath(): string | undefined {
-      const configPath = getQueryParamValue('configPath')
-
-      return configPath
+    configParam(): string {
+      return getQueryParamValue(QUERY_PARAM_KEYS.CONFIG, DEFAULT_CONFIG_NAME) as string
     },
-    configUrl(): string | undefined {
-      const configUrl = getQueryParamValue('configUrl')
-
-      return configUrl
+    infoUrl(state, getters): string {
+      return getters.apiBaseUrl + API_BASE_PATH + INFO_URL
+    },
+    configProxyUrl(state, getters): string {
+      return getters.apiBaseUrl + API_BASE_PATH + CONFIGS_URL
     },
     proxyfiedConfigUrl(state, getters): string | undefined {
-      const configProxyUrl = `${getters.apiBaseUrl}${API_BASE_PATH}/config`
+      const urlEncodedConfigParam = encodeURIComponent(getters.configParam)
 
-      if (getters.configUrl !== undefined) {
-        return `${configProxyUrl}?url=${getters.configUrl}`
+      return `${getters.configProxyUrl}/${urlEncodedConfigParam}`
+    },
+    currentRoute(): Route | undefined {
+      const queryHash = window.location.hash.replace(/^#/, '')
+      let route
+
+      if (Object.values(Route).includes(queryHash.toLowerCase() as Route)) {
+        route = queryHash.toLowerCase() as Route
       }
 
-      if (getters.configPath !== undefined) {
-        return `${configProxyUrl}?path=${getters.configPath}`
-      }
+      return route
     },
     theme(): Theme {
       let theme = Theme.Default
-      const queryTheme = getQueryParamValue('theme', theme) as string
+      const queryTheme = getQueryParamValue(QUERY_PARAM_KEYS.THEME, theme) as string
 
       if (Object.values(Theme).includes(queryTheme.toUpperCase() as Theme)) {
         theme = queryTheme.toUpperCase() as Theme
@@ -156,6 +170,42 @@ const store: StoreOptions<RootState> = {
 
       return loadingProgress
     },
+    hasUnknownDefaultConfigError(state, getters): boolean {
+      if (state.errors.length === 0) {
+        return false
+      }
+
+      const error = state.errors[0]
+
+      const isDefaultConfig = getters.configParam === DEFAULT_CONFIG_NAME
+      const isUnknownNamedConfigError = error.id === ConfigErrorId.UnknownNamedConfig
+
+      return isDefaultConfig && isUnknownNamedConfigError
+    },
+    isNewUser(state, getters): boolean {
+      if (!getters.hasUnknownDefaultConfigError) {
+        return false
+      }
+
+      const error = state.errors[0]
+      const hasNamedConfig = error.data.expected !== undefined
+
+      return !hasNamedConfig
+    },
+    shouldShowWelcomePage(state, getters): boolean {
+      const welcomePageRoutes = [
+        Route.Welcome,
+        Route.ChooseConfiguration,
+      ]
+      const isOnWelcomePageRoute = welcomePageRoutes.includes(getters.currentRoute)
+
+      return isOnWelcomePageRoute || getters.isNewUser || getters.hasUnknownDefaultConfigError
+    },
+    shouldInit(state, getters): boolean {
+      const isOnChooseConfigurationPageRoute = Route.ChooseConfiguration === getters.currentRoute
+
+      return !isOnChooseConfigurationPageRoute
+    },
   },
   mutations: {
     setAppVersion(state, payload: string): void {
@@ -168,6 +218,9 @@ const store: StoreOptions<RootState> = {
         state.zoom = payload.zoom
       }
       state.tiles = payload.tiles
+    },
+    setConfigList(state, payload: ConfigMetadata[]): void {
+      state.configList = payload
     },
     setErrors(state, payload: ConfigError[]): void {
       state.errors = payload
@@ -197,9 +250,7 @@ const store: StoreOptions<RootState> = {
   },
   actions: {
     async autoUpdate({commit, state, getters}) {
-      const infoUrl = getters.apiBaseUrl + API_BASE_PATH + INFO_URL
-
-      return axios.get(infoUrl)
+      return axios.get(getters.infoUrl)
         .then((response) => {
           const info: Info = response.data
 
@@ -213,18 +264,27 @@ const store: StoreOptions<RootState> = {
           }
         })
     },
+    async fetchConfigList({commit, getters}) {
+      return axios.get(getters.configProxyUrl)
+        .then((response) => {
+          const configList: ConfigMetadata[] = response.data.map((configMetadata: ConfigMetadata) => {
+            let uiUrl = `?${QUERY_PARAM_KEYS.CONFIG}=${configMetadata.name}`
+
+            if (getters.theme !== Theme.Default) {
+              uiUrl += `&${QUERY_PARAM_KEYS.THEME}=${getters.theme.toLowerCase()}`
+            }
+
+            configMetadata.uiUrl = uiUrl
+
+            return configMetadata
+          }).sort((configMetadataA: ConfigMetadata, configMetadataB: ConfigMetadata) => {
+            return configMetadataA.name.localeCompare(configMetadataB.name)
+          })
+
+          commit('setConfigList', configList)
+        })
+    },
     async fetchConfiguration({commit, state, getters, dispatch}) {
-      if (getters.proxyfiedConfigUrl === undefined) {
-        const configPathOrUrlIsMissing: ConfigError = {
-          id: ConfigErrorId.MissingPathOrUrl,
-          message: 'configPath or configUrl query param is missing',
-          data: {},
-        }
-
-        commit('setErrors', [configPathOrUrlIsMissing])
-        return
-      }
-
       const hydrateTile = (tile: TileConfig, groupTile?: TileConfig) => {
         // Create a identifier based on tile configuration
         tile.stateKey = tile.type + '_' + md5.hashStr(JSON.stringify(tile))

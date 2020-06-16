@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1" name="viewport">
+  <title>Download Monitoror, the unified monitoring wallboard</title>
+  <meta content="Download Monitoror, a wallboard monitoring app to monitor server status; monitor CI builds progress or even display critical values"
+        name="description">
+  <link href="/favicon.png" rel="icon" type="image/png">
+  <link href="/favicon.ico" rel="icon">
+  <link href="/assets/styles/main.css" rel="stylesheet" type="text/css">
+  <link rel="canonical" href="https://monitoror.com/download/">
+
+  <!-- OpenGraph / Twitter cards -->
+  <meta property="og:image" content="https://monitoror.com/assets/images/opengraph.png" />
+  <meta property="og:site_name" content="Monitoror" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Download Monitoror, the unified monitoring wallboard" />
+  <meta property="og:url" content="https://monitoror.com/documentation/get-started/" />
+  <meta property="og:description" content="Download Monitoror, a wallboard monitoring app to monitor server status; monitor CI builds progress or even display critical values" />
+  <meta name="twitter:image:src" content="https://monitoror.com/assets/images/opengraph.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Download Monitoror, the unified monitoring wallboard" />
+  <meta name="twitter:description" content="Download Monitoror, a wallboard monitoring app to monitor server status; monitor CI builds progress or even display critical values" />
+</head>
+<body class="m-documentation">
+<!-- Used to avoid custom scrollbar on macOS -->
+<script>
+  const isMacOs = navigator.platform.toLowerCase().includes('mac')
+  if (isMacOs) {
+    document.body.classList.add('macos')
+  }
+</script>
+
+<div class="m-documentation--header-mobile">
+  <button id="js-toggle-menu" class="m-documentation--header-menu-icon">Menu</button>
+  <a href="/">
+    <img alt="Monitoror" class="m-documentation--header-mobile-logo" src="/assets/images/logo.svg">
+  </a>
+</div>
+
+<div class="m-sidebar">
+  <header class="m-documentation--header">
+    <a href="/">
+      <img alt="Monitoror" class="m-documentation--logo" src="/assets/images/logo.svg">
+    </a>
+    <h1 class="m-documentation--header-title">
+      Download
+    </h1>
+  </header>
+
+  <aside class="m-documentation--menu">
+    <ul>
+      <li>
+        <span>What's next?</span>
+        <ul>
+          <li><a href="/documentation/get-started/">Get started</a></li>
+          <li><a href="/documentation/">Documentation</a></li>
+        </ul>
+      </li>
+    </ul>
+  </aside>
+</div>
+
+<main class="m-documentation--content">
+  <section class="m-documentation--section">
+    <h2 class="m-documentation--section-title">Download Monitoror</h2>
+
+    <p class="m-documentation--configuration-side-title m-documentation--latest-version">
+      Latest version: <span class="js-latest-version">...</span>
+    </p>
+
+    <div class="m-documentation--block">
+      <table class="m-documentation--installation">
+        <tbody>
+        <tr>
+          <td>
+            <svg xmlns="http://www.w3.org/2000/svg">
+              <use xlink:href="/assets/images/icons.svg#linux"/>
+            </svg>
+            Linux <span class="m-documentation--installation-arch">x64</span>
+          </td>
+          <td>
+            <a class="m-documentation--installation-link" data-download-platform="linux-amd64">
+              <svg xmlns="http://www.w3.org/2000/svg">
+                <use xlink:href="../../assets/images/icons.svg#download"/>
+              </svg>
+              Download <span class="desktop-only">Monitoror</span> for Linux x64
+            </a>
+            <br>
+            <label for="download-for-linux-x64">Or download from Terminal:</label>
+            <input data-select-on-click readonly type="text" id="download-for-linux-x64"
+                   value="curl -sL -o monitoror $(curl -s https://api.github.com/repos/monitoror/monitoror/releases/latest | grep 'browser_download_url.*monitoror-linux-amd64' | cut -d: -f2,3 | tr -d \&quot;)"/>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <svg xmlns="http://www.w3.org/2000/svg">
+              <use xlink:href="/assets/images/icons.svg#linux"/>
+            </svg>
+            Linux <span class="m-documentation--installation-arch">ARM</span>
+          </td>
+          <td>
+            <a class="m-documentation--installation-link" data-download-platform="linux-arm">
+              <svg xmlns="http://www.w3.org/2000/svg">
+                <use xlink:href="../../assets/images/icons.svg#download"/>
+              </svg>
+              Download <span class="desktop-only">Monitoror</span> for Linux ARM
+            </a>
+            <br>
+            <label for="download-for-linux-arm">Or download from Terminal:</label>
+            <input data-select-on-click readonly type="text" id="download-for-linux-arm"
+                   value="curl -sL -o monitoror $(curl -s https://api.github.com/repos/monitoror/monitoror/releases/latest | grep 'browser_download_url.*monitoror-linux-arm' | cut -d: -f2,3 | tr -d \&quot;)"/>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <svg xmlns="http://www.w3.org/2000/svg">
+              <use xlink:href="/assets/images/icons.svg#windows"/>
+            </svg>
+            Windows <span class="m-documentation--installation-arch">x64</span>
+          </td>
+          <td>
+            <a class="m-documentation--installation-link" data-download-platform="windows-amd64">
+              <svg xmlns="http://www.w3.org/2000/svg">
+                <use xlink:href="../../assets/images/icons.svg#download"/>
+              </svg>
+              Download <span class="desktop-only">Monitoror</span> for Windows
+            </a>
+            <br>
+            <label for="download-for-windows">Or download from PowerShell:</label>
+            <input data-select-on-click readonly type="text" id="download-for-windows"
+                   value="Invoke-WebRequest -OutFile monitoror.exe $(Invoke-WebRequest https://api.github.com/repos/monitoror/monitoror/releases/latest | Select-Object -Expand Content | ConvertFrom-Json | Select-Object -Expand assets | Where-Object {$_.name -Match 'windows'} | Select-Object -Expand browser_download_url)"/>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <svg xmlns="http://www.w3.org/2000/svg"> style="transform: translateY(-0.5px)">
+              <use xlink:href="/assets/images/icons.svg#apple"/>
+            </svg>
+            macOS
+          </td>
+          <td>
+            <a class="m-documentation--installation-link" data-download-platform="macos">
+              <svg xmlns="http://www.w3.org/2000/svg">
+                <use xlink:href="../../assets/images/icons.svg#download"/>
+              </svg>
+              Download <span class="desktop-only">Monitoror</span> for macOS
+            </a>
+            <br>
+            <label for="download-for-macos">Or download from Terminal:</label>
+            <input data-select-on-click readonly type="text" id="download-for-macos"
+                   value="curl -sL -o monitoror $(curl -s https://api.github.com/repos/monitoror/monitoror/releases/latest | grep 'browser_download_url.*monitoror-macos' | cut -d: -f2,3 | tr -d \&quot;)"/>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+
+      <p class="blue-block" id="docker">
+        <svg xmlns="http://www.w3.org/2000/svg">
+          <use xlink:href="/assets/images/icons.svg#docker"/>
+        </svg>
+        <strong>Prefer using Docker?</strong><br>
+        We maintain a Docker image published on <a href="https://hub.docker.com/r/monitoror/monitoror" target="_blank">Docker Hub</a>.
+
+        <input data-select-on-click readonly type="text"
+               value="docker run -p 8080:8080 monitoror/monitoror"/>
+      </p>
+    </div>
+
+    <div class="m-documentation--block">
+      <h3>What's next?</h3>
+
+
+      <div class="m-documentation--cards-container" style="--min-column-width: 250px;">
+        <a href="/documentation/get-started/" class="m-documentation-card m-documentation-card__big m-documentation-card__blue">
+          <span class="m-documentation-card--mask">
+            <span class="m-documentation-card--title">Get started</span>
+
+            <svg class="m-documentation-card--icon" xmlns="http://www.w3.org/2000/svg">
+              <use xlink:href="/assets/images/icons.svg#rocket"/>
+            </svg>
+          </span>
+        </a>
+        <a href="/documentation/" class="m-documentation-card m-documentation-card__big m-documentation-card__green">
+          <span class="m-documentation-card--mask">
+            <span class="m-documentation-card--title">Documentation</span>
+
+            <svg class="m-documentation-card--icon" xmlns="http://www.w3.org/2000/svg" style="transform: translateY(3px)">
+              <use xlink:href="/assets/images/icons.svg#book"/>
+            </svg>
+          </span>
+        </a>
+      </div>
+
+      <div class="m-documentation--configuration-side-title"><span>Other resources</span></div>
+        <div class="m-documentation--cards-container" style="--min-column-width: 150px;">
+          <a href="/documentation/#configuration" class="m-documentation-card m-documentation-card__dark">
+            <span class="m-documentation-card--mask">
+              <span class="m-documentation-card--title">Configuration</span>
+
+              <svg class="m-documentation-card--icon" xmlns="http://www.w3.org/2000/svg">
+                <use xlink:href="/assets/images/icons.svg#gear"/>
+              </svg>
+            </span>
+          </a>
+          <a href="https://github.com/monitoror/monitoror/issues" class="m-documentation-card m-documentation-card__dark">
+            <span class="m-documentation-card--mask">
+              <span class="m-documentation-card--title">Bug reports & Feature requests</span>
+
+              <svg class="m-documentation-card--icon" xmlns="http://www.w3.org/2000/svg">
+                <use xlink:href="/assets/images/icons.svg#bug"/>
+              </svg>
+            </span>
+          </a>
+          <a href="/documentation/#donate" class="m-documentation-card m-documentation-card__dark">
+            <span class="m-documentation-card--mask">
+              <span class="m-documentation-card--title">Donate</span>
+
+              <svg class="m-documentation-card--icon" xmlns="http://www.w3.org/2000/svg">
+                <use xlink:href="/assets/images/icons.svg#heart"/>
+              </svg>
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.17.1/build/highlight.min.js"></script>
+<script src="/js/main.js"></script>
+</body>
+</html>

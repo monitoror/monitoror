@@ -9,4 +9,5 @@ coverage.html
 *.test
 
 # Config
-.env.local
+.env
+config.json

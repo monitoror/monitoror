@@ -2,6 +2,9 @@
   <div class="c-monitoror-sub-tile" :class="classes">
     <div class="c-monitoror-sub-tile--content">
       <div class="c-monitoror-sub-tile--label">
+        <template v-if="mergeRequestLabelPrefix">{{ mergeRequestLabelPrefix }}</template>
+        <template v-else-if="branch">{{ branch }}</template>
+        <template v-if="(mergeRequestLabelPrefix || branch) && label"> @ </template>
         {{ label }}
       </div>
 
@@ -53,24 +56,6 @@
         'c-monitoror-sub-tile__status-canceled': this.status === TileStatus.Canceled,
         'c-monitoror-sub-tile__status-action-required': this.status === TileStatus.ActionRequired,
       }
-    }
-
-    get label(): string | undefined {
-      if (this.config.label) {
-        return this.config.label
-      }
-
-      if (this.state === undefined) {
-        return
-      }
-
-      let label = this.state.label
-
-      if (this.branch !== undefined) {
-        label = `${this.branch} @ ${label}`
-      }
-
-      return label
     }
 
     get progressTime(): string | undefined {
@@ -134,6 +119,7 @@
   .c-monitoror-sub-tile--label {
     display: inline-block;
     font-weight: 600;
+    word-break: break-word;
   }
 
   .c-monitoror-sub-tile__status-queued .c-monitoror-sub-tile--label,

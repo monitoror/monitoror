@@ -21,3 +21,18 @@ func TestTile_WithValue(t *testing.T) {
 	assert.NotNil(t, tile.Value)
 	assert.Equal(t, MillisecondUnit, tile.Value.Unit)
 }
+
+func TestNewGeneratorTileType(t *testing.T) {
+	generatorTest := NewGeneratorTileType("TEST")
+	assert.Equal(t, "GENERATE:TEST", string(generatorTest))
+}
+
+func TestTileType_IsGenerator(t *testing.T) {
+	generatorTest := NewGeneratorTileType("TEST")
+	assert.True(t, generatorTest.IsGenerator())
+}
+
+func TestTileType_GetGeneratedTileType(t *testing.T) {
+	generatorTest := NewGeneratorTileType("TEST")
+	assert.Equal(t, "TEST", string(generatorTest.GetGeneratedTileType()))
+}

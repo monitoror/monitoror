@@ -93,18 +93,26 @@
     }
 
     get isPingdom(): boolean {
-      return this.tileType === TileType.Pingdom
+      return [
+        TileType.PingdomCheck,
+        TileType.PingdomTransactionCheck,
+      ].includes(this.tileType)
     }
 
     get isGitHub(): boolean {
       return [
         TileType.GitHubChecks,
+        TileType.GitHubPullRequest,
         TileType.GitHubCount,
       ].includes(this.tileType)
     }
 
     get isGitLab(): boolean {
-      return this.tileType === TileType.GitLab
+      return [
+        TileType.GitLabPipeline,
+        TileType.GitLabMergeRequest,
+        TileType.GitLabIssues,
+      ].includes(this.tileType)
     }
 
     get isTravis(): boolean {

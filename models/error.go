@@ -25,7 +25,7 @@ type (
 )
 
 var (
-	QueryParamsError = &MonitororError{Message: "invalid configuration, unable to parse/check queryParams"}
+	ParamsError = &MonitororError{Message: "invalid configuration, unable to parse request parameters"}
 )
 
 func (e *MonitororError) Error() string {

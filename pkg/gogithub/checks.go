@@ -1,3 +1,5 @@
+//go:generate mockery -name ChecksService
+
 package gogithub
 
 import (

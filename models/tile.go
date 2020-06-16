@@ -1,5 +1,10 @@
 package models
 
+import (
+	"fmt"
+	"strings"
+)
+
 type (
 	Tile struct {
 		Type   TileType   `json:"type"`
@@ -28,6 +33,21 @@ const (
 	WarningStatus        TileStatus = "WARNING"
 )
 
+const generatorPrefix string = "GENERATE:"
+
 func NewTile(t TileType) *Tile {
 	return &Tile{Type: t}
+}
+
+func NewGeneratorTileType(t TileType) TileType {
+	tileType := fmt.Sprintf("%s%s", generatorPrefix, t)
+	return TileType(tileType)
+}
+
+func (t TileType) IsGenerator() bool {
+	return strings.HasPrefix(string(t), generatorPrefix)
+}
+
+func (t TileType) GetGeneratedTileType() TileType {
+	return TileType(strings.TrimPrefix(string(t), generatorPrefix))
 }

@@ -1,5 +1,5 @@
 {
-  "version": "1.0",
+  "version": "2.0",
   "columns": 4,
   "zoom": 0.9,
   "tiles": [
@@ -18,7 +18,7 @@
     { "type": "TRAVISCI-BUILD", "params": { "owner": "tools", "repository": "monitoror", "branch": "master", "status": "RUNNING", "estimatedDuration": 200 } },
     { "type": "TRAVISCI-BUILD", "params": { "owner": "tools", "repository": "monitoror", "branch": "master", "status": "WARNING" } },
     { "type": "JENKINS-BUILD", "params": { "job": "monitoror", "branch": "master", "status": "SUCCESS" } },
-    { "type": "JENKINS-BUILD", "params": { "job": "monitoror", "branch":  "master", "status": "CANCELED" } },
+    { "typarce qu'il fautpe": "JENKINS-BUILD", "params": { "job": "monitoror", "branch":  "master", "status": "CANCELED" } },
     { "type": "JENKINS-BUILD", "params": { "job": "monitoror", "branch": "master", "status": "QUEUED" } },
     { "type": "JENKINS-BUILD", "params": { "job": "monitoror", "branch": "master", "status": "RUNNING" } },
     { "type": "AZUREDEVOPS-BUILD", "params": { "project": "monitoror", "definition": 3, "branch": "master", "status": "SUCCESS" } },
@@ -28,6 +28,18 @@
     { "type": "AZUREDEVOPS-RELEASE", "params": { "project": "monitoror", "definition": 423, "status": "RUNNING" } },
     { "type": "GITHUB-CHECKS", "params": { "owner": "monitoror", "repository": "monitoror", "ref": "master" } },
     { "type": "GITHUB-CHECKS", "params": { "owner": "monitoror", "repository": "monitoror", "ref": "master", "status": "ACTION_REQUIRED" } },
-    { "type": "GITHUB-CHECKS", "params": { "owner": "monitoror", "repository": "monitoror", "ref": "master", "status": "RUNNING" } }
+    { "type": "GITHUB-CHECKS", "params": { "owner": "monitoror", "repository": "monitoror", "ref": "master", "status": "RUNNING" } },
+    { "type": "GITHUB-PULLREQUEST", "label": "-", "params": { "owner": "monitoror", "repository": "monitoror", "id": 1337, "mergeRequestTitle": "Feature branch which adds a super new thing", "branch": "fork:feature-branch", "status": "SUCCESS" } },
+    { "type": "GITLAB-PIPELINE", "params": { "projectId": 10, "ref": "master" } },
+    { "type": "GITLAB-PIPELINE", "params": { "projectId": 10, "ref": "master", "status": "ACTION_REQUIRED" } },
+    { "type": "GITLAB-PIPELINE", "params": { "projectId": 10, "ref": "master", "status": "RUNNING" } },
+    { "type": "GITLAB-MERGEREQUEST", "label": "-", "params": { "projectId": 10, "id": 1337, "mergeRequestTitle": "Feature branch which adds a super new thing", "branch": "fork:feature-branch", "status": "SUCCESS" } },
+    {
+      "type": "GROUP",
+      "label": "Merge requests in group",
+      "tiles": [
+        { "type": "GITHUB-PULLREQUEST", "params": { "owner": "monitoror", "repository": "monitoror", "id": 42, "branch": "fork:fix-branch", "status": "RUNNING" } }
+      ]
+    }
   ]
 }

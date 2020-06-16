@@ -31,7 +31,7 @@
 
   <style>
     :root {
-      --color-background: #132d46;
+      --color-background: #11263a;
       --color-dark-background: #15202b;
       --color-docs-background: #20252a;
       --color-code-background: #171b20;
@@ -72,9 +72,18 @@
 
     @font-face {
       font-family: 'Open Sans';
+      src: url('./fonts/open-sans-light.woff2') format('woff2');
+      font-weight: 300;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: 'Open Sans';
       src: url('./fonts/open-sans-regular.woff2') format('woff2');
       font-weight: normal;
       font-style: normal;
+      font-display: swap;
     }
 
     @font-face {
@@ -82,6 +91,7 @@
       src: url('./fonts/open-sans-semibold.woff2') format('woff2');
       font-weight: 600;
       font-style: normal;
+      font-display: swap;
     }
 
     @font-face {
@@ -89,6 +99,7 @@
       src: url('./fonts/open-sans-bold.woff2') format('woff2');
       font-weight: 700;
       font-style: normal;
+      font-display: swap;
     }
 
     @font-face {
@@ -96,13 +107,19 @@
       src: url('./fonts/jetbrains-mono-regular.woff2') format('woff2');
       font-weight: normal;
       font-style: normal;
+      font-display: swap;
     }
 
     /* Underlined links */
     a {
       position: relative;
       display: inline-block;
+      color: var(--color-succeeded);
       text-decoration: none;
+    }
+
+    a code {
+      color: inherit;
     }
 
     a::after {
