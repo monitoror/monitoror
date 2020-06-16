@@ -144,7 +144,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.get_uploadurl.outputs.UPLOAD_URL }}
+          upload_url: ${{ steps.init.outputs.UPLOAD_URL }}
           asset_path: binaries/monitoror-linux-amd64-${{ steps.init.outputs.VERSION }}
           asset_name: monitoror-linux-amd64-${{ steps.init.outputs.VERSION }}
           asset_content_type: application/x-executable
@@ -153,7 +153,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.get_uploadurl.outputs.UPLOAD_URL }}
+          upload_url: ${{ steps.init.outputs.UPLOAD_URL }}
           asset_path: binaries/monitoror-linux-arm-${{ steps.init.outputs.VERSION }}
           asset_name: monitoror-linux-arm-${{ steps.init.outputs.VERSION }}
           asset_content_type: application/x-executable
@@ -162,7 +162,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.get_uploadurl.outputs.UPLOAD_URL }}
+          upload_url: ${{ steps.init.outputs.UPLOAD_URL }}
           asset_path: binaries/monitoror-windows-amd64-${{ steps.init.outputs.VERSION }}.exe
           asset_name: monitoror-windows-amd64-${{ steps.init.outputs.VERSION }}.exe
           asset_content_type: application/x-dosexec
@@ -171,7 +171,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.get_uploadurl.outputs.UPLOAD_URL }}
+          upload_url: ${{ steps.init.outputs.UPLOAD_URL }}
           asset_path: binaries/monitoror-macos-${{ steps.init.outputs.VERSION }}
           asset_name: monitoror-macos-${{ steps.init.outputs.VERSION }}
           asset_content_type: application/x-mach-binary
@@ -206,6 +206,8 @@ jobs:
 
       - name: Build Images
         run: |
+          # Set MB_ENVIRONMENT
+          if [[ $GITHUB_REF == refs/tags/* ]]; then export MB_ENVIRONMENT=production; fi
           make package-docker
           docker tag ${GITHUB_REPOSITORY}:${{ steps.init.outputs.VERSION }} ${GITHUB_REPOSITORY}:${{ steps.init.outputs.MINOR_VERSION }}
           docker tag ${GITHUB_REPOSITORY}:${{ steps.init.outputs.VERSION }} ${GITHUB_REPOSITORY}:${{ steps.init.outputs.MAJOR_VERSION }}
