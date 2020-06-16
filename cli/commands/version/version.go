@@ -16,7 +16,8 @@ const versionTemplate = ` Version:    {{green .Version}}{{ with .BuildTags }}{{p
  Built:      {{green .BuildTime}}
 
  Go version: {{blue .GoVersion}}
- OS/Arch:    {{blue .Os}}/{{blue .Arch}}`
+ OS/Arch:    {{blue .Os}}/{{blue .Arch}}
+`
 
 type versionInfo struct {
 	Version   string
