@@ -110,8 +110,8 @@ jobs:
         run: |
           # https://github.com/actions/setup-go/issues/14
           export PATH=${PATH}:`go env GOPATH`/bin
-          # Set VERSION
-          if [[ $GITHUB_REF == refs/tags/* ]]; then export VERSION=production; fi
+          # Set MB_ENVIRONMENT
+          if [[ $GITHUB_REF == refs/tags/* ]]; then export MB_ENVIRONMENT=production; fi
           make build-cross
 
       - uses: actions/upload-artifact@v1
