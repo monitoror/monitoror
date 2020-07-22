@@ -11,6 +11,7 @@ type (
 		GetPipelines(projectID int, ref string) ([]int, error)
 		GetMergeRequest(projectID, mergeRequestID int) (*models.MergeRequest, error)
 		GetMergeRequests(projectID int) ([]models.MergeRequest, error)
+		GetMergeRequestPipelines(projectID int, mergeRequestID int) ([]int, error)
 		GetProject(projectID int) (*models.Project, error)
 	}
 )

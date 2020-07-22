@@ -56,6 +56,29 @@ func (_m *Repository) GetMergeRequest(projectID int, mergeRequestID int) (*model
 	return r0, r1
 }
 
+// GetMergeRequestPipelines provides a mock function with given fields: projectID, mergeRequestID
+func (_m *Repository) GetMergeRequestPipelines(projectID int, mergeRequestID int) ([]int, error) {
+	ret := _m.Called(projectID, mergeRequestID)
+
+	var r0 []int
+	if rf, ok := ret.Get(0).(func(int, int) []int); ok {
+		r0 = rf(projectID, mergeRequestID)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).([]int)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(int, int) error); ok {
+		r1 = rf(projectID, mergeRequestID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // GetMergeRequests provides a mock function with given fields: projectID
 func (_m *Repository) GetMergeRequests(projectID int) ([]models.MergeRequest, error) {
 	ret := _m.Called(projectID)

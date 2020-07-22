@@ -136,8 +136,8 @@ func (gu *gitlabUsecase) MergeRequest(params *models.MergeRequestParams) (*coreM
 		Title: mergeRequest.Title,
 	}
 
-	// Load pipelines for given ref in case of fork
-	pipelines, err := gu.repository.GetPipelines(*params.ProjectID, mergeRequest.SourceBranch)
+	// Load merge request pipelines
+	pipelines, err := gu.repository.GetMergeRequestPipelines(*params.ProjectID, mergeRequest.ID)
 	if err != nil {
 		return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: "unable to load pipelines"}
 	}
