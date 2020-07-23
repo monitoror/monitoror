@@ -95,7 +95,7 @@ func (gr *gitlabRepository) GetPipeline(projectID, pipelineID int) (*models.Pipe
 		ID:         gitlabPipeline.ID,
 		Branch:     gitlabPipeline.Ref,
 		Status:     gitlabPipeline.Status,
-		StartedAt:  gitlabPipeline.CreatedAt,
+		StartedAt:  gitlabPipeline.StartedAt,
 		FinishedAt: gitlabPipeline.FinishedAt,
 	}
 

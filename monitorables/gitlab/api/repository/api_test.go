@@ -129,7 +129,7 @@ func TestRepository_GetPipeline_Success(t *testing.T) {
 			Username:  "test",
 			AvatarURL: "test.example.com",
 		},
-		CreatedAt:  pointer.ToTime(now),
+		StartedAt:  pointer.ToTime(now),
 		FinishedAt: pointer.ToTime(now.Add(time.Second * 30)),
 	}
 
