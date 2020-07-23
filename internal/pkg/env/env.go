@@ -33,7 +33,7 @@ func InitEnvDefaultLabel(envPrefix string, envSuffix string, defaultLabel string
 	// List all env that matches prefix
 	for _, env := range envs {
 		if strings.HasPrefix(env, envPrefix) {
-			splitedEnv := strings.Split(env, "=")
+			splitedEnv := strings.SplitN(env, "=", 2)
 
 			envKey := splitedEnv[0]
 			envValue := splitedEnv[1]

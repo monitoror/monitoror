@@ -60,3 +60,13 @@ func TestAddDefaultLabel_WithConflict(t *testing.T) {
 	assert.Equal(t, "test", os.Getenv("VALUE4"))
 	assert.Equal(t, "test", os.Getenv("VALUE4_DEFAULT"))
 }
+
+func TestAddDefaultLabel_WithEqual(t *testing.T) {
+	_ = os.Setenv("VALUE5", "a=b")
+
+	defaultVariant := string(models.DefaultVariantName)
+
+	_ = InitEnvDefaultLabel("VALUE5", "", defaultVariant)
+
+	assert.Equal(t, "a=b", os.Getenv("VALUE5_DEFAULT"))
+}
