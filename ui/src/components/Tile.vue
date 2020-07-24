@@ -279,7 +279,7 @@
     line-height: 1.2;
     font-weight: bold;
     margin-bottom: 3px;
-    word-break: break-word;
+    overflow-wrap: break-word;
   }
 
   .c-monitoror-tile--message,
@@ -293,6 +293,7 @@
     font-size: 24px;
     font-family: 'JetBrains Mono', monospace;
     opacity: 0.8;
+    line-break: anywhere;
 
     .c-monitoror-tile__theme-dark & {
       opacity: 0.7;
