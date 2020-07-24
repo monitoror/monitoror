@@ -83,3 +83,56 @@ func TestDelivery_GetCheck_Error(t *testing.T) {
 	mockUsecase.AssertNumberOfCalls(t, "Check", 1)
 	mockUsecase.AssertExpectations(t)
 }
+
+func TestDelivery_GetTransactionCheck_Success(t *testing.T) {
+	// Init
+	ctx, res := initEcho()
+
+	tile := coreModels.NewTile(api.PingdomTransactionCheckTileType)
+	tile.Label = "check 1"
+	tile.Status = coreModels.SuccessStatus
+
+	mockUsecase := new(mocks.Usecase)
+	mockUsecase.On("TransactionCheck", &models.TransactionCheckParams{ID: pointer.ToInt(123456)}).Return(tile, nil)
+	handler := NewPingdomDelivery(mockUsecase)
+
+	// Expected
+	json, err := json.Marshal(tile)
+	assert.NoError(t, err, "unable to marshal tile")
+
+	// Test
+	if assert.NoError(t, handler.GetTransactionCheck(ctx)) {
+		assert.Equal(t, http.StatusOK, res.Code)
+		assert.Equal(t, string(json), strings.TrimSpace(res.Body.String()))
+		mockUsecase.AssertNumberOfCalls(t, "TransactionCheck", 1)
+		mockUsecase.AssertExpectations(t)
+	}
+}
+
+func TestDelivery_GetTransactionCheck_QueryParamsError(t *testing.T) {
+	// Init
+	ctx, _ := initEcho()
+	ctx.QueryParams().Del("id")
+
+	mockUsecase := new(mocks.Usecase)
+	handler := NewPingdomDelivery(mockUsecase)
+
+	// Test
+	err := handler.GetTransactionCheck(ctx)
+	assert.Error(t, err)
+	assert.IsType(t, &coreModels.MonitororError{}, err)
+}
+
+func TestDelivery_GetTransactionCheck_Error(t *testing.T) {
+	// Init
+	ctx, _ := initEcho()
+
+	mockUsecase := new(mocks.Usecase)
+	mockUsecase.On("TransactionCheck", Anything).Return(nil, errors.New("boom"))
+	handler := NewPingdomDelivery(mockUsecase)
+
+	// Test
+	assert.Error(t, handler.GetTransactionCheck(ctx))
+	mockUsecase.AssertNumberOfCalls(t, "TransactionCheck", 1)
+	mockUsecase.AssertExpectations(t)
+}
