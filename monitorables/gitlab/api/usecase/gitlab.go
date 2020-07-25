@@ -136,8 +136,8 @@ func (gu *gitlabUsecase) MergeRequest(params *models.MergeRequestParams) (*coreM
 		Title: mergeRequest.Title,
 	}
 
-	// Load pipelines for given ref in case of fork
-	pipelines, err := gu.repository.GetPipelines(*params.ProjectID, mergeRequest.SourceBranch)
+	// Load merge request pipelines
+	pipelines, err := gu.repository.GetMergeRequestPipelines(*params.ProjectID, mergeRequest.ID)
 	if err != nil {
 		return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: "unable to load pipelines"}
 	}
@@ -194,7 +194,10 @@ func (gu *gitlabUsecase) computePipeline(params interface{}, tile *coreModels.Ti
 
 	// Cache Duration when success / failed
 	if tile.Status == coreModels.SuccessStatus || tile.Status == coreModels.FailedStatus {
-		gu.buildsCache.Add(params, strPipelineID, tile.Status, tile.Build.FinishedAt.Sub(*tile.Build.StartedAt))
+		// In case of build without StartedAt ...
+		if tile.Build.StartedAt != nil && tile.Build.FinishedAt != nil {
+			gu.buildsCache.Add(params, strPipelineID, tile.Status, tile.Build.FinishedAt.Sub(*tile.Build.StartedAt))
+		}
 	}
 }
 

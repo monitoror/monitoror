@@ -129,7 +129,7 @@ func TestRepository_GetPipeline_Success(t *testing.T) {
 			Username:  "test",
 			AvatarURL: "test.example.com",
 		},
-		CreatedAt:  pointer.ToTime(now),
+		StartedAt:  pointer.ToTime(now),
 		FinishedAt: pointer.ToTime(now.Add(time.Second * 30)),
 	}
 
@@ -326,6 +326,48 @@ func TestRepository_GetMergeRequests_Success(t *testing.T) {
 			assert.Len(t, result, 1)
 			assert.Equal(t, mergeRequest, result[0])
 			mockMergeRequestService.AssertNumberOfCalls(t, "ListProjectMergeRequests", 1)
+			mockMergeRequestService.AssertExpectations(t)
+		}
+	}
+}
+
+func TestRepository_GetMergeRequestPipelines_Error(t *testing.T) {
+	gitlabErr := errors.New("gitlab error")
+
+	mockMergeRequestService := new(mocks.MergeRequestsService)
+	mockMergeRequestService.On("ListMergeRequestPipelines", Anything, Anything, Anything).
+		Return(nil, nil, gitlabErr)
+
+	repository := initRepository(t)
+	if repository != nil {
+		repository.mergeRequestsService = mockMergeRequestService
+
+		_, err := repository.GetMergeRequestPipelines(10, 10)
+		if assert.Error(t, err) {
+			assert.Contains(t, err.Error(), "gitlab error")
+			mockMergeRequestService.AssertNumberOfCalls(t, "ListMergeRequestPipelines", 1)
+			mockMergeRequestService.AssertExpectations(t)
+		}
+	}
+}
+
+func TestRepository_GetMergeRequestPipelines_Success(t *testing.T) {
+	mockMergeRequestService := new(mocks.MergeRequestsService)
+	mockMergeRequestService.On("ListMergeRequestPipelines", Anything, Anything, Anything).
+		Return([]*gitlab.PipelineInfo{
+			{ID: 10},
+			{ID: 11},
+			{ID: 12},
+		}, nil, nil)
+
+	repository := initRepository(t)
+	if repository != nil {
+		repository.mergeRequestsService = mockMergeRequestService
+
+		pipelines, err := repository.GetMergeRequestPipelines(10, 10)
+		if assert.NoError(t, err) {
+			assert.Equal(t, []int{10, 11, 12}, pipelines)
+			mockMergeRequestService.AssertNumberOfCalls(t, "ListMergeRequestPipelines", 1)
 			mockMergeRequestService.AssertExpectations(t)
 		}
 	}

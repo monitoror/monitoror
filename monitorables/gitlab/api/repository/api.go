@@ -95,7 +95,7 @@ func (gr *gitlabRepository) GetPipeline(projectID, pipelineID int) (*models.Pipe
 		ID:         gitlabPipeline.ID,
 		Branch:     gitlabPipeline.Ref,
 		Status:     gitlabPipeline.Status,
-		StartedAt:  gitlabPipeline.CreatedAt,
+		StartedAt:  gitlabPipeline.StartedAt,
 		FinishedAt: gitlabPipeline.FinishedAt,
 	}
 
@@ -159,6 +159,21 @@ func (gr *gitlabRepository) GetMergeRequests(projectID int) ([]models.MergeReque
 	}
 
 	return mergeRequests, nil
+}
+
+func (gr *gitlabRepository) GetMergeRequestPipelines(projectID int, mergeRequestID int) ([]int, error) {
+	var ids []int
+
+	gitlabPipelines, _, err := gr.mergeRequestsService.ListMergeRequestPipelines(projectID, mergeRequestID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, pipeline := range gitlabPipelines {
+		ids = append(ids, pipeline.ID)
+	}
+
+	return ids, nil
 }
 
 func (gr *gitlabRepository) GetProject(projectID int) (*models.Project, error) {
