@@ -16,6 +16,7 @@ func TestInitConfig_WithEnv(t *testing.T) {
 	assert.NoError(t, os.Setenv(EnvPrefix+"_PORT", "3000"))
 	assert.NoError(t, os.Setenv(EnvPrefix+"_CONFIG", "default"))
 	assert.NoError(t, os.Setenv(EnvPrefix+"_CONFIG_SCREEN1", "1"))
+	assert.NoError(t, os.Setenv(EnvPrefix+"_CONFIG_SCREEN2", "http://example.com?screen=2"))
 
 	config := InitConfig()
 
@@ -23,4 +24,5 @@ func TestInitConfig_WithEnv(t *testing.T) {
 	assert.Equal(t, 3000, config.Port)
 	assert.Equal(t, "default", config.NamedConfigs["default"])
 	assert.Equal(t, "1", config.NamedConfigs["screen1"])
+	assert.Equal(t, "http://example.com?screen=2", config.NamedConfigs["screen2"])
 }
