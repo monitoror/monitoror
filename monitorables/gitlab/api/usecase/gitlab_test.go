@@ -384,7 +384,7 @@ func TestUsecase_MergeRequest_ErrorPipelines(t *testing.T) {
 		Return(&models.Project{Repository: "Test"}, nil)
 	mockRepository.On("GetMergeRequest", mock.Anything, mock.Anything).
 		Return(&models.MergeRequest{SourceProjectID: 20}, nil)
-	mockRepository.On("GetPipelines", mock.Anything, mock.Anything).
+	mockRepository.On("GetMergeRequestPipelines", mock.Anything, mock.Anything).
 		Return(nil, errors.New("boom"))
 
 	gu := initUsecase(mockRepository)
@@ -396,7 +396,7 @@ func TestUsecase_MergeRequest_ErrorPipelines(t *testing.T) {
 		assert.Equal(t, "unable to load pipelines", err.Error())
 		mockRepository.AssertNumberOfCalls(t, "GetProject", 2)
 		mockRepository.AssertNumberOfCalls(t, "GetMergeRequest", 1)
-		mockRepository.AssertNumberOfCalls(t, "GetPipelines", 1)
+		mockRepository.AssertNumberOfCalls(t, "GetMergeRequestPipelines", 1)
 		mockRepository.AssertExpectations(t)
 	}
 }
@@ -407,7 +407,7 @@ func TestUsecase_MergeRequest_ErrorPipeline(t *testing.T) {
 		Return(&models.Project{Repository: "Test"}, nil)
 	mockRepository.On("GetMergeRequest", mock.Anything, mock.Anything).
 		Return(&models.MergeRequest{SourceProjectID: 20}, nil)
-	mockRepository.On("GetPipelines", mock.Anything, mock.Anything).
+	mockRepository.On("GetMergeRequestPipelines", mock.Anything, mock.Anything).
 		Return([]int{30}, nil)
 	mockRepository.On("GetPipeline", mock.Anything, mock.Anything).
 		Return(nil, errors.New("boom"))
@@ -421,7 +421,7 @@ func TestUsecase_MergeRequest_ErrorPipeline(t *testing.T) {
 		assert.Equal(t, "unable to load pipeline", err.Error())
 		mockRepository.AssertNumberOfCalls(t, "GetProject", 2)
 		mockRepository.AssertNumberOfCalls(t, "GetMergeRequest", 1)
-		mockRepository.AssertNumberOfCalls(t, "GetPipelines", 1)
+		mockRepository.AssertNumberOfCalls(t, "GetMergeRequestPipelines", 1)
 		mockRepository.AssertNumberOfCalls(t, "GetPipeline", 1)
 		mockRepository.AssertExpectations(t)
 	}
@@ -433,7 +433,7 @@ func TestUsecase_MergeRequest_NoPipelines(t *testing.T) {
 		Return(&models.Project{Repository: "Test"}, nil)
 	mockRepository.On("GetMergeRequest", mock.Anything, mock.Anything).
 		Return(&models.MergeRequest{SourceProjectID: 20}, nil)
-	mockRepository.On("GetPipelines", mock.Anything, mock.Anything).
+	mockRepository.On("GetMergeRequestPipelines", mock.Anything, mock.Anything).
 		Return([]int{}, nil)
 
 	gu := initUsecase(mockRepository)
@@ -445,7 +445,7 @@ func TestUsecase_MergeRequest_NoPipelines(t *testing.T) {
 		assert.Equal(t, "no pipelines found", err.Error())
 		mockRepository.AssertNumberOfCalls(t, "GetProject", 2)
 		mockRepository.AssertNumberOfCalls(t, "GetMergeRequest", 1)
-		mockRepository.AssertNumberOfCalls(t, "GetPipelines", 1)
+		mockRepository.AssertNumberOfCalls(t, "GetMergeRequestPipelines", 1)
 		mockRepository.AssertExpectations(t)
 	}
 }
@@ -482,7 +482,7 @@ func TestUsecase_MergeRequest_Success(t *testing.T) {
 		Return(&models.Project{Owner: "faker", Repository: "project"}, nil)
 	mockRepository.On("GetMergeRequest", mock.Anything, mock.Anything).
 		Return(mergeRequest, nil)
-	mockRepository.On("GetPipelines", mock.Anything, mock.Anything).
+	mockRepository.On("GetMergeRequestPipelines", mock.Anything, mock.Anything).
 		Return([]int{30}, nil)
 	mockRepository.On("GetPipeline", mock.Anything, mock.Anything).
 		Return(pipeline, nil)
@@ -510,7 +510,7 @@ func TestUsecase_MergeRequest_Success(t *testing.T) {
 		assert.Equal(t, expected, tile)
 		mockRepository.AssertNumberOfCalls(t, "GetProject", 2)
 		mockRepository.AssertNumberOfCalls(t, "GetMergeRequest", 1)
-		mockRepository.AssertNumberOfCalls(t, "GetPipelines", 1)
+		mockRepository.AssertNumberOfCalls(t, "GetMergeRequestPipelines", 1)
 		mockRepository.AssertNumberOfCalls(t, "GetPipeline", 1)
 		mockRepository.AssertExpectations(t)
 	}

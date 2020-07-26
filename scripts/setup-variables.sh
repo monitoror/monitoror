@@ -25,8 +25,9 @@ MB_GITCOMMIT=${MB_GITCOMMIT:-$(git rev-parse --short HEAD 2> /dev/null || true)}
 MB_BUILDTIME=${MB_BUILDTIME:-$(TZ=GMT date +"%F %H:%M:%S+00:00" 2> /dev/null | sed -e 's/ /T/')}
 
 # Default OS/ARCH
-GOOS="${GOOS:-$(go env GOHOSTOS)}"
-GOARCH="${GOARCH:-$(go env GOHOSTARCH)}"
+export GOOS="${GOOS:-$(go env GOHOSTOS)}"
+export GOARCH="${GOARCH:-$(go env GOHOSTARCH)}"
+export CGO_ENABLED=0
 
 # Default TAGS/LDFLAGS
 MB_GO_TAGS=${MB_GO_TAGS:-""}

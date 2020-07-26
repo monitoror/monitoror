@@ -94,7 +94,7 @@ func loadNamedConfig(config *CoreConfig) {
 
 	for _, env := range os.Environ() {
 		if strings.HasPrefix(env, envPrefix) {
-			splittedEnv := strings.Split(env, "=")
+			splittedEnv := strings.SplitN(env, "=", 2)
 
 			configName := strings.TrimPrefix(splittedEnv[0], envPrefix)
 			configName = strings.Trim(configName, "_")
