@@ -25,7 +25,14 @@ jobs:
     steps:
       - uses: actions/setup-node@v1
         with:
-          node-version: 10.x
+          node-version: 14.x
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - uses: actions/checkout@v1
         with:
@@ -33,11 +40,11 @@ jobs:
 
       - name: install
         working-directory: ui
-        run: yarn install
+        run: npm ci
 
       - name: lint
         working-directory: ui
-        run: yarn lint
+        run: npm run lint
 
   chmod:
     name: Check chmods
