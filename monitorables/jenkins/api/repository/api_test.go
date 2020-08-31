@@ -171,6 +171,7 @@ func TestRepository_GetLastBuildStatus_Success(t *testing.T) {
 	// Params
 	jenkinsBuild := gojenkins.Build{
 		Number:          1,
+		DisplayName:     "#1",
 		FullDisplayName: "test/master",
 		Building:        true,
 		Result:          "SUCCESS",

@@ -106,6 +106,8 @@ github.com/jsdidierlaurent/go-pingdom v1.0.1-0.20200611160140-94f3cde59009 h1:wz
 github.com/jsdidierlaurent/go-pingdom v1.0.1-0.20200611160140-94f3cde59009/go.mod h1:3FvaNxZUxs3HyQxLXVv90EVsooanR0yeV7mqGeoPru8=
 github.com/jsdidierlaurent/golang-jenkins v0.0.0-20190826091201-0ea4c9df4e09 h1:iqhcRR/AqcVtFw5w1rbm2qfLZYiW9J9H8vsdqvtXbu4=
 github.com/jsdidierlaurent/golang-jenkins v0.0.0-20190826091201-0ea4c9df4e09/go.mod h1:RELp2nyNx2vW0ZD/DAKROT0JRwiwTZNuGmsVeH5rCb4=
+github.com/jsdidierlaurent/golang-jenkins v0.0.0-20200828155557-e515459e5266 h1:p6FCaq/Ea8shEujuSk292XIbGhACFwK75HZWi9KkkU0=
+github.com/jsdidierlaurent/golang-jenkins v0.0.0-20200828155557-e515459e5266/go.mod h1:RELp2nyNx2vW0ZD/DAKROT0JRwiwTZNuGmsVeH5rCb4=
 github.com/julienschmidt/httprouter v1.2.0/go.mod h1:SYymIcj16QtmaHHD7aYtjjsJG7VTCxuUUipMqKk8s4w=
 github.com/kisielk/errcheck v1.1.0/go.mod h1:EZBBE59ingxPouuu3KfxchcWSUPOHkagtvWXihfKN4Q=
 github.com/kisielk/gotool v1.0.0/go.mod h1:XhKaO+MFFWcvkIS/tQcRk01m1F5IRFswLeQ+oQHNcck=
