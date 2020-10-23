@@ -38,11 +38,11 @@ func (pu *pingUsecase) Ping(params *models.PingParams) (tile *coreModels.Tile, e
 
 	// Message
 	if tile.Status == coreModels.SuccessStatus {
-		tile.WithValue(coreModels.MillisecondUnit)
+		tile.WithMetrics(coreModels.MillisecondUnit)
 		if len(params.ValueValues) != 0 {
-			tile.Value.Values = params.ValueValues
+			tile.Metrics.Values = params.ValueValues
 		} else {
-			tile.Value.Values = append(tile.Value.Values, fmt.Sprintf("%d", rand.Int31n(300)))
+			tile.Metrics.Values = append(tile.Metrics.Values, fmt.Sprintf("%d", rand.Int31n(300)))
 		}
 	}
 

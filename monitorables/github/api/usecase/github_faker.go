@@ -41,15 +41,15 @@ func NewGithubUsecase() api.Usecase {
 }
 
 func (gu *githubUsecase) Count(params *models.CountParams) (*coreModels.Tile, error) {
-	tile := coreModels.NewTile(api.GithubCountTileType).WithValue(coreModels.NumberUnit)
+	tile := coreModels.NewTile(api.GithubCountTileType).WithMetrics(coreModels.NumberUnit)
 	tile.Label = "GitHub count"
 
 	tile.Status = coreModels.SuccessStatus
 
 	if len(params.ValueValues) != 0 {
-		tile.Value.Values = params.ValueValues
+		tile.Metrics.Values = params.ValueValues
 	} else {
-		tile.Value.Values = []string{"42"}
+		tile.Metrics.Values = []string{"42"}
 	}
 
 	return tile, nil

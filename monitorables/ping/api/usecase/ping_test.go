@@ -30,10 +30,10 @@ func TestUsecase_Ping_Success(t *testing.T) {
 	}
 
 	// Expected
-	eTile := coreModels.NewTile(api.PingTileType).WithValue(coreModels.MillisecondUnit)
+	eTile := coreModels.NewTile(api.PingTileType).WithMetrics(coreModels.MillisecondUnit)
 	eTile.Label = param.Hostname
 	eTile.Status = coreModels.SuccessStatus
-	eTile.Value.Values = append(eTile.Value.Values, "1000")
+	eTile.Metrics.Values = append(eTile.Metrics.Values, "1000")
 
 	// Test
 	rTile, err := usecase.Ping(param)

@@ -154,9 +154,9 @@ func TestHtmlAll_WithoutErrors(t *testing.T) {
 			assert.Equal(t, testcase.expectedStatus, tile.Status)
 			assert.Equal(t, testcase.expectedLabel, tile.Label)
 			assert.Equal(t, testcase.expectedMessage, tile.Message)
-			if tile.Value != nil {
-				assert.Equal(t, testcase.expectedValueUnit, tile.Value.Unit)
-				assert.Equal(t, testcase.expectedValueValues, tile.Value.Values)
+			if tile.Metrics != nil {
+				assert.Equal(t, testcase.expectedValueUnit, tile.Metrics.Unit)
+				assert.Equal(t, testcase.expectedValueValues, tile.Metrics.Values)
 			}
 			mockRepository.AssertNumberOfCalls(t, "Get", 1)
 			mockRepository.AssertExpectations(t)
@@ -174,13 +174,13 @@ func TestHTTPStatus_WithCache(t *testing.T) {
 	tile, err := tu.HTTPRaw(&models.HTTPRawParams{URL: "toto"})
 	if assert.NoError(t, err) {
 		assert.Equal(t, "toto", tile.Label)
-		assert.Equal(t, "test with cache", tile.Value.Values[0])
+		assert.Equal(t, "test with cache", tile.Metrics.Values[0])
 	}
 
 	tile, err = tu.HTTPRaw(&models.HTTPRawParams{URL: "toto"})
 	if assert.NoError(t, err) {
 		assert.Equal(t, "toto", tile.Label)
-		assert.Equal(t, "test with cache", tile.Value.Values[0])
+		assert.Equal(t, "test with cache", tile.Metrics.Values[0])
 	}
 	mockRepository.AssertNumberOfCalls(t, "Get", 1)
 	mockRepository.AssertExpectations(t)

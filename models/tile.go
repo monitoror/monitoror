@@ -13,8 +13,8 @@ type (
 		Label   string `json:"label,omitempty"`
 		Message string `json:"message,omitempty"`
 
-		Value *TileValue `json:"value,omitempty"`
-		Build *TileBuild `json:"build,omitempty"`
+		Metrics *TileMetrics `json:"metrics,omitempty"`
+		Build   *TileBuild   `json:"build,omitempty"`
 	}
 
 	TileType   string //PING, PORT, ... (defined in usecase.go for each monitorable)

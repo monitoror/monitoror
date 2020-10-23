@@ -130,11 +130,11 @@ func (hu *httpUsecase) httpAll(tileType coreModels.TileType, params models.Gener
 
 	if content != "" {
 		if _, err := strconv.ParseFloat(content, 64); err == nil {
-			tile.WithValue(coreModels.NumberUnit)
+			tile.WithMetrics(coreModels.NumberUnit)
 		} else {
-			tile.WithValue(coreModels.RawUnit)
+			tile.WithMetrics(coreModels.RawUnit)
 		}
-		tile.Value.Values = []string{content}
+		tile.Metrics.Values = []string{content}
 	}
 
 	return tile, nil

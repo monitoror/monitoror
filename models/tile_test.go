@@ -17,9 +17,9 @@ func TestTile_WithBuild(t *testing.T) {
 }
 
 func TestTile_WithValue(t *testing.T) {
-	tile := NewTile("TEST").WithValue(MillisecondUnit)
-	assert.NotNil(t, tile.Value)
-	assert.Equal(t, MillisecondUnit, tile.Value.Unit)
+	tile := NewTile("TEST").WithMetrics(MillisecondUnit)
+	assert.NotNil(t, tile.Metrics)
+	assert.Equal(t, MillisecondUnit, tile.Metrics.Unit)
 }
 
 func TestNewGeneratorTileType(t *testing.T) {
