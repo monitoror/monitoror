@@ -11,6 +11,7 @@ const config: UserConfig = {
       'ts-md5',
     ],
   },
+  assetsDir: '.',
   port: 8000,
   proxy: {
     '/api': 'http://localhost:8080',
