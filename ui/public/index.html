@@ -4,25 +4,25 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <% if (typeof(VUE_APP_TITLE) !== 'undefined') { %>
-  <title><%= VUE_APP_TITLE %></title>
-  <% } else { %>
+<!--  <% if (typeof(VITE_APP_TITLE) !== 'undefined') { %>-->
+<!--  <title><%= VITE_APP_TITLE %></title>-->
+<!--  <% } else { %>-->
   <title>Monitoror</title>
-  <% } %>
-  <link rel="icon" type="image/png" href="<%= BASE_URL %>favicon.png">
-  <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+<!--  <% } %>-->
+<!--  <link rel="icon" type="image/png" href="<%= BASE_URL %>favicon.png">-->
+<!--  <link rel="icon" href="<%= BASE_URL %>favicon.ico">-->
 
   <!-- OpenGraph / Twitter cards -->
-  <% if (typeof(VUE_APP_CANONICAL_URL) !== 'undefined') { %>
-  <link rel="canonical" href="<%= VUE_APP_CANONICAL_URL %>">
+<!--  <% if (typeof(VITE_APP_CANONICAL_URL) !== 'undefined') { %>-->
+<!--  <link rel="canonical" href="<%= VITE_APP_CANONICAL_URL %>">-->
   <meta property="og:image" content="https://monitoror.com/assets/images/opengraph.png"/>
   <meta property="og:site_name" content="Monitoror"/>
   <meta property="og:type" content="website"/>
   <meta property="og:title" content="Monitoror — Unified monitoring wallboard"/>
-  <meta property="og:url" content="<%= VUE_APP_CANONICAL_URL %>"/>
+<!--  <meta property="og:url" content="<%= VITE_APP_CANONICAL_URL %>"/>-->
   <meta property="og:description"
         content="Monitoror is a wallboard monitoring app to monitor server status; monitor CI builds progress or even display critical values"/>
-  <% } %>
+<!--  <% } %>-->
   <meta name="twitter:image:src" content="https://monitoror.com/assets/images/opengraph.png"/>
   <meta name="twitter:card" content="summary_large_image"/>
   <meta name="twitter:title" content="Monitoror — Unified monitoring wallboard"/>
@@ -148,7 +148,7 @@
     We're sorry but Monitoror doesn't work properly without JavaScript enabled. Please enable it to continue.
   </strong>
 </noscript>
-<div id="app"></div>
-<!-- built files will be auto injected -->
+<div id="app-root"></div>
+<script type="module" src="/src/main.ts"></script>
 </body>
 </html>

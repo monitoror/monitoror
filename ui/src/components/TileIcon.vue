@@ -54,20 +54,21 @@
 </template>
 
 <script lang="ts">
-  import Vue from 'vue'
-  import {Component, Prop} from 'vue-property-decorator'
+  import {Options, Vue, prop} from 'vue-class-component'
 
   import TileType from '@/enums/tileType'
 
-  @Component
-  export default class MonitororTileIcon extends Vue {
-    /*
-     * Props
-     */
+  /*
+   * Props
+   */
+  class MonitororTileIconProps {
+    tileType: TileType = prop({
+      type: String
+    })
+  }
 
-    @Prop()
-    private tileType!: TileType
-
+  @Options({})
+  export default class MonitororTileIcon extends Vue.props(MonitororTileIconProps) {
     /*
      * Computed
      */

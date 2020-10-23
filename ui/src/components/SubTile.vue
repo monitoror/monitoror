@@ -28,44 +28,97 @@
 </template>
 
 <script lang="ts">
-  import {Component} from 'vue-property-decorator'
+import MonitororTileIcon from '@/components/TileIcon.vue'
+import useTileCommons from '@/composables/useTile'
+import TileStatus from '@/enums/tileStatus'
+import TileConfig from '@/interfaces/tileConfig'
+import {computed, defineComponent} from 'vue'
 
-  import TileStatus from '@/enums/tileStatus'
-
-  import AbstractMonitororTile from '@/classes/monitororTile'
-  import MonitororTileIcon from '@/components/TileIcon.vue'
-
-  @Component({
-    components: {
-      MonitororTileIcon,
+export default defineComponent({
+  components: {
+    MonitororTileIcon,
+  },
+  props: {
+    config: {
+      type: Object as () => TileConfig,
+      required: true,
     },
-  })
-  export default class MonitororSubTile extends AbstractMonitororTile {
-    /*
-     * Computed
-     */
+  },
+  setup(props) {
+    const {
+      theme,
+      type,
 
-    get classes() {
-      return {
-        ['c-monitoror-sub-tile__theme-' + this.theme]: true,
-        'c-monitoror-sub-tile__status-succeeded': this.isSucceeded,
-        'c-monitoror-sub-tile__status-failed': this.isFailed,
-        'c-monitoror-sub-tile__status-warning': this.isWarning,
-        'c-monitoror-sub-tile__status-running': this.isRunning,
-        'c-monitoror-sub-tile__status-queued': this.isQueued,
-        'c-monitoror-sub-tile__status-canceled': this.status === TileStatus.Canceled,
-        'c-monitoror-sub-tile__status-action-required': this.status === TileStatus.ActionRequired,
+      // status
+      status,
+      isQueued,
+      isRunning,
+      isSucceeded,
+      isFailed,
+      isWarning,
+
+      // content
+      label,
+
+      // build
+      build,
+      branch,
+      mergeRequest,
+      mergeRequestLabelPrefix,
+      progressTime: rawProgressTime,
+      progressBarStyle,
+      isOvertime,
+    } = useTileCommons(props.config)
+
+    const classes = computed(() => {
+      const classes = {
+        ['c-monitoror-sub-tile__theme-' + theme.value]: true,
+        'c-monitoror-sub-tile__status-succeeded': isSucceeded.value,
+        'c-monitoror-sub-tile__status-failed': isFailed.value,
+        'c-monitoror-sub-tile__status-warning': isWarning.value,
+        'c-monitoror-sub-tile__status-running': isRunning.value,
+        'c-monitoror-sub-tile__status-queued': isQueued.value,
+        'c-monitoror-sub-tile__status-canceled': status.value === TileStatus.Canceled,
+        'c-monitoror-sub-tile__status-action-required': status.value === TileStatus.ActionRequired,
       }
-    }
 
-    get progressTime(): string | undefined {
-      if (super.progressTime === undefined) {
+      return classes
+    })
+
+    const progressTime = computed((): string | undefined => {
+      if (rawProgressTime.value === undefined) {
         return
       }
 
-      return super.progressTime.replace('Overtime: ', '')
+      return rawProgressTime.value.replace('Overtime: ', '')
+    })
+
+    return {
+      // attributes
+      classes,
+
+      // type
+      type,
+
+      // status
+      status,
+      isQueued,
+      isRunning,
+
+      // content
+      label,
+
+      // build
+      build,
+      branch,
+      mergeRequest,
+      mergeRequestLabelPrefix,
+      progressTime,
+      progressBarStyle,
+      isOvertime,
     }
-  }
+  },
+})
 </script>
 
 <style lang="scss">

@@ -40,7 +40,7 @@
               </div>
             </div>
           </div>
-          <monitoror-welcome v-if="shouldShowWelcomePage"></monitoror-welcome>
+          <MonitororWelcome v-if="shouldShowWelcomePage"></MonitororWelcome>
           <monitoror-errors v-else class="c-app--loading-errors"></monitoror-errors>
         </div>
       </div>
@@ -49,7 +49,8 @@
 </template>
 
 <script lang="ts">
-  import {Component, Vue} from 'vue-property-decorator'
+  import {nextTick} from 'vue'
+  import {Options, Vue} from 'vue-class-component'
 
   import MonitororErrors from '@/components/Errors.vue'
   import MonitororTile from '@/components/Tile.vue'
@@ -58,7 +59,7 @@
   import ConfigError from '@/interfaces/configError'
   import TileConfig from '@/interfaces/tileConfig'
 
-  @Component({
+  @Options({
     components: {
       MonitororErrors,
       MonitororTile,
@@ -74,9 +75,9 @@
 
     private shouldShowCursor: boolean = true
     private shouldDisableTransitions: boolean = false
-    private shouldShowCursorTimeout!: number
-    private shouldDisableTransitionsTimeout!: number
-    private taskRunnerInterval!: number
+    private shouldShowCursorTimeout!: ReturnType<typeof setTimeout>
+    private shouldDisableTransitionsTimeout!: ReturnType<typeof setTimeout>
+    private taskRunnerInterval!: ReturnType<typeof setInterval>
     private isReady: boolean = false
 
     /*
@@ -197,8 +198,8 @@
      * Hooks
      */
 
-    private async mounted() {
-      await Vue.nextTick()
+    async mounted() {
+      await nextTick()
 
       window.addEventListener('online', this.dispatchUpdateNetworkState)
       window.addEventListener('offline', this.dispatchUpdateNetworkState)
@@ -217,7 +218,7 @@
       })
     }
 
-    private beforeDestroy() {
+    beforeDestroy() {
       window.removeEventListener('online', this.dispatchUpdateNetworkState)
       window.removeEventListener('offline', this.dispatchUpdateNetworkState)
       window.removeEventListener('resize', this.onResize)

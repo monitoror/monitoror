@@ -29,8 +29,8 @@
         {{ message }}
       </div>
 
-      <div class="c-monitoror-tile--value" v-if="displayedValue">
-        {{ displayedValue }}
+      <div class="c-monitoror-tile--value" v-if="displayedMetric">
+        {{ displayedMetric }}
       </div>
 
       <div class="c-monitoror-tile--sub-tiles" v-if="isGroup">
@@ -67,150 +67,186 @@
 </template>
 
 <script lang="ts">
-  import {Component} from 'vue-property-decorator'
+import useTileValues from '@/composables/useTileMetrics'
+import {defineComponent, computed} from 'vue'
+import {useStore} from 'vuex'
 
-  import DISPLAYABLE_SUBTILE_STATUS from '@/constants/displayableSubtileStatus'
-  import TileStatus from '@/enums/tileStatus'
-  import TileType from '@/enums/tileType'
-  import TileValueUnit from '@/enums/tileValueUnit'
-  import TileConfig from '@/interfaces/tileConfig'
+import DISPLAYABLE_SUBTILE_STATUS from '@/constants/displayableSubtileStatus'
+import useTileCommons from '@/composables/useTile'
+import TileStatus from '@/enums/tileStatus'
+import TileType from '@/enums/tileType'
+import TileConfig from '@/interfaces/tileConfig'
 
-  import AbstractMonitororTile from '@/classes/monitororTile'
-  import MonitororSubTile from '@/components/SubTile.vue'
-  import MonitororTileIcon from '@/components/TileIcon.vue'
-  import TileValue from '@/interfaces/tileValue'
+import MonitororSubTile from '@/components/SubTile.vue'
+import MonitororTileIcon from '@/components/TileIcon.vue'
 
-  @Component({
-    components: {
-      MonitororSubTile,
-      MonitororTileIcon,
-    },
-  })
-  export default class MonitororTile extends AbstractMonitororTile {
-
-    /*
-     * Computed
-     */
-
-    get classes() {
-      return {
-        ['c-monitoror-tile__theme-' + this.theme]: true,
-        'c-monitoror-tile__empty': this.isEmpty,
-        'c-monitoror-tile__group': this.isGroup,
-        'c-monitoror-tile__status-succeeded': this.isSucceeded,
-        'c-monitoror-tile__status-failed': this.isFailed,
-        'c-monitoror-tile__status-warning': this.isWarning,
-        'c-monitoror-tile__status-running': this.isRunning,
-        'c-monitoror-tile__status-queued': this.isQueued,
-        'c-monitoror-tile__status-canceled': this.status === TileStatus.Canceled,
-        'c-monitoror-tile__status-action-required': this.status === TileStatus.ActionRequired,
-      }
+const MonitororTile = defineComponent({
+  components: {
+    MonitororSubTile,
+    MonitororTileIcon,
+  },
+  props: {
+    config: {
+      type: Object as () => TileConfig,
+      required: true
     }
+  },
+  setup: function (props) {
+    const {
+      state,
+      theme,
+      type,
 
-    get styles() {
+      // status
+      status,
+      isQueued,
+      isRunning,
+      isSucceeded,
+      isFailed,
+      isWarning,
+
+      // content
+      label,
+
+      // build
+      build,
+      branch,
+      mergeRequest,
+      mergeRequestLabelPrefix,
+      progressTime,
+      progressBarStyle,
+      isOvertime,
+      finishedSince,
+      author,
+      showAuthor,
+    } = useTileCommons(props.config)
+
+    const {
+      displayedMetric,
+    } = useTileValues(state)
+
+    const store = useStore()
+
+    const classes = computed(() => {
+      return {
+        ['c-monitoror-tile__theme-' + theme.value]: true,
+        'c-monitoror-tile__empty': isEmpty.value,
+        'c-monitoror-tile__group': isGroup.value,
+        'c-monitoror-tile__status-succeeded': isSucceeded.value,
+        'c-monitoror-tile__status-failed': isFailed.value,
+        'c-monitoror-tile__status-warning': isWarning.value,
+        'c-monitoror-tile__status-running': isRunning.value,
+        'c-monitoror-tile__status-queued': isQueued.value,
+        'c-monitoror-tile__status-canceled': status.value === TileStatus.Canceled,
+        'c-monitoror-tile__status-action-required': status.value === TileStatus.ActionRequired,
+      }
+    })
+
+    const styles = computed(() => {
       const styles = {
-        'grid-column': `auto / span ${this.columnSpan}`,
-        'grid-row': `auto / span ${this.rowSpan}`,
-        '--row-span': this.rowSpan,
+        'grid-column': `auto / span ${columnSpan.value}`,
+        'grid-row': `auto / span ${rowSpan.value}`,
+        '--row-span': rowSpan.value,
       }
 
       return styles
-    }
+    })
 
-    get isEmpty(): boolean {
-      return this.type === TileType.Empty
-    }
+    const isEmpty = computed((): boolean => {
+      return type.value === TileType.Empty
+    })
 
-    get isGroup(): boolean {
-      return this.type === TileType.Group
-    }
+    const isGroup = computed((): boolean => {
+      return type.value === TileType.Group
+    })
 
-    get columnSpan(): number {
-      return this.config.columnSpan || 1
-    }
+    const columnSpan = computed((): number => {
+      return props.config.columnSpan || 1
+    })
 
-    get rowSpan(): number {
-      return this.config.rowSpan || 1
-    }
+    const rowSpan = computed((): number => {
+      return props.config.rowSpan || 1
+    })
 
-    get displayedSubTiles(): TileConfig[] | undefined {
-      if (!this.config.tiles) {
+    const displayedSubTiles = computed((): TileConfig[] | undefined => {
+      if (!props.config.tiles) {
         return
       }
 
-      const displayedSubTiles = this.config.tiles.filter((subTile) => {
-        if (!this.$store.state.tilesState.hasOwnProperty(subTile.stateKey)) {
+      const displayedSubTiles = props.config.tiles.filter((subTile) => {
+        if (!Object.keys(store.state.tilesState).includes(subTile.stateKey)) {
           return false
         }
 
-        return DISPLAYABLE_SUBTILE_STATUS.includes(this.$store.state.tilesState[subTile.stateKey].status)
+        return DISPLAYABLE_SUBTILE_STATUS.includes(store.state.tilesState[subTile.stateKey].status)
       })
 
       return displayedSubTiles
-    }
+    })
 
-    get value(): TileValue | undefined {
-      if (this.state === undefined) {
+    const message = computed((): string | undefined => {
+      if (state.value === undefined) {
         return
       }
 
-      return this.state.value
-    }
+      return state.value.message
+    })
 
-    get message(): string | undefined {
-      if (this.state === undefined) {
+    const buildId = computed((): string | undefined => {
+      if (build.value === undefined) {
         return
       }
 
-      return this.state.message
+      return build.value.id
+    })
+
+    return {
+      // attributes
+      classes,
+      styles,
+
+      // type
+      type,
+      isEmpty,
+      isGroup,
+
+      // status
+      status,
+      isQueued,
+      isRunning,
+      isSucceeded,
+      isFailed,
+      isWarning,
+
+      // layout
+      columnSpan,
+      rowSpan,
+
+      // content
+      label,
+      message,
+      displayedSubTiles,
+
+      // build
+      build,
+      buildId,
+      branch,
+      mergeRequest,
+      mergeRequestLabelPrefix,
+      progressTime,
+      progressBarStyle,
+      isOvertime,
+      finishedSince,
+      author,
+      showAuthor,
+
+      // metrics
+      displayedMetric,
     }
+  },
+})
 
-    get buildId(): string | undefined {
-      if (this.build === undefined) {
-        return
-      }
-
-      return this.build.id
-    }
-
-    get unit(): TileValueUnit {
-      if (this.value === undefined) {
-        return TileValueUnit.Raw
-      }
-
-      return this.value.unit as TileValueUnit
-    }
-
-    get values(): string[] | undefined {
-      if (this.value === undefined) {
-        return
-      }
-
-      return this.value.values
-    }
-
-    get displayedValue(): string | undefined {
-      if (this.values === undefined) {
-        return
-      }
-
-      const UNIT_DISPLAY = {
-        [TileValueUnit.Millisecond]: 'ms',
-        [TileValueUnit.Ratio]: '%',
-        [TileValueUnit.Number]: '',
-        [TileValueUnit.Raw]: '',
-      }
-
-      let value = this.values[this.values.length - 1]
-      if (this.unit === TileValueUnit.Millisecond) {
-        value = Math.round(parseFloat(value)).toString()
-      } else if (this.unit === TileValueUnit.Ratio) {
-        value = (parseFloat(value) * 100).toFixed(2).toString()
-      }
-
-      return value + UNIT_DISPLAY[this.unit]
-    }
-  }
+export default MonitororTile
 </script>
 
 <style lang="scss">

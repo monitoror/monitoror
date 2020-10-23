@@ -1,10 +1,10 @@
-import {findBestMatch} from 'string-similarity'
+import StringSimilarity from 'string-similarity'
 
 export default function guessExpectedFieldName(
   fieldName: string,
   expectedValues: string[],
 ): string | undefined {
-  const bestMatch = findBestMatch(fieldName, expectedValues).bestMatch.target
+  const bestMatch = StringSimilarity.findBestMatch(fieldName, expectedValues).bestMatch.target
 
   if (fieldName === bestMatch) {
     return

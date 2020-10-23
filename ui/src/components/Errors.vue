@@ -216,7 +216,8 @@
 
 <script lang="ts">
   import {format} from 'date-fns'
-  import {Component, Vue, Watch} from 'vue-property-decorator'
+  import {nextTick} from 'vue'
+  import {Options, Vue} from 'vue-class-component'
 
   import ConfigErrorId from '@/enums/configErrorId'
   import ellipsisUnnecessaryParams from '@/helpers/ellipsisUnnecessaryParams'
@@ -230,7 +231,23 @@
   import ConfigError from '@/interfaces/configError'
   import {DEFAULT_CONFIG_NAME} from '@/store'
 
-  @Component({})
+  @Options<MonitororErrors>({
+    watch: {
+      errors: async () => {
+        await nextTick()
+        Array.from(document.querySelectorAll('.has-mark')).forEach((errorConfigExtract: Element) => {
+          const pre = errorConfigExtract.parentNode?.parentNode as HTMLElement
+          const mark = pre.querySelector('mark')
+
+          if (mark === null) {
+            return
+          }
+
+          pre.scrollTop = mark.offsetTop - pre.offsetTop
+        })
+      },
+    },
+  })
   export default class MonitororErrors extends Vue {
     /**
      * Computed
@@ -297,25 +314,6 @@
     public guessExpectedFieldName = guessExpectedFieldName
     public parsedExtractFieldValue = parsedExtractFieldValue
     public splitList = splitList
-
-    /*
-     * Watchers
-     */
-
-    @Watch('errors')
-    private async scrollToFirstConfigErrorExtractMark() {
-      await Vue.nextTick()
-      Array.from(document.querySelectorAll('.has-mark')).forEach((errorConfigExtract: Element) => {
-        const pre = errorConfigExtract.parentNode?.parentNode as HTMLElement
-        const mark = pre.querySelector('mark')
-
-        if (mark === null) {
-          return
-        }
-
-        pre.scrollTop = mark.offsetTop - pre.offsetTop
-      })
-    }
   }
 </script>
 
