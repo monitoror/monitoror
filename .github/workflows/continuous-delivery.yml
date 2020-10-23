@@ -15,7 +15,14 @@ jobs:
     steps:
       - uses: actions/setup-node@v1
         with:
-          node-version: 10.x
+          node-version: 14.x
+
+      - uses: actions/cache@v2
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
 
       - uses: actions/setup-go@v1
         with:
@@ -28,7 +35,7 @@ jobs:
 
       - name: ui / install
         working-directory: ui
-        run: yarn install
+        run: npm ci
 
       - name: core / install
         run: |
@@ -40,7 +47,7 @@ jobs:
         env:
           VUE_APP_TITLE: "Demo — Monitoror, unified monitoring wallboard"
           VUE_APP_CANONICAL_URL: https://demo.monitoror.com
-        run: yarn run build
+        run: npm run build
 
       - name: core / build
         run: |
