@@ -27,5 +27,6 @@ func InitUI(s *Server) {
 	s.Echo.GET("/index*.js", echo.WrapHandler(assetHandler))
 	s.Echo.GET("/style*", echo.WrapHandler(assetHandler))
 	s.Echo.GET("/favicon*", echo.WrapHandler(assetHandler))
+	s.Echo.GET("/icons.svg", echo.WrapHandler(assetHandler))
 	s.Echo.GET("/fonts/*", echo.WrapHandler(http.StripPrefix("/", assetHandler)))
 }
