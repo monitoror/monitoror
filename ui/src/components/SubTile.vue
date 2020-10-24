@@ -29,12 +29,13 @@
 
 <script lang="ts">
 import MonitororTileIcon from '@/components/TileIcon.vue'
-import useTileCommons from '@/composables/useTile'
+import useTileCommons from '@/composables/useTileCommons'
 import TileStatus from '@/enums/tileStatus'
-import TileConfig from '@/interfaces/tileConfig'
+import TileConfig from '@/types/tileConfig'
 import {computed, defineComponent} from 'vue'
 
 export default defineComponent({
+  name: 'MonitororSubTile',
   components: {
     MonitororTileIcon,
   },

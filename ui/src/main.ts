@@ -1,9 +1,9 @@
 import {createApp} from 'vue'
 
-import App from '@/App.vue'
+import MonitororApp from '@/App.vue'
 import store from '@/store'
 
 // @ts-ignore
-const app = createApp(App)
+const app = createApp(MonitororApp)
 app.use(store)
 app.mount('#app-root')

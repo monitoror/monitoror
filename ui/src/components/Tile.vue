@@ -9,13 +9,8 @@
 
       <div class="c-monitoror-tile--build-info" v-if="branch || buildId">
         <template v-if="branch">
-          <svg v-if="mergeRequest" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
-            <!-- Merge request icon -->
-            <path fill-rule="evenodd" d="M7.177 3.073L9.573.677A.25.25 0 0110 .854v4.792a.25.25 0 01-.427.177L7.177 3.427a.25.25 0 010-.354zM3.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122v5.256a2.251 2.251 0 11-1.5 0V5.372A2.25 2.25 0 011.5 3.25zM11 2.5h-1V4h1a1 1 0 011 1v5.628a2.251 2.251 0 101.5 0V5A2.5 2.5 0 0011 2.5zm1 10.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0zM3.75 12a.75.75 0 100 1.5.75.75 0 000-1.5z"/>
-          </svg>
-          <svg v-else xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
-            <!-- Branch icon -->
-            <path fill-rule="evenodd" d="M11.75 2.5a.75.75 0 100 1.5.75.75 0 000-1.5zm-2.25.75a2.25 2.25 0 113 2.122V6A2.5 2.5 0 0110 8.5H6a1 1 0 00-1 1v1.128a2.251 2.251 0 11-1.5 0V5.372a2.25 2.25 0 111.5 0v1.836A2.492 2.492 0 016 7h4a1 1 0 001-1v-.628A2.25 2.25 0 019.5 3.25zM4.25 12a.75.75 0 100 1.5.75.75 0 000-1.5zM3.5 3.25a.75.75 0 111.5 0 .75.75 0 01-1.5 0z"/>
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor">
+            <use :xlink:href="'./icons.svg#' + (mergeRequest ? 'merge-request' : 'branch')"/>
           </svg>
           {{ branch }}
         </template>
@@ -72,15 +67,16 @@ import {defineComponent, computed} from 'vue'
 import {useStore} from 'vuex'
 
 import DISPLAYABLE_SUBTILE_STATUS from '@/constants/displayableSubtileStatus'
-import useTileCommons from '@/composables/useTile'
+import useTileCommons from '@/composables/useTileCommons'
 import TileStatus from '@/enums/tileStatus'
 import TileType from '@/enums/tileType'
-import TileConfig from '@/interfaces/tileConfig'
+import TileConfig from '@/types/tileConfig'
 
 import MonitororSubTile from '@/components/SubTile.vue'
 import MonitororTileIcon from '@/components/TileIcon.vue'
 
-const MonitororTile = defineComponent({
+export default defineComponent({
+  name: 'MonitororTile',
   components: {
     MonitororSubTile,
     MonitororTileIcon,
@@ -127,7 +123,7 @@ const MonitororTile = defineComponent({
 
     const store = useStore()
 
-    const classes = computed(() => {
+    const classes = computed((): Record<string, boolean | string> => {
       return {
         ['c-monitoror-tile__theme-' + theme.value]: true,
         'c-monitoror-tile__empty': isEmpty.value,
@@ -142,14 +138,12 @@ const MonitororTile = defineComponent({
       }
     })
 
-    const styles = computed(() => {
-      const styles = {
+    const styles = computed((): Record<string, string | number> => {
+      return {
         'grid-column': `auto / span ${columnSpan.value}`,
         'grid-row': `auto / span ${rowSpan.value}`,
         '--row-span': rowSpan.value,
       }
-
-      return styles
     })
 
     const isEmpty = computed((): boolean => {
@@ -245,8 +239,6 @@ const MonitororTile = defineComponent({
     }
   },
 })
-
-export default MonitororTile
 </script>
 
 <style lang="scss">

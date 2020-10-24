@@ -49,186 +49,178 @@
 </template>
 
 <script lang="ts">
-  import {nextTick} from 'vue'
-  import {Options, Vue} from 'vue-class-component'
+import {computed, defineComponent, nextTick, onMounted, onBeforeUnmount, ref, Ref} from 'vue'
+import {useStore} from 'vuex'
 
-  import MonitororErrors from '@/components/Errors.vue'
-  import MonitororTile from '@/components/Tile.vue'
-  import MonitororWelcome from '@/components/Welcome.vue'
-  import hasConfigVerifyErrors from '@/helpers/hasConfigVerifyErrors'
-  import ConfigError from '@/interfaces/configError'
-  import TileConfig from '@/interfaces/tileConfig'
+import MonitororErrors from '@/components/Errors.vue'
+import MonitororTile from '@/components/Tile.vue'
+import MonitororWelcome from '@/components/Welcome.vue'
+import useErrors from '@/composables/useErrors'
+import TileConfig from '@/types/tileConfig'
 
-  @Options({
-    components: {
-      MonitororErrors,
-      MonitororTile,
-      MonitororWelcome,
-    },
-  })
-  export default class App extends Vue {
-    private static readonly SHOW_CURSOR_DELAY: number = 10 // 10 seconds
+const SHOW_CURSOR_DELAY = 10 // 10 seconds
 
-    /*
-     * Data
-     */
+export default defineComponent({
+  name: 'MonitororApp',
+  components: {
+    MonitororErrors,
+    MonitororTile,
+    MonitororWelcome,
+  },
+  setup() {
+    const store = useStore()
+    const {
+      hasErrors,
+      hasConfigVerifyErrors,
+    } = useErrors()
 
-    private shouldShowCursor: boolean = true
-    private shouldDisableTransitions: boolean = false
-    private shouldShowCursorTimeout!: ReturnType<typeof setTimeout>
-    private shouldDisableTransitionsTimeout!: ReturnType<typeof setTimeout>
-    private taskRunnerInterval!: ReturnType<typeof setInterval>
-    private isReady: boolean = false
+    const shouldShowCursor = ref(true)
+    const shouldDisableTransitions = ref(false)
+    const isReady = ref(false)
 
-    /*
-     * Computed
-     */
+    const classes = computed((): Record<string, string | boolean> => {
+      const theme = store.getters.theme.toString().toLowerCase()
 
-    get classes() {
       return {
-        'c-app__disable-transitions': this.shouldDisableTransitions,
-        ['c-app__theme-' + this.theme]: true,
-        'c-app__show-cursor': this.hasConfigVerifyErrors || this.shouldShowCursor,
-        'c-app__no-scroll': !this.shouldShowWelcomePage && !this.hasConfigVerifyErrors,
-        'c-app__config-verify-errors': !this.shouldShowWelcomePage && this.hasConfigVerifyErrors,
-        'c-app__welcome-page': this.shouldShowWelcomePage,
+        'c-app__disable-transitions': shouldDisableTransitions.value,
+        ['c-app__theme-' + theme]: true,
+        'c-app__show-cursor': hasConfigVerifyErrors.value || shouldShowWelcomePage.value || shouldShowCursor.value,
+        'c-app__no-scroll': !shouldShowWelcomePage.value && !hasConfigVerifyErrors.value,
+        'c-app__config-verify-errors': !shouldShowWelcomePage.value && hasConfigVerifyErrors.value,
+        'c-app__welcome-page': shouldShowWelcomePage.value,
       }
-    }
+    })
 
-    get cssProperties() {
-      const tilesCount = this.tiles.reduce((accumulator, tile) => {
+    const tiles = computed((): TileConfig[] => {
+      return store.state.tiles
+    })
+
+    const cssProperties = computed(() => {
+      const columns = store.state.columns
+      const zoom = store.state.zoom
+      const tilesCount = tiles.value.reduce((accumulator, tile) => {
         return accumulator + (tile.rowSpan || 1) * (tile.columnSpan || 1)
       }, 0)
 
       return {
-        '--columns': this.columns,
-        '--rows': Math.ceil(tilesCount / this.columns),
-        '--zoom': this.zoom,
+        '--columns': columns,
+        '--rows': Math.ceil(tilesCount / columns),
+        '--zoom': zoom,
       }
-    }
+    })
 
-    get appLoadingClasses() {
+    const shouldShowWelcomePage = computed((): boolean => {
+      return isReady.value && store.getters.shouldShowWelcomePage
+    })
+
+    const appLoadingClasses = computed(() => {
+      const isOnline = store.state.online
+
       return {
-        'c-app--loading__error': !this.shouldShowWelcomePage && this.isOnline && this.hasErrors,
-        'c-app--loading__warning': !this.isOnline,
-        'c-app--loading__config-verify-errors': !this.shouldShowWelcomePage && this.hasConfigVerifyErrors,
-        'c-app--loading__small-logo': this.shouldShowWelcomePage || this.hasConfigVerifyErrors,
+        'c-app--loading__error': !shouldShowWelcomePage.value && isOnline && hasErrors.value,
+        'c-app--loading__warning': !isOnline,
+        'c-app--loading__config-verify-errors': !shouldShowWelcomePage.value && hasConfigVerifyErrors.value,
+        'c-app--loading__small-logo': shouldShowWelcomePage.value || hasConfigVerifyErrors.value,
       }
-    }
+    })
 
-    get shouldInit(): boolean {
-      return this.$store.getters.shouldInit
-    }
+    const loadingProgressBarStyle = computed(() => {
+      const loadingProgress = store.getters.loadingProgress
 
-    get columns(): number {
-      return this.$store.state.columns
-    }
-
-    get zoom(): number {
-      return this.$store.state.zoom
-    }
-
-    get tiles(): TileConfig[] {
-      return this.$store.state.tiles
-    }
-
-    get errors(): ConfigError[] {
-      return this.$store.state.errors
-    }
-
-    get hasErrors(): boolean {
-      return this.errors.length > 0
-    }
-
-    get hasConfigVerifyErrors(): boolean {
-      return hasConfigVerifyErrors(this.errors)
-    }
-
-    get loadingProgress(): number {
-      return this.$store.getters.loadingProgress
-    }
-
-    get loadingProgressBarStyle() {
       return {
-        transform: `translateX(-${100 - this.loadingProgress * 100}%)`,
+        transform: `translateX(-${100 - loadingProgress * 100}%)`,
       }
+    })
+
+    const shouldShowLoading = computed((): boolean => {
+      const loadingProgress = store.getters.loadingProgress
+      const isOnline = store.state.online
+
+      return loadingProgress.value < 1 || !isOnline || hasErrors.value
+    })
+
+
+    const shouldShowCursorTimeout: Ref<ReturnType<typeof setTimeout> | undefined> = ref()
+    const shouldDisableTransitionsTimeout: Ref<ReturnType<typeof setTimeout> | undefined> = ref()
+
+    const resetShowCursorTimeout = () => {
+      if (shouldShowCursorTimeout.value !== undefined) {
+        clearTimeout(shouldShowCursorTimeout.value)
+      }
+      shouldShowCursor.value = true
+      shouldShowCursorTimeout.value = setTimeout(() => {
+        shouldShowCursor.value = false
+      }, SHOW_CURSOR_DELAY * 1000)
     }
 
-    get shouldShowLoading(): boolean {
-      return this.loadingProgress < 1 || !this.isOnline || this.hasErrors
+    const onResize = () => {
+      if (shouldDisableTransitionsTimeout.value !== undefined) {
+        clearTimeout(shouldDisableTransitionsTimeout.value)
+      }
+      shouldDisableTransitions.value = true
+      shouldShowCursorTimeout.value = setTimeout(() => {
+        shouldDisableTransitions.value = false
+      }, SHOW_CURSOR_DELAY * 1000)
     }
 
-    get shouldShowWelcomePage(): boolean {
-      return this.isReady && this.$store.getters.shouldShowWelcomePage
+    const dispatchUpdateNetworkState = () => {
+      return store.dispatch('updateNetworkState')
     }
 
-    get isOnline(): boolean {
-      return this.$store.state.online
-    }
+    const taskRunnerInterval: Ref<ReturnType<typeof setInterval> | undefined> = ref()
 
-    get theme(): string {
-      return this.$store.getters.theme.toString().toLowerCase()
-    }
-
-    /*
-     * Methods
-     */
-
-    public resetShowCursorTimeout() {
-      clearTimeout(this.shouldShowCursorTimeout)
-      this.shouldShowCursor = true
-      this.shouldShowCursorTimeout = setTimeout(() => {
-        this.shouldShowCursor = false
-      }, App.SHOW_CURSOR_DELAY * 1000)
-    }
-
-    public dispatchUpdateNetworkState() {
-      return this.$store.dispatch('updateNetworkState')
-    }
-
-    public onResize() {
-      clearTimeout(this.shouldDisableTransitionsTimeout)
-      this.shouldDisableTransitions = true
-      this.shouldShowCursorTimeout = setTimeout(() => {
-        this.shouldDisableTransitions = false
-      }, App.SHOW_CURSOR_DELAY * 1000)
-    }
-
-    /*
-     * Hooks
-     */
-
-    async mounted() {
+    onMounted(async () => {
       await nextTick()
 
-      window.addEventListener('online', this.dispatchUpdateNetworkState)
-      window.addEventListener('offline', this.dispatchUpdateNetworkState)
-      window.addEventListener('resize', this.onResize)
+      window.addEventListener('online', dispatchUpdateNetworkState)
+      window.addEventListener('offline', dispatchUpdateNetworkState)
+      window.addEventListener('resize', onResize)
 
-      this.taskRunnerInterval = setInterval(() => {
-        this.$store.dispatch('runTasks')
+      taskRunnerInterval.value = setInterval(() => {
+        store.dispatch('runTasks')
       }, 50)
 
-      if (this.shouldInit) {
-        await this.$store.dispatch('init')
+      if (store.getters.shouldInit) {
+        await store.dispatch('init')
       }
 
       setTimeout(() => {
-        this.isReady = true
+        isReady.value = true
       })
-    }
+    })
 
-    beforeDestroy() {
-      window.removeEventListener('online', this.dispatchUpdateNetworkState)
-      window.removeEventListener('offline', this.dispatchUpdateNetworkState)
-      window.removeEventListener('resize', this.onResize)
+    onBeforeUnmount(() => {
+      window.removeEventListener('online', dispatchUpdateNetworkState)
+      window.removeEventListener('offline', dispatchUpdateNetworkState)
+      window.removeEventListener('resize', onResize)
 
-      clearTimeout(this.shouldShowCursorTimeout)
-      clearInterval(this.taskRunnerInterval)
+      if (shouldShowCursorTimeout.value !== undefined) {
+        clearTimeout(shouldShowCursorTimeout.value)
+      }
+      if (taskRunnerInterval.value !== undefined) {
+        clearInterval(taskRunnerInterval.value)
+      }
 
-      this.$store.dispatch('killAllTasks', [])
+      store.dispatch('killAllTasks', [])
+    })
+
+    return {
+      // attributes
+      appLoadingClasses,
+      classes,
+      cssProperties,
+      loadingProgressBarStyle,
+
+      // state
+      tiles,
+      shouldShowLoading,
+      shouldShowWelcomePage,
+
+      // methods
+      resetShowCursorTimeout,
     }
   }
+})
 </script>
 
 <style lang="scss">

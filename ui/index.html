@@ -9,8 +9,8 @@
 <!--  <% } else { %>-->
   <title>Monitoror</title>
 <!--  <% } %>-->
-<!--  <link rel="icon" type="image/png" href="<%= BASE_URL %>favicon.png">-->
-<!--  <link rel="icon" href="<%= BASE_URL %>favicon.ico">-->
+  <link rel="icon" type="image/png" href="./favicon.png">
+  <link rel="icon" href="./favicon.ico">
 
   <!-- OpenGraph / Twitter cards -->
 <!--  <% if (typeof(VITE_APP_CANONICAL_URL) !== 'undefined') { %>-->
@@ -46,6 +46,32 @@
       --color-canceled: #e3eaf1;
       --color-action-required: #57c0ff;
       --color-succeeded-dark: #252d30;
+
+      /* For Firefox */
+      scrollbar-color: var(--color-cello) var(--color-code-background);
+    }
+
+    body:not(.macos)::-webkit-scrollbar,
+    body:not(.macos) *::-webkit-scrollbar {
+      width: 17px;
+    }
+
+    body:not(.macos)::-webkit-scrollbar-track,
+    body:not(.macos) *::-webkit-scrollbar-track {
+      background: var(--color-code-background);
+    }
+
+    body:not(.macos)::-webkit-scrollbar-thumb,
+    body:not(.macos) *::-webkit-scrollbar-thumb {
+      background: var(--color-cello);
+      border: 2px solid var(--color-code-background);
+      border-top: 0;
+      border-bottom: 0;
+    }
+
+    body:not(.macos)::-webkit-scrollbar-thumb:hover,
+    body:not(.macos) *::-webkit-scrollbar-thumb:hover {
+      background: var(--color-action-required);
     }
 
     html,
@@ -140,7 +166,20 @@
     a:hover::after {
       transform: scaleX(1);
     }
+
+    /* SVG default fill color */
+    svg {
+      fill: currentColor;
+    }
   </style>
+
+  <!-- Used to avoid custom scrollbar on macOS -->
+  <script>
+    const isMacOs = navigator.platform.toLowerCase().includes('mac')
+    if (isMacOs) {
+      document.body.classList.add('macos')
+    }
+  </script>
 </head>
 <body>
 <noscript>

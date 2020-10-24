@@ -12,8 +12,8 @@ export enum TileType {
   GitLabPipeline = 'GITLAB-PIPELINE',
   GitLabMergeRequest = 'GITLAB-MERGEREQUEST',
   GitLabIssues = 'GITLAB-COUNT-ISSUES',
-  Travis = 'TRAVISCI-BUILD',
-  Jenkins = 'JENKINS-BUILD',
+  TravisCiBuild = 'TRAVISCI-BUILD',
+  JenkinsBuild = 'JENKINS-BUILD',
   AzureDevOpsBuild = 'AZUREDEVOPS-BUILD',
   AzureDevOpsRelease = 'AZUREDEVOPS-RELEASE',
 

@@ -5,3 +5,6 @@ trim_trailing_whitespace = true
 charset = utf-8
 indent_style = space
 indent_size = 2
+
+[*.svg]
+max_line_length = off

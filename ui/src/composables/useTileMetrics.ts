@@ -1,6 +1,6 @@
 import TileValueUnit from '@/enums/tileValueUnit'
-import TileMetrics from '@/interfaces/tileMetrics'
-import TileState from '@/interfaces/tileState'
+import TileMetrics from '@/types/tileMetrics'
+import TileState from '@/types/tileState'
 import {computed, ComputedRef} from 'vue'
 
 export default function useTileMetrics(state: ComputedRef<TileState | undefined>) {

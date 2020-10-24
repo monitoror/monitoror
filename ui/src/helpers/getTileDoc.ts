@@ -1,5 +1,5 @@
 import extractFieldValue from '@/helpers/extractFieldValue'
-import ConfigError from '@/interfaces/configError'
+import ConfigError from '@/types/configError'
 
 export default function getTileDocUrl(error: ConfigError): string | undefined {
   const tileType = extractFieldValue(error.data.configExtract as string, 'type')

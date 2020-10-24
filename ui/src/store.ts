@@ -15,14 +15,14 @@ import TileStatus from '@/enums/tileStatus'
 import getQueryParamValue from '@/helpers/getQueryParamValue'
 import getSubTilePreviousOrStatus from '@/helpers/getSubTilePreviousOrStatus'
 import mostImportantStatus from '@/helpers/mostImportantStatus'
-import Config from '@/interfaces/config'
-import ConfigBag from '@/interfaces/configBag'
-import ConfigError from '@/interfaces/configError'
-import ConfigMetadata from '@/interfaces/configMetadata'
-import Info from '@/interfaces/info'
-import TaskOptions from '@/interfaces/taskOptions'
-import TileConfig from '@/interfaces/tileConfig'
-import TileState from '@/interfaces/tileState'
+import Config from '@/types/config'
+import ConfigBag from '@/types/configBag'
+import ConfigError from '@/types/configError'
+import ConfigMetadata from '@/types/configMetadata'
+import Info from '@/types/info'
+import TaskOptions from '@/types/taskOptions'
+import TileConfig from '@/types/tileConfig'
+import TileState from '@/types/tileState'
 
 export const DEFAULT_CONFIG_NAME = 'default'
 const API_BASE_PATH = '/api/v1'
@@ -260,6 +260,11 @@ const store: StoreOptions<RootState> = {
     async fetchConfigList({commit, getters}) {
       return axios.get(getters.configProxyUrl)
         .then((response) => {
+          if (response.data === null) {
+            commit('setConfigList', [])
+            return
+          }
+
           const configList: ConfigMetadata[] = response.data.map((configMetadata: ConfigMetadata) => {
             let uiUrl = `?${QUERY_PARAM_KEYS.CONFIG}=${configMetadata.name}`
 

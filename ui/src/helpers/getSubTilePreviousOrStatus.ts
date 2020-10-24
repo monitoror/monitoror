@@ -1,5 +1,5 @@
 import TileStatus from '@/enums/tileStatus'
-import TileState from '@/interfaces/tileState'
+import TileState from '@/types/tileState'
 
 export default function getSubTilePreviousOrStatus(subTileState?: TileState): TileStatus {
   if (subTileState === undefined) {

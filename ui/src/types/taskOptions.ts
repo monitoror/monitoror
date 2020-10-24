@@ -1,6 +1,6 @@
 import TaskType from '@/enums/taskType'
 
-export default interface TaskOptions {
+type TaskOptions = {
   id: string,
   type: TaskType,
   executor: () => Promise<void>,
@@ -9,3 +9,5 @@ export default interface TaskOptions {
   retryOnFailInterval?: number,
   onFailedCallback?: (failedAttemptsCount: number) => void,
 }
+
+export default TaskOptions

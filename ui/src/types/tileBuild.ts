@@ -1,8 +1,8 @@
 import TileStatus from '@/enums/tileStatus'
-import TileAuthor from '@/interfaces/tileAuthor'
-import TileMergeRequest from '@/interfaces/tileMergeRequest'
+import TileAuthor from '@/types/tileAuthor'
+import TileMergeRequest from '@/types/tileMergeRequest'
 
-export default interface TileBuild {
+type TileBuild = {
   previousStatus?: TileStatus,
   id?: string,
   branch?: string,
@@ -12,3 +12,5 @@ export default interface TileBuild {
   startedAt?: number,
   finishedAt?: number,
 }
+
+export default TileBuild

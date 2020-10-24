@@ -1,4 +1,4 @@
-export interface TileMergeRequest {
+type TileMergeRequest = {
   id: number,
   title: string,
 }

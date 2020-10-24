@@ -1,14 +1,14 @@
 import useTileBuild from '@/composables/useTileBuild'
 import TileStatus from '@/enums/tileStatus'
 import TileType from '@/enums/tileType'
-import TileBuild from '@/interfaces/tileBuild'
-import TileConfig from '@/interfaces/tileConfig'
-import TileState from '@/interfaces/tileState'
+import TileBuild from '@/types/tileBuild'
+import TileConfig from '@/types/tileConfig'
+import TileState from '@/types/tileState'
 import {RootState} from '@/store'
 import {computed} from 'vue'
 import {useStore} from 'vuex'
 
-export default function useTile(config: TileConfig) {
+export default function useTileCommons(config: TileConfig) {
   const store = useStore<RootState>()
 
   const type = computed((): TileType => {
