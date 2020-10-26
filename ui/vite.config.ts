@@ -1,8 +1,9 @@
+import template from 'lodash.template'
 import * as path from 'path'
-
 import {UserConfig} from 'vite'
-// @ts-ignore
 import tsResolver from 'vite-tsconfig-paths'
+
+const BASE_URL = './'
 
 const config: UserConfig = {
   optimizeDeps: {
@@ -14,13 +15,26 @@ const config: UserConfig = {
     ],
   },
   assetsDir: '.',
-  base: './',
+  base: BASE_URL,
   port: 8000,
   proxy: {
     '/api': 'http://localhost:8080',
   },
   resolvers: [
     tsResolver,
+  ],
+  indexHtmlTransforms: [
+    {
+      apply: 'pre',
+      transform({code}) {
+        const compiled = template(code)
+        return compiled({
+          VITE_APP_TITLE: process.env.VITE_APP_TITLE,
+          VITE_APP_CANONICAL_URL: process.env.VITE_APP_CANONICAL_URL,
+          BASE_URL,
+        })
+      },
+    }
   ],
   configureServer: ({root, app, watcher}) => {
     watcher.add(path.resolve(root, './public/**/*'))

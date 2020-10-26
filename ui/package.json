@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "lint": "eslint"
+    "lint": "eslint ."
   },
   "main": "index.js",
   "dependencies": {
@@ -13,28 +13,29 @@
     "lodash-es": "^4.17.15",
     "string-similarity": "^4.0.1",
     "ts-md5": "^1.2.7",
-    "vue": "^3.0.1",
+    "vue": "^3.0.2",
     "vuex": "^4.0.0-beta.4"
   },
   "devDependencies": {
     "@types/lodash-es": "^4.17.3",
+    "@types/lodash.template": "^4.5.0",
     "@types/string-similarity": "^3.0.0",
-    "@typescript-eslint/eslint-plugin": "^2.17.0",
-    "@typescript-eslint/parser": "^2.17.0",
-    "@vue/compiler-sfc": "^3.0.0-rc.13",
+    "@typescript-eslint/eslint-plugin": "^4.6.0",
+    "@typescript-eslint/parser": "^4.6.0",
+    "@vue/compiler-sfc": "^3.0.2",
     "@vue/eslint-config-standard": "^5.1.2",
     "@vue/eslint-config-typescript": "^7.0.0",
     "autoprefixer": "^9.8.6",
-    "eslint": "^6.8.0",
-    "eslint-plugin-import": "^2.20.0",
-    "eslint-plugin-node": "^11.0.0",
+    "eslint": "^7.12.0",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
-    "eslint-plugin-standard": "^4.0.1",
-    "eslint-plugin-vue": "^6.1.2",
+    "eslint-plugin-standard": "^4.0.2",
+    "eslint-plugin-vue": "^7.1.0",
+    "lodash.template": "^4.5.0",
     "sass": "^1.27.0",
-    "sass-loader": "^8.0.2",
-    "typescript": "^3.7.5",
-    "vite": "^1.0.0-rc.4",
+    "typescript": "^4.0.3",
+    "vite": "^1.0.0-rc.7",
     "vite-tsconfig-paths": "^1.1.0"
   },
   "browserslist": [

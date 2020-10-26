@@ -45,8 +45,8 @@ jobs:
       - name: ui / build
         working-directory: ui
         env:
-          VUE_APP_TITLE: "Demo — Monitoror, unified monitoring wallboard"
-          VUE_APP_CANONICAL_URL: https://demo.monitoror.com
+          VITE_APP_TITLE: "Demo — Monitoror, unified monitoring wallboard"
+          VITE_APP_CANONICAL_URL: https://demo.monitoror.com
         run: npm run build
 
       - name: core / build
