@@ -171,7 +171,7 @@ func TestRepository_GetLastBuildStatus_Success(t *testing.T) {
 	// Params
 	jenkinsBuild := gojenkins.Build{
 		Number:          1,
-		DisplayName:     "#1",
+		DisplayName:     "#build1",
 		FullDisplayName: "test/master",
 		Building:        true,
 		Result:          "SUCCESS",
@@ -193,7 +193,7 @@ func TestRepository_GetLastBuildStatus_Success(t *testing.T) {
 
 	// Expected
 	expectedBuild := &models.Build{
-		Number:   "1",
+		Number:   "build1",
 		FullName: jenkinsBuild.FullDisplayName,
 		Author: &coreModels.Author{
 			Name:      jenkinsBuild.ChangeSets[0].Items[0].Author.FullName,
