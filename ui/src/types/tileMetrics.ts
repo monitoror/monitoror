@@ -1,6 +1,8 @@
 import TileValueUnit from '@/enums/tileValueUnit'
 
-export default interface TileValue {
+type TileMetrics = {
   values: string[],
   unit: TileValueUnit,
 }
+
+export default TileMetrics

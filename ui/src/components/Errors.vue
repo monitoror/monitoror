@@ -215,96 +215,67 @@
 </template>
 
 <script lang="ts">
-  import {format} from 'date-fns'
-  import {Component, Vue, Watch} from 'vue-property-decorator'
+import {format} from 'date-fns'
+import {computed, defineComponent, nextTick, watch} from 'vue'
+import {useStore} from 'vuex'
 
-  import ConfigErrorId from '@/enums/configErrorId'
-  import ellipsisUnnecessaryParams from '@/helpers/ellipsisUnnecessaryParams'
-  import formatConfigExtract from '@/helpers/formatConfigExtract'
-  import getTileDocUrl from '@/helpers/getTileDoc'
-  import guessExpectedFieldName from '@/helpers/guessExpectedFieldName'
-  import guessExpectedValue from '@/helpers/guessExpectedValue'
-  import hasConfigVerifyErrors from '@/helpers/hasConfigVerifyErrors'
-  import parsedExtractFieldValue from '@/helpers/parsedExpectedValue'
-  import splitList from '@/helpers/splitList'
-  import ConfigError from '@/interfaces/configError'
-  import {DEFAULT_CONFIG_NAME} from '@/store'
+import useErrors from '@/composables/useErrors'
+import ConfigErrorId from '@/enums/configErrorId'
+import ellipsisUnnecessaryParams from '@/helpers/ellipsisUnnecessaryParams'
+import formatConfigExtract from '@/helpers/formatConfigExtract'
+import getTileDocUrl from '@/helpers/getTileDoc'
+import guessExpectedFieldName from '@/helpers/guessExpectedFieldName'
+import guessExpectedValue from '@/helpers/guessExpectedValue'
+import parsedExtractFieldValue from '@/helpers/parsedExpectedValue'
+import splitList from '@/helpers/splitList'
+import {DEFAULT_CONFIG_NAME} from '@/store'
 
-  @Component({})
-  export default class MonitororErrors extends Vue {
-    /**
-     * Computed
-     */
+export default defineComponent({
+  name: 'MonitororErrors',
+  setup() {
+    const store = useStore()
+    const {
+      errors,
+      hasErrors,
+      hasConfigVerifyErrors,
+    } = useErrors()
 
-    get classes() {
+    const classes = computed((): Record<string, boolean | string> => {
       return {
-        'c-monitoror-errors__config-verify-errors': this.hasConfigVerifyErrors,
+        'c-monitoror-errors__config-verify-errors': hasConfigVerifyErrors.value,
       }
-    }
+    })
 
-    get configParam(): string {
-      return this.$store.getters.configParam
-    }
+    const configParam = computed((): string => {
+      return store.getters.configParam
+    })
 
-    get isUsingDefaultConfig(): boolean {
-      return this.configParam === DEFAULT_CONFIG_NAME
-    }
+    const apiBaseUrl = computed((): string => {
+      return store.getters.apiBaseUrl
+    })
 
-    get isCoreDown(): boolean {
-      if (!this.hasErrors) {
+    const isUsingDefaultConfig = computed((): boolean => {
+      return configParam.value === DEFAULT_CONFIG_NAME
+    })
+
+    const isOnline = computed((): boolean => {
+      return store.state.online
+    })
+
+    const isCoreDown = computed((): boolean => {
+      if (!hasErrors.value) {
         return false
       }
 
-      return this.errors[0].id === ConfigErrorId.CannotBeFetched
-    }
+      return errors.value[0].id === ConfigErrorId.CannotBeFetched
+    })
 
-    get lastRefreshDate(): string {
-      return format(this.$store.state.lastRefreshDate, 'hh:mm:ss a')
-    }
+    const lastRefreshDate = computed((): string => {
+      return format(store.state.lastRefreshDate, 'hh:mm:ss a')
+    })
 
-    get isOnline(): boolean {
-      return this.$store.state.online
-    }
-
-    get errors(): ConfigError[] {
-      return this.$store.state.errors
-    }
-
-    get hasErrors(): boolean {
-      return this.errors.length > 0
-    }
-
-    get hasConfigVerifyErrors(): boolean {
-      return hasConfigVerifyErrors(this.errors)
-    }
-
-    get apiBaseUrl(): string {
-      return this.$store.getters.apiBaseUrl
-    }
-
-    get ConfigErrorId() {
-      return ConfigErrorId
-    }
-
-    /*
-     * Methods
-     */
-
-    public ellipsisUnnecessaryParams = ellipsisUnnecessaryParams
-    public formatConfigExtract = formatConfigExtract
-    public getTileDocUrl = getTileDocUrl
-    public guessExpectedValue = guessExpectedValue
-    public guessExpectedFieldName = guessExpectedFieldName
-    public parsedExtractFieldValue = parsedExtractFieldValue
-    public splitList = splitList
-
-    /*
-     * Watchers
-     */
-
-    @Watch('errors')
-    private async scrollToFirstConfigErrorExtractMark() {
-      await Vue.nextTick()
+    watch(errors, async () => {
+      await nextTick()
       Array.from(document.querySelectorAll('.has-mark')).forEach((errorConfigExtract: Element) => {
         const pre = errorConfigExtract.parentNode?.parentNode as HTMLElement
         const mark = pre.querySelector('mark')
@@ -315,8 +286,41 @@
 
         pre.scrollTop = mark.offsetTop - pre.offsetTop
       })
+    })
+
+    return {
+      // enums
+      ConfigErrorId,
+
+      // attributes
+      classes,
+
+      // getters
+      apiBaseUrl,
+      configParam,
+
+      // status
+      isCoreDown,
+      isOnline,
+
+      // state
+      isUsingDefaultConfig,
+      errors,
+      hasErrors,
+      hasConfigVerifyErrors,
+      lastRefreshDate,
+
+      // methods
+      ellipsisUnnecessaryParams,
+      formatConfigExtract,
+      getTileDocUrl,
+      guessExpectedValue,
+      guessExpectedFieldName,
+      parsedExtractFieldValue,
+      splitList,
     }
   }
+})
 </script>
 
 <style lang="scss">

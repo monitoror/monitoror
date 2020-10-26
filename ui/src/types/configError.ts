@@ -1,6 +1,6 @@
 import ConfigErrorId from '@/enums/configErrorId'
 
-export default interface ConfigError {
+type ConfigError = {
   id: ConfigErrorId,
   message: string,
   data: {
@@ -11,3 +11,5 @@ export default interface ConfigError {
     expected?: string,
   },
 }
+
+export default ConfigError

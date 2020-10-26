@@ -2,7 +2,7 @@ import extractFieldValue from '@/helpers/extractFieldValue'
 import guessExpectedFieldName from '@/helpers/guessExpectedFieldName'
 import jsonSyntaxColor from '@/helpers/jsonSyntaxColor'
 import splitList from '@/helpers/splitList'
-import ConfigError from '@/interfaces/configError'
+import ConfigError from '@/types/configError'
 
 export default function formatConfigExtract(configError: ConfigError): string {
   let configExtract = configError.data.configExtract

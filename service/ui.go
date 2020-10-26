@@ -24,9 +24,9 @@ func InitUI(s *Server) {
 
 	assetHandler := http.FileServer(uiAssets.HTTPBox())
 	s.Echo.GET("/", echo.WrapHandler(assetHandler))
+	s.Echo.GET("/index*.js", echo.WrapHandler(assetHandler))
+	s.Echo.GET("/style*", echo.WrapHandler(assetHandler))
 	s.Echo.GET("/favicon*", echo.WrapHandler(assetHandler))
-	s.Echo.GET("/css/*", echo.WrapHandler(http.StripPrefix("/", assetHandler)))
-	s.Echo.GET("/js/*", echo.WrapHandler(http.StripPrefix("/", assetHandler)))
+	s.Echo.GET("/icons.svg", echo.WrapHandler(assetHandler))
 	s.Echo.GET("/fonts/*", echo.WrapHandler(http.StripPrefix("/", assetHandler)))
-	s.Echo.GET("/img/*", echo.WrapHandler(http.StripPrefix("/", assetHandler)))
 }

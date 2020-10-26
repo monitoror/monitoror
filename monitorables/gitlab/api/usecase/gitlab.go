@@ -52,7 +52,7 @@ func NewGitlabUsecase(repository api.Repository, store cache.Store) api.Usecase 
 }
 
 func (gu *gitlabUsecase) CountIssues(params *models.IssuesParams) (*coreModels.Tile, error) {
-	tile := coreModels.NewTile(api.GitlabCountIssuesTileType).WithValue(coreModels.NumberUnit)
+	tile := coreModels.NewTile(api.GitlabCountIssuesTileType).WithMetrics(coreModels.NumberUnit)
 	tile.Label = "GitLab count"
 
 	count, err := gu.repository.GetCountIssues(params)
@@ -61,7 +61,7 @@ func (gu *gitlabUsecase) CountIssues(params *models.IssuesParams) (*coreModels.T
 	}
 
 	tile.Status = coreModels.SuccessStatus
-	tile.Value.Values = append(tile.Value.Values, fmt.Sprintf("%d", count))
+	tile.Metrics.Values = append(tile.Metrics.Values, fmt.Sprintf("%d", count))
 
 	return tile, nil
 }

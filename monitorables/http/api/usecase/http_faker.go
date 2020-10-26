@@ -65,15 +65,15 @@ func (hu *httpUsecase) httpAll(tileType coreModels.TileType, url string, params 
 
 		if params.GetValueUnit() == "" {
 			if _, err := strconv.ParseFloat(values[0], 64); err == nil {
-				tile.WithValue(coreModels.NumberUnit)
+				tile.WithMetrics(coreModels.NumberUnit)
 			} else {
-				tile.WithValue(coreModels.RawUnit)
+				tile.WithMetrics(coreModels.RawUnit)
 			}
 		} else {
-			tile.WithValue(params.GetValueUnit())
+			tile.WithMetrics(params.GetValueUnit())
 		}
 
-		tile.Value.Values = values
+		tile.Metrics.Values = values
 	}
 
 	if tile.Status == coreModels.FailedStatus {

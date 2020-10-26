@@ -1,5 +1,5 @@
 import parsedExtractFieldValue from '@/helpers/parsedExpectedValue'
-import {findBestMatch} from 'string-similarity'
+import StringSimilarity from 'string-similarity'
 
 export default function guessExpectedValue(
   configExtract: string,
@@ -12,7 +12,7 @@ export default function guessExpectedValue(
     return
   }
 
-  const bestMatch = findBestMatch(currentValue, expectedValues).bestMatch
+  const bestMatch = StringSimilarity.findBestMatch(currentValue, expectedValues).bestMatch
 
   return bestMatch.target
 }

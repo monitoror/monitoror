@@ -48,10 +48,10 @@ func TestUsecase_CountIssues_Success(t *testing.T) {
 
 	gu := initUsecase(mockRepository)
 
-	expected := coreModels.NewTile(api.GitlabCountIssuesTileType).WithValue(coreModels.NumberUnit)
+	expected := coreModels.NewTile(api.GitlabCountIssuesTileType).WithMetrics(coreModels.NumberUnit)
 	expected.Label = "GitLab count"
 	expected.Status = coreModels.SuccessStatus
-	expected.Value.Values = []string{"42"}
+	expected.Metrics.Values = []string{"42"}
 
 	tile, err := gu.CountIssues(&models.IssuesParams{})
 	if assert.NoError(t, err) {

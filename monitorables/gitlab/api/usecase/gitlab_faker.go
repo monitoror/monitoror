@@ -38,15 +38,15 @@ func NewGitlabUsecase() api.Usecase {
 }
 
 func (gu *gitlabUsecase) CountIssues(params *models.IssuesParams) (*coreModels.Tile, error) {
-	tile := coreModels.NewTile(api.GitlabCountIssuesTileType).WithValue(coreModels.NumberUnit)
+	tile := coreModels.NewTile(api.GitlabCountIssuesTileType).WithMetrics(coreModels.NumberUnit)
 	tile.Label = "GitLab issues"
 
 	tile.Status = coreModels.SuccessStatus
 
 	if len(params.ValueValues) != 0 {
-		tile.Value.Values = params.ValueValues
+		tile.Metrics.Values = params.ValueValues
 	} else {
-		tile.Value.Values = []string{"42"}
+		tile.Metrics.Values = []string{"42"}
 	}
 
 	return tile, nil

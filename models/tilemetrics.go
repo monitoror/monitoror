@@ -1,7 +1,7 @@
 package models
 
 type (
-	TileValue struct {
+	TileMetrics struct {
 		Values []string       `json:"values"`
 		Unit   TileValuesUnit `json:"unit"`
 	}
@@ -16,8 +16,8 @@ const (
 	RawUnit         TileValuesUnit = "RAW"         // String
 )
 
-func (t *Tile) WithValue(unit TileValuesUnit) *Tile {
-	t.Value = &TileValue{
+func (t *Tile) WithMetrics(unit TileValuesUnit) *Tile {
+	t.Metrics = &TileMetrics{
 		Values: []string{},
 		Unit:   unit,
 	}

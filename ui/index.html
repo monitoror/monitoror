@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <% if (typeof(VUE_APP_TITLE) !== 'undefined') { %>
-  <title><%= VUE_APP_TITLE %></title>
+  <% if (typeof(VITE_APP_TITLE) !== 'undefined') { %>
+  <title><%= VITE_APP_TITLE %></title>
   <% } else { %>
   <title>Monitoror</title>
   <% } %>
@@ -13,13 +13,13 @@
   <link rel="icon" href="<%= BASE_URL %>favicon.ico">
 
   <!-- OpenGraph / Twitter cards -->
-  <% if (typeof(VUE_APP_CANONICAL_URL) !== 'undefined') { %>
-  <link rel="canonical" href="<%= VUE_APP_CANONICAL_URL %>">
+  <% if (typeof(VITE_APP_CANONICAL_URL) !== 'undefined') { %>
+  <link rel="canonical" href="<%= VITE_APP_CANONICAL_URL %>">
   <meta property="og:image" content="https://monitoror.com/assets/images/opengraph.png"/>
   <meta property="og:site_name" content="Monitoror"/>
   <meta property="og:type" content="website"/>
   <meta property="og:title" content="Monitoror — Unified monitoring wallboard"/>
-  <meta property="og:url" content="<%= VUE_APP_CANONICAL_URL %>"/>
+  <meta property="og:url" content="<%= VITE_APP_CANONICAL_URL %>"/>
   <meta property="og:description"
         content="Monitoror is a wallboard monitoring app to monitor server status; monitor CI builds progress or even display critical values"/>
   <% } %>
@@ -46,6 +46,32 @@
       --color-canceled: #e3eaf1;
       --color-action-required: #57c0ff;
       --color-succeeded-dark: #252d30;
+
+      /* For Firefox */
+      scrollbar-color: var(--color-cello) var(--color-code-background);
+    }
+
+    body:not(.macos)::-webkit-scrollbar,
+    body:not(.macos) *::-webkit-scrollbar {
+      width: 17px;
+    }
+
+    body:not(.macos)::-webkit-scrollbar-track,
+    body:not(.macos) *::-webkit-scrollbar-track {
+      background: var(--color-code-background);
+    }
+
+    body:not(.macos)::-webkit-scrollbar-thumb,
+    body:not(.macos) *::-webkit-scrollbar-thumb {
+      background: var(--color-cello);
+      border: 2px solid var(--color-code-background);
+      border-top: 0;
+      border-bottom: 0;
+    }
+
+    body:not(.macos)::-webkit-scrollbar-thumb:hover,
+    body:not(.macos) *::-webkit-scrollbar-thumb:hover {
+      background: var(--color-action-required);
     }
 
     html,
@@ -72,7 +98,7 @@
 
     @font-face {
       font-family: 'Open Sans';
-      src: url('./fonts/open-sans-light.woff2') format('woff2');
+      src: url('<%= BASE_URL %>fonts/open-sans-light.woff2') format('woff2');
       font-weight: 300;
       font-style: normal;
       font-display: swap;
@@ -80,7 +106,7 @@
 
     @font-face {
       font-family: 'Open Sans';
-      src: url('./fonts/open-sans-regular.woff2') format('woff2');
+      src: url('<%= BASE_URL %>fonts/open-sans-regular.woff2') format('woff2');
       font-weight: normal;
       font-style: normal;
       font-display: swap;
@@ -88,7 +114,7 @@
 
     @font-face {
       font-family: 'Open Sans';
-      src: url('./fonts/open-sans-semibold.woff2') format('woff2');
+      src: url('<%= BASE_URL %>fonts/open-sans-semibold.woff2') format('woff2');
       font-weight: 600;
       font-style: normal;
       font-display: swap;
@@ -96,7 +122,7 @@
 
     @font-face {
       font-family: 'Open Sans';
-      src: url('./fonts/open-sans-bold.woff2') format('woff2');
+      src: url('<%= BASE_URL %>fonts/open-sans-bold.woff2') format('woff2');
       font-weight: 700;
       font-style: normal;
       font-display: swap;
@@ -104,7 +130,7 @@
 
     @font-face {
       font-family: 'JetBrains Mono';
-      src: url('./fonts/jetbrains-mono-regular.woff2') format('woff2');
+      src: url('<%= BASE_URL %>fonts/jetbrains-mono-regular.woff2') format('woff2');
       font-weight: normal;
       font-style: normal;
       font-display: swap;
@@ -140,6 +166,11 @@
     a:hover::after {
       transform: scaleX(1);
     }
+
+    /* SVG default fill color */
+    svg {
+      fill: currentColor;
+    }
   </style>
 </head>
 <body>
@@ -148,7 +179,7 @@
     We're sorry but Monitoror doesn't work properly without JavaScript enabled. Please enable it to continue.
   </strong>
 </noscript>
-<div id="app"></div>
-<!-- built files will be auto injected -->
+<div id="app-root"></div>
+<script type="module" src="/src/main.ts"></script>
 </body>
 </html>

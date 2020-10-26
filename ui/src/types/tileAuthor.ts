@@ -1,4 +1,4 @@
-export interface TileAuthor {
+type TileAuthor = {
   name: string,
   avatarUrl: string,
 }

@@ -49,7 +49,7 @@ func NewGithubUsecase(repository api.Repository) api.Usecase {
 }
 
 func (gu *githubUsecase) Count(params *models.CountParams) (*coreModels.Tile, error) {
-	tile := coreModels.NewTile(api.GithubCountTileType).WithValue(coreModels.NumberUnit)
+	tile := coreModels.NewTile(api.GithubCountTileType).WithMetrics(coreModels.NumberUnit)
 	tile.Label = "GitHub count"
 
 	count, err := gu.repository.GetCount(params.Query)
@@ -58,7 +58,7 @@ func (gu *githubUsecase) Count(params *models.CountParams) (*coreModels.Tile, er
 	}
 
 	tile.Status = coreModels.SuccessStatus
-	tile.Value.Values = append(tile.Value.Values, fmt.Sprintf("%d", count))
+	tile.Metrics.Values = append(tile.Metrics.Values, fmt.Sprintf("%d", count))
 
 	return tile, nil
 }

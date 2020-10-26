@@ -1,8 +1,7 @@
 import axios from 'axios'
 import {now} from 'lodash-es'
-import {Md5 as md5} from 'ts-md5/dist/md5'
-import Vue from 'vue'
-import Vuex, {StoreOptions} from 'vuex'
+import {Md5 as md5} from 'ts-md5/src/md5'
+import {createStore, StoreOptions} from 'vuex'
 
 import DISPLAYABLE_SUBTILE_STATUS from '@/constants/displayableSubtileStatus'
 
@@ -16,21 +15,19 @@ import TileStatus from '@/enums/tileStatus'
 import getQueryParamValue from '@/helpers/getQueryParamValue'
 import getSubTilePreviousOrStatus from '@/helpers/getSubTilePreviousOrStatus'
 import mostImportantStatus from '@/helpers/mostImportantStatus'
-import Config from '@/interfaces/config'
-import ConfigBag from '@/interfaces/configBag'
-import ConfigError from '@/interfaces/configError'
-import ConfigMetadata from '@/interfaces/configMetadata'
-import Info from '@/interfaces/info'
-import TaskOptions from '@/interfaces/taskOptions'
-import TileConfig from '@/interfaces/tileConfig'
-import TileState from '@/interfaces/tileState'
+import Config from '@/types/config'
+import ConfigBag from '@/types/configBag'
+import ConfigError from '@/types/configError'
+import ConfigMetadata from '@/types/configMetadata'
+import Info from '@/types/info'
+import TaskOptions from '@/types/taskOptions'
+import TileConfig from '@/types/tileConfig'
+import TileState from '@/types/tileState'
 
-Vue.use(Vuex)
-
-const API_BASE_PATH = '/api/v1'
 export const DEFAULT_CONFIG_NAME = 'default'
-const INFO_URL = '/info'
-const CONFIGS_URL = '/configs'
+const API_BASE_PATH = '/api/v1'
+const INFO_PATH = '/info'
+const CONFIGS_PATH = '/configs'
 const QUERY_PARAM_KEYS = {
   API_BASE_URL: 'apiBaseUrl',
   CONFIG: 'config',
@@ -80,10 +77,10 @@ const store: StoreOptions<RootState> = {
       return getQueryParamValue(QUERY_PARAM_KEYS.CONFIG, DEFAULT_CONFIG_NAME) as string
     },
     infoUrl(state, getters): string {
-      return getters.apiBaseUrl + API_BASE_PATH + INFO_URL
+      return getters.apiBaseUrl + API_BASE_PATH + INFO_PATH
     },
     configProxyUrl(state, getters): string {
-      return getters.apiBaseUrl + API_BASE_PATH + CONFIGS_URL
+      return getters.apiBaseUrl + API_BASE_PATH + CONFIGS_PATH
     },
     proxyfiedConfigUrl(state, getters): string | undefined {
       const urlEncodedConfigParam = encodeURIComponent(getters.configParam)
@@ -226,11 +223,7 @@ const store: StoreOptions<RootState> = {
       state.errors = payload
     },
     setTileState(state, payload: { tileStateKey: string, tileState: TileState }): void {
-      if (!state.tilesState.hasOwnProperty(payload.tileStateKey)) {
-        Vue.set(state.tilesState, payload.tileStateKey, payload.tileState)
-      } else {
-        state.tilesState[payload.tileStateKey] = payload.tileState
-      }
+      state.tilesState[payload.tileStateKey] = payload.tileState
     },
     setOnline(state, payload: boolean): void {
       state.online = payload
@@ -267,6 +260,11 @@ const store: StoreOptions<RootState> = {
     async fetchConfigList({commit, getters}) {
       return axios.get(getters.configProxyUrl)
         .then((response) => {
+          if (response.data === null) {
+            commit('setConfigList', [])
+            return
+          }
+
           const configList: ConfigMetadata[] = response.data.map((configMetadata: ConfigMetadata) => {
             let uiUrl = `?${QUERY_PARAM_KEYS.CONFIG}=${configMetadata.name}`
 
@@ -484,4 +482,4 @@ const store: StoreOptions<RootState> = {
   },
 }
 
-export default new Vuex.Store(store)
+export default createStore(store)

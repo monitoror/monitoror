@@ -1,6 +1,6 @@
 import TileType from '@/enums/tileType'
 
-export default interface TileConfig {
+type TileConfig = {
   id: string,
   stateKey: string,
   type: TileType,
@@ -11,3 +11,5 @@ export default interface TileConfig {
   tiles?: TileConfig[],
   initialMaxDelay?: number,
 }
+
+export default TileConfig

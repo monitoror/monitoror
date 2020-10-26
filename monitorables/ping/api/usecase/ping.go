@@ -27,8 +27,8 @@ func (pu *pingUsecase) Ping(params *models.PingParams) (tile *coreModels.Tile, e
 	ping, err := pu.repository.ExecutePing(params.Hostname)
 	if err == nil {
 		tile.Status = coreModels.SuccessStatus
-		tile.WithValue(coreModels.MillisecondUnit)
-		tile.Value.Values = append(tile.Value.Values, fmt.Sprintf("%d", ping.Average.Milliseconds()))
+		tile.WithMetrics(coreModels.MillisecondUnit)
+		tile.Metrics.Values = append(tile.Metrics.Values, fmt.Sprintf("%d", ping.Average.Milliseconds()))
 	} else {
 		tile.Status = coreModels.FailedStatus
 		err = nil

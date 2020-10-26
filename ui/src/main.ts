@@ -1,11 +1,15 @@
-import Vue from 'vue'
+import {createApp} from 'vue'
 
-import App from './App.vue'
-import store from './store'
+import MonitororApp from '@/App.vue'
+import store from '@/store'
 
-Vue.config.productionTip = false
+// Used to avoid custom scrollbar on macOS
+const isMacOs = navigator.platform.toLowerCase().includes('mac')
+if (isMacOs) {
+  document.body.classList.add('macos')
+}
 
-export default new Vue({
-  store,
-  render: h => h(App),
-}).$mount('#app')
+// @ts-ignore
+const app = createApp(MonitororApp)
+app.use(store)
+app.mount('#app-root')

@@ -1,7 +1,7 @@
 import {noop, now} from 'lodash-es'
 
 import TaskType from '@/enums/taskType'
-import TaskOptions from '@/interfaces/taskOptions'
+import TaskOptions from '@/types/taskOptions'
 
 export default class Task {
   public readonly id: string
