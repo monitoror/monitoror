@@ -90,7 +90,7 @@ func (r *jenkinsRepository) GetLastBuildStatus(job *models.Job) (*models.Build, 
 	}
 
 	build := &models.Build{}
-	build.Number = fmt.Sprintf("%d", jenkinsBuild.Number)
+	build.Number = strings.TrimPrefix(jenkinsBuild.DisplayName, "#")
 	build.FullName = jenkinsBuild.FullDisplayName
 
 	build.Building = jenkinsBuild.Building

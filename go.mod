@@ -19,7 +19,7 @@ require (
 	github.com/jsdidierlaurent/azure-devops-go-api/azuredevops v0.0.0-20191016103718-deea5b1446b8
 	github.com/jsdidierlaurent/echo-middleware v1.0.3
 	github.com/jsdidierlaurent/go-pingdom v1.0.1-0.20200611160140-94f3cde59009
-	github.com/jsdidierlaurent/golang-jenkins v0.0.0-20190826091201-0ea4c9df4e09
+	github.com/jsdidierlaurent/golang-jenkins v0.0.0-20200828155557-e515459e5266
 	github.com/labstack/echo/v4 v4.1.7
 	github.com/labstack/gommon v0.2.9
 	github.com/leodido/go-urn v1.2.0 // indirect
