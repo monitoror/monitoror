@@ -182,7 +182,10 @@ func (gu *gitlabUsecase) computePipeline(params interface{}, tile *coreModels.Ti
 
 	// Duration
 	if tile.Status == coreModels.RunningStatus {
-		tile.Build.Duration = pointer.ToInt64(int64(time.Since(*tile.Build.StartedAt).Seconds()))
+		// In case of build without StartedAt ...
+		if tile.Build.StartedAt != nil {
+			tile.Build.Duration = pointer.ToInt64(int64(time.Since(*tile.Build.StartedAt).Seconds()))
+		}
 
 		estimatedDuration := gu.buildsCache.GetEstimatedDuration(params)
 		if estimatedDuration != nil {
