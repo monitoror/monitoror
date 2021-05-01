@@ -1,0 +1,3 @@
+//+build faker
+
+package models
