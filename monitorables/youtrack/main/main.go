@@ -3,7 +3,10 @@ package main
 import (
 	"fmt"
 
+	coreModels "github.com/monitoror/monitoror/models"
+	"github.com/monitoror/monitoror/monitorables/youtrack/api/models"
 	"github.com/monitoror/monitoror/monitorables/youtrack/api/repository"
+	"github.com/monitoror/monitoror/monitorables/youtrack/api/usecase"
 	"github.com/monitoror/monitoror/monitorables/youtrack/config"
 )
 
@@ -16,7 +19,24 @@ func main() {
 	}
 
 	repo := repository.NewYoutrackRepository(conf)
-	issues, _ := repo.GetIssues("Assignee: rjestin")
+	uc := usecase.NewYoutrackUsecase(repo)
 
-	fmt.Println(len(*issues))
+	params := &models.IssuesCountParams{
+		Query: "Assignee: rjestin",
+		CountThreshold: map[coreModels.TileStatus]int{
+			coreModels.FailedStatus: 200,
+		},
+		PriorityFieldThreshold: map[coreModels.TileStatus]int{
+			coreModels.FailedStatus: 1,
+		},
+	}
+
+	tile, err := uc.CountIssues(params)
+
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(tile.Metrics.Values)
+	fmt.Println(tile.Status)
 }

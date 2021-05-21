@@ -12,6 +12,6 @@ type (
 var Default = &Youtrack{
 	URL:       "",
 	Token:     "",
-	Timeout:   2000,
+	Timeout:   5000,
 	SSLVerify: true,
 }

@@ -9,6 +9,7 @@ export enum TileIconId {
   Pingdom = 'pingdom',
   Port = 'port',
   TravisCi = 'travis-ci',
+  Youtrack = 'youtrack',
 }
 
 export default TileIconId

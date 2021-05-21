@@ -60,6 +60,9 @@ export default defineComponent({
 
         case TileType.TravisCiBuild:
           return TileIconId.TravisCi
+
+        case TileType.YoutrackIssues:
+          return TileIconId.Youtrack
       }
     })
 
