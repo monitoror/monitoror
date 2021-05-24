@@ -29,7 +29,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	m.store = store
 
 	// Register Monitorable Tile in config manager
-	m.checkTileEnabler = store.Registry.RegisterTile(api.UptimecomCheckTileType, versions.MinimalVersion, m.GetVariantsNames())
+	m.checkTileEnabler = store.Registry.RegisterTile(api.UptimecomCheckTileType, versions.Version2001, m.GetVariantsNames())
 
 	return m
 }
