@@ -2,8 +2,10 @@ package config
 
 type (
 	HTTP struct {
-		Timeout   int `validate:"gte=0"` // In Millisecond
-		SSLVerify bool
+		Timeout     int `validate:"gte=0"` // In Millisecond
+		SSLVerify   bool
+		Certificate string
+		Key         string
 	}
 )
 
