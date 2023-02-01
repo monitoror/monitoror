@@ -39,7 +39,7 @@ jobs:
 
       - name: core / install
         run: |
-          go get -u github.com/GeertJohan/go.rice/rice
+          go get github.com/GeertJohan/go.rice/rice
           make install
 
       - name: ui / build
