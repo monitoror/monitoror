@@ -75,7 +75,7 @@ jobs:
         id: init
         run: |
           VERSION=$(cat VERSION)
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
 
       - uses: actions/download-artifact@v1
         with:

@@ -147,8 +147,8 @@ jobs:
         id: init
         run: |
           VERSION=$(cat VERSION)
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          echo "UPLOAD_URL=$(curl https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/tags/$VERSION --silent | grep -Po '"upload_url"\s*:\s*"[^"]+' | cut -d'"' -f4)" >> $GITHUB_OUTPUT
+          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "UPLOAD_URL=$(curl https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/tags/$VERSION --silent | grep -Po '"upload_url"\s*:\s*"[^"]+' | cut -d'"' -f4)" >> "$GITHUB_OUTPUT"
 
       - uses: actions/download-artifact@v1
         with:
@@ -204,9 +204,9 @@ jobs:
         id: init
         run: |
           VERSION=$(cat VERSION)
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          echo "MINOR_VERSION=$(echo $VERSION | cut -d "." -f 1,2)" >> $GITHUB_OUTPUT
-          echo "MAJOR_VERSION=$(echo $VERSION | cut -d "." -f 1)" >> $GITHUB_OUTPUT
+          echo "VERSION=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "MINOR_VERSION=$(echo $VERSION | cut -d "." -f 1,2)" >> "$GITHUB_OUTPUT"
+          echo "MAJOR_VERSION=$(echo $VERSION | cut -d "." -f 1)" >> "$GITHUB_OUTPUT"
 
 
       - uses: actions/download-artifact@v1
