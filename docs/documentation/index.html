@@ -1490,6 +1490,12 @@ MO_MONITORABLE_GITLAB_TIMEOUT=5000
           Key file path for the client certificate provided <br>
           <span class="tag">Optional</span> <code></code>
         </dd>
+
+        <dt><code>MO_MONITORABLE_HTTP_HEADERS</code> <code class="type">string</code></dt>
+        <dd>
+          Add HTTP headers separated by comma <br>
+          <span class="tag">Default:</span> <code>User-Agent: Monitoror</code>
+        </dd>
       </dl>
 
       <p class="success-block">
@@ -1502,6 +1508,7 @@ MO_MONITORABLE_GITLAB_TIMEOUT=5000
       <pre class="example"><code>
 MO_MONITORABLE_HTTP_TIMEOUT=1000
 MO_MONITORABLE_HTTP_SSLVERIFY=true
+MO_MONITORABLE_HTTP_HEADERS="User-Agent: My-Agent,X-Custom-Header: Value"
       </code></pre>
 
       <h4 id="tile-http-status">HTTP-STATUS</h4>
