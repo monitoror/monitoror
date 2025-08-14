@@ -63,6 +63,9 @@ export default defineComponent({
 
         case TileType.UptimecomCheck:
           return TileIconId.Uptimecom
+
+        case TileType.YoutrackIssues:
+          return TileIconId.Youtrack
       }
     })
 
