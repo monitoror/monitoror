@@ -1,0 +1,37 @@
+version: 2
+updates:
+  - package-ecosystem: "gomod"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "npm"
+    directory: "/ui"
+    schedule:
+      interval: "monthly"
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
