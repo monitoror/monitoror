@@ -21,9 +21,10 @@ jobs:
     name: Core / Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-go@v1
+      - uses: actions/setup-go@v5
         with:
-          go-version: 1.23
+          go-version: "1.23"
+          cache: false
         id: go
 
       - uses: actions/checkout@v1
@@ -98,9 +99,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - uses: actions/setup-go@v1
+      - uses: actions/setup-go@v5
         with:
-          go-version: 1.23
+          go-version: "1.23"
+          cache: false
         id: go
 
       - uses: actions/checkout@v1
