@@ -136,6 +136,18 @@
             </ul>
           </li>
           <li>
+            <a href="#oneuptime">
+              <svg class="m-documentation--menu-icon" xmlns="http://www.w3.org/2000/svg">
+                <use xlink:href="/assets/images/icons.svg#oneuptime"/>
+              </svg>
+              OneUptime
+            </a>
+            <ul>
+              <li><a href="#tile-oneuptime-monitor">ONEUPTIME-MONITOR</a></li>
+              <li><a href="#tile-generate-oneuptime-monitor"><span class="tag-generate">GENERATE:</span>ONEUPTIME-MONITOR</a></li>
+            </ul>
+          </li>
+          <li>
             <a href="#ping">
               <svg class="m-documentation--menu-icon" xmlns="http://www.w3.org/2000/svg">
                 <use xlink:href="/assets/images/icons.svg#ping"/>
@@ -326,6 +338,15 @@
 
             <svg class="m-documentation-card--icon" xmlns="http://www.w3.org/2000/svg">
               <use xlink:href="/assets/images/icons.svg#jenkins"/>
+            </svg>
+          </span>
+        </a>
+        <a href="#oneuptime" class="m-documentation-card">
+          <span class="m-documentation-card--mask">
+            <span class="m-documentation-card--title">OneUptime</span>
+
+            <svg class="m-documentation-card--icon" xmlns="http://www.w3.org/2000/svg">
+              <use xlink:href="/assets/images/icons.svg#oneuptime"/>
             </svg>
           </span>
         </a>
@@ -554,7 +575,7 @@ MO_CONFIG_PRODUCTION="/etc/monitoror/production.json"
       </p>
       <pre><code class="language-json">
 {
-  "version": "2.2",
+  "version": "2.3",
   "columns": 2,
   "tiles": [
     {
@@ -579,7 +600,7 @@ MO_CONFIG_PRODUCTION="/etc/monitoror/production.json"
           The configuration format version. <br>
           <p class="note">
             <span class="tag">Note</span>
-            Current version is <code>"2.2"</code>
+            Current version is <code>"2.3"</code>
           </p>
         </dd>
 
@@ -1951,6 +1972,175 @@ MO_MONITORABLE_JENKINS_SSLVERIFY=true
   "params": {
     "job": "test-job",
     "match": "^feat/"
+  }
+}
+      </code></pre>
+    </div>
+
+    <div class="m-documentation--block">
+      <svg class="m-documentation--tile-icon" xmlns="http://www.w3.org/2000/svg">
+        <use xlink:href="/assets/images/icons.svg#oneuptime"/>
+      </svg>
+
+      <h3 id="oneuptime">OneUptime</h3>
+
+      <p>
+        Monitors status from <a href="https://oneuptime.com/">OneUptime</a>, cloud or self-hosted.
+      </p>
+
+      <h5 class="m-documentation--configuration-side-title">Core configuration</h5>
+
+      <dl>
+        <dt><code>MO_MONITORABLE_ONEUPTIME_URL</code> <code class="type">string</code></dt>
+        <dd>
+          OneUptime base URL, change it for a self-hosted instance <br>
+          <span class="tag">Default:</span> <code>https://oneuptime.com</code>
+        </dd>
+
+        <dt><code>MO_MONITORABLE_ONEUPTIME_PROJECTID</code> <code class="type">string</code> <span class="required">required</span></dt>
+        <dd>
+          ID of the OneUptime project containing the monitors <br>
+          On OneUptime, go to Project Settings &gt; Project
+        </dd>
+
+        <dt><code>MO_MONITORABLE_ONEUPTIME_TOKEN</code> <code class="type">string</code> <span class="required">required</span></dt>
+        <dd>
+          Project API key with read access on monitors <br>
+          On OneUptime, go to Project Settings &gt; API Keys
+        </dd>
+
+        <dt><code>MO_MONITORABLE_ONEUPTIME_TIMEOUT</code> <code class="type">number</code></dt>
+        <dd>
+          Timeout in milliseconds before returning error <br>
+          <span class="tag">Default:</span> <code>10000</code>
+        </dd>
+
+        <dt><code>MO_MONITORABLE_ONEUPTIME_CACHEEXPIRATION</code> <code class="type">number</code></dt>
+        <dd>
+          Duration in milliseconds of the monitors list cache, shared by all OneUptime tiles <br>
+          <span class="tag">Default:</span> <code>30000</code>
+        </dd>
+
+        <dt><code>MO_MONITORABLE_ONEUPTIME_SSLVERIFY</code> <code class="type">boolean</code></dt>
+        <dd>
+          Whether to verify the OneUptime server certificate <br>
+          <span class="tag">Default:</span> <code>true</code>
+        </dd>
+      </dl>
+
+      <p class="success-block">
+        <svg xmlns="http://www.w3.org/2000/svg">
+          <use xlink:href="/assets/images/icons.svg#configuration-variants"/>
+        </svg>
+        <a href="#configuration-variants">Configuration Variants</a> are available for OneUptime
+      </p>
+
+      <pre class="example"><code>
+MO_MONITORABLE_ONEUPTIME_URL="https://oneuptime.example.com"
+MO_MONITORABLE_ONEUPTIME_PROJECTID="thisisyourprojectid"
+MO_MONITORABLE_ONEUPTIME_TOKEN="thisisyourapikey"
+MO_MONITORABLE_ONEUPTIME_TIMEOUT=10000
+MO_MONITORABLE_ONEUPTIME_CACHEEXPIRATION=30000
+      </code></pre>
+
+      <h4 id="tile-oneuptime-monitor">ONEUPTIME-MONITOR</h4>
+
+      <p>
+        Show the current status of a OneUptime monitor.
+      </p>
+
+      <p class="note">
+        <span class="tag">Note</span>
+        Requires UI configuration <code>"version": "2.3"</code> or higher.
+      </p>
+
+      <ul>
+        <li>Operational: success</li>
+        <li>Offline: failure</li>
+        <li>Degraded, or any other custom status: warning</li>
+        <li>Monitoring disabled: disabled</li>
+      </ul>
+
+      <h5 class="m-documentation--configuration-side-title">UI configuration</h5>
+
+      <dl>
+        <dt><code>id</code> <code class="type">string</code> <span class="required">required</span></dt>
+        <dd>
+          OneUptime monitor ID (visible in the monitor URL)
+        </dd>
+      </dl>
+
+      <div class="m-documentation--example-and-demo">
+        <pre class="example"><code class="language-json">
+{
+  "type": "ONEUPTIME-MONITOR",
+  "params": {
+    "id": "8176df0f-5059-402b-a3d2-f7821257d724"
+  }
+}
+        </code></pre>
+
+        <div class="m-documentation--demo">
+          <div class="m-documentation--demo-tile">
+            <div class="m-documentation--demo-label">Monitor name</div>
+            <svg class="m-documentation--demo-icon" xmlns="http://www.w3.org/2000/svg">
+              <use xlink:href="/assets/images/icons.svg#oneuptime"/>
+            </svg>
+          </div>
+          <div class="m-documentation--demo-switch">
+            <label class="m-documentation--demo-switch-label m-documentation--demo-switch-succeeded">
+              <input data-state-switch name="oneuptime-monitor-state" type="radio" value="succeeded">
+              Operational
+            </label>
+            <label class="m-documentation--demo-switch-label m-documentation--demo-switch-warning">
+              <input data-state-switch name="oneuptime-monitor-state" type="radio" value="warning">
+              Degraded
+            </label>
+            <label class="m-documentation--demo-switch-label m-documentation--demo-switch-error">
+              <input data-state-switch name="oneuptime-monitor-state" type="radio" value="error">
+              Offline
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <h4 id="tile-generate-oneuptime-monitor">GENERATE:ONEUPTIME-MONITOR</h4>
+
+      <p>
+        Show the status of all OneUptime monitors of the project.
+      </p>
+
+      <p class="note">
+        <span class="tag">Note</span>
+        This tile is a generator tile that will be replaced by N classic
+        <code><a href="#tile-oneuptime-monitor">ONEUPTIME-MONITOR</a></code> tiles. <br>
+        N being the number of monitors that match the filters that have been set.
+        Monitors with disabled monitoring are ignored.
+      </p>
+
+      <h5 class="m-documentation--configuration-side-title">UI configuration</h5>
+
+      <dl>
+        <dt><code>labels</code> <code class="type">string</code></dt>
+        <dd>
+          OneUptime label list separated by commas, a monitor is kept if it has at least one of them
+        </dd>
+
+        <dt><code>sortBy</code> <code class="type">string</code></dt>
+        <dd>
+          Allow to sort monitors by following:
+          <ul>
+            <li><code>name</code></li>
+          </ul>
+        </dd>
+      </dl>
+
+      <pre class="example"><code class="language-json">
+{
+  "type": "GENERATE:ONEUPTIME-MONITOR",
+  "params": {
+    "labels": "api,websites",
+    "sortBy": "name"
   }
 }
       </code></pre>
