@@ -48,10 +48,8 @@ func NewYoutrackRepository(config *config.Youtrack) api.Repository {
 }
 
 func (yr *youtrackRepository) CountIssues(query string) (int, error) {
-	body, err := json.Marshal(countRequest{Query: query})
-	if err != nil {
-		return 0, err
-	}
+	// Marshalling a struct of strings cannot fail
+	body, _ := json.Marshal(countRequest{Query: query})
 
 	for attempt := 1; ; attempt++ {
 		count, err := yr.requestCount(body)

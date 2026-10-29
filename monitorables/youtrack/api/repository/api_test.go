@@ -108,3 +108,21 @@ func TestYoutrackRepository_CountIssues_ConnectionError(t *testing.T) {
 	_, err := repository.CountIssues("project: MO")
 	assert.Error(t, err)
 }
+
+func TestYoutrackRepository_CountIssues_InvalidURL(t *testing.T) {
+	repository := initRepository(t, func(w http.ResponseWriter, r *http.Request) {})
+	repository.config.URL = "http://%%"
+
+	_, err := repository.CountIssues("project: MO")
+	assert.Error(t, err)
+}
+
+func TestYoutrackRepository_CountIssues_TruncatedBody(t *testing.T) {
+	repository := initRepository(t, func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Length", "100")
+		_, _ = fmt.Fprint(w, `{"count":`)
+	})
+
+	_, err := repository.CountIssues("project: MO")
+	assert.Error(t, err)
+}

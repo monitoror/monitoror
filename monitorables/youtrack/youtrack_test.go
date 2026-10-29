@@ -22,6 +22,8 @@ func TestNewMonitorable(t *testing.T) {
 	// Url broken
 	_ = os.Setenv("MO_MONITORABLE_YOUTRACK_VARIANT2_URL", "url%syoutrack.example.com")
 	_ = os.Setenv("MO_MONITORABLE_YOUTRACK_VARIANT2_TOKEN", "xxx")
+	// No URL and no token
+	_ = os.Setenv("MO_MONITORABLE_YOUTRACK_VARIANT3_TIMEOUT", "1000")
 
 	// NewMonitorable
 	monitorable := NewMonitorable(store)
@@ -31,11 +33,14 @@ func TestNewMonitorable(t *testing.T) {
 	assert.NotNil(t, monitorable.GetDisplayName())
 
 	// GetVariantsNames and check
-	if assert.Len(t, monitorable.GetVariantsNames(), 3) {
+	if assert.Len(t, monitorable.GetVariantsNames(), 4) {
 		_, errors := monitorable.Validate("variant1")
 		assert.NotEmpty(t, errors)
 		_, errors = monitorable.Validate("variant2")
 		assert.NotEmpty(t, errors)
+		valid, errors := monitorable.Validate("variant3")
+		assert.False(t, valid)
+		assert.Empty(t, errors)
 	}
 
 	// Enable
