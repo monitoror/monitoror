@@ -35,8 +35,8 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	pkgMonitorable.LoadConfig(&m.config, uptimecomConfig.Default)
 
 	// Register Monitorable Tile in config manager
-	m.checkTileEnabler = store.Registry.RegisterTile(api.UptimecomCheckTileType, versions.MinimalVersion, m.GetVariantsNames())
-	m.checkGeneratorEnabler = store.Registry.RegisterGenerator(api.UptimecomCheckTileType, versions.MinimalVersion, m.GetVariantsNames())
+	m.checkTileEnabler = store.Registry.RegisterTile(api.UptimecomCheckTileType, versions.Version2001, m.GetVariantsNames())
+	m.checkGeneratorEnabler = store.Registry.RegisterGenerator(api.UptimecomCheckTileType, versions.Version2001, m.GetVariantsNames())
 
 	return m
 }

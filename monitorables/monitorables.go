@@ -11,6 +11,7 @@ import (
 	"github.com/monitoror/monitoror/monitorables/port"
 	"github.com/monitoror/monitoror/monitorables/travisci"
 	"github.com/monitoror/monitoror/monitorables/uptimecom"
+	"github.com/monitoror/monitoror/monitorables/youtrack"
 	"github.com/monitoror/monitoror/store"
 )
 
@@ -35,4 +36,6 @@ func RegisterMonitorables(s *store.Store) {
 	s.Registry.RegisterMonitorable(travisci.NewMonitorable(s))
 	// ------------ UPTIME.COM ------------
 	s.Registry.RegisterMonitorable(uptimecom.NewMonitorable(s))
+	// ------------ YOUTRACK ------------
+	s.Registry.RegisterMonitorable(youtrack.NewMonitorable(s))
 }
