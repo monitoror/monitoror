@@ -1,16 +1,16 @@
 package repository
 
 import (
+	"bytes"
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/monitoror/monitoror/monitorables/youtrack/api"
-	"github.com/monitoror/monitoror/monitorables/youtrack/api/models"
 	"github.com/monitoror/monitoror/monitorables/youtrack/config"
 )
 
@@ -19,9 +19,21 @@ type (
 		client *http.Client
 		config *config.Youtrack
 	}
+
+	countRequest struct {
+		Query string `json:"query"`
+	}
+
+	countResponse struct {
+		Count int `json:"count"`
+	}
 )
 
-var PerPage = 500
+// YouTrack answers -1 while the count is still being computed, so the request is retried.
+var (
+	CountMaxAttempts = 5
+	CountRetryDelay  = 200 * time.Millisecond
+)
 
 func NewYoutrackRepository(config *config.Youtrack) api.Repository {
 	tr := &http.Transport{
@@ -35,41 +47,57 @@ func NewYoutrackRepository(config *config.Youtrack) api.Repository {
 	return &youtrackRepository{client, config}
 }
 
-func (yr *youtrackRepository) GetIssues(query string) (*models.Issues, error) {
-	issues := &models.Issues{}
-	paginatedIssues := &models.Issues{}
-	for iteration := 0; iteration == 0 || len(*paginatedIssues) == PerPage; iteration++ {
-		request, err := http.NewRequest("GET", fmt.Sprintf("%s/api/issues", yr.config.URL), nil)
-		if err != nil {
-			return nil, err
-		}
-		request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", yr.config.Token))
-
-		q := request.URL.Query()
-		q.Add("query", query)
-		q.Add("fields", "id,customFields(name,value(name))")
-		q.Add("$skip", fmt.Sprintf("%d", iteration*PerPage))
-		q.Add("$top", fmt.Sprintf("%d", PerPage))
-		request.URL.RawQuery = q.Encode()
-
-		result, err := yr.client.Do(request)
-		if err != nil {
-			return nil, err
-		}
-		defer result.Body.Close()
-
-		body, err := ioutil.ReadAll(result.Body)
-		if err != nil {
-			return nil, err
-		}
-
-		err = json.Unmarshal(body, paginatedIssues)
-		if err != nil {
-			return nil, err
-		}
-
-		*issues = append(*issues, *paginatedIssues...)
+func (yr *youtrackRepository) CountIssues(query string) (int, error) {
+	body, err := json.Marshal(countRequest{Query: query})
+	if err != nil {
+		return 0, err
 	}
 
-	return issues, nil
+	for attempt := 1; ; attempt++ {
+		count, err := yr.requestCount(body)
+		if err != nil {
+			return 0, err
+		}
+
+		if count >= 0 {
+			return count, nil
+		}
+
+		if attempt >= CountMaxAttempts {
+			return 0, fmt.Errorf("youtrack is still computing issues count after %d attempts", attempt)
+		}
+		time.Sleep(CountRetryDelay)
+	}
+}
+
+func (yr *youtrackRepository) requestCount(body []byte) (int, error) {
+	request, err := http.NewRequest(http.MethodPost, fmt.Sprintf("%s/api/issuesGetter/count?fields=count", yr.config.URL), bytes.NewReader(body))
+	if err != nil {
+		return 0, err
+	}
+	request.Header.Set("Authorization", fmt.Sprintf("Bearer %s", yr.config.Token))
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("Accept", "application/json")
+
+	response, err := yr.client.Do(request)
+	if err != nil {
+		return 0, err
+	}
+	defer response.Body.Close()
+
+	data, err := io.ReadAll(response.Body)
+	if err != nil {
+		return 0, err
+	}
+
+	if response.StatusCode != http.StatusOK {
+		return 0, fmt.Errorf("youtrack returned status %d: %s", response.StatusCode, strings.TrimSpace(string(data)))
+	}
+
+	result := &countResponse{}
+	if err = json.Unmarshal(data, result); err != nil {
+		return 0, err
+	}
+
+	return result.Count, nil
 }

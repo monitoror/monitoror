@@ -8,6 +8,7 @@ import (
 )
 
 var (
+	// Ordered from the least to the most severe status
 	ThresholdAuthorizedTileStatus = []TileStatus{
 		DisabledStatus,
 		SuccessStatus,
@@ -34,6 +35,14 @@ func (t *IntThreshold) GetTileStatus(value int, defaultStatus TileStatus) TileSt
 	}
 
 	return defaultStatus
+}
+
+// MostSevereTileStatus returns the status ranked highest in ThresholdAuthorizedTileStatus
+func MostSevereTileStatus(a, b TileStatus) TileStatus {
+	if slices.Index(ThresholdAuthorizedTileStatus, b) > slices.Index(ThresholdAuthorizedTileStatus, a) {
+		return b
+	}
+	return a
 }
 
 // UnmarshalParam used to parse a string representation of a map inject by queryParam with vue"

@@ -9,18 +9,16 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestIssuesCountParams_GetPriorityFieldLabelWithDefault(t *testing.T) {
-	param := &IssuesCountParams{}
-	assert.Equal(t, DefaultPriorityFieldLabel, param.GetPriorityFieldLabelWithDefault())
-	param.PriorityFieldLabel = pointer.ToString("test")
-	assert.Equal(t, "test", param.GetPriorityFieldLabelWithDefault())
-}
+func TestIssuesCountParams_GetPriorityQuery(t *testing.T) {
+	param := &IssuesCountParams{Query: "project: MO #Unresolved"}
+	assert.Equal(t, "(project: MO #Unresolved) and Priority: {Show-stopper}", param.GetPriorityQuery())
 
-func TestIssuesCountParams_GetPriorityFieldValueWithDefault(t *testing.T) {
-	param := &IssuesCountParams{}
-	assert.Equal(t, DefaultPriorityFieldValue, param.GetPriorityFieldValueWithDefault())
-	param.PriorityFieldValue = pointer.ToString("test")
-	assert.Equal(t, "test", param.GetPriorityFieldValueWithDefault())
+	param.PriorityFieldLabel = pointer.ToString("Severity")
+	param.PriorityFieldValue = pointer.ToString("Very High")
+	assert.Equal(t, "(project: MO #Unresolved) and Severity: {Very High}", param.GetPriorityQuery())
+
+	param.PriorityFieldLabel = pointer.ToString("Bug severity")
+	assert.Equal(t, "(project: MO #Unresolved) and {Bug severity}: {Very High}", param.GetPriorityQuery())
 }
 
 func TestIssuesCountParams_Validate_Error(t *testing.T) {

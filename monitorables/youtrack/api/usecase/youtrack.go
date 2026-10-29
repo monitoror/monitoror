@@ -1,4 +1,4 @@
-//+build !faker
+//go:build !faker
 
 package usecase
 
@@ -22,34 +22,28 @@ func NewYoutrackUsecase(repository api.Repository) api.Usecase {
 
 func (yu *youtrackUsecase) CountIssues(params *models.IssuesCountParams) (*coreModels.Tile, error) {
 	tile := coreModels.NewTile(api.YoutrackCountIssuesTileType).WithMetrics(coreModels.NumberUnit)
-	tile.Label = "Youtrack issues count"
+	tile.Label = "YouTrack issues"
 
-	issues, err := yu.repository.GetIssues(params.Query)
+	count, err := yu.repository.CountIssues(params.Query)
 	if err != nil {
-		return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: "unable to find build"}
+		return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: "unable to count issues"}
 	}
-	issuesCount := len(*issues)
 
 	tile.Status = coreModels.SuccessStatus
-	tile.Metrics.Values = append(tile.Metrics.Values, fmt.Sprintf("%d", issuesCount))
+	tile.Metrics.Values = append(tile.Metrics.Values, fmt.Sprintf("%d", count))
 
-	// Count threshold
 	if len(params.CountThreshold) != 0 {
-		tile.Status = params.CountThreshold.GetTileStatus(issuesCount, tile.Status)
+		tile.Status = params.CountThreshold.GetTileStatus(count, tile.Status)
 	}
 
-	// Priority threshold
 	if len(params.PriorityFieldThreshold) != 0 {
-		priorityIssueCount := 0
-		for _, issue := range *issues {
-			for _, field := range issue.CustomFields {
-				if field.Name == params.GetPriorityFieldLabelWithDefault() && field.Value != nil && field.Value.(map[string]interface{})["name"] == params.GetPriorityFieldValueWithDefault() {
-					priorityIssueCount++
-				}
-			}
+		priorityCount, err := yu.repository.CountIssues(params.GetPriorityQuery())
+		if err != nil {
+			return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: "unable to count priority issues"}
 		}
 
-		tile.Status = params.PriorityFieldThreshold.GetTileStatus(priorityIssueCount, tile.Status)
+		priorityStatus := params.PriorityFieldThreshold.GetTileStatus(priorityCount, coreModels.SuccessStatus)
+		tile.Status = coreModels.MostSevereTileStatus(tile.Status, priorityStatus)
 	}
 
 	return tile, nil

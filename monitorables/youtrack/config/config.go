@@ -3,8 +3,8 @@ package config
 type (
 	Youtrack struct {
 		URL       string `validate:"required,url,http"`
-		Token     string
-		Timeout   int `validate:"gte=0"` // In Millisecond
+		Token     string `validate:"required"`
+		Timeout   int    `validate:"gte=0"` // In Millisecond
 		SSLVerify bool
 	}
 )

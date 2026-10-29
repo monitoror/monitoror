@@ -41,7 +41,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 }
 
 func (m *Monitorable) GetDisplayName() string {
-	return "Youtrack"
+	return "YouTrack"
 }
 
 func (m *Monitorable) GetVariantsNames() []coreModels.VariantName {

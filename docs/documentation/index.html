@@ -185,13 +185,24 @@
           <li>
             <a href="#uptimecom">
               <svg class="m-documentation--menu-icon" xmlns="http://www.w3.org/2000/svg">
-                <use xlink:href="/assets/images/icons.svg#pingdom"/>
+                <use xlink:href="/assets/images/icons.svg#uptimecom"/>
               </svg>
               Uptime.com
             </a>
             <ul>
               <li><a href="#tile-uptimecom-check">UPTIMECOM-CHECK</a></li>
               <li><a href="#tile-generate-uptimecom-check"><span class="tag-generate">GENERATE:</span>UPTIMECOM-CHECK</a></li>
+            </ul>
+          </li>
+          <li>
+            <a href="#youtrack">
+              <svg class="m-documentation--menu-icon" xmlns="http://www.w3.org/2000/svg">
+                <use xlink:href="/assets/images/icons.svg#youtrack"/>
+              </svg>
+              YouTrack
+            </a>
+            <ul>
+              <li><a href="#tile-youtrack-count-issues">YOUTRACK-COUNT-ISSUES</a></li>
             </ul>
           </li>
         </ul>
@@ -360,6 +371,15 @@
 
             <svg class="m-documentation-card--icon" xmlns="http://www.w3.org/2000/svg">
               <use xlink:href="/assets/images/icons.svg#uptimecom"/>
+            </svg>
+          </span>
+        </a>
+        <a href="#youtrack" class="m-documentation-card">
+          <span class="m-documentation-card--mask">
+            <span class="m-documentation-card--title">YouTrack</span>
+
+            <svg class="m-documentation-card--icon" xmlns="http://www.w3.org/2000/svg">
+              <use xlink:href="/assets/images/icons.svg#youtrack"/>
             </svg>
           </span>
         </a>
@@ -534,7 +554,7 @@ MO_CONFIG_PRODUCTION="/etc/monitoror/production.json"
       </p>
       <pre><code class="language-json">
 {
-  "version": "2.0",
+  "version": "2.2",
   "columns": 2,
   "tiles": [
     {
@@ -559,7 +579,7 @@ MO_CONFIG_PRODUCTION="/etc/monitoror/production.json"
           The configuration format version. <br>
           <p class="note">
             <span class="tag">Note</span>
-            Current version is <code>"2.0"</code>
+            Current version is <code>"2.2"</code>
           </p>
         </dd>
 
@@ -2553,6 +2573,11 @@ MO_MONITORABLE_UPTIMECOM_CACHEEXPIRATION=30000
         Show state of a Uptime.com specific check.
       </p>
 
+      <p class="note">
+        <span class="tag">Note</span>
+        Requires UI configuration <code>"version": "2.1"</code> or higher.
+      </p>
+
       <h5 class="m-documentation--configuration-side-title">UI configuration</h5>
 
       <dl>
@@ -2635,6 +2660,148 @@ MO_MONITORABLE_UPTIMECOM_CACHEEXPIRATION=30000
   }
 }
       </code></pre>
+    </div>
+
+    <div class="m-documentation--block">
+      <svg class="m-documentation--tile-icon" xmlns="http://www.w3.org/2000/svg">
+        <use xlink:href="/assets/images/icons.svg#youtrack"/>
+      </svg>
+
+      <h3 id="youtrack">YouTrack</h3>
+
+      <p>
+        Display counters of issues matching a
+        <a href="https://www.jetbrains.com/help/youtrack/cloud/search-and-command-attributes.html">YouTrack search query</a>.
+      </p>
+
+      <h5 class="m-documentation--configuration-side-title">Core configuration</h5>
+
+      <dl>
+        <dt><code>MO_MONITORABLE_YOUTRACK_URL</code> <code class="type">string</code> <span class="required">required</span></dt>
+        <dd>
+          YouTrack base URL (e.g. <code>https://example.youtrack.cloud</code>)
+        </dd>
+
+        <dt><code>MO_MONITORABLE_YOUTRACK_TOKEN</code> <code class="type">string</code> <span class="required">required</span></dt>
+        <dd>
+          Permanent token <br>
+          <a href="https://www.jetbrains.com/help/youtrack/cloud/manage-permanent-token.html">
+            Create a permanent token for Monitoror
+          </a>
+        </dd>
+
+        <dt><code>MO_MONITORABLE_YOUTRACK_TIMEOUT</code> <code class="type">number</code></dt>
+        <dd>
+          Timeout in milliseconds before returning error <br>
+          <span class="tag">Default:</span> <code>5000</code>
+        </dd>
+
+        <dt><code>MO_MONITORABLE_YOUTRACK_SSLVERIFY</code> <code class="type">boolean</code></dt>
+        <dd>
+          Whether to verify the YouTrack server certificate <br>
+          <span class="tag">Default:</span> <code>true</code>
+        </dd>
+      </dl>
+
+      <p class="success-block">
+        <svg xmlns="http://www.w3.org/2000/svg">
+          <use xlink:href="/assets/images/icons.svg#configuration-variants"/>
+        </svg>
+        <a href="#configuration-variants">Configuration Variants</a> are available for YouTrack
+      </p>
+
+      <pre class="example"><code>
+MO_MONITORABLE_YOUTRACK_URL="https://example.youtrack.cloud"
+MO_MONITORABLE_YOUTRACK_TOKEN="thisisyourtoken"
+MO_MONITORABLE_YOUTRACK_TIMEOUT=5000
+MO_MONITORABLE_YOUTRACK_SSLVERIFY=true
+      </code></pre>
+
+      <h4 id="tile-youtrack-count-issues">YOUTRACK-COUNT-ISSUES</h4>
+
+      <p>
+        Show a counter of issues matching a query, and change the tile status based on thresholds.
+      </p>
+
+      <p class="note">
+        <span class="tag">Note</span>
+        Requires UI configuration <code>"version": "2.2"</code> or higher.
+      </p>
+
+      <h5 class="m-documentation--configuration-side-title">UI configuration</h5>
+
+      <dl>
+        <dt><code>query</code> <code class="type">string</code> <span class="required">required</span></dt>
+        <dd>
+          YouTrack search query, exactly as typed in the YouTrack search bar
+        </dd>
+
+        <dt><code>countThreshold</code> <code class="type">object</code></dt>
+        <dd>
+          Tile status to apply when the number of issues reaches a value.
+          Keys are <code>SUCCESS</code>, <code>WARNING</code>, <code>FAILURE</code> or <code>DISABLED</code>,
+          the highest threshold reached wins.
+        </dd>
+
+        <dt><code>priorityFieldThreshold</code> <code class="type">object</code></dt>
+        <dd>
+          Same as <code>countThreshold</code>, applied to the number of issues matching the query
+          whose <code>priorityFieldLabel</code> field equals <code>priorityFieldValue</code>.
+          The most severe status of both thresholds is displayed.
+        </dd>
+
+        <dt><code>priorityFieldLabel</code> <code class="type">string</code></dt>
+        <dd>
+          Name of the field used by <code>priorityFieldThreshold</code> <br>
+          <span class="tag">Default:</span> <code>Priority</code>
+        </dd>
+
+        <dt><code>priorityFieldValue</code> <code class="type">string</code></dt>
+        <dd>
+          Value of the field used by <code>priorityFieldThreshold</code> <br>
+          <span class="tag">Default:</span> <code>Show-stopper</code>
+        </dd>
+      </dl>
+
+      <div class="m-documentation--example-and-demo">
+        <pre class="example"><code class="language-json">
+{
+  "type": "YOUTRACK-COUNT-ISSUES",
+  "label": "Monitoror open bugs",
+  "params": {
+    "query": "project: MO Type: Bug #Unresolved",
+    "countThreshold": { "WARNING": 10, "FAILURE": 20 },
+    "priorityFieldThreshold": { "FAILURE": 1 }
+  }
+}
+        </code></pre>
+
+        <div class="m-documentation--demo">
+          <div class="m-documentation--demo-tile">
+            <div class="m-documentation--demo-label">Monitoror open bugs</div>
+            <svg class="m-documentation--demo-icon" xmlns="http://www.w3.org/2000/svg">
+              <use xlink:href="/assets/images/icons.svg#youtrack"/>
+            </svg>
+            <div class="m-documentation--demo-value">
+              12
+            </div>
+          </div>
+          <div class="m-documentation--demo-switch">
+            <label class="m-documentation--demo-switch-label m-documentation--demo-switch-succeeded">
+              <input data-state-switch name="youtrack-count-issues-state" type="radio" value="succeeded">
+              Success
+            </label>
+            <label class="m-documentation--demo-switch-label m-documentation--demo-switch-warning">
+              <input data-state-switch name="youtrack-count-issues-state" type="radio" value="warning">
+              Warning
+            </label>
+            <label class="m-documentation--demo-switch-label m-documentation--demo-switch-error">
+              <input data-state-switch name="youtrack-count-issues-state" type="radio" value="error">
+              Failure
+            </label>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 

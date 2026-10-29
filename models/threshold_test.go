@@ -57,3 +57,10 @@ func TestTreshold_UnmarshalParam_Empty(t *testing.T) {
 		assert.Len(t, test, 0)
 	}
 }
+
+func TestMostSevereTileStatus(t *testing.T) {
+	assert.Equal(t, FailedStatus, MostSevereTileStatus(FailedStatus, WarningStatus))
+	assert.Equal(t, FailedStatus, MostSevereTileStatus(WarningStatus, FailedStatus))
+	assert.Equal(t, WarningStatus, MostSevereTileStatus(SuccessStatus, WarningStatus))
+	assert.Equal(t, SuccessStatus, MostSevereTileStatus(SuccessStatus, SuccessStatus))
+}
