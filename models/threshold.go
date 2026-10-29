@@ -47,7 +47,7 @@ func (t *IntThreshold) UnmarshalParam(src string) error {
 	}
 
 	result := make(map[TileStatus]int)
-	entries := strings.Split(src, ",")
+	entries := strings.Split(src, " ")
 	for _, entry := range entries {
 		kv := strings.SplitN(strings.TrimSpace(entry), ":", 2)
 		if len(kv) != 2 {

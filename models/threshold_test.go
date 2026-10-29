@@ -19,7 +19,7 @@ func TestTreshold_GetTileStatus_Empty(t *testing.T) {
 
 func TestTreshold_UnmarshalParam_ErrorInvalidFormat(t *testing.T) {
 	var test = IntThreshold{}
-	err := test.UnmarshalParam("map[WARNING:5,ERROR]")
+	err := test.UnmarshalParam("map[WARNING:5 ERROR]")
 	if assert.Error(t, err) {
 		assert.Equal(t, "invalid format: ERROR", err.Error())
 	}
@@ -43,9 +43,10 @@ func TestTreshold_UnmarshalParam_ErrorInvalidTileStatus(t *testing.T) {
 
 func TestTreshold_UnmarshalParam_Success(t *testing.T) {
 	var test = IntThreshold{}
-	err := test.UnmarshalParam("map[WARNING:1]")
+	err := test.UnmarshalParam("map[WARNING:1 FAILURE:2]")
 	if assert.NoError(t, err) {
 		assert.Equal(t, 1, test[WarningStatus])
+		assert.Equal(t, 2, test[FailedStatus])
 	}
 }
 

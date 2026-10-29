@@ -26,7 +26,7 @@ func initEcho() (ctx echo.Context, res *httptest.ResponseRecorder) {
 	ctx = e.NewContext(req, res)
 
 	ctx.QueryParams().Set("query", "test")
-	ctx.QueryParams().Set("countThreshold", "map[WARNING:5]")
+	ctx.QueryParams().Set("countThreshold", "map[WARNING:5 FAILURE:10]")
 
 	return
 }
@@ -39,7 +39,7 @@ func TestDelivery_GetCountIssues_Success(t *testing.T) {
 	tile.Status = coreModels.SuccessStatus
 
 	mockUsecase := new(mocks.Usecase)
-	mockUsecase.On("CountIssues", &models.IssuesCountParams{Query: "test", CountThreshold: map[coreModels.TileStatus]int{coreModels.WarningStatus: 5}}).Return(tile, nil)
+	mockUsecase.On("CountIssues", &models.IssuesCountParams{Query: "test", CountThreshold: map[coreModels.TileStatus]int{coreModels.WarningStatus: 5, coreModels.FailedStatus: 10}}).Return(tile, nil)
 	handler := NewYoutrackDelivery(mockUsecase)
 
 	// Expected
