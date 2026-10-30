@@ -1,6 +1,8 @@
 package cache
 
 import (
+	"fmt"
+	"sync"
 	"testing"
 	"time"
 
@@ -39,4 +41,22 @@ func Test_AlreadyInCache(t *testing.T) {
 
 	cache.Add("key", "2", models.SuccessStatus, time.Second)
 	assert.Equal(t, models.SuccessStatus, *cache.GetPreviousStatus("key", "2"))
+}
+
+func Test_ConcurrentAdd(t *testing.T) {
+	cache := NewBuildCache(100)
+
+	var wg sync.WaitGroup
+	for i := 0; i < 50; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			cache.Add("key", fmt.Sprint(i), models.SuccessStatus, time.Second)
+			assert.NotNil(t, cache.GetEstimatedDuration("key"))
+		}(i)
+	}
+	wg.Wait()
+
+	value, _ := cache.previousBuilds.Get("key")
+	assert.Len(t, value, 50)
 }

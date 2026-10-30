@@ -186,6 +186,22 @@ func TestHTTPStatus_WithCache(t *testing.T) {
 	mockRepository.AssertExpectations(t)
 }
 
+func TestHTTPStatus_CacheIsolatedByVariant(t *testing.T) {
+	store := cache.NewGoCacheStore(time.Minute*5, time.Second)
+
+	insecureRepository := new(mocks.Repository)
+	insecureRepository.On("Get", AnythingOfType("string")).Return(&models.Response{StatusCode: 200}, nil)
+	strictRepository := new(mocks.Repository)
+	strictRepository.On("Get", AnythingOfType("string")).Return(nil, context.DeadlineExceeded)
+
+	_, err := NewHTTPUsecase(insecureRepository, store, 2000).HTTPStatus(&models.HTTPStatusParams{URL: "toto"})
+	assert.NoError(t, err)
+	_, err = NewHTTPUsecase(strictRepository, store, 2000).HTTPStatus(&models.HTTPStatusParams{URL: "toto"})
+	assert.Error(t, err)
+
+	strictRepository.AssertNumberOfCalls(t, "Get", 1)
+}
+
 func TestHTTPUsecase_CheckStatusCode(t *testing.T) {
 	httpAny := &models.HTTPStatusParams{}
 	assert.True(t, checkStatusCode(httpAny, 301))

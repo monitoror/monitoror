@@ -225,3 +225,13 @@ func TestHTTPError_MonitororError_Timeout_Success(t *testing.T) {
 	mockStore.AssertNumberOfCalls(t, "Get", 1)
 	mockStore.AssertExpectations(t)
 }
+
+func TestHTTPError_KeepsHTTPErrorCode(t *testing.T) {
+	ctx, res := initErrorEcho()
+
+	HTTPErrorHandler(echo.NewHTTPError(http.StatusMethodNotAllowed, "method not allowed"), ctx)
+
+	j, _ := json.Marshal(APIError{Code: http.StatusMethodNotAllowed, Message: "Method Not Allowed"})
+	assert.Equal(t, http.StatusMethodNotAllowed, res.Code)
+	assert.Equal(t, string(j), strings.TrimSpace(res.Body.String()))
+}

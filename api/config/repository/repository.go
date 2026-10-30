@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"time"
 
 	"github.com/monitoror/monitoror/api/config"
 	"github.com/monitoror/monitoror/api/config/models"
@@ -15,9 +16,11 @@ type (
 	}
 )
 
+var ConfigHTTPTimeout = 10 * time.Second
+
 func NewConfigRepository() config.Repository {
 	//TODO: Add possibility to disable SSL check?
-	return &configRepository{httpClient: http.DefaultClient}
+	return &configRepository{httpClient: &http.Client{Timeout: ConfigHTTPTimeout}}
 }
 
 func ReadConfig(reader io.Reader) (config *models.Config, err error) {

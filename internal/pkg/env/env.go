@@ -35,13 +35,14 @@ func InitEnvDefaultLabel(envPrefix string, envSuffix string, defaultLabel string
 
 	// List all env that matches prefix
 	for _, env := range envs {
-		if strings.HasPrefix(env, envPrefix) {
-			splitedEnv := strings.SplitN(env, "=", 2)
+		splitedEnv := strings.SplitN(env, "=", 2)
+		envKey := splitedEnv[0]
 
-			envKey := splitedEnv[0]
+		// Prefix and suffix must end on a "_" boundary (e.g. PING must not match PINGDOM)
+		if envKey == envPrefix || strings.HasPrefix(envKey, envPrefix+"_") {
 			envValue := splitedEnv[1]
 
-			if strings.HasSuffix(envKey, envSuffix) {
+			if envSuffix == "" || envKey == envPrefix+"_"+envSuffix || strings.HasSuffix(envKey, "_"+envSuffix) {
 				// extract variant name
 				variant := strings.TrimPrefix(envKey, envPrefix)
 				variant = strings.TrimSuffix(variant, envSuffix)
