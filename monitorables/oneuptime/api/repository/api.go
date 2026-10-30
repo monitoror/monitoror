@@ -46,6 +46,8 @@ type (
 
 var PageSize = 100
 
+const maxErrorBodyLength = 200
+
 // Only the fields used by Monitoror are requested to OneUptime
 const listBody = `{"query":{},"select":{"_id":true,"name":true,"disableActiveMonitoring":true,` +
 	`"currentMonitorStatus":{"isOperationalState":true,"isOfflineState":true},"labels":{"name":true}},` +
@@ -76,7 +78,8 @@ func (r *oneuptimeRepository) GetMonitors() ([]models.Monitor, error) {
 			results = append(results, toMonitor(m))
 		}
 
-		if len(page.Data) < PageSize || len(results) >= page.Count {
+		// count is only trusted when OneUptime returns it
+		if len(page.Data) < PageSize || (page.Count > 0 && len(results) >= page.Count) {
 			return results, nil
 		}
 	}
@@ -105,7 +108,7 @@ func (r *oneuptimeRepository) getMonitorsPage(skip int) (*listResponse, error) {
 	}
 
 	if response.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("oneuptime returned status %d: %s", response.StatusCode, strings.TrimSpace(string(data)))
+		return nil, fmt.Errorf("oneuptime returned status %d: %s", response.StatusCode, truncate(strings.TrimSpace(string(data))))
 	}
 
 	result := &listResponse{}
@@ -133,4 +136,11 @@ func toMonitor(m monitor) models.Monitor {
 	}
 
 	return result
+}
+
+func truncate(s string) string {
+	if len(s) <= maxErrorBodyLength {
+		return s
+	}
+	return s[:maxErrorBodyLength] + "..."
 }

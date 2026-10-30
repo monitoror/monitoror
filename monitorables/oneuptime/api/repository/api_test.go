@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	"github.com/monitoror/monitoror/monitorables/oneuptime/api/models"
@@ -82,6 +83,28 @@ func TestOneuptimeRepository_GetMonitors_Pagination(t *testing.T) {
 	}
 }
 
+func TestOneuptimeRepository_GetMonitors_PaginationWithoutCount(t *testing.T) {
+	PageSize = 2
+	t.Cleanup(func() { PageSize = 100 })
+
+	calls := 0
+	repository := initRepository(t, func(w http.ResponseWriter, r *http.Request) {
+		calls++
+		switch r.URL.Query().Get("skip") {
+		case "0":
+			_, _ = fmt.Fprint(w, `{"data":[{"_id":"1"},{"_id":"2"}]}`)
+		default:
+			_, _ = fmt.Fprint(w, `{"data":[]}`)
+		}
+	})
+
+	monitors, err := repository.GetMonitors()
+	if assert.NoError(t, err) {
+		assert.Len(t, monitors, 2)
+		assert.Equal(t, 2, calls)
+	}
+}
+
 func TestOneuptimeRepository_GetMonitors_StopOnCount(t *testing.T) {
 	PageSize = 2
 	t.Cleanup(func() { PageSize = 100 })
@@ -108,6 +131,18 @@ func TestOneuptimeRepository_GetMonitors_HTTPError(t *testing.T) {
 	_, err := repository.GetMonitors()
 	if assert.Error(t, err) {
 		assert.Contains(t, err.Error(), "401")
+	}
+}
+
+func TestOneuptimeRepository_GetMonitors_HTTPError_LongBody(t *testing.T) {
+	repository := initRepository(t, func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusBadGateway)
+		_, _ = fmt.Fprint(w, strings.Repeat("x", 1000))
+	})
+
+	_, err := repository.GetMonitors()
+	if assert.Error(t, err) {
+		assert.Equal(t, "oneuptime returned status 502: "+strings.Repeat("x", maxErrorBodyLength)+"...", err.Error())
 	}
 }
 

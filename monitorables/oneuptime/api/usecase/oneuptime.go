@@ -58,7 +58,7 @@ func (ou *oneuptimeUsecase) Monitor(params *models.MonitorParams) (*coreModels.T
 		}
 
 		if err := ou.store.Get(ou.getMonitorStoreKey(params.ID), &result); err != nil {
-			return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: "unable to find monitor"}
+			return nil, &coreModels.MonitororError{Err: err, Tile: tile, Message: fmt.Sprintf("monitor %s not found", params.ID)}
 		}
 	}
 
@@ -80,13 +80,15 @@ func (ou *oneuptimeUsecase) MonitorGenerator(params interface{}) ([]uiConfigMode
 		sort.SliceStable(monitors, func(i, j int) bool { return monitors[i].Name < monitors[j].Name })
 	}
 
+	labels := parseLabels(gParams.Labels)
+
 	var results []uiConfigModels.GeneratedTile
 	for _, monitor := range monitors {
 		if monitor.IsDisabled {
 			continue
 		}
 
-		if gParams.Labels != "" && !monitor.MatchOneLabel(strings.Split(gParams.Labels, OneuptimeLabelsSeparator)) {
+		if len(labels) > 0 && !monitor.MatchOneLabel(labels) {
 			continue
 		}
 
@@ -129,6 +131,16 @@ func (ou *oneuptimeUsecase) getMonitorStoreKey(id string) string {
 
 func (ou *oneuptimeUsecase) getMonitorsStoreKey() string {
 	return fmt.Sprintf("%s:%s", OneuptimeMonitorsStoreKeyPrefix, ou.repositoryUID)
+}
+
+func parseLabels(value string) []string {
+	var labels []string
+	for _, label := range strings.Split(value, OneuptimeLabelsSeparator) {
+		if label = strings.TrimSpace(label); label != "" {
+			labels = append(labels, label)
+		}
+	}
+	return labels
 }
 
 func parseMonitorStatus(monitor *models.Monitor) coreModels.TileStatus {

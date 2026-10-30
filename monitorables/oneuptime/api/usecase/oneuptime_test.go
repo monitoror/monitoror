@@ -40,8 +40,20 @@ func TestOneuptimeUsecase_Monitor_NotFound_Error(t *testing.T) {
 	if assert.Error(t, err) {
 		assert.Nil(t, tile)
 		assert.IsType(t, &coreModels.MonitororError{}, err)
-		assert.Equal(t, "unable to find monitor", err.Error())
+		assert.Equal(t, "monitor 2 not found", err.Error())
 	}
+}
+
+func TestOneuptimeUsecase_Monitor_NotFound_UsesCache(t *testing.T) {
+	mockRepository := new(mocks.Repository)
+	mockRepository.On("GetMonitors").Return([]models.Monitor{{ID: "1", Name: "Monitor 1"}}, nil)
+
+	usecase := initUsecase(mockRepository)
+	for i := 0; i < 3; i++ {
+		_, err := usecase.Monitor(&models.MonitorParams{ID: "2"})
+		assert.Error(t, err)
+	}
+	mockRepository.AssertNumberOfCalls(t, "GetMonitors", 1)
 }
 
 func TestOneuptimeUsecase_Monitor_WithCache(t *testing.T) {
@@ -92,7 +104,7 @@ func TestOneuptimeUsecase_MonitorGenerator(t *testing.T) {
 		{ID: "4", Name: "Monitor 4", Labels: []string{"label1"}, IsDisabled: true},
 	}, nil)
 
-	results, err := initUsecase(mockRepository).MonitorGenerator(&models.MonitorGeneratorParams{SortBy: "name", Labels: "label1,label3"})
+	results, err := initUsecase(mockRepository).MonitorGenerator(&models.MonitorGeneratorParams{SortBy: "name", Labels: " label1 , label3,"})
 	if assert.NoError(t, err) {
 		assert.Len(t, results, 2)
 		assert.Equal(t, "Monitor 1", results[0].Label)
@@ -115,6 +127,12 @@ func TestOneuptimeUsecase_MonitorGenerator_WithoutFilter(t *testing.T) {
 		assert.Equal(t, "Monitor 2", results[0].Label)
 		assert.Equal(t, "Monitor 1", results[1].Label)
 	}
+}
+
+func TestOneuptimeUsecase_ParseLabels(t *testing.T) {
+	assert.Nil(t, parseLabels(""))
+	assert.Nil(t, parseLabels(" , "))
+	assert.Equal(t, []string{"a", "b c"}, parseLabels(" a ,b c,"))
 }
 
 func TestOneuptimeUsecase_ParseMonitorStatus(t *testing.T) {
