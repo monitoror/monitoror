@@ -19,7 +19,7 @@
               As a starting point, save this in a <code>config.json</code> file next to <code>monitoror</code> binary:
             </p>
             <pre><code>{
-  "version": "2.2",
+  "version": "2.3",
   "columns": 2,
   "tiles": [
     { "type": "PORT", "label": "Welcome config example", "params": { "hostname": "127.0.0.1", "port": {{appPort}} } },

@@ -10,12 +10,13 @@ import (
 // ----------------------------------------------------------------
 // ---------------------- AVAILABLE VERSIONS ----------------------
 const (
-	CurrentVersion = Version2002
+	CurrentVersion = Version2003
 	MinimalVersion = Version2000
 
 	Version2000 RawVersion = "2.0" // Initial version
 	Version2001 RawVersion = "2.1" // Uptime
 	Version2002 RawVersion = "2.2" // Youtrack
+	Version2003 RawVersion = "2.3" // OneUptime
 )
 
 // ----------------------------------------------------------------

@@ -7,6 +7,7 @@ export enum TileIconId {
   Jenkins = 'jenkins',
   Ping = 'ping',
   Pingdom = 'pingdom',
+  Oneuptime = 'oneuptime',
   Uptimecom = 'uptimecom',
   Port = 'port',
   TravisCi = 'travis-ci',
