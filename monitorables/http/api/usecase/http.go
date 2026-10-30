@@ -19,11 +19,14 @@ import (
 	xml2json "github.com/basgys/goxml2json"
 	"github.com/ghodss/yaml"
 	"github.com/jsdidierlaurent/echo-middleware/cache"
+	uuid "github.com/satori/go.uuid"
 )
 
 type (
 	httpUsecase struct {
 		repository api.Repository
+		// Used to keep cache keys separate between variants
+		repositoryUID string
 
 		// store used for caching request on same url
 		store           cache.Store
@@ -37,7 +40,7 @@ var (
 )
 
 func NewHTTPUsecase(repository api.Repository, store cache.Store, cacheExpiration int) api.Usecase {
-	return &httpUsecase{repository, store, cacheExpiration}
+	return &httpUsecase{repository, uuid.NewV4().String(), store, cacheExpiration}
 }
 
 func (hu *httpUsecase) HTTPStatus(params *models.HTTPStatusParams) (*coreModels.Tile, error) {
@@ -145,7 +148,7 @@ func (hu *httpUsecase) get(url string) (*models.Response, error) {
 	response := &models.Response{}
 
 	// Lookup in cache
-	key := fmt.Sprintf("%s:%s", coreModels.UpstreamStoreKeyPrefix, url)
+	key := fmt.Sprintf("%s:%s-%s", coreModels.UpstreamStoreKeyPrefix, hu.repositoryUID, url)
 	if err := hu.store.Get(key, response); err == nil {
 		// Cache found, return
 		return response, nil

@@ -23,14 +23,11 @@ func HTTPErrorHandler(err error, ctx echo.Context) {
 		err = handleMonitororError(e, ctx)
 	default:
 		if he, ok := err.(*echo.HTTPError); ok {
-			if he.Code == http.StatusNotFound {
-				// 404
-				_ = ctx.JSON(he.Code, APIError{
-					Code:    he.Code,
-					Message: "Not Found",
-				})
-				return
-			}
+			_ = ctx.JSON(he.Code, APIError{
+				Code:    he.Code,
+				Message: http.StatusText(he.Code),
+			})
+			return
 		}
 	}
 

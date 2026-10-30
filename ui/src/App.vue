@@ -136,7 +136,7 @@ export default defineComponent({
       const loadingProgress = store.getters.loadingProgress
       const isOnline = store.state.online
 
-      return loadingProgress.value < 1 || !isOnline || hasErrors.value
+      return loadingProgress < 1 || !isOnline || hasErrors.value
     })
 
 
@@ -158,7 +158,7 @@ export default defineComponent({
         clearTimeout(shouldDisableTransitionsTimeout.value)
       }
       shouldDisableTransitions.value = true
-      shouldShowCursorTimeout.value = setTimeout(() => {
+      shouldDisableTransitionsTimeout.value = setTimeout(() => {
         shouldDisableTransitions.value = false
       }, SHOW_CURSOR_DELAY * 1000)
     }
@@ -196,6 +196,9 @@ export default defineComponent({
 
       if (shouldShowCursorTimeout.value !== undefined) {
         clearTimeout(shouldShowCursorTimeout.value)
+      }
+      if (shouldDisableTransitionsTimeout.value !== undefined) {
+        clearTimeout(shouldDisableTransitionsTimeout.value)
       }
       if (taskRunnerInterval.value !== undefined) {
         clearInterval(taskRunnerInterval.value)

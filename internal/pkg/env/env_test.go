@@ -49,6 +49,17 @@ func TestAnalyse_SimpleLabel(t *testing.T) {
 	assert.Equal(t, "test", os.Getenv("VALUE3_VARIANT1_TEST"))
 }
 
+func TestAnalyse_PrefixBoundary(t *testing.T) {
+	_ = os.Setenv("VALUE5DOM_TEST", "test")
+	_ = os.Setenv("VALUE5_VARIANT1_OTHERTEST", "test")
+	defaultVariant := string(models.DefaultVariantName)
+
+	variantNames := InitEnvDefaultLabel("VALUE5", "TEST", defaultVariant)
+
+	assert.Len(t, variantNames, 1)
+	assert.True(t, variantNames[defaultVariant])
+}
+
 func TestAddDefaultLabel_WithConflict(t *testing.T) {
 	_ = os.Setenv("VALUE4", "test")
 	_ = os.Setenv("VALUE4_DEFAULT", "test")

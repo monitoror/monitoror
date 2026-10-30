@@ -81,6 +81,7 @@ export default defineComponent({
         'c-monitoror-sub-tile__status-queued': isQueued.value,
         'c-monitoror-sub-tile__status-canceled': status.value === TileStatus.Canceled,
         'c-monitoror-sub-tile__status-action-required': status.value === TileStatus.ActionRequired,
+        'c-monitoror-sub-tile__status-disabled': status.value === TileStatus.Disabled,
       }
 
       return classes
@@ -146,7 +147,8 @@ export default defineComponent({
       --sub-tile-status-color: var(--color-warning);
     }
 
-    &__status-canceled {
+    &__status-canceled,
+    &__status-disabled {
       --sub-tile-status-color: var(--color-canceled);
     }
 

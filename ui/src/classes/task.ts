@@ -13,6 +13,7 @@ export default class Task {
   private dead: boolean = false
   private internalTime: number
   private failedAttemptsCount: number = 0
+  private lastRunFailed: boolean = false
   private readonly executor: () => Promise<void>
   private readonly onFailedCallback: (failedAttemptsCount: number) => void
 
@@ -64,7 +65,10 @@ export default class Task {
     this.running = true
     try {
       await this.executor()
+      this.lastRunFailed = false
+      this.failedAttemptsCount = 0
     } catch (e) {
+      this.lastRunFailed = true
       this.failedAttemptsCount += 1
       this.onFailedCallback(this.failedAttemptsCount)
     }
@@ -82,7 +86,7 @@ export default class Task {
     }
 
     let interval = this.interval
-    if (this.retryOnFailInterval > 0) {
+    if (this.lastRunFailed && this.retryOnFailInterval > 0) {
       interval = this.retryOnFailInterval
     }
 

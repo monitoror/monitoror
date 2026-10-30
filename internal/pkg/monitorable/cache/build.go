@@ -62,25 +62,26 @@ func (c *BuildCache) GetPreviousStatus(key interface{}, id string) *models.TileS
 
 func (c *BuildCache) Add(key interface{}, id string, s models.TileStatus, d time.Duration) {
 	k := fmt.Sprint(key)
-	// If cache is not found, create it
-	var builds []build
-	if tmp, ok := c.previousBuilds.Get(k); !ok {
-		c.previousBuilds.Set(k, builds)
-	} else {
-		builds = tmp.([]build)
-	}
 
-	// if id already exist, skip
-	for _, value := range builds {
-		if value.id == id {
-			return
+	// Upsert keeps the read-modify-write atomic and never exposes an empty slice to readers
+	c.previousBuilds.Upsert(k, nil, func(exist bool, valueInMap interface{}, _ interface{}) interface{} {
+		var builds []build
+		if exist {
+			builds = valueInMap.([]build)
 		}
-	}
 
-	// Remove old elements
-	if len(builds) == c.maxSize {
-		builds = builds[:len(builds)-1]
-	}
+		// if id already exist, skip
+		for _, value := range builds {
+			if value.id == id {
+				return builds
+			}
+		}
 
-	c.previousBuilds.Set(k, append([]build{{id, s, d}}, builds...))
+		// Remove old elements
+		if len(builds) == c.maxSize {
+			builds = builds[:len(builds)-1]
+		}
+
+		return append([]build{{id, s, d}}, builds...)
+	})
 }

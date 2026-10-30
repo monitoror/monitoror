@@ -7,6 +7,7 @@ export enum TileStatus {
   Canceled = 'CANCELED',
   Unknown = 'UNKNOWN',
   ActionRequired = 'ACTION_REQUIRED',
+  Disabled = 'DISABLED',
 }
 
 export default TileStatus

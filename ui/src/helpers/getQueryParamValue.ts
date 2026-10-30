@@ -10,6 +10,11 @@ export default function getQueryParamValue(
   })
   if (valueQueryParam) {
     value = valueQueryParam.substr(valueQueryParam.indexOf('=') + 1)
+    try {
+      value = decodeURIComponent(value.replace(/\+/g, ' '))
+    } catch (e) {
+      // Malformed encoding: keep the raw value
+    }
   }
 
   return value

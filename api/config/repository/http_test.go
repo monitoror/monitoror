@@ -30,3 +30,15 @@ func TestConfigRepository_GetConfigFromURL_Error(t *testing.T) {
 	_, err := repository.GetConfigFromURL("http://monitoror.example.com")
 	assert.Error(t, err)
 }
+
+func TestConfigRepository_GetConfigFromURL_StatusError(t *testing.T) {
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusForbidden)
+	}))
+	defer ts.Close()
+
+	_, err := NewConfigRepository().GetConfigFromURL(ts.URL)
+	if assert.Error(t, err) {
+		assert.Contains(t, err.(interface{ Unwrap() error }).Unwrap().Error(), "403")
+	}
+}
