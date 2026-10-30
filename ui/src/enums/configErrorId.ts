@@ -1,7 +1,7 @@
 export enum ConfigErrorId {
   CannotBeFetched = 'ERROR_CONFIG_CANNOT_BE_FETCHED',
   ConfigNotFound = 'ERROR_CONFIG_NOT_FOUND',
-  ConfigVersionTooOld = 'ERROR_FIELD_TYPE_MISMATCH',
+  DisabledVariant = 'ERROR_DISABLED_VARIANT',
   FieldTypeMismatch = 'ERROR_FIELD_TYPE_MISMATCH',
   InvalidEscapedCharacter = 'ERROR_INVALID_ESCAPED_CHARACTER',
   InvalidFieldValue = 'ERROR_INVALID_FIELD_VALUE',
@@ -13,9 +13,12 @@ export enum ConfigErrorId {
   UnableToParseConfig = 'ERROR_UNABLE_TO_PARSE_CONFIG',
   UnexpectedError = 'ERROR_UNEXPECTED',
   UnknownField = 'ERROR_UNKNOWN_FIELD',
+  UnknownGeneratorTileType = 'ERROR_UNKNOWN_GENERATOR_TILE_TYPE',
   UnknownNamedConfig = 'ERROR_UNKNOWN_NAMED_CONFIG',
   UnknownTileType = 'ERROR_UNKNOWN_TILE_TYPE',
   UnknownVariant = 'ERROR_UNKNOWN_VARIANT',
+  UnsupportedTileInThisVersion = 'ERROR_UNSUPPORTED_TILE_IN_THIS_VERSION',
+  UnsupportedTileParamInThisVersion = 'ERROR_UNSUPPORTED_TILE_PARAM_IN_THIS_VERSION',
   UnsupportedVersion = 'ERROR_UNSUPPORTED_VERSION',
 }
 
