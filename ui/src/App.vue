@@ -160,7 +160,7 @@ export default defineComponent({
       shouldDisableTransitions.value = true
       shouldDisableTransitionsTimeout.value = setTimeout(() => {
         shouldDisableTransitions.value = false
-      }, SHOW_CURSOR_DELAY * 1000)
+      }, 1000)
     }
 
     const dispatchUpdateNetworkState = () => {

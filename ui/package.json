@@ -44,5 +44,15 @@
     "not Explorer >6",
     "not OperaMini all"
   ],
+  "devEngines": {
+    "packageManager": {
+      "name": "npm",
+      "onFail": "download"
+    },
+    "runtime": {
+      "name": "node",
+      "onFail": "download"
+    }
+  },
   "license": "MIT"
 }
