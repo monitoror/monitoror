@@ -35,7 +35,7 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	pkgMonitorable.LoadConfig(&m.config, youtrackConfig.Default)
 
 	// Register Monitorable Tile in config manager
-	m.countIssuesTileEnabler = store.Registry.RegisterTile(api.YoutrackCountIssuesTileType, versions.Version2002, m.GetVariantsNames())
+	m.countIssuesTileEnabler = store.Registry.RegisterTile(api.YoutrackCountIssuesTileType, versions.Version2001, m.GetVariantsNames())
 
 	return m
 }
