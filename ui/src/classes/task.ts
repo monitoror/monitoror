@@ -64,6 +64,7 @@ export default class Task {
     this.running = true
     try {
       await this.executor()
+      this.failedAttemptsCount = 0
     } catch (e) {
       this.failedAttemptsCount += 1
       this.onFailedCallback(this.failedAttemptsCount)
@@ -82,7 +83,7 @@ export default class Task {
     }
 
     let interval = this.interval
-    if (this.retryOnFailInterval > 0) {
+    if (this.failedAttemptsCount > 0 && this.retryOnFailInterval > 0) {
       interval = this.retryOnFailInterval
     }
 

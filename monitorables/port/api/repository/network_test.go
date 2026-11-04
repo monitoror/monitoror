@@ -53,3 +53,14 @@ func TestRepository_OpenSocket_Failed(t *testing.T) {
 		mockDialer.AssertExpectations(t)
 	}
 }
+
+func TestRepository_OpenSocket_IPv6(t *testing.T) {
+	mockDialer := new(mocks.Dialer)
+	mockDialer.On("Dial", "tcp", "[::1]:1234").Return(nil, errors.New("refused"))
+
+	repository := initRepository(t, mockDialer)
+	if repository != nil {
+		assert.Error(t, repository.OpenSocket("::1", 1234))
+		mockDialer.AssertExpectations(t)
+	}
+}

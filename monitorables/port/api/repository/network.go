@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"fmt"
 	"net"
+	"strconv"
 	"time"
 
 	"github.com/monitoror/monitoror/monitorables/port/api"
@@ -23,7 +23,7 @@ func NewPortRepository(conf *config.Port) api.Repository {
 }
 
 func (r *portRepository) OpenSocket(hostname string, port int) (err error) {
-	target := fmt.Sprintf("%s:%d", hostname, port)
+	target := net.JoinHostPort(hostname, strconv.Itoa(port))
 
 	conn, err := r.dialer.Dial("tcp", target)
 	if err != nil {

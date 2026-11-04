@@ -14,7 +14,7 @@
     "string-similarity": "^4.0.1",
     "ts-md5": "^1.2.7",
     "vue": "^3.0.2",
-    "vuex": "^4.0.0-beta.4"
+    "vuex": "^4.0.2"
   },
   "devDependencies": {
     "@types/lodash-es": "^4.17.3",
@@ -44,5 +44,15 @@
     "not Explorer >6",
     "not OperaMini all"
   ],
+  "devEngines": {
+    "packageManager": {
+      "name": "npm",
+      "onFail": "download"
+    },
+    "runtime": {
+      "name": "node",
+      "onFail": "download"
+    }
+  },
   "license": "MIT"
 }
