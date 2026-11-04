@@ -6,6 +6,7 @@ import (
 	"github.com/monitoror/monitoror/monitorables/gitlab"
 	"github.com/monitoror/monitoror/monitorables/http"
 	"github.com/monitoror/monitoror/monitorables/jenkins"
+	"github.com/monitoror/monitoror/monitorables/oneuptime"
 	"github.com/monitoror/monitoror/monitorables/ping"
 	"github.com/monitoror/monitoror/monitorables/pingdom"
 	"github.com/monitoror/monitoror/monitorables/port"
@@ -38,4 +39,6 @@ func RegisterMonitorables(s *store.Store) {
 	s.Registry.RegisterMonitorable(uptimecom.NewMonitorable(s))
 	// ------------ YOUTRACK ------------
 	s.Registry.RegisterMonitorable(youtrack.NewMonitorable(s))
+	// ------------ ONEUPTIME ------------
+	s.Registry.RegisterMonitorable(oneuptime.NewMonitorable(s))
 }

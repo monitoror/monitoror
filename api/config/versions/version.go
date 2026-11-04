@@ -14,7 +14,7 @@ const (
 	MinimalVersion = Version2000
 
 	Version2000 RawVersion = "2.0" // Initial version
-	Version2001 RawVersion = "2.1" // Uptime, YouTrack
+	Version2001 RawVersion = "2.1" // Uptime, YouTrack, OneUptime
 )
 
 // ----------------------------------------------------------------

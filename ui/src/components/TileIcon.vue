@@ -66,6 +66,9 @@ export default defineComponent({
 
         case TileType.YoutrackIssues:
           return TileIconId.Youtrack
+
+        case TileType.OneuptimeMonitor:
+          return TileIconId.Oneuptime
       }
     })
 
