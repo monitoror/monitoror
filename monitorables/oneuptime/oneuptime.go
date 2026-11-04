@@ -35,8 +35,8 @@ func NewMonitorable(store *store.Store) *Monitorable {
 	pkgMonitorable.LoadConfig(&m.config, oneuptimeConfig.Default)
 
 	// Register Monitorable Tile in config manager
-	m.monitorTileEnabler = store.Registry.RegisterTile(api.OneuptimeMonitorTileType, versions.Version2003, m.GetVariantsNames())
-	m.monitorGeneratorEnabler = store.Registry.RegisterGenerator(api.OneuptimeMonitorTileType, versions.Version2003, m.GetVariantsNames())
+	m.monitorTileEnabler = store.Registry.RegisterTile(api.OneuptimeMonitorTileType, versions.Version2001, m.GetVariantsNames())
+	m.monitorGeneratorEnabler = store.Registry.RegisterGenerator(api.OneuptimeMonitorTileType, versions.Version2001, m.GetVariantsNames())
 
 	return m
 }
