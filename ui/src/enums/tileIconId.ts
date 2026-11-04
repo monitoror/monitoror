@@ -10,6 +10,7 @@ export enum TileIconId {
   Uptimecom = 'uptimecom',
   Port = 'port',
   TravisCi = 'travis-ci',
+  Youtrack = 'youtrack',
 }
 
 export default TileIconId

@@ -21,9 +21,10 @@ jobs:
     name: Core / Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/setup-go@v1
+      - uses: actions/setup-go@v5
         with:
-          go-version: 1.23
+          go-version: "1.23"
+          cache: false
         id: go
 
       - uses: actions/checkout@v1
@@ -56,7 +57,7 @@ jobs:
         with:
           node-version: 14.x
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v4
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
@@ -91,16 +92,17 @@ jobs:
         with:
           node-version: 14.x
 
-      - uses: actions/cache@v2
+      - uses: actions/cache@v4
         with:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
 
-      - uses: actions/setup-go@v1
+      - uses: actions/setup-go@v5
         with:
-          go-version: 1.23
+          go-version: "1.23"
+          cache: false
         id: go
 
       - uses: actions/checkout@v1

@@ -17,6 +17,7 @@ export enum TileType {
   AzureDevOpsBuild = 'AZUREDEVOPS-BUILD',
   AzureDevOpsRelease = 'AZUREDEVOPS-RELEASE',
   UptimecomCheck = 'UPTIMECOM-CHECK',
+  YoutrackIssues = 'YOUTRACK-COUNT-ISSUES',
 
   Empty = 'EMPTY',
   Group = 'GROUP',
