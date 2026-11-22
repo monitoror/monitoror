@@ -27,6 +27,11 @@ export default defineComponent({
         case TileType.AzureDevOpsRelease:
           return TileIconId.Azure
 
+        case TileType.GiteaChecks:
+        case TileType.GiteaPullRequest:
+        case TileType.GiteaCount:
+          return TileIconId.Gitea
+
         case TileType.GitHubChecks:
         case TileType.GitHubPullRequest:
         case TileType.GitHubCount:

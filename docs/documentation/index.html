@@ -83,6 +83,20 @@
             </ul>
           </li>
           <li>
+            <a href="#gitea">
+              <svg class="m-documentation--menu-icon" xmlns="http://www.w3.org/2000/svg">
+                <use xlink:href="/assets/images/icons.svg#gitea"/>
+              </svg>
+              Gitea
+            </a>
+            <ul>
+              <li><a href="#tile-gitea-count">GITEA-COUNT</a></li>
+              <li><a href="#tile-gitea-checks">GITEA-CHECKS</a></li>
+              <li><a href="#tile-gitea-pullrequest">GITEA-PULLREQUEST</a></li>
+              <li><a href="#tile-generate-gitea-pullrequest"><span class="tag-generate">GENERATE:</span>GITEA-PULLREQUEST</a></li>
+            </ul>
+          </li>
+          <li>
             <a href="#github">
               <svg class="m-documentation--menu-icon" xmlns="http://www.w3.org/2000/svg">
                 <use xlink:href="/assets/images/icons.svg#github"/>
@@ -302,6 +316,15 @@
 
             <svg class="m-documentation-card--icon" xmlns="http://www.w3.org/2000/svg">
               <use xlink:href="/assets/images/icons.svg#azure-devops"/>
+            </svg>
+          </span>
+        </a>
+        <a href="#gitea" class="m-documentation-card">
+          <span class="m-documentation-card--mask">
+            <span class="m-documentation-card--title">Gitea</span>
+
+            <svg class="m-documentation-card--icon" xmlns="http://www.w3.org/2000/svg">
+              <use xlink:href="/assets/images/icons.svg#gitea"/>
             </svg>
           </span>
         </a>
@@ -869,6 +892,349 @@ MO_MONITORABLE_AZUREDEVOPS_TIMEOUT=1000
             </label>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div class="m-documentation--block">
+      <svg class="m-documentation--tile-icon" xmlns="http://www.w3.org/2000/svg">
+        <use xlink:href="/assets/images/icons.svg#gitea"/>
+      </svg>
+
+      <h3 id="gitea">Gitea</h3>
+
+      <p>
+        Show branch or pull request commit status and display issues / pull requests counters
+        from a Gitea instance (gitea.com or self-hosted).
+      </p>
+
+      <h5 class="m-documentation--configuration-side-title">Core configuration</h5>
+
+      <dl>
+        <dt><code>MO_MONITORABLE_GITEA_URL</code> <code class="type">string</code></dt>
+        <dd>
+          Gitea instance base URL (without <code>/api/v1</code>) <br>
+          <span class="tag">Default:</span> <code>https://gitea.com/</code>
+        </dd>
+
+        <dt><code>MO_MONITORABLE_GITEA_TOKEN</code> <code class="type">string</code></dt>
+        <dd>
+          Access token (Settings &gt; Applications &gt; Generate New Token), with read access to
+          repositories and issues. <br>
+          Required for private repositories and when using the default URL. It can be omitted for
+          public repositories of a self-hosted instance that allows anonymous access.
+        </dd>
+
+        <dt><code>MO_MONITORABLE_GITEA_TIMEOUT</code> <code class="type">number</code></dt>
+        <dd>
+          Timeout in milliseconds before returning error <br>
+          <span class="tag">Default:</span> <code>5000</code>
+        </dd>
+
+        <dt><code>MO_MONITORABLE_GITEA_SSLVERIFY</code> <code class="type">boolean</code></dt>
+        <dd>
+          Verify the SSL certificate of the Gitea instance (set to <code>false</code> for self-signed certificates) <br>
+          <span class="tag">Default:</span> <code>true</code>
+        </dd>
+      </dl>
+
+      <p class="success-block">
+        <svg xmlns="http://www.w3.org/2000/svg">
+          <use xlink:href="/assets/images/icons.svg#configuration-variants"/>
+        </svg>
+        <a href="#configuration-variants">Configuration Variants</a> are available for Gitea
+      </p>
+
+      <pre class="example"><code>
+MO_MONITORABLE_GITEA_URL="https://gitea.example.com/"
+MO_MONITORABLE_GITEA_TOKEN="thisisyourtoken"
+MO_MONITORABLE_GITEA_TIMEOUT=5000
+MO_MONITORABLE_GITEA_SSLVERIFY=true
+      </code></pre>
+
+      <h4 id="tile-gitea-count">GITEA-COUNT</h4>
+
+      <p>
+        Show a counter of issues or pull requests of a repository.
+      </p>
+
+      <p class="note">
+        <span class="tag">Note</span>
+        Requires UI configuration <code>"version": "2.1"</code> or higher.
+      </p>
+
+      <h5 class="m-documentation--configuration-side-title">UI configuration</h5>
+
+      <dl>
+        <dt><code>owner</code> <code class="type">string</code> <span class="required">required</span></dt>
+        <dd>
+          Gitea organization or user (from URL)
+        </dd>
+
+        <dt><code>repository</code> <code class="type">string</code> <span class="required">required</span></dt>
+        <dd>
+          Gitea repository name (from URL)
+        </dd>
+
+        <dt><code>type</code> <code class="type">string</code></dt>
+        <dd>
+          What to count: <code>issues</code> or <code>pulls</code> <br>
+          <span class="tag">Default:</span> <code>issues</code>
+        </dd>
+
+        <dt><code>state</code> <code class="type">string</code></dt>
+        <dd>
+          <code>open</code>, <code>closed</code> or <code>all</code> <br>
+          <span class="tag">Default:</span> <code>open</code>
+        </dd>
+
+        <dt><code>labels</code> <code class="type">string</code></dt>
+        <dd>
+          Comma separated list of label names
+        </dd>
+
+        <dt><code>query</code> <code class="type">string</code></dt>
+        <dd>
+          Keyword search on title and content
+        </dd>
+      </dl>
+
+      <div class="m-documentation--example-and-demo">
+        <pre class="example"><code class="language-json">
+{
+  "type": "GITEA-COUNT",
+  "label": "Open bugs",
+  "params": {
+    "owner": "gitea",
+    "repository": "tea",
+    "labels": "kind/bug"
+  }
+}
+        </code></pre>
+
+        <div class="m-documentation--demo">
+          <div class="m-documentation--demo-tile">
+            <div class="m-documentation--demo-label">Open bugs</div>
+            <svg class="m-documentation--demo-icon" style="transform: translateY(2px)"
+                 xmlns="http://www.w3.org/2000/svg">
+              <use xlink:href="/assets/images/icons.svg#gitea"/>
+            </svg>
+            <div class="m-documentation--demo-value">
+              18
+            </div>
+          </div>
+          <div class="m-documentation--demo-switch">
+            <label class="m-documentation--demo-switch-label m-documentation--demo-switch-succeeded">
+              <input data-state-switch name="gitea-count-state" type="radio" value="success">
+              Success
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <h4 id="tile-gitea-checks">GITEA-CHECKS</h4>
+
+      <p>
+        Show the commit status (Gitea Actions, Drone, Woodpecker, ...) for a given git reference.
+      </p>
+
+      <p class="note">
+        <span class="tag">Note</span>
+        Requires UI configuration <code>"version": "2.1"</code> or higher.
+      </p>
+
+      <h5 class="m-documentation--configuration-side-title">UI configuration</h5>
+
+      <dl>
+        <dt><code>owner</code> <code class="type">string</code> <span class="required">required</span></dt>
+        <dd>
+          Gitea organization or user (from URL)
+        </dd>
+
+        <dt><code>repository</code> <code class="type">string</code> <span class="required">required</span></dt>
+        <dd>
+          Gitea repository name (from URL)
+        </dd>
+
+        <dt><code>ref</code> <code class="type">string</code> <span class="required">required</span></dt>
+        <dd>
+          A git reference, commonly a branch name <br>
+        </dd>
+      </dl>
+
+      <div class="m-documentation--example-and-demo">
+        <pre class="example"><code class="language-json">
+{
+  "type": "GITEA-CHECKS",
+  "params": {
+    "owner": "gitea",
+    "repository": "tea",
+    "ref": "main"
+  }
+}
+        </code></pre>
+
+        <div class="m-documentation--demo">
+          <div class="m-documentation--demo-tile">
+            <div class="m-documentation--demo-label">tea @ main</div>
+            <svg class="m-documentation--demo-icon" style="transform: translateY(2px)"
+                 xmlns="http://www.w3.org/2000/svg">
+              <use xlink:href="/assets/images/icons.svg#gitea"/>
+            </svg>
+            <div class="m-documentation--demo-message" data-status-running>
+              0:42
+            </div>
+            <div class="m-documentation--demo-message" data-status-warning>
+              5 minutes ago
+            </div>
+            <div class="m-documentation--demo-message" data-status-error>
+              5 minutes ago
+            </div>
+            <div class="m-documentation--demo-author" data-status-error>
+              <img alt="" class="m-documentation--demo-author-avatar" src="/assets/images/avatar.png">
+              John Doe
+            </div>
+            <div class="m-documentation--demo-progress" data-status-running>
+              <div class="m-documentation--demo-progress-bar"></div>
+            </div>
+          </div>
+          <div class="m-documentation--demo-switch">
+            <label class="m-documentation--demo-switch-label m-documentation--demo-switch-running">
+              <input data-state-switch name="gitea-checks-state" type="radio" value="running">
+              Running
+            </label>
+            <label class="m-documentation--demo-switch-label m-documentation--demo-switch-warning">
+              <input data-state-switch name="gitea-checks-state" type="radio" value="warning">
+              Warning
+            </label>
+            <label class="m-documentation--demo-switch-label m-documentation--demo-switch-error">
+              <input data-state-switch name="gitea-checks-state" type="radio" value="error">
+              Error
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <h4 id="tile-gitea-pullrequest">GITEA-PULLREQUEST</h4>
+
+      <p>
+        Show the commit status for a given pull request.
+      </p>
+
+      <p class="note">
+        <span class="tag">Note</span>
+        Requires UI configuration <code>"version": "2.1"</code> or higher.
+      </p>
+
+      <h5 class="m-documentation--configuration-side-title">UI configuration</h5>
+
+      <dl>
+        <dt><code>owner</code> <code class="type">string</code> <span class="required">required</span></dt>
+        <dd>
+          Gitea organization or user (from URL)
+        </dd>
+
+        <dt><code>repository</code> <code class="type">string</code> <span class="required">required</span></dt>
+        <dd>
+          Gitea repository name (from URL)
+        </dd>
+
+        <dt><code>id</code> <code class="type">number</code> <span class="required">required</span></dt>
+        <dd>
+          Gitea pull request number <br>
+        </dd>
+      </dl>
+
+      <div class="m-documentation--example-and-demo">
+        <pre class="example"><code class="language-json">
+{
+  "type": "GITEA-PULLREQUEST",
+  "params": {
+    "owner": "gitea",
+    "repository": "tea",
+    "id": 10
+  }
+}
+        </code></pre>
+
+        <div class="m-documentation--demo">
+          <div class="m-documentation--demo-tile">
+            <div class="m-documentation--demo-label">PR#10 @ tea</div>
+            <svg class="m-documentation--demo-icon" style="transform: translateY(2px)"
+                 xmlns="http://www.w3.org/2000/svg">
+              <use xlink:href="/assets/images/icons.svg#gitea"/>
+            </svg>
+            <div class="m-documentation--demo-message" data-status-running>
+              0:42
+            </div>
+            <div class="m-documentation--demo-message" data-status-warning>
+              5 minutes ago
+            </div>
+            <div class="m-documentation--demo-message" data-status-error>
+              5 minutes ago
+            </div>
+            <div class="m-documentation--demo-author" data-status-error>
+              <img alt="" class="m-documentation--demo-author-avatar" src="/assets/images/avatar.png">
+              John Doe
+            </div>
+            <div class="m-documentation--demo-progress" data-status-running>
+              <div class="m-documentation--demo-progress-bar"></div>
+            </div>
+          </div>
+          <div class="m-documentation--demo-switch">
+            <label class="m-documentation--demo-switch-label m-documentation--demo-switch-running">
+              <input data-state-switch name="gitea-pullrequest-state" type="radio" value="running">
+              Running
+            </label>
+            <label class="m-documentation--demo-switch-label m-documentation--demo-switch-warning">
+              <input data-state-switch name="gitea-pullrequest-state" type="radio" value="warning">
+              Warning
+            </label>
+            <label class="m-documentation--demo-switch-label m-documentation--demo-switch-error">
+              <input data-state-switch name="gitea-pullrequest-state" type="radio" value="error">
+              Error
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <h4 id="tile-generate-gitea-pullrequest">GENERATE:<wbr>GITEA-PULLREQUEST</h4>
+
+      <p>
+        Show each open pull request status.
+      </p>
+
+      <p class="note">
+        <span class="tag">Note</span>
+        This tile is a generator tile that will be replaced by N classic
+        <code><a href="#tile-gitea-pullrequest">GITEA-PULLREQUEST</a></code> tiles. <br>
+        N being the number of open pull requests.
+        Requires UI configuration <code>"version": "2.1"</code> or higher.
+      </p>
+
+      <h5 class="m-documentation--configuration-side-title">UI configuration</h5>
+
+      <dl>
+        <dt><code>owner</code> <code class="type">string</code> <span class="required">required</span></dt>
+        <dd>
+          Gitea organization or user (from URL)
+        </dd>
+
+        <dt><code>repository</code> <code class="type">string</code> <span class="required">required</span></dt>
+        <dd>
+          Gitea repository name (from URL)
+        </dd>
+      </dl>
+
+      <div class="m-documentation--example">
+        <pre class="example"><code class="language-json">
+{
+  "type": "GENERATE:GITEA-PULLREQUEST",
+  "params": {
+    "owner": "gitea",
+    "repository": "tea"
+  }
+}
+        </code></pre>
       </div>
     </div>
 
