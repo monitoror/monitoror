@@ -21,7 +21,7 @@ export default function useTileBuild(type: ComputedRef<TileType>, status: Comput
     }
 
     let mergeRequestPrefix = 'MR'
-    if (type.value === TileType.GitHubPullRequest) {
+    if (type.value === TileType.GitHubPullRequest || type.value === TileType.GiteaPullRequest) {
       mergeRequestPrefix = 'PR'
     }
 

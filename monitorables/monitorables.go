@@ -2,6 +2,7 @@ package monitorables
 
 import (
 	"github.com/monitoror/monitoror/monitorables/azuredevops"
+	"github.com/monitoror/monitoror/monitorables/gitea"
 	"github.com/monitoror/monitoror/monitorables/github"
 	"github.com/monitoror/monitoror/monitorables/gitlab"
 	"github.com/monitoror/monitoror/monitorables/http"
@@ -19,6 +20,8 @@ import (
 func RegisterMonitorables(s *store.Store) {
 	// ------------ AZURE DEVOPS ------------
 	s.Registry.RegisterMonitorable(azuredevops.NewMonitorable(s))
+	// ------------ GITEA ------------
+	s.Registry.RegisterMonitorable(gitea.NewMonitorable(s))
 	// ------------ GITHUB ------------
 	s.Registry.RegisterMonitorable(github.NewMonitorable(s))
 	// ------------ GITLAB ------------

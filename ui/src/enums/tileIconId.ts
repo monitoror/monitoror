@@ -1,5 +1,6 @@
 export enum TileIconId {
   Azure = 'azure',
+  Gitea = 'gitea',
   GitHub = 'github',
   GitLab = 'gitlab',
   Group = 'group',
